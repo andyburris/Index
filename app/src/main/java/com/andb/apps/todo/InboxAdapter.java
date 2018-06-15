@@ -19,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder> {
@@ -225,6 +224,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             }
 
             final int adapterPosition = holder.getAdapterPosition();
+            Log.d("adapterPosition", Integer.toString(adapterPosition));
 
             holder.clearList.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -238,6 +238,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                         taskList.remove(adapterPosition);
                         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
                         notifyItemRemoved(adapterPosition);
+                        notifyItemRangeChanged(adapterPosition, getItemCount());
                     }
 
 
@@ -247,22 +248,13 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                 holder.clearList.setColorFilter(Color.WHITE);
 
 
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
 
-
-                    Log.d("longclicked", "long clicked");
-
-
-                    return false;
-                }
-            });
 
 
             setTasks(realPosition, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
             setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.moreTags, holder.tagEncloser);
         } else {
+            Log.d("adapterPosition", Integer.toString(realPosition));
 
             if (realPosition == 0) {
                 final float scale = Resources.getSystem().getDisplayMetrics().density;
@@ -301,6 +293,9 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         Log.d("removing", "Clicked: " + taskList.get(position).getListName() + "\n");
         //Log.d("removing", "Below: " + taskList.get(belowDividerPosition).getListName() + "\n");
 
+        Tasks tasks = taskList.get(position);
+
+
 
         if (taskList.get(dividerPosition).getListName().equals("OVERDUE")
                 | taskList.get(dividerPosition).getListName().equals("TODAY")
@@ -320,11 +315,11 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                 taskList.remove(dividerPosition);
 
                 notifyItemRemoved(dividerPosition);
-                BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
+                notifyItemRangeChanged(dividerPosition, getItemCount());
                 Log.d("Tasklist", Integer.toString(position));
-                /*for(int i = 0; i<taskList.size(); i++) {
+                for (int i = 0; i < taskList.size(); i++) {
                     Log.d("Tasklist", taskList.get(i).getListName());
-                }*/
+                }
 
             } else if (taskList.get(belowDividerPosition).getListName().equals("OVERDUE")
                     | taskList.get(belowDividerPosition).getListName().equals("TODAY")
@@ -339,11 +334,11 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                 taskList.remove(dividerPosition);
                 notifyItemRemoved(position);
                 notifyItemRemoved(dividerPosition);
-                BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
+                notifyItemRangeChanged(dividerPosition, getItemCount());
                 Log.d("Tasklist", Integer.toString(position));
-                /*for(int i = 0; i<taskList.size(); i++) {
+                for (int i = 0; i < taskList.size(); i++) {
                     Log.d("Tasklist", taskList.get(i).getListName());
-                }*/
+                }
                 if (dividerPosition == 0) {
                     notifyItemChanged(0); //updates top divider if necessary to redo padding
                 }
@@ -352,7 +347,10 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                 ArchiveTaskList.addTaskList(taskList.get(position));
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
-                BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
+                notifyItemRangeChanged(position, getItemCount());
+                for (int i = 0; i < taskList.size(); i++) {
+                    Log.d("Tasklist", taskList.get(i).getListName());
+                }
                 notifyItemRemoved(position);
             }
 
@@ -362,13 +360,19 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             TaskList.taskList.remove(taskList.get(position));
             taskList.remove(position);
             notifyItemRemoved(position);
-            BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
+            notifyItemRangeChanged(position, getItemCount());
             Log.d("Tasklist", Integer.toString(position));
-            /*for(int i = 0; i<taskList.size(); i++) {
+            for (int i = 0; i < taskList.size(); i++) {
                 Log.d("Tasklist", taskList.get(i).getListName());
-            }*/
+            }
 
         }
+
+        if (BrowseFragment.filteredTaskList.contains(tasks)) {
+            BrowseFragment.filteredTaskList.remove(tasks);
+        }
+
+        BrowseFragment.mAdapter.notifyDataSetChanged();
 
 
     }

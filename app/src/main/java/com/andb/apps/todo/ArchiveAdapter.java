@@ -47,6 +47,8 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         public ImageView moreTags;
         public ConstraintLayout timeLayout;
         public TextView timeText;
+        public ImageView timeIcon;
+
 
         public View divider1;
         public View divider2;
@@ -73,6 +75,8 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
             timeText = (TextView) view.findViewById(R.id.dateTimeInboxText);
+            timeIcon = (ImageView) view.findViewById(R.id.timeIcon);
+
 
             encloser = (LinearLayout) view.findViewById(R.id.checklistEncloser);
             tagEncloser = (LinearLayout) view.findViewById(R.id.tagOnTaskLayout);
@@ -154,6 +158,10 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
 
         if (taskList.get(position).isListTime()) {
             holder.timeText.setText(taskList.get(position).getDateTime().toString("MM/dd/yy"));
+            holder.timeText.setText(taskList.get(position).getDateTime().toString("EEEE, MMMM d"));
+            if (SettingsActivity.darkTheme) {
+                holder.timeIcon.setColorFilter(Color.WHITE);
+            }
         } else {
             holder.divider2.setVisibility(View.GONE);
             holder.timeLayout.setVisibility(View.GONE);
@@ -199,8 +207,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
     }
 
 
-
-    public void setTasks(final int pos, ConstraintLayout box1, ConstraintLayout box2, ConstraintLayout box3, ImageView more, LinearLayout layout) {
+    private void setTasks(final int pos, ConstraintLayout box1, ConstraintLayout box2, ConstraintLayout box3, ImageView more, LinearLayout layout) {
         final CheckBox check1 = (CheckBox) box1.findViewById(R.id.listTextView);
         final CheckBox check2 = (CheckBox) box2.findViewById(R.id.listTextView);
         final CheckBox check3 = (CheckBox) box3.findViewById(R.id.listTextView);
@@ -414,7 +421,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         }
     }
 
-    public void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ImageView moreTags, LinearLayout layout) {
+    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ImageView moreTags, LinearLayout layout) {
         ImageView image1 = (ImageView) tag1.findViewById(R.id.tagImage);
         ImageView image2 = (ImageView) tag2.findViewById(R.id.tagImage);
         ImageView image3 = (ImageView) tag3.findViewById(R.id.tagImage);
