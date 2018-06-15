@@ -1,0 +1,483 @@
+package com.andb.apps.todo;
+
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.ActionMenuItemView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ActionMenuView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+
+
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
+    /**
+     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * fragments for each of the sections. We use a
+     * {@link FragmentPagerAdapter} derivative, which will keep every
+     * loaded fragment in memory. If this becomes too memory intensive, it
+     * may be best to switch to a
+     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     */
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+
+    /**
+     * The {@link ViewPager} that will host the section contents.
+     */
+    private ViewPager mViewPager;
+
+    private TabLayout tabLayout;
+
+    public static Toolbar subTitle;
+
+    public static boolean fabOpen; //for InboxFragment to tell if fabs are visible
+
+    public static String nameFromSettings; //name in drawer
+    public static boolean fromSettings; //check if from settings
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        loadSettings();
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        subTitle = toolbar;
+        subTitle.setSubtitle(Filters.subtitle);
+        setSupportActionBar(toolbar);
+        pagerInitialize();
+        if(SettingsActivity.darkTheme) {
+            darkThemeSet(toolbar);
+
+        }
+
+        fromSettings = false;
+
+
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_theme, false);
+
+
+        loadTasks();
+
+
+        loadTags();
+
+        loadTagLinks();
+
+        loadArchiveTasks();
+
+        fabInitialize();
+
+
+        drawerInitialize(toolbar);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(fromSettings)
+        settingsReturn();
+    }
+
+    public void darkThemeSet(Toolbar toolbar){
+        toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+
+        tabLayout.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
+        tabLayout.setTabTextColors(Color.parseColor("#ff888888"), Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(0);
+
+        toolbar.setSubtitleTextColor(Color.WHITE);
+    }
+
+    public void settingsReturn(){
+        fabInitialize();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        View headerView = navigationView.getHeaderView(0);
+        LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
+        headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
+
+        Log.d("pref_resume", Boolean.toString(fromSettings));
+        if (fromSettings) {
+            TextView navName = findViewById(R.id.navName);
+            setName(navName, false);
+
+            InboxFragment.mAdapter.notifyDataSetChanged();
+            BrowseFragment.mAdapter.notifyDataSetChanged();
+
+            Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
+
+
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
+            Filters.tagBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        Log.d("darkTheme", "Menu Size: " + menu.size());
+
+        if(SettingsActivity.darkTheme) {
+            for (int i = 0; i < menu.size() - 1; i++) {
+                Log.d("darkTheme", "Icon " + Integer.toString(i));
+                menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_settings:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                return true;
+
+            case R.id.app_bar_filter:
+                PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.app_bar_filter));
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int id = item.getItemId();
+                        Log.d("filterclicked", Integer.toString(id));
+                        switch (id) {
+                            case R.id.sortDate:
+                                InboxFragment.setFilterMode(0);
+                                InboxFragment.mAdapter.notifyDataSetChanged();
+                                break;
+                            case R.id.sortAlpha:
+                                InboxFragment.setFilterMode(1);
+                                InboxFragment.mAdapter.notifyDataSetChanged();
+                                break;
+
+                        }
+                        return true;
+                    }
+                });
+
+                MenuInflater inflater = popupMenu.getMenuInflater();
+                inflater.inflate(R.menu.filter_menu, popupMenu.getMenu());
+                popupMenu.show();
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_home) {
+            // Handle the camera action
+        } else if (id == R.id.nav_archive) {
+            startActivity(new Intent(this, Archive.class));
+        } else if (id == R.id.nav_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+
+        } else if (id == R.id.nav_test) {
+            startActivity(new Intent(this, TabExample.class));
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return InboxFragment.newInstance();
+
+                case 1:
+                    return BrowseFragment.newInstance();
+                default:
+                    return null;
+            }
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+
+        }
+
+        @Override
+        public int getCount() {
+            // Show 2 total pages.
+            return 2;
+        }
+    }
+
+
+    public void loadSettings() {
+        SettingsActivity.themeColor = PreferenceManager.getDefaultSharedPreferences(this).getInt("default_color", 0);
+
+
+        SettingsActivity.folderMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("folder_mode", false);
+        SettingsActivity.darkTheme = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false);
+        Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
+        if(SettingsActivity.darkTheme) {
+            this.setTheme(R.style.AppThemeDarkMain);
+        }else {
+            this.setTheme(R.style.AppThemeLightMain);
+        }
+
+        SettingsActivity.defaultSort = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("sort_mode_list", "0"));
+        InboxFragment.filterMode = SettingsActivity.defaultSort;
+    }
+
+    public void loadTags() {
+        TagList.loadTags(this);
+
+        if (TagList.tagList == null) {
+            TagList.tagList = TagSelect.blankTagList;
+            TagList.saveTags(this);
+            TagList.loadTags(this);
+        }
+    }
+
+    public void loadTagLinks() {
+        TagLinkList.loadTags(this);
+
+        if (TagLinkList.linkList == null) {
+            TagLinkList.linkList = BrowseFragment.blankTagLinkList;
+            TagList.saveTags(this);
+            TagList.loadTags(this);
+        }
+
+
+    }
+
+    public void loadTasks() {
+        TaskList.loadTasks(this);
+
+        if (TaskList.taskList == null) {
+            TaskList.taskList = InboxFragment.blankTaskList;
+            TaskList.saveTasks(this);
+            TaskList.loadTasks(this);
+        }
+
+        //InboxFragment.setFilterMode(InboxFragment.filterMode);
+        InboxFragment.filteredTaskList.clear();
+        InboxFragment.filteredTaskList.addAll(TaskList.taskList);
+    }
+
+    public void loadArchiveTasks() {
+        ArchiveTaskList.loadTasks(this);
+
+        if (ArchiveTaskList.taskList == null) {
+            ArchiveTaskList.taskList = ArchiveFragment.blankTaskList;
+            ArchiveTaskList.saveTasks(this);
+            ArchiveTaskList.loadTasks(this);
+        }
+    }
+
+
+    public void pagerInitialize() {
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        mViewPager = (ViewPager) findViewById(R.id.container);
+    }
+
+
+    public void fabInitialize() {
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
+
+        Log.d("prefLoad", Integer.toHexString(SettingsActivity.themeColor));
+
+
+        final FloatingActionButton fab_main = (FloatingActionButton) findViewById(R.id.fab_main);
+
+        fab_main.setBackgroundTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
+
+        final FloatingActionButton fab_list = (FloatingActionButton) findViewById(R.id.fab_list);
+        fab_list.setBackgroundTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
+        final FloatingActionButton fab_tag = (FloatingActionButton) findViewById(R.id.fab_tag);
+        fab_tag.setBackgroundTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
+
+        fab_main.setOnClickListener(new View.OnClickListener() {
+
+            float StartRotate = 0;
+            float EndRotate = 0;
+
+            ViewGroup fab_layout = (ViewGroup) findViewById(R.id.fab_layout);
+
+
+            @Override
+            public void onClick(View view) {
+                if (fab_list.getVisibility() == View.VISIBLE) {
+                    Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sd_fade_and_translate_out);
+                    Animation animation2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sd_scale_fade_and_translate_out);
+                    fab_list.setVisibility(View.GONE);
+                    fab_tag.setVisibility(View.GONE);
+                    fab_main.animate().rotation(0).setDuration(200);
+                    fab_list.startAnimation(animation);
+                    fab_list.startAnimation(animation2);
+                    fab_tag.startAnimation(animation);
+                    fab_tag.startAnimation(animation2);
+                    fabOpen = false;
+
+
+                } else {
+                    Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sd_fade_and_translate_in);
+                    Animation animation2 = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sd_scale_fade_and_translate_in);
+                    fab_list.setVisibility(View.VISIBLE);
+                    fab_tag.setVisibility(View.VISIBLE);
+                    fab_main.animate().rotation(45).setDuration(200);
+                    fab_list.startAnimation(animation);
+                    fab_list.startAnimation(animation2);
+                    fab_tag.startAnimation(animation);
+                    fab_tag.startAnimation(animation2);
+                    fabOpen = true;
+
+
+                }
+
+            }
+        });
+
+
+        fab_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(MainActivity.this, AddTask.class);
+                intent.putExtra("edit", false);
+                startActivity(intent);
+
+            }
+        });
+        fab_tag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, TagSelect.class);
+                intent.putExtra("isTagLink", true);
+                startActivity(intent);
+
+
+            }
+        });
+    }
+
+
+    public void drawerInitialize(Toolbar toolbar) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        if(SettingsActivity.darkTheme) {
+            toggle.getDrawerArrowDrawable().setColor(Color.WHITE);
+        }
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+        LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
+        headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
+        TextView navName = headerView.findViewById(R.id.navName);
+        setName(navName, true);
+
+    }
+
+
+    public void setName(TextView navName, boolean start) {
+
+        if (start) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            nameFromSettings = prefs.getString("test_name", "");
+            Log.d("prefLoadName", nameFromSettings);
+        }
+
+
+        navName.setText(nameFromSettings);
+
+        fromSettings = false;
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        TaskList.saveTasks(this);
+        ArchiveTaskList.saveTasks(this);
+    }
+
+
+}

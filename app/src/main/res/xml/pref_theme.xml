@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- A 'parent' preference, which enables/disables child preferences (below)
+         when checked/unchecked. -->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="dark_theme"
+        android:title="@string/pref_title_dark_theme" />
+
+    <PreferenceCategory>
+
+        <com.jaredrummler.android.colorpicker.ColorPreference
+            android:defaultValue="@color/colorAccent"
+            android:key="default_color"
+            android:summary="@string/color_default_summary"
+            android:title="@string/color_default_title"/>
+
+        ...
+
+    </PreferenceCategory>
+
+    <Preference
+        android:title="Icon Demo"
+        android:key="iconDemo"
+        android:layout="@layout/icon_theme_demo" />
+
+
+</PreferenceScreen>

@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppThemeLight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
+        <item name="android:statusBarColor">@color/statusBarTransparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
+    </style>
+    <style name="AppThemeDark.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
+        <item name="android:statusBarColor">@color/statusBarTransparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
+    </style>
+</resources>

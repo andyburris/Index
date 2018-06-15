@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <Switch
+        android:defaultValue="true"
+        android:key="dark_theme"
+        android:title="@string/pref_title_dark_theme" />
+
+    <PreferenceCategory>
+
+        <com.jaredrummler.android.colorpicker.ColorPreference
+            android:defaultValue="@color/colorAccent"
+            android:key="default_color"
+            android:summary="@string/color_default_summary"
+            android:title="@string/color_default_title"/>
+
+        ...
+
+    </PreferenceCategory>
+
+    <include layout="@layout/icon_theme_demo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</android.support.constraint.ConstraintLayout>

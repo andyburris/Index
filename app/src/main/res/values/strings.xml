@@ -1,0 +1,113 @@
+<resources>
+    <string name="app_name">ToDo</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Jonathan Doe</string>
+    <string name="nav_header_subtitle">john.doe@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="tab_1">Inbox</string>
+    <string name="tab_2">Browse</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_filter_folder">Folder Mode</string>
+    <string name="pref_key_filter_folder">folder_mode</string>
+    <string name="pref_description_filter_folder">Filter: Show all tasks matching selected tags \nFolder: Don\'t show any under one of the linked tags
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_sort_mode">Sort Mode</string>
+    <string-array name="pref_example_list_titles">
+        <item>Date</item>
+        <item>Alphabetical</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+
+
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string-array name="list_preference_entries">
+        <item>Entry 1</item>
+        <item>Entry 2</item>
+        <item>Entry 3</item>
+    </string-array>
+
+    <string-array name="list_preference_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="multi_select_list_preference_default_value" />
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_theme">Theme</string>
+
+    <string name="pref_title_dark_theme">Dark Theme</string>
+
+
+
+    <!-- Tab Example strings-->
+    <string name="title_activity_tab_example">TabExample</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+
+    <!--Inbox/Browse Fragment tests-->
+    <string name="inboxtest">Inbox</string>
+    <string name="browsetest">Browse</string>
+
+    <!--Activity toolbar titles-->
+    <string name="title_activity_add_list">Add Task</string>
+    <string name="title_activity_tag_select">Select Tag</string>
+    <string name="title_activity_create_tag">Add Tag</string>
+    <string name="title_activity_task_view">TaskView</string><!--not needed, sets dynamically based
+    on task title-->
+
+
+    <string name="title_activity_archive">Archive</string>
+
+    <!--Color picker text-->
+    <string name="color_default_summary">Pick a Color</string>
+    <string name="color_default_title">Theme Color</string>
+
+    <string name="navSavedName">test_name</string>
+    <string name="browse_tag_card_header_text">Tags</string>
+
+
+</resources>

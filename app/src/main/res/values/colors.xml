@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#f5f5f5</color>
+    <color name="colorPrimaryDark">#e0e0e0</color>
+    <color name="colorAccent">#00897b</color>
+    <color name="tabSelectedTextColor">#000000</color>
+    <color name="tabUnselectedTextColor">#99000000</color>
+    <color name="statusBarTransparent">#00FFFFFF</color>
+
+    <color name="colorDarkPrimary">#1f1f1f</color>
+    <color name="colorDarkPrimaryDark">#141414</color>
+
+</resources>
