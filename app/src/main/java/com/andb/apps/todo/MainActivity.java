@@ -4,14 +4,11 @@ package com.andb.apps.todo;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -23,7 +20,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -31,10 +27,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ActionMenuView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -66,6 +62,9 @@ public class MainActivity extends AppCompatActivity
     public static String nameFromSettings; //name in drawer
     public static boolean fromSettings; //check if from settings
 
+    public static boolean lightText;
+    public static ActionBarDrawerToggle drawerToggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,12 +75,11 @@ public class MainActivity extends AppCompatActivity
         subTitle.setSubtitle(Filters.subtitle);
         setSupportActionBar(toolbar);
         pagerInitialize();
-        if(SettingsActivity.darkTheme) {
-            darkThemeSet(toolbar);
-
-        }
-
         fromSettings = false;
+        themeSet(toolbar);
+
+
+
 
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
@@ -108,23 +106,108 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if(fromSettings)
-        settingsReturn();
+        if (fromSettings)
+            settingsReturn();
+
     }
 
-    public void darkThemeSet(Toolbar toolbar){
-        toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
-        toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+    @ColorInt
+    int statusBarColor(@ColorInt int color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[2] *= 0.8f;
+        int tempColor = Color.HSVToColor(hsv);
 
-        tabLayout.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
-        tabLayout.setTabTextColors(Color.parseColor("#ff888888"), Color.WHITE);
-        getWindow().getDecorView().setSystemUiVisibility(0);
-
-        toolbar.setSubtitleTextColor(Color.WHITE);
+        return tempColor;
     }
 
-    public void settingsReturn(){
+    public void themeSet(Toolbar toolbar) {
+        if (SettingsActivity.coloredToolbar) {//colored toolbar theming
+            toolbar.setBackgroundColor(SettingsActivity.themeColor);
+
+            int statusBarColor = statusBarColor(SettingsActivity.themeColor);
+
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+            window.setStatusBarColor(statusBarColor);
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+
+            int color = (int) Long.parseLong(Integer.toHexString(SettingsActivity.themeColor), 16);
+            int r = (color >> 16) & 0xFF;
+            int g = (color >> 8) & 0xFF;
+            int b = (color >> 0) & 0xFF;
+
+            int textColor;
+
+            if ((r * 0.299 + g * 0.587 + b * 0.114) > 186) {
+                lightText = false;
+                textColor = 0xFF000000;
+                tabLayout.setTabTextColors(0x99000000, textColor);
+                tabLayout.setSelectedTabIndicatorColor(textColor);
+
+            } else {
+                lightText = true;
+                textColor = 0xFFFFFFFF;
+                tabLayout.setTabTextColors(0x99FFFFFF, textColor);
+                tabLayout.setSelectedTabIndicatorColor(textColor);
+
+
+            }
+
+
+            toolbar.setTitleTextColor(textColor);
+            toolbar.getOverflowIcon().setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
+
+            tabLayout.setBackgroundColor(SettingsActivity.themeColor);
+            getWindow().getDecorView().setSystemUiVisibility(0);
+
+            toolbar.setSubtitleTextColor(textColor);
+
+            Log.d("pref_resume", Boolean.toString(fromSettings));
+            if (fromSettings) {
+                Menu menu = toolbar.getMenu();
+                if (lightText) {
+                    for (int i = 0; i < menu.size() - 1; i++) {
+                        Log.d("darkTheme", "Icon " + Integer.toString(i));
+                        menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+                    }
+                    drawerToggle.getDrawerArrowDrawable().setColor(Color.WHITE);
+
+                } else {
+                    drawerToggle.getDrawerArrowDrawable().setColor(Color.BLACK);
+                    for (int i = 0; i < menu.size() - 1; i++) {
+                        Log.d("darkTheme", "Icon " + Integer.toString(i));
+                        menu.getItem(i).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
+                    }
+                }
+
+
+            }
+
+        } else if (SettingsActivity.darkTheme) {//dark theme setting
+            tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
+
+            lightText = true;
+            toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
+            toolbar.setTitleTextColor(Color.WHITE);
+            toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+
+            tabLayout.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
+            tabLayout.setTabTextColors(0x99FFFFFF, Color.WHITE);
+            getWindow().getDecorView().setSystemUiVisibility(0);
+
+            toolbar.setSubtitleTextColor(Color.WHITE);
+
+
+        } else {//general accent settings
+            tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
+
+        }
+    }
+
+    public void settingsReturn() {
         fabInitialize();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -134,17 +217,19 @@ public class MainActivity extends AppCompatActivity
         headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
 
         Log.d("pref_resume", Boolean.toString(fromSettings));
-        if (fromSettings) {
-            TextView navName = findViewById(R.id.navName);
-            setName(navName, false);
 
-            InboxFragment.mAdapter.notifyDataSetChanged();
-            BrowseFragment.mAdapter.notifyDataSetChanged();
+        TextView navName = findViewById(R.id.navName);
+        setName(navName, false);
 
-            Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
+        InboxFragment.mAdapter.notifyDataSetChanged();
+        BrowseFragment.mAdapter.notifyDataSetChanged();
+
+        Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
 
 
-        }
+        themeSet((Toolbar) findViewById(R.id.toolbar));
+
+        fromSettings = false;
     }
 
     @Override
@@ -166,7 +251,7 @@ public class MainActivity extends AppCompatActivity
         inflater.inflate(R.menu.main, menu);
         Log.d("darkTheme", "Menu Size: " + menu.size());
 
-        if(SettingsActivity.darkTheme) {
+        if (lightText) {
             for (int i = 0; i < menu.size() - 1; i++) {
                 Log.d("darkTheme", "Icon " + Integer.toString(i));
                 menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
@@ -281,14 +366,17 @@ public class MainActivity extends AppCompatActivity
         SettingsActivity.folderMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("folder_mode", false);
         SettingsActivity.darkTheme = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false);
         Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
-        if(SettingsActivity.darkTheme) {
+        if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDarkMain);
-        }else {
+        } else {
             this.setTheme(R.style.AppThemeLightMain);
         }
 
         SettingsActivity.defaultSort = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("sort_mode_list", "0"));
         InboxFragment.filterMode = SettingsActivity.defaultSort;
+
+        SettingsActivity.coloredToolbar = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("colored_toolbar", false);
+
     }
 
     public void loadTags() {
@@ -357,7 +445,6 @@ public class MainActivity extends AppCompatActivity
     public void fabInitialize() {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
 
         Log.d("prefLoad", Integer.toHexString(SettingsActivity.themeColor));
 
@@ -442,9 +529,10 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        if(SettingsActivity.darkTheme) {
+        if (lightText) {
             toggle.getDrawerArrowDrawable().setColor(Color.WHITE);
         }
+        drawerToggle = toggle;
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -468,7 +556,7 @@ public class MainActivity extends AppCompatActivity
 
         navName.setText(nameFromSettings);
 
-        fromSettings = false;
+
     }
 
 

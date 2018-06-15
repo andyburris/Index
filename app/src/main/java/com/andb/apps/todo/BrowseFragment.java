@@ -13,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -58,6 +57,9 @@ public class BrowseFragment extends Fragment {
     public boolean tagCollapsed = false;
     public static CardView tagCard;
 
+    public static NestedScrollView nestedScrollView;
+
+
 
 
     private BrowseFragment.OnFragmentInteractionListener mListener;
@@ -90,6 +92,9 @@ public class BrowseFragment extends Fragment {
         prepareRecyclerView(view);
         tagCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
         prepareTagCollapse(view);
+
+        nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
+
 
         Filters.homeViewAdd(); //add current filter to back stack
         Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
@@ -141,6 +146,7 @@ public class BrowseFragment extends Fragment {
                 }
             }
         });
+
 
         return view;
 
@@ -397,6 +403,7 @@ public class BrowseFragment extends Fragment {
 
         if(filteredTagLinks.isEmpty()){
             tagCard.setVisibility(View.GONE);
+            nestedScrollView.scrollTo(0, 0);
         }else {
             tagCard.setVisibility(View.VISIBLE);
 

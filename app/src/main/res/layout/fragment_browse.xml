@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".BrowseFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/browseScrollView"
         android:layout_width="match_parent"
@@ -28,7 +26,8 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                android:focusableInTouchMode="true">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"

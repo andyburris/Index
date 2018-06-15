@@ -1,14 +1,13 @@
 package com.andb.apps.todo;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -16,25 +15,14 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 
 import com.andrognito.flashbar.Flashbar;
 import com.jaredrummler.android.colorpicker.ColorPreference;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +46,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
      */
 
     public static boolean darkTheme;
+    public static boolean coloredToolbar;
     public static int themeColor;
     public static boolean folderMode;
     public static int defaultSort;
@@ -83,7 +72,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                 // the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
-                if(preference.getKey().equals("sort_mode_list")){
+                if (preference.getKey().equals("sort_mode_list")) {
                     defaultSort = index;
 
                 }
@@ -121,8 +110,18 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
 
                     restartAppFlashbar.show();
                 }
-            } else if(preference instanceof ColorPreference){
-                if(preference.getKey().equals("default_color")) {
+            } else if (preference instanceof CheckBoxPreference) {
+                if (preference.getKey().equals("colored_toolbar")) {
+                    coloredToolbar = ((CheckBoxPreference) preference).isChecked();
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(preference.getContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean("colored_toolbar", coloredToolbar);
+                    editor.apply();
+
+                    restartAppFlashbar.show();
+                }
+            } else if (preference instanceof ColorPreference) {
+                if (preference.getKey().equals("default_color")) {
                     themeColor = ((int) value);
                     Log.d("prefValue", Integer.toString(themeColor));
                     Log.d("prefValue", Integer.toHexString(themeColor));
@@ -130,15 +129,15 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                     //iconForeground.setColorFilter(themeColor);
 
                 }
-            }else if(preference instanceof EditTextPreference){
-                if(preference.getKey().equals("test_name")){
+            } else if (preference instanceof EditTextPreference) {
+                if (preference.getKey().equals("test_name")) {
                     preference.setSummary(stringValue);
                     MainActivity.nameFromSettings = stringValue;
                     MainActivity.fromSettings = true;
                     Log.d("pref_resume", Boolean.toString(MainActivity.fromSettings));
 
                 }
-            }else {
+            } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.setSummary(stringValue);
@@ -156,15 +155,15 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                 .message("Restart the app for these changes to take place")
                 .negativeActionText("Restart later".toUpperCase())
                 .positiveActionText("Restart Now".toUpperCase())
-                .negativeActionTapListener(new Flashbar.OnActionTapListener(){
+                .negativeActionTapListener(new Flashbar.OnActionTapListener() {
                     @Override
-                    public void onActionTapped(@NotNull Flashbar flashbar){
+                    public void onActionTapped(@NotNull Flashbar flashbar) {
                         flashbar.dismiss();
                     }
                 })
-                .positiveActionTapListener(new Flashbar.OnActionTapListener(){
+                .positiveActionTapListener(new Flashbar.OnActionTapListener() {
                     @Override
-                    public void onActionTapped(@NotNull Flashbar flashbar){
+                    public void onActionTapped(@NotNull Flashbar flashbar) {
                         Intent i = getBaseContext().getPackageManager()
                                 .getLaunchIntentForPackage(getBaseContext().getPackageName());
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -213,9 +212,6 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
         super.onCreate(savedInstanceState);
 
         //setContentView(R.layout.preference_headers);
-
-
-
 
 
         //setupActionBar();
@@ -313,17 +309,13 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
             setHasOptionsMenu(true);
 
 
-
-
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
 
 
-
-
-                    Preference darkTheme = findPreference("dark_theme");
+            Preference darkTheme = findPreference("dark_theme");
             darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
             Preference themeColor = findPreference("default_color");
@@ -342,9 +334,6 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
 
 
     }
-
-
-
 
 
 }
@@ -613,109 +602,270 @@ public class SettingsActivity extends AppCompatActivity/*AppCompatPreferenceActi
      return isXLargeTablet(this);
      }*/
 
-    /**
-     * {@inheritDoc}
+/**
+ * {@inheritDoc}
+ *
+ * @Override
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public void onBuildHeaders(List<Header> target) {
+ * loadHeadersFromResource(R.xml.pref_headers, target);
+ * }
+ * This method stops fragment injection in malicious applications.
+ * Make sure to deny any unknown fragments here.
+ * <p>
+ * protected boolean isValidFragment(String fragmentName) {
+ * return PreferenceFragment.class.getName().equals(fragmentName)
+ * || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+ * || ThemePreferenceFragment.class.getName().equals(fragmentName);
+ * }
+ * This fragment shows general preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class GeneralPreferenceFragment extends Fragment/* extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * //addPreferencesFromResource(R.xml.pref_general);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * /*bindPreferenceSummaryToValue(("test_name"));
+ * bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
+ * <p>
+ * <p>
+ * folderMode.setDefaultValue(folderMode);
+ * folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);*
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * }
+ * <p>
+ * /**
+ * This fragment shows notification preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class ThemePreferenceFragment extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * addPreferencesFromResource(R.xml.pref_theme);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * Preference darkTheme = findPreference("dark_theme");
+ * darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * <p>
+ * Preference themeColor = findPreference("default_color");
+ * themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * <p>
+ * }
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * }
+ * <p>
+ * This method stops fragment injection in malicious applications.
+ * Make sure to deny any unknown fragments here.
+ * <p>
+ * protected boolean isValidFragment(String fragmentName) {
+ * return PreferenceFragment.class.getName().equals(fragmentName)
+ * || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+ * || ThemePreferenceFragment.class.getName().equals(fragmentName);
+ * }
+ * This fragment shows general preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class GeneralPreferenceFragment extends Fragment/* extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * //addPreferencesFromResource(R.xml.pref_general);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * /*bindPreferenceSummaryToValue(("test_name"));
+ * bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
+ * <p>
+ * <p>
+ * folderMode.setDefaultValue(folderMode);
+ * folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);*
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * }
+ * <p>
+ * /**
+ * This fragment shows notification preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class ThemePreferenceFragment extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * addPreferencesFromResource(R.xml.pref_theme);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * Preference darkTheme = findPreference("dark_theme");
+ * darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * <p>
+ * Preference themeColor = findPreference("default_color");
+ * themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * <p>
+ * }
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * }
+ */
 
-     @Override
-     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-     public void onBuildHeaders(List<Header> target) {
-     loadHeadersFromResource(R.xml.pref_headers, target);
-     }*/
+/**
+ * This method stops fragment injection in malicious applications.
+ * Make sure to deny any unknown fragments here.
 
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
+ protected boolean isValidFragment(String fragmentName) {
+ return PreferenceFragment.class.getName().equals(fragmentName)
+ || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+ || ThemePreferenceFragment.class.getName().equals(fragmentName);
+ }*/
 
-     protected boolean isValidFragment(String fragmentName) {
-     return PreferenceFragment.class.getName().equals(fragmentName)
-     || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-     || ThemePreferenceFragment.class.getName().equals(fragmentName);
-     }*/
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     *
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends Fragment/* extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            //addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
+/**
+ * This fragment shows general preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ *
+ @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class GeneralPreferenceFragment extends Fragment/* extends PreferenceFragment {
+ @Override public void onCreate(Bundle savedInstanceState) {
+ super.onCreate(savedInstanceState);
+ //addPreferencesFromResource(R.xml.pref_general);
+ setHasOptionsMenu(true);
 
 
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            /*bindPreferenceSummaryToValue(("test_name"));
-            bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
+ // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ // to their values. When their values change, their summaries are
+ // updated to reflect the new value, per the Android Design
+ // guidelines.
+ /*bindPreferenceSummaryToValue(("test_name"));
+ bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
 
 
-            folderMode.setDefaultValue(folderMode);
-            folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);*
-        }
+ folderMode.setDefaultValue(folderMode);
+ folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);*
+ }
 
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
+ @Override public boolean onOptionsItemSelected(MenuItem item) {
+ int id = item.getItemId();
+ if (id == android.R.id.home) {
+ startActivity(new Intent(getActivity(), SettingsActivity.class));
+ return true;
+ }
+ return super.onOptionsItemSelected(item);
+ }
 
-    }
+ }
 
-    /**
-     * This fragment shows notification preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     *
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class ThemePreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_theme);
-            setHasOptionsMenu(true);
+ /**
+  * This fragment shows notification preferences only. It is used when the
+  * activity is showing a two-pane settings UI.
+ *
+ @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class ThemePreferenceFragment extends PreferenceFragment {
+ @Override public void onCreate(Bundle savedInstanceState) {
+ super.onCreate(savedInstanceState);
+ addPreferencesFromResource(R.xml.pref_theme);
+ setHasOptionsMenu(true);
 
 
 
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
+ // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ // to their values. When their values change, their summaries are
+ // updated to reflect the new value, per the Android Design
+ // guidelines.
 
 
 
 
-            Preference darkTheme = findPreference("dark_theme");
-            darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ Preference darkTheme = findPreference("dark_theme");
+ darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
-            Preference themeColor = findPreference("default_color");
-            themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-        }
+ Preference themeColor = findPreference("default_color");
+ themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ }
 
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
+ @Override public boolean onOptionsItemSelected(MenuItem item) {
+ int id = item.getItemId();
+ if (id == android.R.id.home) {
+ startActivity(new Intent(getActivity(), SettingsActivity.class));
+ return true;
+ }
+ return super.onOptionsItemSelected(item);
+ }
 
 
-    }
+ }
 
 
 
 
 
-}
-*/
+ }
+ */

@@ -95,7 +95,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         tagEditingLoaded = false;
         if (bundle.containsKey("edit"))
             editing = bundle.getBoolean("edit");
-        taskDateTime = new DateTime(3000, 1, 1, 0, 0);
+
 
         activity = this;
         timeHasBeenSet = false;
@@ -105,9 +105,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
             boolean browse = bundle.getBoolean("browse");
 
-            if(browse){
+            if (browse) {
                 taskList = BrowseFragment.filteredTaskList;
-            }else {
+            } else {
                 taskList = InboxFragment.filteredTaskList;
             }
 
@@ -115,11 +115,16 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
             Log.d("taskPosition", Integer.toString(taskPosition));
             prepareForEditing(taskPosition);
 
+            final TextView timeText = (TextView) findViewById(R.id.dateTimeText);
+            taskDateTime = taskList.get(taskPosition).getDateTime();
+            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
+
         } else {
+            taskDateTime = new DateTime(3000, 1, 1, 0, 0);
             prepareItems();
             prepareItemsRecyclerView(false);
             AddTaskTagAdapter.tagList.clear();
-            if(!Filters.getCurrentFilter().isEmpty()){
+            if (!Filters.getCurrentFilter().isEmpty()) {
                 AddTaskTagAdapter.tagList.addAll(Filters.getCurrentFilter());
             }
             prepareTagsRecyclerView(false);
@@ -307,7 +312,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         tagRecyclerView.setLayoutManager(tagLayoutManager);
 
         // specify an adapter (see also next example)
-        tagAdapter = new AddTaskTagAdapter( edit, taskPosition);
+        tagAdapter = new AddTaskTagAdapter(edit, taskPosition);
         tagRecyclerView.setAdapter(tagAdapter);
     }
 
@@ -359,12 +364,13 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         addTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                position++;;
+                position++;
+                ;
                 itemsList.add("");
                 Log.d("addingValue", "adding #" + position);
                 mRecyclerView.setItemViewCacheSize(itemsList.size());
 
-                mAdapter.notifyItemInserted(itemsList.size()-1);
+                mAdapter.notifyItemInserted(itemsList.size() - 1);
                 mRecyclerView.scrollToPosition(position);
                 //mAdapter.notifyDataSetChanged();
             }
@@ -390,6 +396,8 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
     public void checkAddTime() {
         ImageView timeButton = (ImageView) findViewById(R.id.timeButton);
         ImageView dateButton = (ImageView) findViewById(R.id.dateButton);
+        final TextView timeText = (TextView) findViewById(R.id.dateTimeText);
+
 
         final long timeMin = 00;
 
@@ -408,6 +416,14 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 TimePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
                         .withMinDate(timeMin))
                         .show(getSupportFragmentManager(), "TimePickerFragmentDialog");
+            }
+        });
+
+        timeText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                taskDateTime = new DateTime(3000, 1, 1, 0, 0);
+                timeText.setText("Add time");
             }
         });
 
@@ -531,28 +547,43 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
     @Override
     public void onDateSet(long date) {
 
+        TextView timeText = (TextView) findViewById(R.id.dateTimeText);
+
         taskDateTime = taskDateTime.withDate(new org.joda.time.LocalDate(date));
         if (new org.joda.time.LocalDate(date) == new DateTime().toLocalDate()) {
             timeMin = date;
+            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
         }
         if (!timeHasBeenSet) {
             taskDateTime = taskDateTime.withTime(23, 59, 59, 0);
-            timeHasBeenSet = true;
+            timeText.setText(taskDateTime.toString("MMM d"));
+
+        } else {
+            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
         }
         Log.d("dateTime", taskDateTime.toString());
+
 
     }
 
     @Override
     public void onTimeSet(long time, long date) {
+        TextView timeText = (TextView) findViewById(R.id.dateTimeText);
         timeHasBeenSet = true;
         LocalTime localTime = new LocalTime(time);
-        if (taskDateTime.isEqual(new DateTime(1970, 1, 1, 0, 0))) {
+        if (taskDateTime.isEqual(new DateTime(3000, 1, 1, 0, 0))) {
             taskDateTime = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(), 23, 0);
             Log.d("dateTime", taskDateTime.toString());
+            taskDateTime = taskDateTime.withTime(localTime);
+            timeText.setText(taskDateTime.toString("h:mm a"));
+
+
+        } else {
+            taskDateTime = taskDateTime.withTime(localTime);
+            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
+
         }
 
-        taskDateTime = taskDateTime.withTime(localTime);
         Log.d("dateTime", taskDateTime.toString());
 
     }
