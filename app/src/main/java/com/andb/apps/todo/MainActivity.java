@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -111,28 +110,33 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @ColorInt
-    int statusBarColor(@ColorInt int color) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[2] *= 0.8f;
-        int tempColor = Color.HSVToColor(hsv);
 
-        return tempColor;
+    public int getStatusBarHeight() {
+        int result = 0;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = getResources().getDimensionPixelSize(resourceId);
+            }
+        }
+        return result;
     }
 
     public void themeSet(Toolbar toolbar) {
+
         if (SettingsActivity.coloredToolbar) {//colored toolbar theming
             toolbar.setBackgroundColor(SettingsActivity.themeColor);
+            toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
 
-            int statusBarColor = statusBarColor(SettingsActivity.themeColor);
+            DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawerLayout.setFitsSystemWindows(false);
 
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-            window.setStatusBarColor(statusBarColor);
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
             int color = (int) Long.parseLong(Integer.toHexString(SettingsActivity.themeColor), 16);
             int r = (color >> 16) & 0xFF;
@@ -187,6 +191,17 @@ public class MainActivity extends AppCompatActivity
             }
 
         } else if (SettingsActivity.darkTheme) {//dark theme setting
+
+            toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
+
+
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawerLayout.setFitsSystemWindows(false);
+
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
             tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
 
             lightText = true;

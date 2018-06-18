@@ -52,6 +52,8 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
     public static int defaultSort;
 
     private static Flashbar restartAppFlashbar;
+    private static Flashbar restartAppFlashbar2;
+
     private static ImageView iconForeground;
 
     SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -112,13 +114,15 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                 }
             } else if (preference instanceof CheckBoxPreference) {
                 if (preference.getKey().equals("colored_toolbar")) {
+
                     coloredToolbar = ((CheckBoxPreference) preference).isChecked();
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(preference.getContext());
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putBoolean("colored_toolbar", coloredToolbar);
                     editor.apply();
 
-                    restartAppFlashbar.show();
+                    restartAppFlashbar2.show();
+
                 }
             } else if (preference instanceof ColorPreference) {
                 if (preference.getKey().equals("default_color")) {
@@ -217,6 +221,8 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
         //setupActionBar();
 
         restartAppFlashbar = restartApp();
+        restartAppFlashbar2 = restartApp();
+
 
 
     }
