@@ -387,7 +387,15 @@ public class BrowseFragment extends Fragment {
             Log.d("noFilters", "TagList size:" + Integer.toString(filteredTagLinks.size()));
 
             for (int j = 0; j < TaskList.taskList.size(); j++) { //for all the tasklist items
-                filteredTaskList.add(TaskList.getItem(j));
+                if (SettingsActivity.folderMode) {//if folders, add all to inbox, only those w/o tags to browse
+                    if (!TaskList.getItem(j).isListTags()) {
+                        filteredTaskList.add(TaskList.getItem(j));
+                    } else {
+                        addToInbox.add(TaskList.getItem(j));
+                    }
+                } else {//if not, add all to browse& inbox
+                    filteredTaskList.add(TaskList.getItem(j));
+                }
             }
             Log.d("noFilters", "TaskList size:" + Integer.toString(filteredTaskList.size()));
 
@@ -401,7 +409,7 @@ public class BrowseFragment extends Fragment {
 
 
         if (viewing) {
-            addToInbox.addAll(filteredTaskList);
+            addToInbox.addAll(filteredTaskList);//add everything from browse
 
             Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
 

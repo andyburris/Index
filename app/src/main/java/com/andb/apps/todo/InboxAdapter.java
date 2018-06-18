@@ -259,7 +259,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             if (realPosition == 0) {
                 final float scale = Resources.getSystem().getDisplayMetrics().density;
                 int padding16Dp = (int) (16 * scale);
-                holder.dividerName.setPadding(padding16Dp, padding16Dp, 0, padding16Dp);
+                int padding20Dp = (int) (20 * scale);
+                holder.dividerName.setPadding(padding16Dp, padding20Dp, 0, padding16Dp);
             }
 
             if (viewType == 1) {
