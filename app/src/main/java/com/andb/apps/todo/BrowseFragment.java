@@ -328,6 +328,7 @@ public class BrowseFragment extends Fragment {
             if (!TaskList.taskList.isEmpty()) {
                 for (int k = 0; k < TaskList.taskList.size(); k++) { //check all the tasks
                     boolean contains = true;
+                    boolean isFoldered = false;
                     int task = k;
                     for (int i = 0; i < tagsToFilter.size(); i++) { //for all the filters
                         boolean filterFolder = SettingsActivity.folderMode; //turn to preferences var later,, rn is folder behavior
@@ -335,7 +336,6 @@ public class BrowseFragment extends Fragment {
                             contains = false;
                         } else if (filterFolder) {
                             //Log.d("folderFreeze", "running ");
-                            boolean isFoldered = false;
                             for (int j = 0; j < filteredTagLinks.size(); j++) {
                                 //Log.d("folderFreeze", "running j");
                                 if (TaskList.getItem(k).doesListContainTag(filteredTagLinks.get(j))) {
@@ -343,13 +343,14 @@ public class BrowseFragment extends Fragment {
                                     isFoldered = true;
                                 }
                             }
-                            if(isFoldered) {
-                                Log.d("inboxFilterBrowse", "Adding");
-                                addToInbox.add(TaskList.getItem(task));
-                                Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()) + ", " + k + ", " + TaskList.taskList.size());
 
-                            }
                         }
+                    }
+                    if (isFoldered) {
+                        Log.d("inboxFilterBrowse", "Adding");
+                        addToInbox.add(TaskList.getItem(task));
+                        Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()) + ", " + k + ", " + TaskList.taskList.size());
+
                     }
                     if (contains) { //and if so, add them
                         filteredTaskList.add(TaskList.getItem(task));

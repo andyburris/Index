@@ -457,7 +457,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     check1.setVisibility(View.VISIBLE);
                     check2.setVisibility(View.GONE);
                     check3.setVisibility(View.GONE);
-
+                    more.setVisibility(View.GONE);
                     break;
 
 
@@ -506,6 +506,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     check1.setVisibility(View.VISIBLE);
                     check2.setVisibility(View.VISIBLE);
                     check3.setVisibility(View.GONE);
+                    more.setVisibility(View.GONE);
                     break;
 
 
@@ -569,6 +570,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     check1.setVisibility(View.VISIBLE);
                     check2.setVisibility(View.VISIBLE);
                     check3.setVisibility(View.VISIBLE);
+                    more.setVisibility(View.GONE);
+
 
                     break;
 
