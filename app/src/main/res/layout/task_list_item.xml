@@ -30,6 +30,7 @@
         android:layout_marginEnd="28dp"
         android:layout_marginStart="12dp"
         android:layout_weight="0"
+        android:singleLine="false"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/removeListItem"
         app:layout_constraintEnd_toEndOf="parent"

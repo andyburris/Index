@@ -71,6 +71,8 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     static Activity activity;
 
+    ImageView resetTimeButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,20 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
             darkThemeSet(toolbar);
         }
         setSupportActionBar(toolbar);
+
+        resetTimeButton = (ImageView) findViewById(R.id.resetTimeButton);
+        final TextView timeText = (TextView) findViewById(R.id.dateTimeText);
+
+        resetTimeButton.setVisibility(View.GONE);
+        resetTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                taskDateTime = new DateTime(3000, 1, 1, 0, 0);
+                resetTimeButton.setVisibility(View.GONE);
+                timeText.setText(getResources().getText(R.string.add_time_text));
+                timeHasBeenSet = false;
+            }
+        });
 
         EditText editname = (EditText) findViewById(R.id.taskName);
         setInputTextLayoutColor(SettingsActivity.themeColor, editname);
@@ -113,11 +129,18 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
             taskPosition = bundle.getInt("editPos");
             Log.d("taskPosition", Integer.toString(taskPosition));
+
+
+            //itemsList = taskList.get(position).getAllListItems();
             prepareForEditing(taskPosition);
 
-            final TextView timeText = (TextView) findViewById(R.id.dateTimeText);
             taskDateTime = taskList.get(taskPosition).getDateTime();
-            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
+
+
+            if (!taskDateTime.equals(new DateTime(3000, 1, 1, 0, 0))) {
+                timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
+                resetTimeButton.setVisibility(View.VISIBLE);
+            }
 
         } else {
             taskDateTime = new DateTime(3000, 1, 1, 0, 0);
@@ -563,6 +586,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         }
         Log.d("dateTime", taskDateTime.toString());
 
+        resetTimeButton.setVisibility(View.VISIBLE);
+
+
 
     }
 
@@ -585,6 +611,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         }
 
         Log.d("dateTime", taskDateTime.toString());
+
+        resetTimeButton.setVisibility(View.VISIBLE);
+
 
     }
 
@@ -655,6 +684,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         super.onPause();
         TaskList.saveTasks(this);
     }
+
 
 }
 

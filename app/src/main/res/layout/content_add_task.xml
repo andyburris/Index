@@ -176,11 +176,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:text="Add time"
+                    android:text="@string/add_time_text"
                     android:textColor="@android:color/background_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/resetTimeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
+                    app:layout_constraintRight_toLeftOf="@+id/timeButton"
+                    app:layout_constraintTop_toTopOf="@+id/dateTimeText"
+                    app:srcCompat="@drawable/ic_refresh_black_24dp" />
 
                 <ImageView
                     android:id="@+id/timeButton"

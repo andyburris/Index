@@ -109,6 +109,7 @@
     <string name="navSavedName">test_name</string>
     <string name="browse_tag_card_header_text">Tags</string>
     <string name="pref_colored_toolbar_title">Colored Toolbar</string>
+    <string name="add_time_text">Add time</string>
 
 
 </resources>
