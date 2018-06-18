@@ -1,7 +1,5 @@
 package com.andb.apps.todo;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,6 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.transition.ChangeBounds;
+import android.support.transition.TransitionManager;
+import android.support.transition.TransitionSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
@@ -60,8 +61,6 @@ public class BrowseFragment extends Fragment {
     public static NestedScrollView nestedScrollView;
 
 
-
-
     private BrowseFragment.OnFragmentInteractionListener mListener;
 
     public BrowseFragment() {
@@ -100,7 +99,7 @@ public class BrowseFragment extends Fragment {
         Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
         createFilteredTaskList(Filters.getCurrentFilter(), true);
 
-        if (filteredTaskList.isEmpty()&filteredTagLinks.isEmpty()) {
+        if (filteredTaskList.isEmpty() & filteredTagLinks.isEmpty()) {
             view.findViewById(R.id.noTasks).setVisibility(View.VISIBLE);
         }
 
@@ -226,44 +225,60 @@ public class BrowseFragment extends Fragment {
         ViewCompat.setNestedScrollingEnabled(tRecyclerView, false);
 
 
-
-
     }
 
-    public void prepareTagCollapse(final View view){
+    public void prepareTagCollapse(final View view) {
         final ImageView collapseButton = (ImageView) view.findViewById(R.id.tagCollapseButton);
         final ConstraintLayout tagView = (ConstraintLayout) view.findViewById(R.id.tagRecyclerViewHolder);
         final View dividerItemDecoration = (View) view.findViewById(R.id.browseDivider);
         final NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
+        final CardView browseCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
+
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        final int pixels = (int) (56 * scale + 0.5f);
 
         collapseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!tagCollapsed){
-                    tagView.animate().setDuration(200).alpha(0.0f).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
+                if (!tagCollapsed) {
 
-                                tagView.setVisibility(View.GONE);
 
-                        }
-                    });
+                    TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
+                            .addTransition(new ChangeBounds()));
+                    ViewGroup.LayoutParams params = browseCard.getLayoutParams();
+                    params.height = pixels;
+                    browseCard.setLayoutParams(params);
+
                     dividerItemDecoration.setVisibility(View.GONE);
-                    collapseButton.setRotation(0);
+                    collapseButton.animate().setDuration(100).rotation(0).setListener(null);
+
+                    tagView.setVisibility(View.GONE);
+
+
                     tagCollapsed = true;
 
-                }else {
+                } else {
+                    TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
+                            .addTransition(new ChangeBounds()));
+                    ViewGroup.LayoutParams params = browseCard.getLayoutParams();
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    browseCard.setLayoutParams(params);
+
                     tagView.setVisibility(View.VISIBLE);
-                    tagView.animate().setDuration(200).alpha(1.0f).setListener(null);
+
+
                     dividerItemDecoration.setVisibility(View.VISIBLE);
-                    collapseButton.setRotation(180);
+                    collapseButton.animate().setDuration(100).rotation(180).setListener(null);
+
+
+
                     tagCollapsed = false;
+
                 }
             }
         });
 
-        if(SettingsActivity.darkTheme){
+        if (SettingsActivity.darkTheme) {
             collapseButton.setColorFilter(Color.WHITE);
         }
     }
@@ -385,7 +400,7 @@ public class BrowseFragment extends Fragment {
         Log.d("inboxFilterBrowse", Integer.toString(filteredTaskList.size()));
 
 
-        if(viewing) {
+        if (viewing) {
             addToInbox.addAll(filteredTaskList);
 
             Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
@@ -402,10 +417,10 @@ public class BrowseFragment extends Fragment {
             Log.d("inboxFilterBrowse", Integer.toString(InboxAdapter.taskList.size()));
         }
 
-        if(filteredTagLinks.isEmpty()){
+        if (filteredTagLinks.isEmpty()) {
             tagCard.setVisibility(View.GONE);
             nestedScrollView.scrollTo(0, 0);
-        }else {
+        } else {
             tagCard.setVisibility(View.VISIBLE);
 
         }

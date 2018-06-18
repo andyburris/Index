@@ -326,6 +326,9 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
 
             Preference themeColor = findPreference("default_color");
             themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+            Preference coloredToolbar = findPreference("colored_toolbar");
+            coloredToolbar.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
         }
 
         @Override

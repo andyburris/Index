@@ -78,9 +78,6 @@ public class MainActivity extends AppCompatActivity
         themeSet(toolbar);
 
 
-
-
-
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_theme, false);
 
@@ -215,10 +212,21 @@ public class MainActivity extends AppCompatActivity
 
             toolbar.setSubtitleTextColor(Color.WHITE);
 
+            Menu menu = toolbar.getMenu();
+            for (int i = 0; i < menu.size() - 1; i++) {
+                Log.d("darkTheme", "Icon " + Integer.toString(i));
+                menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+            }
+
+
 
         } else {//general accent settings
             tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
-
+            Menu menu = toolbar.getMenu();
+            for (int i = 0; i < menu.size() - 1; i++) {
+                Log.d("darkTheme", "Icon " + Integer.toString(i));
+                menu.getItem(i).getIcon().setColorFilter(getResources().getColor(R.color.slate_black), PorterDuff.Mode.SRC_ATOP);
+            }
         }
     }
 
@@ -556,6 +564,13 @@ public class MainActivity extends AppCompatActivity
         headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
         TextView navName = headerView.findViewById(R.id.navName);
         setName(navName, true);
+
+        if (lightText) {
+            drawerToggle.getDrawerArrowDrawable().setColor(Color.WHITE);
+
+        } else {
+            drawerToggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.slate_black));
+        }
 
     }
 
