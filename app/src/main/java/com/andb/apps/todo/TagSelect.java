@@ -101,7 +101,7 @@ public class TagSelect extends AppCompatActivity {
 
                     AddTask.addTag(position);
                     finish();
-                } else if (isTagLink) {
+                } else if (isTagLink & Filters.getCurrentFilter().size() > 1) {
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size()-1);
 
                     if(TagLinkList.contains(tagParent)>=0) {
@@ -140,6 +140,7 @@ public class TagSelect extends AppCompatActivity {
 
                 } else {
                     Filters.tagForward(position);
+                    finish();
                 }
 
             }

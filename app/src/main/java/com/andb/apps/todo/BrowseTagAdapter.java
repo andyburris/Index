@@ -210,7 +210,9 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
         holder.browseLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Filters.tagReset(BrowseFragment.filteredTagLinks.get(position));
+                if (!TagList.getItem(tagLinks.get(realPosition)).isSubFolder()) {
+                    Filters.tagReset(BrowseFragment.filteredTagLinks.get(position));
+                }
                 return true;
             }
         });
