@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,12 +29,14 @@ import java.lang.reflect.Field;
 public class createTag extends AppCompatActivity implements ColorPickerDialogListener {
 
     public EditText tagNameEdit;
+    public Switch subFolderSwitch;
     public boolean editing;
     public int tagPosition;
 
     boolean started = false;
 
     public int tagColor = SettingsActivity.themeColor;
+    public boolean subFolder;
 
     private static final int DIALOG_ID = 0;
 
@@ -64,6 +67,7 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
 
 
         tagNameEdit = findViewById(R.id.createTagName);
+        subFolderSwitch = findViewById(R.id.subfolderCreateSwitch);
 
         setInputTextLayoutColor(tagColor, tagNameEdit);
 
@@ -174,15 +178,16 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
         Log.d("gotToCode", "Clicked FAB");
 
         String tagName = tagNameEdit.getText().toString();
+        subFolder = subFolderSwitch.isChecked();
 
         if (TextUtils.isEmpty(tagNameEdit.getText())) {
             flashbar.show();
         } else {
 
             if (editing) {
-                TagSelect.replaceTag(tagName, tagColor, tagPosition);
+                TagSelect.replaceTag(tagName, tagColor, tagPosition, subFolder);
             } else {
-                TagSelect.addTag(tagName, tagColor);
+                TagSelect.addTag(tagName, tagColor, subFolder);
             }
             finish();
 

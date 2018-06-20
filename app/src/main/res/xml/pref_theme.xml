@@ -27,7 +27,7 @@
 
     <Preference
         android:title="Icon Demo"
-        android:key="iconDemo"
+        android:key="icon_demo"
         android:layout="@layout/icon_theme_demo" />
 
 

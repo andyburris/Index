@@ -271,7 +271,6 @@ public class BrowseFragment extends Fragment {
                     collapseButton.animate().setDuration(100).rotation(180).setListener(null);
 
 
-
                     tagCollapsed = false;
 
                 }
@@ -305,6 +304,7 @@ public class BrowseFragment extends Fragment {
 
             if (!TagList.tagList.isEmpty()) {
                 for (int k = 0; k < TagList.tagList.size(); k++) { //check all the tags
+
                     boolean contains = false;
                     int tag = k;
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1); //for the most recent filter
@@ -312,6 +312,7 @@ public class BrowseFragment extends Fragment {
 
                         int positionInLinkList = TagLinkList.contains(tagParent);
                         Log.d("tagAdding", "Returned " + Integer.toString(positionInLinkList));
+
                         if (TagLinkList.getLinkListItem(positionInLinkList).contains(tag)) { //and see if they are linked by the filters
                             Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in " + Integer.toString(positionInLinkList) + " is not there.");
 
@@ -335,6 +336,7 @@ public class BrowseFragment extends Fragment {
                             filteredTagLinks.add(tag);
                         }
                     }
+
                 }
 
             }
@@ -354,8 +356,18 @@ public class BrowseFragment extends Fragment {
                             for (int j = 0; j < filteredTagLinks.size(); j++) {
                                 //Log.d("folderFreeze", "running j");
                                 if (TaskList.getItem(k).doesListContainTag(filteredTagLinks.get(j))) {
-                                    contains = false;
-                                    isFoldered = true;
+                                    if (SettingsActivity.subFilter) {
+                                        if (!TagList.getItem(filteredTagLinks.get(j)).isSubFolder()) {
+
+
+                                            contains = false;
+                                            isFoldered = true;
+                                        }
+
+                                    } else {
+                                        contains = false;
+                                        isFoldered = true;
+                                    }
                                 }
                             }
 
@@ -381,8 +393,10 @@ public class BrowseFragment extends Fragment {
         {
 
             Log.d("noFilters", "no filters");
-            for (int i = 0; i < TagList.tagList.size(); i++) {//if there are no filters, return all tags
-                filteredTagLinks.add(i);
+            for (int i = 0; i < TagList.tagList.size(); i++) {//if there are no filters, return all tags except subfolders
+                if (!TagList.getItem(i).isSubFolder()) {
+                    filteredTagLinks.add(i);
+                }
             }
             Log.d("noFilters", "TagList size:" + Integer.toString(filteredTagLinks.size()));
 

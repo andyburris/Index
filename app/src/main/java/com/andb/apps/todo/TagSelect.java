@@ -3,9 +3,7 @@ package com.andb.apps.todo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,8 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andrognito.flashbar.Flashbar;
@@ -105,9 +101,7 @@ public class TagSelect extends AppCompatActivity {
 
                     AddTask.addTag(position);
                     finish();
-                }
-
-                if (isTagLink){
+                } else if (isTagLink) {
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size()-1);
 
                     if(TagLinkList.contains(tagParent)>=0) {
@@ -144,6 +138,8 @@ public class TagSelect extends AppCompatActivity {
 
                     }
 
+                } else {
+                    Filters.tagForward(position);
                 }
 
             }
@@ -219,18 +215,20 @@ public class TagSelect extends AppCompatActivity {
     }
 
 
-    public static void addTag(String name, int color) {
-        Tags tags = new Tags(name, color);
+    public static void addTag(String name, int color, boolean sub) {
+        Tags tags = new Tags(name, color, sub);
         TagList.addTagList(tags);
         mAdapter.notifyDataSetChanged();
+        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
 
 
     }
-    public static void replaceTag(String name, int color, int pos) {
-        Tags tags = new Tags(name, color);
+
+    public static void replaceTag(String name, int color, int pos, boolean sub) {
+        Tags tags = new Tags(name, color, sub);
         TagList.setTagList(pos, tags);
         mAdapter.notifyItemChanged(pos);
-        InboxFragment.mAdapter.notifyDataSetChanged();
+        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
 
 
     }
@@ -284,7 +282,6 @@ public class TagSelect extends AppCompatActivity {
                     for (int j = 0; j < TaskList.getItem(i).getAllListTags().size(); j++) {
                         if (TaskList.getItem(i).getListTags(j) == pos) {
                             TaskList.getItem(i).getAllListTags().remove(j);
-                            InboxFragment.mAdapter.notifyItemChanged(i);
                             i--;
                         } else if (TaskList.getItem(i).getListTags(j)>pos){
                             TaskList.getItem(i).setListTags(j, (TaskList.getItem(i).getListTags(j)-1));
@@ -295,6 +292,8 @@ public class TagSelect extends AppCompatActivity {
         }
         TaskList.saveTasks(this);
         TagList.saveTags(this);
+
+        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
     }
 
     @Override

@@ -399,6 +399,7 @@ public class MainActivity extends AppCompatActivity
         InboxFragment.filterMode = SettingsActivity.defaultSort;
 
         SettingsActivity.coloredToolbar = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("colored_toolbar", false);
+        SettingsActivity.subFilter = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("sub_Filter_pref", false);
 
     }
 

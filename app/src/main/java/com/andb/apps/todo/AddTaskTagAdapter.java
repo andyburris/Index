@@ -1,7 +1,6 @@
 package com.andb.apps.todo;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,9 +69,11 @@ public class AddTaskTagAdapter extends RecyclerView.Adapter<AddTaskTagAdapter.My
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        if (edit & position < InboxFragment.filteredTaskList.get(taskPosition).getListTagsSize()) {
-            holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
+        if (edit) {
+            if (position < InboxFragment.filteredTaskList.get(taskPosition).getListTagsSize()) {
+                holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
 
+            }
         } else {
             holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
         }

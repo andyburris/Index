@@ -110,6 +110,9 @@
     <string name="browse_tag_card_header_text">Tags</string>
     <string name="pref_colored_toolbar_title">Colored Toolbar</string>
     <string name="add_time_text">Add time</string>
+    <string name="subfoler_create_text">Subfolder</string>
+    <string name="subfolder_filter_check_title">Treat subfolders as filters</string>
+    <string name="pref_sub_folder_filter_key">sub_Filter_pref</string>
 
 
 </resources>

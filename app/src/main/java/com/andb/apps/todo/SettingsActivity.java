@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.andrognito.flashbar.Flashbar;
@@ -49,6 +50,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
     public static boolean coloredToolbar;
     public static int themeColor;
     public static boolean folderMode;
+    public static boolean subFilter;
     public static int defaultSort;
 
     private static Flashbar restartAppFlashbar;
@@ -123,6 +125,14 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
 
                     restartAppFlashbar2.show();
 
+                } else if (preference.getKey().equals("sub_Filter_pref")) {
+                    subFilter = ((CheckBoxPreference) preference).isChecked();
+                    subFilter = !subFilter;
+                    Log.d("subFilterPref", Boolean.toString(subFilter));
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(preference.getContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean("sub_Filter_pref", subFilter);
+                    editor.apply();
                 }
             } else if (preference instanceof ColorPreference) {
                 if (preference.getKey().equals("default_color")) {
@@ -288,6 +298,9 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
             Preference folderMode = findPreference("folder_mode");
             folderMode.setDefaultValue(folderMode);
             folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+            Preference subFilter = findPreference(getResources().getString(R.string.pref_sub_folder_filter_key));
+            subFilter.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
         }
 
         @Override
@@ -329,6 +342,15 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
 
             Preference coloredToolbar = findPreference("colored_toolbar");
             coloredToolbar.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+            Preference previewIcon = findPreference("icon_demo");
+            View preView = previewIcon.getView(null, null);
+
+            /*ImageView foreground = preView.findViewById(R.id.iconForeground);
+            if(SettingsActivity.darkTheme){
+                foreground.setColorFilter(getResources().getColor(R.color.slate_black));
+            }*/
+
         }
 
         @Override
