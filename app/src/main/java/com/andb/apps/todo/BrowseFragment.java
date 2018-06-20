@@ -234,6 +234,8 @@ public class BrowseFragment extends Fragment {
     @SuppressLint("ClickableViewAccessibility")
 //accessibility not needed as warning only concerns visual workaround.
     public void prepareTagCollapse(final View view) {
+
+
         final ImageView collapseButton = (ImageView) view.findViewById(R.id.tagCollapseButton);
         final ConstraintLayout tagView = (ConstraintLayout) view.findViewById(R.id.tagRecyclerViewHolder);
         final View dividerItemDecoration = (View) view.findViewById(R.id.browseDivider);
@@ -244,99 +246,106 @@ public class BrowseFragment extends Fragment {
         final float scale = getContext().getResources().getDisplayMetrics().density;
         final int pixels = (int) (56 * scale + 0.5f);
 
+
         collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
 
         Log.d("wontCollapse", "got here");
-        collapseButton.setOnClickListener(null);
-        collapseButton.setOnTouchListener(null);
-        collapseButton.setOnLongClickListener(null);
-        collapseButton.setOnClickListener(new View.OnClickListener() {
+
+        final View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("wontCollapse", "Won't collapse");
-                if (!tagCollapsed) {
+
+                if (!removing) {
+                    Log.d("wontCollapse", "Won't collapse");
+                    if (!tagCollapsed) {
 
 
-                    TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
-                            .addTransition(new ChangeBounds()));
-                    ViewGroup.LayoutParams params = browseCard.getLayoutParams();
-                    params.height = pixels;
-                    browseCard.setLayoutParams(params);
+                        TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
+                                .addTransition(new ChangeBounds()));
+                        ViewGroup.LayoutParams params = browseCard.getLayoutParams();
+                        params.height = pixels;
+                        browseCard.setLayoutParams(params);
 
-                    dividerItemDecoration.setVisibility(View.GONE);
-                    collapseButton.animate().setDuration(100).rotation(0).setListener(null);
+                        dividerItemDecoration.setVisibility(View.GONE);
+                        collapseButton.animate().setDuration(100).rotation(0).setListener(null);
 
-                    tagView.setVisibility(View.GONE);
+                        tagView.setVisibility(View.GONE);
 
 
-                    tagCollapsed = true;
+                        tagCollapsed = true;
 
+                    } else {
+                        TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
+                                .addTransition(new ChangeBounds()));
+                        ViewGroup.LayoutParams params = browseCard.getLayoutParams();
+                        params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        browseCard.setLayoutParams(params);
+
+                        tagView.setVisibility(View.VISIBLE);
+
+
+                        dividerItemDecoration.setVisibility(View.VISIBLE);
+                        collapseButton.animate().setDuration(100).rotation(180).setListener(null);
+
+
+                        tagCollapsed = false;
+
+                    }
                 } else {
-                    TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
-                            .addTransition(new ChangeBounds()));
-                    ViewGroup.LayoutParams params = browseCard.getLayoutParams();
-                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                    browseCard.setLayoutParams(params);
-
-                    tagView.setVisibility(View.VISIBLE);
-
-
-                    dividerItemDecoration.setVisibility(View.VISIBLE);
-                    collapseButton.animate().setDuration(100).rotation(180).setListener(null);
-
-
-                    tagCollapsed = false;
+                    removing = false;
+                    tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+                    collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
 
                 }
             }
 
 
-        });
+        };
+
+        collapseButton.setOnClickListener(listener);
 
         collapseButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
 
+                Log.d("wontCollapse", "longClick");
+
+
                 if (!tagCollapsed) {
-                    //make arrow into x, start remove items
-                    collapseButton.setImageResource(R.drawable.ic_clear_black_24dp);
-                    removing = true;
-                    tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+                    if (!removing) {
+                        removing = true;
 
-                    collapseButton.setOnClickListener(null);
+                        //make arrow into x, start remove items
+                        collapseButton.setImageResource(R.drawable.ic_clear_black_24dp);
+                        tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
 
-                    collapseButton.setOnTouchListener(new View.OnTouchListener() {
+                        collapseButton.setOnClickListener(null);
+                        collapseButton.setOnTouchListener(new View.OnTouchListener() {
 
 
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
 
-                            if (event.getAction() == MotionEvent.ACTION_UP) {
 
-                                collapseButton.setOnLongClickListener(null);
+                                if (event.getAction() == MotionEvent.ACTION_UP) {
 
-                                collapseButton.postDelayed(new Runnable() {//debouncing, otherwise inner onclick would call if finger was on top of button on release, making it ineffective
-                                    @Override
-                                    public void run() {
-                                        collapseButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                removing = false;
-                                                tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+                                    collapseButton.postDelayed(new Runnable() {//debouncing, otherwise inner onclick would call if finger was on top of button on release, making it ineffective
+                                        @Override
+                                        public void run() {
 
-                                                prepareTagCollapse(view);
-                                            }
-                                        });
-                                    }
-                                }, 100);
+                                            collapseButton.setOnClickListener(listener);
+                                            collapseButton.setOnTouchListener(null);
+                                        }
+                                    }, 100);
 
+                                    return false;
+                                }
                                 return false;
                             }
-                            return false;
-                        }
-                    });
+                        });
 
 
+                    }
                 }
 
                 return false;

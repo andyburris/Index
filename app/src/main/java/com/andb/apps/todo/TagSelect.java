@@ -2,7 +2,6 @@ package com.andb.apps.todo;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -39,12 +38,6 @@ public class TagSelect extends AppCompatActivity {
     private boolean isTagLink = false;
 
 
-    static String savedList = "savedTagList";
-    SharedPreferences prefs;
-    SharedPreferences.Editor prefsEdit;
-
-    Activity activity;
-
     private ActionMode contextualToolbar;
 
 
@@ -64,7 +57,7 @@ public class TagSelect extends AppCompatActivity {
         darkThemeSet(toolbar);
 
         Bundle bundle = getIntent().getExtras();
-        if (getIntent().hasExtra("isTaskCreate")) {
+        if (bundle.containsKey("isTaskCreate")) {
             isTaskCreate = bundle.getBoolean("isTaskCreate");
         }
 
