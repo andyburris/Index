@@ -162,7 +162,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             holder.removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TagLinks toRemove = TagLinkList.getLinkListItem(TagLinkList.contains(Filters.getMostRecent()));
+                    TagLinks toRemove = TagLinkList.contains(Filters.getMostRecent());
                     Log.d("removeLinks", "Size: " + tagLinks.size() + ", position:" + realPosition);
                     Log.d("removeLinks", "TagLink Size: " + toRemove.getAllTagLinks().size() + ", tag parent:" + TagList.getItem(toRemove.tagParent()).getTagName());
                     toRemove.removeTagLink(tagLinks.get(realPosition));

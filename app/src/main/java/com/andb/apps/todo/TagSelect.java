@@ -97,23 +97,24 @@ public class TagSelect extends AppCompatActivity {
                 Tags tags = TagList.getItem(position);
                 Toast.makeText(getApplicationContext(), tags.getTagName() + " is selected!", Toast.LENGTH_SHORT).show();
 
+
                 if (isTaskCreate) {
 
                     AddTask.addTag(position);
                     finish();
-                } else if (isTagLink & Filters.getCurrentFilter().size() > 1) {
+                } else if (isTagLink && Filters.getCurrentFilter().size() > 0) {
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size()-1);
 
-                    if(TagLinkList.contains(tagParent)>=0) {
-                        int positionInLinkList = TagLinkList.contains(tagParent);
-                        if(TagLinkList.getLinkListItem(positionInLinkList).contains(position)) {
-                            Log.d("tagAdding", "Already Added" + TagLinkList.getLinkListItem(positionInLinkList).getTagLink(TagLinkList.getLinkListItem(positionInLinkList).getLinkPosition(position)) + " to " + Integer.toString(tagParent));
+                    if (TagLinkList.contains(tagParent) != null) {
+
+                        if (TagLinkList.contains(tagParent).contains(position)) {
+                            //Log.d("tagAdding", "Already Added" + TagLinkList.contains(tagParent).getTagLink(TagLinkList.contains(tagParent).getLinkPosition(position)) + " to " + Integer.toString(tagParent));
                             tagExists(TagSelect.this).show();
                         }else if(position == tagParent){
                             sameTag(TagSelect.this).show();
                         }else {
-                            Log.d("tagAdding", "Adding " + Integer.toString(position) + " to " + Integer.toString(positionInLinkList));
-                            TagLinkList.getLinkListItem(positionInLinkList).addLink(position);
+                            //Log.d("tagAdding", "Adding " + Integer.toString(position) + " to " + Integer.toString(positionInLinkList));
+                            TagLinkList.contains(tagParent).addLink(position);
 
                             BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
                             BrowseFragment.mAdapter.notifyDataSetChanged();
@@ -126,11 +127,11 @@ public class TagSelect extends AppCompatActivity {
                         TagLinkList.addLinkListItem(new TagLinks(tagParent, arrayList));
 
                         boolean debug = false;
-                        if(TagLinkList.contains(tagParent)>=0)
+                        if (TagLinkList.contains(tagParent) != null)
                             debug = true;
 
 
-                        Log.d("tagAdding","Now added " + TagLinkList.getLinkListItem(TagLinkList.contains(tagParent)).getTagLink(0) + " to " + Integer.toString(tagParent) + ", " + debug + ", " + TagLinkList.getLinkListItem(TagLinkList.contains(tagParent)).contains(position));
+                        //Log.d("tagAdding","Now added " + TagLinkList.getLinkListItem(TagLinkList.contains(tagParent)).getTagLink(0) + " to " + Integer.toString(tagParent) + ", " + debug + ", " + TagLinkList.getLinkListItem(TagLinkList.contains(tagParent)).contains(position));
 
                         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
                         BrowseFragment.mAdapter.notifyDataSetChanged();

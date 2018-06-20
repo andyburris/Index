@@ -374,17 +374,15 @@ public class BrowseFragment extends Fragment {
                     boolean contains = false;
                     int tag = k;
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1); //for the most recent filter
-                    if (TagLinkList.contains(tagParent) >= 0) { //Catch error
+                    if (TagLinkList.contains(tagParent) != null) { //Catch error
 
-                        int positionInLinkList = TagLinkList.contains(tagParent);
-                        Log.d("tagAdding", "Returned " + Integer.toString(positionInLinkList));
 
-                        if (TagLinkList.getLinkListItem(positionInLinkList).contains(tag)) { //and see if they are linked by the filters
-                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in " + Integer.toString(positionInLinkList) + " is not there.");
+                        if (TagLinkList.contains(tagParent).contains(tag)) { //and see if they are linked by the filters
+                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
 
                             contains = true;
                         } else {
-                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in " + Integer.toString(positionInLinkList) + " is there.");
+                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
                         }
 
                     } else {

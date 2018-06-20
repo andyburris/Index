@@ -1,7 +1,6 @@
 package com.andb.apps.todo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -16,16 +15,15 @@ public class TagLinkList {
     public static ArrayList<TagLinks> linkList;
     public static String savedList = "linkList";
 
-    public static int contains(int tag){
+    public static TagLinks contains(int tag) {
         for (int i = 0; i<linkList.size(); i++){
             if(linkList.get(i).tagParent()==tag){
                 Log.d("tagAdding", "Tag: " + Integer.toString(tag) + " At:" + Integer.toString(i));
-                return i;
+                return linkList.get(i);
             }
         }
-        int returnInt = -1;
-        Log.d("tagAdding", "Returning " + Integer.toString(returnInt));
-        return returnInt;
+        Log.d("tagAdding", "Returning null");
+        return null;
     }
 
     public static TagLinks getLinkListItem(int pos){
