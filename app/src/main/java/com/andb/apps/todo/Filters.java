@@ -91,4 +91,7 @@ public class Filters {
         MainActivity.subTitle.setSubtitle(subtitle);
     }
 
+    public static int getMostRecent() {
+        return getCurrentFilter().get(getCurrentFilter().size() - 1);
+    }
 }

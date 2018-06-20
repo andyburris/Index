@@ -1,5 +1,6 @@
 package com.andb.apps.todo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -22,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -59,6 +61,8 @@ public class BrowseFragment extends Fragment {
     public static CardView tagCard;
 
     public static NestedScrollView nestedScrollView;
+
+    public static boolean removing;
 
 
     private BrowseFragment.OnFragmentInteractionListener mListener;
@@ -227,6 +231,8 @@ public class BrowseFragment extends Fragment {
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+//accessibility not needed as warning only concerns visual workaround.
     public void prepareTagCollapse(final View view) {
         final ImageView collapseButton = (ImageView) view.findViewById(R.id.tagCollapseButton);
         final ConstraintLayout tagView = (ConstraintLayout) view.findViewById(R.id.tagRecyclerViewHolder);
@@ -234,12 +240,20 @@ public class BrowseFragment extends Fragment {
         final NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
         final CardView browseCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
 
+
         final float scale = getContext().getResources().getDisplayMetrics().density;
         final int pixels = (int) (56 * scale + 0.5f);
 
+        collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
+
+        Log.d("wontCollapse", "got here");
+        collapseButton.setOnClickListener(null);
+        collapseButton.setOnTouchListener(null);
+        collapseButton.setOnLongClickListener(null);
         collapseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("wontCollapse", "Won't collapse");
                 if (!tagCollapsed) {
 
 
@@ -274,6 +288,58 @@ public class BrowseFragment extends Fragment {
                     tagCollapsed = false;
 
                 }
+            }
+
+
+        });
+
+        collapseButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                if (!tagCollapsed) {
+                    //make arrow into x, start remove items
+                    collapseButton.setImageResource(R.drawable.ic_clear_black_24dp);
+                    removing = true;
+                    tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+
+                    collapseButton.setOnClickListener(null);
+
+                    collapseButton.setOnTouchListener(new View.OnTouchListener() {
+
+
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+
+                            if (event.getAction() == MotionEvent.ACTION_UP) {
+
+                                collapseButton.setOnLongClickListener(null);
+
+                                collapseButton.postDelayed(new Runnable() {//debouncing, otherwise inner onclick would call if finger was on top of button on release, making it ineffective
+                                    @Override
+                                    public void run() {
+                                        collapseButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                removing = false;
+                                                tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+
+                                                prepareTagCollapse(view);
+                                            }
+                                        });
+                                    }
+                                }, 100);
+
+                                return false;
+                            }
+                            return false;
+                        }
+                    });
+
+
+                }
+
+                return false;
             }
         });
 

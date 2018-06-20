@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.util.Log.d;
-import static android.util.Log.e;
-import static android.util.Log.v;
 
 public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.MyViewHolder> {
     public static List<Tasks> taskList = new ArrayList<>();
@@ -112,7 +110,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
 
             tagName = (TextView) view.findViewById(R.id.browseTagName);
             browseTagImage = (ImageView) view.findViewById(R.id.browseTagImage);
-            browseLayout = (ConstraintLayout) view.findViewById(R.id.browseTagItemLayout);
+            browseLayout = (ConstraintLayout) view.findViewById(R.id.tagCardBrowseLayout);
 
 
             //this.setIsRecyclable(false);

@@ -23,6 +23,10 @@ public class TagLinks {
         return links.get(linkPos);
     }
 
+    public void removeTagLink(int pos) {
+        links.remove((Integer) pos);
+    }
+
     public ArrayList<Integer> getAllTagLinks(){
         return links;
     }

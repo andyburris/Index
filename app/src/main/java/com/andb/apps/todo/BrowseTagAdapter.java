@@ -1,10 +1,10 @@
 package com.andb.apps.todo;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
+import android.support.transition.Slide;
+import android.support.transition.TransitionManager;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ActionMode;
@@ -18,8 +18,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.util.Log.d;
-
 public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyViewHolder> {
     public static List<Integer> tagLinks = new ArrayList<>();
 
@@ -27,7 +25,6 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
     private ActionMode actionMode;
 
 
-    public boolean isSelected = false;
 
     private int viewType = 0;
 
@@ -71,6 +68,8 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
         public ImageView browseTagImage;
         public ConstraintLayout browseLayout;
 
+        public ImageView removeButton;
+
 
         public MyViewHolder(View view) {
             super(view);
@@ -102,7 +101,9 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
             tagName = (TextView) view.findViewById(R.id.browseTagName);
             browseTagImage = (ImageView) view.findViewById(R.id.browseTagImage);
-            browseLayout = (ConstraintLayout) view.findViewById(R.id.browseTagItemLayout);
+            browseLayout = (ConstraintLayout) view.findViewById(R.id.tagCardBrowseLayout);
+
+            removeButton = (ImageView) view.findViewById(R.id.browseRemoveImage);
 
 
             //this.setIsRecyclable(false);
@@ -141,19 +142,39 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         Log.d("taskListError", Integer.toString(position));
-        final int realPosition = holder.getAdapterPosition() - tagLinks.size();
+        final int realPosition = holder.getAdapterPosition();
         Log.d("taskListError", Integer.toString(realPosition));
 
         setUpByViewType(position, holder, realPosition);
 
-        if (isSelected) {
-            holder.inboxListItemBackground.setBackgroundColor(Color.GRAY);
-        }
+
 
 
     }
 
     public void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
+
+        if (BrowseFragment.removing) {
+            TransitionManager.beginDelayedTransition(holder.browseLayout, new Slide()
+            );
+
+            holder.removeButton.setVisibility(View.VISIBLE);
+            holder.removeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TagLinks toRemove = TagLinkList.getLinkListItem(TagLinkList.contains(Filters.getMostRecent()));
+                    Log.d("removeLinks", "Size: " + tagLinks.size() + ", position:" + realPosition);
+                    Log.d("removeLinks", "TagLink Size: " + toRemove.getAllTagLinks().size() + ", tag parent:" + TagList.getItem(toRemove.tagParent()).getTagName());
+                    toRemove.removeTagLink(tagLinks.get(realPosition));
+                    Log.d("removeLinks", "TagLink Size: " + toRemove.getAllTagLinks().size() + ", tag parent:" + TagList.getItem(toRemove.tagParent()).getTagName());
+                    tagLinks.remove(realPosition);
+                    notifyItemRemoved(realPosition);
+                    notifyItemRangeChanged(0, tagLinks.size());
+                }
+            });
+        } else {
+            holder.removeButton.setVisibility(View.GONE);
+        }
 
         holder.tagName.setText(TagList.getItem(tagLinks.get(position)).getTagName());
         holder.browseTagImage.setColorFilter(TagList.getItem(tagLinks.get(position)).getTagColor());
