@@ -99,7 +99,7 @@ public class InboxFragment extends Fragment {
 
             @Override
             public void onLongClick(View view, int position) {
-                if(mAdapter.getItemViewType(position)==0 & !selected) {
+                if (mAdapter.getItemViewType(position) == 0 & !selected) {
                     contextualToolbar = InboxFragment.this.getActivity().startActionMode(setCallback(position));
                     view.setSelected(true);
                     mAdapter.isSelected = true;
@@ -137,7 +137,6 @@ public class InboxFragment extends Fragment {
 
 
     }
-
 
 
     @Override
@@ -192,7 +191,15 @@ public class InboxFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
         if (!MainActivity.deleteFromNotif) {
-            mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)));
+            String taskName;
+            taskName = filteredTaskList.get(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)) - 1).getListName();
+
+
+            if (taskName.equals("OVERDUE") | taskName.equals("TODAY") | taskName.equals("WEEK") | taskName.equals("MONTH") | taskName.equals("FUTURE"))
+                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)));
+            else
+                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)) - 1);
+
         }
         MainActivity.deleteFromNotif = false;//reset if it is from a done action
 
@@ -336,7 +343,6 @@ public class InboxFragment extends Fragment {
             Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
 
 
-
         } else if (mode == 1) {
 
 
@@ -353,9 +359,6 @@ public class InboxFragment extends Fragment {
         }
 
         //mAdapter.notifyDataSetChanged();
-
-
-
 
 
         Log.d("inboxFilterInboxEnd", Integer.toString(filteredTaskList.size()));
