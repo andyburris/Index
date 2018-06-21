@@ -19,6 +19,9 @@ android {
 }
 
 dependencies {
+    def work_version = "1.0.0-alpha03"
+
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
@@ -30,6 +33,9 @@ dependencies {
     implementation 'com.andrognito.flashbar:flashbar:1.0.2' //alert library
     implementation 'joda-time:joda-time:2.9.4' //time library
     implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0' //fix for joda-time gson saving.
+    implementation "android.arch.work:work-runtime:$work_version"//work-manager
+    debugImplementation 'com.pixiteapps.billingx:billingx:0.8.0'//donations
+    releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
 
 
 

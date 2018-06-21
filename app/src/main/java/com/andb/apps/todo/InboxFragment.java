@@ -16,9 +16,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.andrognito.flashbar.Flashbar;
 
 import org.joda.time.DateTime;
 
@@ -142,12 +139,6 @@ public class InboxFragment extends Fragment {
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -199,6 +190,11 @@ public class InboxFragment extends Fragment {
         // specify an adapter (see also next example)
         mAdapter = new InboxAdapter(filteredTaskList);
         mRecyclerView.setAdapter(mAdapter);
+
+        if (!MainActivity.deleteFromNotif) {
+            mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)));
+        }
+        MainActivity.deleteFromNotif = false;//reset if it is from a done action
 
 
     }

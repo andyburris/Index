@@ -11,9 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import org.joda.time.convert.Converter;
-import org.joda.time.convert.ConverterManager;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -49,6 +46,23 @@ public class TaskList extends AppCompatActivity{
     public static void saveTasks(Context ctxt){
         saveArrayList(taskList, savedList, ctxt);
         Log.d("pause", "Tasks Saved");
+    }
+
+    public static Tasks getNextNotificationItem(int lastPos) {
+
+        Log.d("notificationLastPos", Integer.toString(lastPos));
+
+        Tasks returnTask;
+
+        for (int i = lastPos; i < taskList.size(); i++) {
+            if (taskList.get(i).isListTime()) {
+                returnTask = taskList.get(i);
+                Log.d("notificationLastPos", returnTask.getListName());
+                return returnTask;
+            }
+        }
+
+        return null;
     }
 
 

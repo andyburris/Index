@@ -2,12 +2,15 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
+import android.support.transition.AutoTransition;
 import android.support.transition.Slide;
 import android.support.transition.TransitionManager;
+import android.support.transition.Visibility;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +26,6 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
     private Context context;
     private ActionMode actionMode;
-
 
 
     private int viewType = 0;
@@ -130,7 +132,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
         context = parent.getContext();
         View itemView = LayoutInflater.from(context)
-                    .inflate(R.layout.browse_tag_list_item, parent, false);
+                .inflate(R.layout.browse_tag_list_item, parent, false);
 
 
         return new MyViewHolder(itemView);
@@ -148,14 +150,18 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
         setUpByViewType(position, holder, realPosition);
 
 
-
-
     }
 
     public void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
 
         if (BrowseFragment.removing) {
-            TransitionManager.beginDelayedTransition(holder.browseLayout, new Slide()
+
+
+            Slide slide = new Slide();
+            slide.setSlideEdge(Gravity.LEFT);
+            slide.setMode(Visibility.MODE_IN);
+            slide.setDuration(1000);
+            TransitionManager.beginDelayedTransition(holder.browseLayout, new AutoTransition()
             );
 
             holder.removeButton.setVisibility(View.VISIBLE);
@@ -182,11 +188,9 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             @Override
             public void onClick(View v) {
 
-                ViewCompat.postOnAnimationDelayed(holder.itemView, new Runnable()
-                {
+                ViewCompat.postOnAnimationDelayed(holder.itemView, new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(0).size())
                                 + ", "
                                 + Filters.backTagFilters.size());

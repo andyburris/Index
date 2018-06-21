@@ -1,11 +1,16 @@
 package com.andb.apps.todo;
 
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +19,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -33,6 +40,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import java.util.Random;
+
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 
 public class MainActivity extends AppCompatActivity
@@ -64,6 +75,9 @@ public class MainActivity extends AppCompatActivity
     public static boolean lightText;
     public static ActionBarDrawerToggle drawerToggle;
 
+    public static int posFromNotif = 0;
+    public static boolean deleteFromNotif = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +91,19 @@ public class MainActivity extends AppCompatActivity
         fromSettings = false;
         themeSet(toolbar);
 
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            if (bundle.containsKey("posFromNotif")) {
+                posFromNotif = bundle.getInt("posFromNotif", 0);
+            }
+            Log.d("notificationBundle", Integer.toString(posFromNotif));
+            if (bundle.containsKey("posFromNotifClear")) {
+                posFromNotif = bundle.getInt("posFromNotifClear", 0);
+                deleteFromNotif = true;
+                Log.d("notificationBundle", Boolean.toString(deleteFromNotif));
+            }
+        }
+
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_theme, false);
@@ -84,6 +111,10 @@ public class MainActivity extends AppCompatActivity
 
         loadTasks();
 
+        if (deleteFromNotif) {
+            ArchiveTaskList.addTaskList(TaskList.getItem(posFromNotif));
+            TaskList.taskList.remove(posFromNotif);
+        }
 
         loadTags();
 
@@ -340,7 +371,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_test) {
-            startActivity(new Intent(this, TabExample.class));
+            if (TaskList.getNextNotificationItem(lastItemPos) != null)
+                triggerNotificationTest(TaskList.getNextNotificationItem(lastItemPos));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -598,5 +630,80 @@ public class MainActivity extends AppCompatActivity
         ArchiveTaskList.saveTasks(this);
     }
 
+    private final static String todo_notification_channel = "Task Reminders";
+    public static int lastItemPos; // TODO: 6/20/2018 check if higher and if so decrease by one on any remove
+
+    public void triggerNotificationTest(Tasks task) {
+
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //define the importance level of the notification
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            //build the actual notification channel, giving it a unique ID and name
+            NotificationChannel channel =
+                    new NotificationChannel(todo_notification_channel, todo_notification_channel, importance);
+
+            //we can optionally add a description for the channel
+            String description = "Shows notifications for tasks when they are due";
+            channel.setDescription(description);
+
+            //we can optionally set notification LED colour
+            channel.setLightColor(SettingsActivity.themeColor);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = (NotificationManager) getApplicationContext().
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        Intent bodyClickIntent = new Intent(getApplicationContext(), MainActivity.class);
+        bodyClickIntent.putExtra("posFromNotif", TaskList.taskList.indexOf(task));
+
+        //put together the PendingIntent
+        PendingIntent pendingClickIntent =
+                PendingIntent.getActivity(getApplicationContext(), 1, bodyClickIntent, FLAG_UPDATE_CURRENT);
+
+
+        Intent doneClickIntent = new Intent(getApplicationContext(), MainActivity.class);
+        doneClickIntent.putExtra("posFromNotifClear", TaskList.taskList.indexOf(task));
+
+        PendingIntent pendingDoneClickIntent =
+                PendingIntent.getActivity(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
+
+
+        String notificationTitle = task.getListName();
+        String notificationText = "";
+
+        for (int i = 0; i < task.getAllListItems().size(); i++) {
+            notificationText = notificationText.concat(task.getListItems(i) + "\n");
+        }
+        notificationText = notificationText.concat(task.getDateTime().toString("MMM d, h:mm a"));
+
+        //build the notification
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(getApplicationContext(), todo_notification_channel)
+                        .setSmallIcon(R.drawable.ic_todo_small)
+                        .setContentTitle(notificationTitle)
+                        .setContentText(notificationText)
+                        .setContentIntent(pendingClickIntent)
+                        .setAutoCancel(true)
+                        .addAction(R.drawable.ic_todo_small, "DONE", pendingDoneClickIntent)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        //trigger the notification
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(getApplicationContext());
+
+        //we give each notification the ID of the event it's describing,
+        //to ensure they all show up and there are no duplicates
+        notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
+
+        lastItemPos = TaskList.taskList.lastIndexOf(task);
+    }
 
 }
+

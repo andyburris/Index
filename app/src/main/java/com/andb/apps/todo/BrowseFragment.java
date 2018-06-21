@@ -224,6 +224,7 @@ public class BrowseFragment extends Fragment {
 
         // specify an adapter (see also next example)
         tAdapter = new BrowseTagAdapter(filteredTagLinks);
+
         tRecyclerView.setAdapter(tAdapter);
 
         ViewCompat.setNestedScrollingEnabled(tRecyclerView, false);
