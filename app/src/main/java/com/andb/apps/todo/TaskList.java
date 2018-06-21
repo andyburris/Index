@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.joda.time.DateTime;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -52,14 +54,31 @@ public class TaskList extends AppCompatActivity{
 
         Log.d("notificationLastPos", Integer.toString(lastPos));
 
-        Tasks returnTask;
+        Tasks returnTask = new Tasks();
+        DateTime lastDateTime;
+        if (lastPos == -1) {
+            lastDateTime = new DateTime(1970, 1, 1, 0, 0);
 
-        for (int i = lastPos; i < taskList.size(); i++) {
+        } else {
+            lastDateTime = taskList.get(lastPos).getDateTime();
+        }
+
+        DateTime returnDateTime = new DateTime(3000, 1, 1, 0, 0);
+
+        boolean notificationsLeft = false;
+        for (int i = 0; i < taskList.size(); i++) {
             if (taskList.get(i).isListTime()) {
-                returnTask = taskList.get(i);
-                Log.d("notificationLastPos", returnTask.getListName());
-                return returnTask;
+                if (taskList.get(i).getDateTime().isAfter(lastDateTime) && taskList.get(i).getDateTime().isBefore(returnDateTime)) {
+                    returnTask = taskList.get(i);
+                    returnDateTime = returnTask.getDateTime();
+                    notificationsLeft = true;
+                    Log.d("notificationLastPos", returnTask.getListName());
+                }
+
             }
+        }
+        if (notificationsLeft) {
+            return returnTask;
         }
 
         return null;

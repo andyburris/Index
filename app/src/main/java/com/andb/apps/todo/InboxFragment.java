@@ -190,8 +190,11 @@ public class InboxFragment extends Fragment {
         mAdapter = new InboxAdapter(filteredTaskList);
         mRecyclerView.setAdapter(mAdapter);
 
-        if (!MainActivity.deleteFromNotif) {
-            String taskName;
+
+        String taskName;
+
+        if (MainActivity.lastItemPos != -1) {
+
             taskName = filteredTaskList.get(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)) - 1).getListName();
 
 
@@ -199,9 +202,7 @@ public class InboxFragment extends Fragment {
                 mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)));
             else
                 mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)) - 1);
-
         }
-        MainActivity.deleteFromNotif = false;//reset if it is from a done action
 
 
     }

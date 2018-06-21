@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 import java.util.Random;
 
@@ -66,9 +67,13 @@ public class NotifyWorker extends Worker {
         PendingIntent pendingClickIntent =
                 PendingIntent.getActivity(getApplicationContext(), 1, bodyClickIntent, FLAG_UPDATE_CURRENT);
 
+        int notifID = new Random().nextInt();
+        Log.d("notificationRemove", Integer.toString(notifID));
 
-        Intent doneClickIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+        Intent doneClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
         doneClickIntent.putExtra("posFromNotifClear", TaskList.taskList.indexOf(task));
+        doneClickIntent.putExtra("notifID", notifID);
 
         PendingIntent pendingDoneClickIntent =
                 PendingIntent.getActivity(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
@@ -99,10 +104,14 @@ public class NotifyWorker extends Worker {
 
         //we give each notification the ID of the event it's describing,
         //to ensure they all show up and there are no duplicates
-        notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
+
+
+        notificationManager.notify(notifID, notificationBuilder.build());
 
         lastItemPos = TaskList.taskList.lastIndexOf(task);
     }
 }
+
+
 
 

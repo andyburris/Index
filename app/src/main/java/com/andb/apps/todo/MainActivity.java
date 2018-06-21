@@ -41,6 +41,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -75,12 +76,15 @@ public class MainActivity extends AppCompatActivity
     public static boolean lightText;
     public static ActionBarDrawerToggle drawerToggle;
 
-    public static int posFromNotif = 0;
-    public static boolean deleteFromNotif = false;
+    public static int posFromNotif = -1;
+
+    static boolean active = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        active = true;
         loadSettings();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -91,17 +95,20 @@ public class MainActivity extends AppCompatActivity
         fromSettings = false;
         themeSet(toolbar);
 
+        NotificationHolder.loadTasks(this);
+        if (NotificationHolder.lastPositionList == null || NotificationHolder.lastPositionList.isEmpty()) {
+            NotificationHolder.lastPositionList = new ArrayList<>();
+            NotificationHolder.addPosition(-1);
+        }
+
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             if (bundle.containsKey("posFromNotif")) {
                 posFromNotif = bundle.getInt("posFromNotif", 0);
+            } else {
+                posFromNotif = NotificationHeadless.posFromNotif;
             }
             Log.d("notificationBundle", Integer.toString(posFromNotif));
-            if (bundle.containsKey("posFromNotifClear")) {
-                posFromNotif = bundle.getInt("posFromNotifClear", 0);
-                deleteFromNotif = true;
-                Log.d("notificationBundle", Boolean.toString(deleteFromNotif));
-            }
         }
 
 
@@ -111,10 +118,7 @@ public class MainActivity extends AppCompatActivity
 
         loadTasks();
 
-        if (deleteFromNotif) {
-            ArchiveTaskList.addTaskList(TaskList.getItem(posFromNotif));
-            TaskList.taskList.remove(posFromNotif);
-        }
+
 
         loadTags();
 
@@ -248,7 +252,6 @@ public class MainActivity extends AppCompatActivity
                 Log.d("darkTheme", "Icon " + Integer.toString(i));
                 menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
             }
-
 
 
         } else {//general accent settings
@@ -628,12 +631,15 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         TaskList.saveTasks(this);
         ArchiveTaskList.saveTasks(this);
+        NotificationHolder.saveTasks(this);
+        active = false;
     }
 
     private final static String todo_notification_channel = "Task Reminders";
-    public static int lastItemPos; // TODO: 6/20/2018 check if higher and if so decrease by one on any remove
+    public static int lastItemPos = -1; // TODO: 6/20/2018 check if higher and if so decrease by one on any remove
 
     public void triggerNotificationTest(Tasks task) {
+
 
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -667,12 +673,16 @@ public class MainActivity extends AppCompatActivity
         PendingIntent pendingClickIntent =
                 PendingIntent.getActivity(getApplicationContext(), 1, bodyClickIntent, FLAG_UPDATE_CURRENT);
 
+        int notifID = new Random().nextInt();
+        Log.d("notificationRemove", Integer.toString(notifID));
 
-        Intent doneClickIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+        Intent doneClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
         doneClickIntent.putExtra("posFromNotifClear", TaskList.taskList.indexOf(task));
+        doneClickIntent.putExtra("notifID", notifID);
 
         PendingIntent pendingDoneClickIntent =
-                PendingIntent.getActivity(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getService(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
 
 
         String notificationTitle = task.getListName();
@@ -700,7 +710,9 @@ public class MainActivity extends AppCompatActivity
 
         //we give each notification the ID of the event it's describing,
         //to ensure they all show up and there are no duplicates
-        notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
+
+
+        notificationManager.notify(notifID, notificationBuilder.build());
 
         lastItemPos = TaskList.taskList.lastIndexOf(task);
     }
