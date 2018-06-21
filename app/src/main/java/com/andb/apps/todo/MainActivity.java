@@ -1,16 +1,11 @@
 package com.andb.apps.todo;
 
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -19,8 +14,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -41,9 +34,15 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import java.util.Random;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
+import static com.andb.apps.todo.NotifyWorker.workTag;
 
 
 public class MainActivity extends AppCompatActivity
@@ -369,8 +368,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_test) {
-            if (TaskList.getNextNotificationItem(false) != null)
-                triggerNotificationTest(TaskList.getNextNotificationItem(true));
+            //if (TaskList.getNextNotificationItem(false) != null)
+            //triggerNotificationTest(TaskList.getNextNotificationItem(true));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -630,7 +629,7 @@ public class MainActivity extends AppCompatActivity
 
     private final static String todo_notification_channel = "Task Reminders";
 
-    public void triggerNotificationTest(Tasks task) {
+    /*public void triggerNotificationTest(Tasks task) {
 
 
         // Create the NotificationChannel, but only on API 26+ because
@@ -706,6 +705,22 @@ public class MainActivity extends AppCompatActivity
 
         notificationManager.notify(notifID, notificationBuilder.build());
 
+    }*/
+
+    public static void restartNotificationService() {
+        //todo copy from NotifyWorker
+        //Here we set the request for the next notification
+
+        Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
+        long delay = duration.getStandardSeconds();
+
+        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
+                .addTag(workTag)
+                .build();
+
+
+        WorkManager.getInstance().enqueue(notificationWork);
     }
 
     @Override

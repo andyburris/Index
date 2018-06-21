@@ -21,6 +21,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.work.WorkManager;
+
+import static com.andb.apps.todo.NotifyWorker.workTag;
+
 public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder> {
 
     public static List<Tasks> taskList = new ArrayList<>();
@@ -236,9 +240,13 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     } else {
                         ArchiveTaskList.addTaskList(taskList.get(adapterPosition));
                         taskList.remove(adapterPosition);
+                        TaskList.taskList.remove(taskList.get(adapterPosition));
+
                         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
                         notifyItemRemoved(adapterPosition);
                         notifyItemRangeChanged(adapterPosition, getItemCount());
+                        WorkManager.getInstance().cancelAllWorkByTag(workTag);
+                        MainActivity.restartNotificationService();
                     }
 
 

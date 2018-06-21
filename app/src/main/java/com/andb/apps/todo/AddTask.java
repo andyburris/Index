@@ -120,7 +120,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
         if (editing) {
 
-            notified = taskList.get(taskPosition).isNotified();
 
             boolean browse = bundle.getBoolean("browse");
 
@@ -132,6 +131,8 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
             taskPosition = bundle.getInt("editPos");
             Log.d("taskPosition", Integer.toString(taskPosition));
+
+            notified = taskList.get(taskPosition).isNotified();
 
 
             //itemsList = taskList.get(position).getAllListItems();

@@ -11,8 +11,14 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import java.util.Random;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import androidx.work.Worker;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -21,6 +27,9 @@ public class NotifyWorker extends Worker {
 
     private final static String todo_notification_channel = "Task Reminders";
     public static int lastItemPos; // TODO: 6/20/2018 check if higher and if so decrease by one on any remove
+
+    public static final String workTag = "notifications";
+
 
     @NonNull
     @Override
@@ -77,7 +86,7 @@ public class NotifyWorker extends Worker {
         doneClickIntent.putExtra("notifID", notifID);
 
         PendingIntent pendingDoneClickIntent =
-                PendingIntent.getActivity(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getService(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
 
 
         String notificationTitle = task.getListName();
@@ -110,6 +119,21 @@ public class NotifyWorker extends Worker {
         notificationManager.notify(notifID, notificationBuilder.build());
 
         lastItemPos = TaskList.taskList.lastIndexOf(task);
+
+
+        //Here we set the request for the next notification
+
+        Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
+        long delay = duration.getStandardSeconds();
+
+        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
+                .setInitialDelay(delay, TimeUnit.SECONDS)
+                .addTag(workTag)
+                .build();
+
+
+        WorkManager.getInstance().enqueue(notificationWork);
+
     }
 }
 

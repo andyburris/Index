@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import androidx.work.WorkManager;
+
+import static com.andb.apps.todo.NotifyWorker.workTag;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -217,6 +221,9 @@ public class InboxFragment extends Fragment {
 
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
         setFilterMode(filterMode);
+
+        WorkManager.getInstance().cancelAllWorkByTag(workTag);
+        MainActivity.restartNotificationService();
     }
 
 
@@ -230,6 +237,8 @@ public class InboxFragment extends Fragment {
         InboxFragment.setFilterMode(InboxFragment.filterMode);
         mAdapter.isSelected = false;
         mAdapter.notifyDataSetChanged();
+        WorkManager.getInstance().cancelAllWorkByTag(workTag);
+        MainActivity.restartNotificationService();
     }
 
 
