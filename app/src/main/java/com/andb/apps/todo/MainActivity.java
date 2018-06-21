@@ -710,16 +710,18 @@ public class MainActivity extends AppCompatActivity
     public static void restartNotificationService() {
         //Here we set the request for the next notification
 
-        Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
-        long delay = duration.getStandardSeconds();
+        if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
+            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime().minusSeconds(59));//notification played 59 seconds late;
+            long delay = duration.getStandardSeconds();
 
-        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
-                .setInitialDelay(delay, TimeUnit.SECONDS)
-                .addTag(workTag)
-                .build();
+            OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
+                    .setInitialDelay(delay, TimeUnit.SECONDS)
+                    .addTag(workTag)
+                    .build();
 
 
-        WorkManager.getInstance().enqueue(notificationWork);
+            WorkManager.getInstance().enqueue(notificationWork);
+        }
     }
 
     @Override
