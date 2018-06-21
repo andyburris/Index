@@ -708,7 +708,6 @@ public class MainActivity extends AppCompatActivity
     }*/
 
     public static void restartNotificationService() {
-        //todo copy from NotifyWorker
         //Here we set the request for the next notification
 
         Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
