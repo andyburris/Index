@@ -50,34 +50,33 @@ public class TaskList extends AppCompatActivity{
         Log.d("pause", "Tasks Saved");
     }
 
-    public static Tasks getNextNotificationItem(int lastPos) {
+    public static Tasks getNextNotificationItem(boolean beingUsed) {
 
-        Log.d("notificationLastPos", Integer.toString(lastPos));
 
         Tasks returnTask = new Tasks();
-        DateTime lastDateTime;
-        if (lastPos == -1) {
-            lastDateTime = new DateTime(1970, 1, 1, 0, 0);
 
-        } else {
-            lastDateTime = taskList.get(lastPos).getDateTime();
-        }
 
         DateTime returnDateTime = new DateTime(3000, 1, 1, 0, 0);
+
 
         boolean notificationsLeft = false;
         for (int i = 0; i < taskList.size(); i++) {
             if (taskList.get(i).isListTime()) {
-                if (taskList.get(i).getDateTime().isAfter(lastDateTime) && taskList.get(i).getDateTime().isBefore(returnDateTime)) {
+                if (taskList.get(i).getDateTime().isBefore(returnDateTime) && !taskList.get(i).isNotified()) {
                     returnTask = taskList.get(i);
                     returnDateTime = returnTask.getDateTime();
                     notificationsLeft = true;
-                    Log.d("notificationLastPos", returnTask.getListName());
+                    Log.d("notificationLastPosName", returnTask.getListName());
+                    Log.d("alreadyNotifiedFilter", Boolean.toString(taskList.get(i).isNotified()));
+
                 }
 
             }
         }
         if (notificationsLeft) {
+            if (beingUsed) { //doesnt set if a null check
+                taskList.get(taskList.indexOf(returnTask)).setNotified(true);
+            }
             return returnTask;
         }
 

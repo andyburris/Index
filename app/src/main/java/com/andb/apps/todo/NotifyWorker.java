@@ -26,7 +26,8 @@ public class NotifyWorker extends Worker {
     @Override
     public Worker.Result doWork() {
         // Method to trigger an instant notification
-        triggerNotification(TaskList.getNextNotificationItem(lastItemPos));
+        if (TaskList.getNextNotificationItem(false) != null)
+            triggerNotification(TaskList.getNextNotificationItem(true));
 
         return Worker.Result.SUCCESS;
         // (Returning RETRY tells WorkManager to try this task again

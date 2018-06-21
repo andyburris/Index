@@ -2,6 +2,7 @@ package com.andb.apps.todo;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -9,12 +10,9 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 public class NotificationHeadless extends Service {
 
     public static int posFromNotif = -1;
-    public static int lastItemPos;
     public static boolean deleteFromNotif;
 
     public static int notifID;
@@ -52,13 +50,7 @@ public class NotificationHeadless extends Service {
 
         Log.d("serviceFromNotif", "service started");
 
-        NotificationHolder.loadTasks(this);
-        if (NotificationHolder.lastPositionList == null || NotificationHolder.lastPositionList.isEmpty())
 
-        {
-            NotificationHolder.lastPositionList = new ArrayList<>();
-            NotificationHolder.addPosition(-1);
-        }
 
 
         if (bundle != null)
@@ -90,19 +82,21 @@ public class NotificationHeadless extends Service {
             Log.d("notificationRemove", Integer.toString(ArchiveTaskList.taskList.size()));
 
             TaskList.taskList.remove(posFromNotif);
-            NotificationHolder.onDelete(posFromNotif);
-            lastItemPos = NotificationHolder.getLastPosition();
-        } else
-
-        {
-            lastItemPos = posFromNotif;
         }
 
-        Log.d("datasetchanged", Boolean.toString(MainActivity.active));
-        if (MainActivity.active) {
-            Log.d("datasetchanged", Boolean.toString(MainActivity.active));
+        SharedPreferences sp = getSharedPreferences("OURINFO", MODE_PRIVATE);
+
+        boolean active = sp.getBoolean("active", false);
+
+        Log.d("datasetchanged", Boolean.toString(active));
+        if (active) {
+            Log.d("datasetchanged", Boolean.toString(active));
+
+            BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
             InboxFragment.mAdapter.notifyDataSetChanged();
         }
+
+        //schedule next work
 
         return START_REDELIVER_INTENT;
 

@@ -41,7 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -78,13 +77,11 @@ public class MainActivity extends AppCompatActivity
 
     public static int posFromNotif = -1;
 
-    static boolean active = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        active = true;
         loadSettings();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -95,18 +92,16 @@ public class MainActivity extends AppCompatActivity
         fromSettings = false;
         themeSet(toolbar);
 
-        NotificationHolder.loadTasks(this);
-        if (NotificationHolder.lastPositionList == null || NotificationHolder.lastPositionList.isEmpty()) {
-            NotificationHolder.lastPositionList = new ArrayList<>();
-            NotificationHolder.addPosition(-1);
-        }
+
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             if (bundle.containsKey("posFromNotif")) {
                 posFromNotif = bundle.getInt("posFromNotif", 0);
+                Log.d("notificationLastPosName", TaskList.getItem(posFromNotif).getListName());
+                Log.d("alreadyNotifiedNotif", Boolean.toString(TaskList.getItem(posFromNotif).isNotified()));
             } else {
-                posFromNotif = NotificationHeadless.posFromNotif;
+                posFromNotif = -1;
             }
             Log.d("notificationBundle", Integer.toString(posFromNotif));
         }
@@ -374,8 +369,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_test) {
-            if (TaskList.getNextNotificationItem(lastItemPos) != null)
-                triggerNotificationTest(TaskList.getNextNotificationItem(lastItemPos));
+            if (TaskList.getNextNotificationItem(false) != null)
+                triggerNotificationTest(TaskList.getNextNotificationItem(true));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -631,12 +626,9 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         TaskList.saveTasks(this);
         ArchiveTaskList.saveTasks(this);
-        NotificationHolder.saveTasks(this);
-        active = false;
     }
 
     private final static String todo_notification_channel = "Task Reminders";
-    public static int lastItemPos = -1; // TODO: 6/20/2018 check if higher and if so decrease by one on any remove
 
     public void triggerNotificationTest(Tasks task) {
 
@@ -714,8 +706,31 @@ public class MainActivity extends AppCompatActivity
 
         notificationManager.notify(notifID, notificationBuilder.build());
 
-        lastItemPos = TaskList.taskList.lastIndexOf(task);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Store our shared preference
+        SharedPreferences sp = getSharedPreferences("OURINFO", MODE_PRIVATE);
+        SharedPreferences.Editor ed = sp.edit();
+        ed.putBoolean("active", true);
+        ed.apply();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Store our shared preference
+        SharedPreferences sp = getSharedPreferences("OURINFO", MODE_PRIVATE);
+        SharedPreferences.Editor ed = sp.edit();
+        ed.putBoolean("active", false);
+        ed.apply();
+
+    }
 }
+
+
 

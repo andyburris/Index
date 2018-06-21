@@ -73,6 +73,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     ImageView resetTimeButton;
 
+    boolean notified;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +119,8 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
 
         if (editing) {
+
+            notified = taskList.get(taskPosition).isNotified();
 
             boolean browse = bundle.getBoolean("browse");
 
@@ -487,7 +490,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
 
         if (editing) {
-            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, TaskList.taskList.indexOf(taskList.get(taskPosition)));
+            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)));
             Log.d("taskPosition", Integer.toString(taskPosition));
 
             InboxFragment.mAdapter.notifyItemChanged(taskPosition);
@@ -586,6 +589,13 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         }
         Log.d("dateTime", taskDateTime.toString());
 
+        if (editing) {
+            if (taskDateTime.isAfter(DateTime.now()))
+                notified = false;
+            else if (taskDateTime.isBefore(taskList.get(taskPosition).getDateTime()))
+                notified = taskList.get(taskPosition).isNotified();
+        }
+
         resetTimeButton.setVisibility(View.VISIBLE);
 
 
@@ -608,6 +618,13 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
             taskDateTime = taskDateTime.withTime(localTime);
             timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
 
+        }
+
+        if (editing) {
+            if (taskDateTime.isAfter(DateTime.now()))
+                notified = false;
+            else if (taskDateTime.isBefore(taskList.get(taskPosition).getDateTime()))
+                notified = taskList.get(taskPosition).isNotified();
         }
 
         Log.d("dateTime", taskDateTime.toString());

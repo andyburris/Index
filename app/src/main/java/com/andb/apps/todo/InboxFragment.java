@@ -193,15 +193,15 @@ public class InboxFragment extends Fragment {
 
         String taskName;
 
-        if (MainActivity.lastItemPos != -1) {
+        if (MainActivity.posFromNotif != -1) {
 
-            taskName = filteredTaskList.get(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)) - 1).getListName();
+            taskName = filteredTaskList.get(filteredTaskList.indexOf(TaskList.getItem(MainActivity.posFromNotif)) - 1).getListName();
 
 
             if (taskName.equals("OVERDUE") | taskName.equals("TODAY") | taskName.equals("WEEK") | taskName.equals("MONTH") | taskName.equals("FUTURE"))
-                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)));
+                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.posFromNotif)));
             else
-                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.lastItemPos)) - 1);
+                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.posFromNotif)) - 1);
         }
 
 
@@ -211,7 +211,7 @@ public class InboxFragment extends Fragment {
     public static void addTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time) {
 
 
-        Tasks tasks = new Tasks(title, items, checked, tags, time);
+        Tasks tasks = new Tasks(title, items, checked, tags, time, false);
         TaskList.addTaskList(tasks);
         Log.d("recyclerCreated", "outer created");
 
@@ -220,10 +220,10 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public static void replaceTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time, int position) {
+    public static void replaceTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time, boolean notified, int position) {
 
 
-        Tasks tasks = new Tasks(title, items, checked, tags, time);
+        Tasks tasks = new Tasks(title, items, checked, tags, time, notified);
         TaskList.setTaskList(position, tasks);
         Log.d("recyclerCreated", "outer created");
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
@@ -272,7 +272,7 @@ public class InboxFragment extends Fragment {
                 if (taskDateTime.isBefore(DateTime.now())) {
                     if (overdue) {
                         Log.d("addDivider", "adding OVERDUE from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
-                        Tasks tasks = new Tasks("OVERDUE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(1970, 1, 1, 0, 0));
+                        Tasks tasks = new Tasks("OVERDUE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(1970, 1, 1, 0, 0), false);
 
                         filteredTaskList.add(i, tasks);
 
@@ -283,7 +283,7 @@ public class InboxFragment extends Fragment {
                     if (today) {
                         Log.d("addDivider", "adding TODAY from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
                         Log.d("addDivider", tempList.get(i).getListName());
-                        Tasks tasks = new Tasks("TODAY", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now()));//drop one category to show at top
+                        Tasks tasks = new Tasks("TODAY", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now()), false);//drop one category to show at top
 
                         filteredTaskList.add(i, tasks);
 
@@ -293,7 +293,7 @@ public class InboxFragment extends Fragment {
                 } else if (taskDateTime.isBefore(DateTime.now().plusWeeks(1))) {
                     if (thisWeek) {
                         Log.d("addDivider", "adding WEEK from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString() + " at position " + Integer.toString(i));
-                        Tasks tasks = new Tasks("WEEK", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusDays(1)));
+                        Tasks tasks = new Tasks("WEEK", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusDays(1)), false);
 
                         filteredTaskList.add(i, tasks);
 
@@ -303,7 +303,7 @@ public class InboxFragment extends Fragment {
                 } else if (taskDateTime.isBefore(DateTime.now().plusMonths(1))) {
                     if (thisMonth) {
                         Log.d("addDivider", "adding MONTH from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
-                        Tasks tasks = new Tasks("MONTH", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusWeeks(1)));
+                        Tasks tasks = new Tasks("MONTH", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusWeeks(1)), false);
 
                         filteredTaskList.add(i, tasks);
 
@@ -313,7 +313,7 @@ public class InboxFragment extends Fragment {
                 } else if (taskDateTime.isAfter(DateTime.now().plusMonths(1))) {
                     if (future) {
                         Log.d("addDivider", "adding FUTURE from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
-                        Tasks tasks = new Tasks("FUTURE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusMonths(1)));
+                        Tasks tasks = new Tasks("FUTURE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusMonths(1)), false);
 
                         filteredTaskList.add(i, tasks);
 

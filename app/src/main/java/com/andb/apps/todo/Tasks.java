@@ -4,9 +4,7 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Tasks{
     private String listName;
@@ -14,17 +12,19 @@ public class Tasks{
     private ArrayList<Boolean> listItemsChecked;
     private ArrayList<Integer> listTags;
     private DateTime listDue;
+    private boolean notified;
     //private ArrayList<Time> listDue; //to-do: add time due by
 
     public Tasks(){
     }
 
-    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time){
+    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified) {
         this.listName = listName;
         this.listItems = listItems;
         this.listItemsChecked = listItemsChecked;
         this.listTags = listTags;
         this.listDue = time;
+        this.notified = notified;
     }
 
 
@@ -157,6 +157,11 @@ public class Tasks{
         }
     }
 
+    public boolean isNotified() {
+        return notified;
+    }
 
-
+    public void setNotified(boolean notified) {
+        this.notified = notified;
+    }
 }
