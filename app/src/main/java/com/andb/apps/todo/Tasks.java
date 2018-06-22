@@ -4,15 +4,17 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Tasks{
+public class Tasks implements Serializable {
     private String listName;
     private ArrayList<String> listItems;
     private ArrayList<Boolean> listItemsChecked;
     private ArrayList<Integer> listTags;
     private DateTime listDue;
     private boolean notified;
+    private int key;
     //private ArrayList<Time> listDue; //to-do: add time due by
 
     public Tasks(){
@@ -25,6 +27,16 @@ public class Tasks{
         this.listTags = listTags;
         this.listDue = time;
         this.notified = notified;
+    }
+
+    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int key) {
+        this.listName = listName;
+        this.listItems = listItems;
+        this.listItemsChecked = listItemsChecked;
+        this.listTags = listTags;
+        this.listDue = time;
+        this.notified = notified;
+        this.key = key;
     }
 
 
@@ -163,5 +175,13 @@ public class Tasks{
 
     public void setNotified(boolean notified) {
         this.notified = notified;
+    }
+
+    public int getKey() {
+        return this.key;
+    }
+
+    public void setKey(int key) {
+        this.key = key;
     }
 }

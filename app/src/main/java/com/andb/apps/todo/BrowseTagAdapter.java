@@ -92,7 +92,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
-            timeText = (TextView) view.findViewById(R.id.dateTimeInboxText);
+            timeText = (TextView) view.findViewById(R.id.dateInboxText);
 
             encloser = (LinearLayout) view.findViewById(R.id.checklistEncloser);
             tagEncloser = (LinearLayout) view.findViewById(R.id.tagOnTaskLayout);

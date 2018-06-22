@@ -33,6 +33,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fatboyindustrial.gsonjodatime.Converters;
 import com.google.gson.Gson;
@@ -81,8 +82,7 @@ public class MainActivity extends AppCompatActivity
     public static boolean lightText;
     public static ActionBarDrawerToggle drawerToggle;
 
-    public static int posFromNotif = -1;
-
+    public static int notifKey = 0;
 
 
     @Override
@@ -99,17 +99,21 @@ public class MainActivity extends AppCompatActivity
         themeSet(toolbar);
 
 
-
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             if (bundle.containsKey("posFromNotif")) {
-                posFromNotif = bundle.getInt("posFromNotif", 0);
-                Log.d("notificationLastPosName", TaskList.getItem(posFromNotif).getListName());
-                Log.d("alreadyNotifiedNotif", Boolean.toString(TaskList.getItem(posFromNotif).isNotified()));
-            } else {
-                posFromNotif = -1;
+                notifKey = bundle.getInt("posFromNotif", 0);
+                Log.d("notificationKey", Integer.toString(notifKey));
+                int index = TaskList.keyList.indexOf(notifKey);
+                if (index != -1) {
+                    Log.d("alreadyNotifiedNotif", Boolean.toString(TaskList.getItem(index).isNotified()));
+                } else {
+                    Toast.makeText(this, "Couldn't find that task", Toast.LENGTH_SHORT).show();
+                    notifKey = 0;//don't scroll to in InboxFragment
+
+                }
             }
-            Log.d("notificationBundle", Integer.toString(posFromNotif));
+            Log.d("notificationBundle", Integer.toString(TaskList.keyList.indexOf(notifKey)));
         }
 
 
@@ -118,7 +122,6 @@ public class MainActivity extends AppCompatActivity
 
 
         loadTasks();
-
 
 
         loadTags();
@@ -375,8 +378,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_test) {
-            //if (TaskList.getNextNotificationItem(false) != null)
-            //triggerNotificationTest(TaskList.getNextNotificationItem(true));
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -477,9 +479,19 @@ public class MainActivity extends AppCompatActivity
             TaskList.loadTasks(this);
         }
 
-        //InboxFragment.setFilterMode(InboxFragment.filterMode);
-        InboxFragment.filteredTaskList.clear();
-        InboxFragment.filteredTaskList.addAll(TaskList.taskList);
+
+        TaskList.keyList.clear();
+        for (int i = 0; i < TaskList.taskList.size(); i++) {
+            TaskList.keyList.add(TaskList.getItem(i).getKey());
+        }
+
+
+        Log.d("putKeys", Integer.toString(TaskList.keyList.size()));
+        for (int i = 0; i < TaskList.keyList.size(); i++) {
+            Log.d("putKeys", Integer.toString(TaskList.keyList.get(i)));
+        }
+
+
     }
 
     public void loadArchiveTasks() {
@@ -644,12 +656,14 @@ public class MainActivity extends AppCompatActivity
     private final static String todo_notification_channel = "Task Reminders";
 
 
-
     public static void restartNotificationService() {
         //Here we set the request for the next notification
 
+
         if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
+            Log.d("workManager", TaskList.getNextNotificationItem(false).getListName());
             Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
+            Log.d("workManager", TaskList.getNextNotificationItem(false).getDateTime().toString("MMM d, h:mm:ss a"));
             if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
                 DateTime onlyDate = TaskList.getNextNotificationItem(false).getDateTime();
                 onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());

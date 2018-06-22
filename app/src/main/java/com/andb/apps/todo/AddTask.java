@@ -339,7 +339,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         tagRecyclerView.setLayoutManager(tagLayoutManager);
 
         // specify an adapter (see also next example)
-        tagAdapter = new AddTaskTagAdapter(edit, taskPosition);
+        tagAdapter = new AddTaskTagAdapter(taskList, edit, taskPosition);
         tagRecyclerView.setAdapter(tagAdapter);
     }
 
@@ -492,7 +492,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
 
         if (editing) {
-            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)));
+            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getKey());
             Log.d("taskPosition", Integer.toString(taskPosition));
 
             InboxFragment.mAdapter.notifyItemChanged(taskPosition);

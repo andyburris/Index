@@ -100,7 +100,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
-            timeText = (TextView) view.findViewById(R.id.dateTimeInboxText);
+            timeText = (TextView) view.findViewById(R.id.dateInboxText);
             timeIcon = (ImageView) view.findViewById(R.id.timeIcon);
 
 
@@ -234,8 +234,9 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
 
 
                     ArchiveTaskList.addTaskList(taskList.get(realPosition));
-                    taskList.remove(realPosition);
+                    TaskList.keyList.remove((Integer) taskList.get(realPosition).getKey());
                     TaskList.taskList.remove(taskList.get(realPosition));
+                    taskList.remove(realPosition);
                     notifyItemRemoved(realPosition);
                     InboxFragment.setFilterMode(InboxFragment.filterMode);
                     InboxFragment.mAdapter.notifyDataSetChanged();

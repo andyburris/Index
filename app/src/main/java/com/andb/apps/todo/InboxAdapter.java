@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.joda.time.DateTimeFieldType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +67,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         public LinearLayout tagEncloser;
         public ImageView moreTags;
         public ConstraintLayout timeLayout;
+        public TextView dateText;
         public TextView timeText;
         public ImageView timeIcon;
 
@@ -94,7 +97,9 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
-            timeText = (TextView) view.findViewById(R.id.dateTimeInboxText);
+            dateText = (TextView) view.findViewById(R.id.dateInboxText);
+            timeText = (TextView) view.findViewById(R.id.timeInboxText);
+
 
             encloser = (LinearLayout) view.findViewById(R.id.checklistEncloser);
             tagEncloser = (LinearLayout) view.findViewById(R.id.tagOnTaskLayout);
@@ -212,7 +217,13 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
 
             if (taskList.get(position).isListTime()) {
-                holder.timeText.setText(taskList.get(position).getDateTime().toString("EEEE, MMMM d"));
+                holder.dateText.setText(taskList.get(position).getDateTime().toString("EEEE, MMMM d"));
+                if (taskList.get(position).getDateTime().get(DateTimeFieldType.secondOfMinute()) == 59) {
+                    holder.timeText.setVisibility(View.GONE);
+                } else {
+                    holder.timeText.setVisibility(View.VISIBLE);
+                    holder.timeText.setText(taskList.get(position).getDateTime().toString("h:mm a"));
+                }
                 if (SettingsActivity.darkTheme) {
                     holder.timeIcon.setColorFilter(Color.WHITE);
                 }
@@ -240,6 +251,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     } else {
                         ArchiveTaskList.addTaskList(taskList.get(adapterPosition));
                         taskList.remove(adapterPosition);
+                        TaskList.keyList.remove((Integer) taskList.get(adapterPosition).getKey());
                         TaskList.taskList.remove(taskList.get(adapterPosition));
 
                         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
@@ -316,6 +328,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             if (belowDividerPosition > taskList.size() - 1) {
 
                 ArchiveTaskList.addTaskList(taskList.get(position));
+                TaskList.keyList.remove((Integer) taskList.get(position).getKey());
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
 
@@ -337,6 +350,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     | taskList.get(belowDividerPosition).getListName().equals("FUTURE")) {
 
                 ArchiveTaskList.addTaskList(taskList.get(position));
+                TaskList.keyList.remove((Integer) taskList.get(position).getKey());
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
 
@@ -354,6 +368,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
             } else {
                 ArchiveTaskList.addTaskList(taskList.get(position));
+                TaskList.keyList.remove((Integer) taskList.get(position).getKey());
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
                 notifyItemRangeChanged(position, getItemCount());

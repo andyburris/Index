@@ -15,7 +15,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -36,7 +35,14 @@ public class NotifyWorker extends Worker {
     @Override
     public Worker.Result doWork() {
         // Method to trigger an instant notification
+        Log.d("workManager", "Running NotifyWorker");
+
+        if (TaskList.taskList == null || TaskList.taskList.isEmpty()) {
+            TaskList.loadTasks(getApplicationContext());
+        }
+
         if (TaskList.getNextNotificationItem(false) != null)
+            Log.d("workManager", "Next isn't null");
             triggerNotification(TaskList.getNextNotificationItem(true));
 
         return Worker.Result.SUCCESS;
@@ -72,22 +78,21 @@ public class NotifyWorker extends Worker {
         }
 
         Intent bodyClickIntent = new Intent(getApplicationContext(), MainActivity.class);
-        bodyClickIntent.putExtra("posFromNotif", TaskList.taskList.indexOf(task));
+        bodyClickIntent.putExtra("posFromNotif", task.getKey());
 
         //put together the PendingIntent
         PendingIntent pendingClickIntent =
-                PendingIntent.getActivity(getApplicationContext(), 1, bodyClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(getApplicationContext(), task.getKey(), bodyClickIntent, FLAG_UPDATE_CURRENT);
 
-        int notifID = new Random().nextInt();
-        Log.d("notificationRemove", Integer.toString(notifID));
+
 
 
         Intent doneClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
-        doneClickIntent.putExtra("posFromNotifClear", TaskList.taskList.indexOf(task));
-        doneClickIntent.putExtra("notifID", notifID);
+        doneClickIntent.putExtra("posFromNotifClear", task.getKey());
+
 
         PendingIntent pendingDoneClickIntent =
-                PendingIntent.getService(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getService(getApplicationContext(), task.getKey(), doneClickIntent, FLAG_UPDATE_CURRENT);
 
 
         String notificationTitle = task.getListName();
@@ -106,7 +111,7 @@ public class NotifyWorker extends Worker {
                         .setContentText(notificationText)
                         .setContentIntent(pendingClickIntent)
                         .setAutoCancel(true)
-                        .addAction(R.drawable.ic_todo_small, "DONE", pendingDoneClickIntent)
+                        .addAction(R.drawable.ic_check_white_24dp, "DONE", pendingDoneClickIntent)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         //trigger the notification
@@ -117,7 +122,9 @@ public class NotifyWorker extends Worker {
         //to ensure they all show up and there are no duplicates
 
 
-        notificationManager.notify(notifID, notificationBuilder.build());
+        notificationManager.notify(Integer.toString(task.getKey()), task.getKey(), notificationBuilder.build());
+
+        Log.d("notificationCreate", "Name: " + task.getListName() + ", Key: " + Integer.toString(task.getKey()));
 
         lastItemPos = TaskList.taskList.lastIndexOf(task);
 
@@ -128,6 +135,8 @@ public class NotifyWorker extends Worker {
 
             Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
             if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
+                notificationTitle = TaskList.getNextNotificationItem(false).getDateTime().toString("MMM d");
+                notificationBuilder.setContentTitle(notificationTitle);
                 DateTime onlyDate = TaskList.getNextNotificationItem(false).getDateTime();
                 onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
                 duration = new Duration(DateTime.now(), onlyDate);

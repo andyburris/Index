@@ -16,12 +16,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
 
 import androidx.work.WorkManager;
 
@@ -52,6 +54,7 @@ public class InboxFragment extends Fragment {
     private ActionMode contextualToolbar;
     public boolean selected = false;
 
+    private static TextView noTasks;
 
     private OnFragmentInteractionListener mListener;
 
@@ -77,22 +80,18 @@ public class InboxFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
+
         // Inflate the layout for this fragment
         Log.d("inflating", "inbox inflating");
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
-        setFilterMode(filterMode);
         prepareRecyclerView(view);
 
-        if (filteredTaskList.isEmpty()) {
-            view.findViewById(R.id.noTasks).setVisibility(View.VISIBLE);
-        }
-
-        Log.d("inboxFilterInboxBlank", Integer.toString(filteredTaskList.size()));
+        noTasks = view.findViewById(R.id.noTasks);
 
 
-        if (filteredTaskList.isEmpty()) {
-            view.findViewById(R.id.noTasks).setVisibility(View.VISIBLE);
-        }
+
+
+
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
 
@@ -197,15 +196,29 @@ public class InboxFragment extends Fragment {
 
         String taskName;
 
-        if (MainActivity.posFromNotif != -1) {
+        if (MainActivity.notifKey != 0) {
 
-            taskName = filteredTaskList.get(filteredTaskList.indexOf(TaskList.getItem(MainActivity.posFromNotif)) - 1).getListName();
+            int index = TaskList.keyList.indexOf(MainActivity.notifKey);
+            int finalPos = -1;
+            for (int i = 0; i < filteredTaskList.size(); i++) {
+                if (filteredTaskList.get(i).getKey() == MainActivity.notifKey) {
+                    finalPos = i;
+                    break;
+                }
 
 
-            if (taskName.equals("OVERDUE") | taskName.equals("TODAY") | taskName.equals("WEEK") | taskName.equals("MONTH") | taskName.equals("FUTURE"))
-                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.posFromNotif)));
-            else
-                mRecyclerView.scrollToPosition(filteredTaskList.indexOf(TaskList.getItem(MainActivity.posFromNotif)) - 1);
+            }
+
+            Log.d("scrollBug", Integer.toString(finalPos) + ", Size: " + Integer.toString(filteredTaskList.size()));
+            if (finalPos != -1) {
+                taskName = filteredTaskList.get(finalPos).getListName();
+
+
+                if (taskName.equals("OVERDUE") | taskName.equals("TODAY") | taskName.equals("WEEK") | taskName.equals("MONTH") | taskName.equals("FUTURE"))
+                    mRecyclerView.scrollToPosition(finalPos - 1);
+                else
+                    mRecyclerView.scrollToPosition(finalPos);
+            }
         }
 
 
@@ -214,8 +227,16 @@ public class InboxFragment extends Fragment {
 
     public static void addTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time) {
 
+        int key = new Random().nextInt();
 
-        Tasks tasks = new Tasks(title, items, checked, tags, time, false);
+        while (TaskList.keyList.contains(key) || key == 0) {
+            key = new Random().nextInt();
+        }
+        TaskList.keyList.add(key);
+
+        Log.d("putKeys", Integer.toString(key));
+
+        Tasks tasks = new Tasks(title, items, checked, tags, time, false, key);
         TaskList.addTaskList(tasks);
         Log.d("recyclerCreated", "outer created");
 
@@ -227,10 +248,10 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public static void replaceTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time, boolean notified, int position) {
+    public static void replaceTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time, boolean notified, int position, int key) {
 
 
-        Tasks tasks = new Tasks(title, items, checked, tags, time, notified);
+        Tasks tasks = new Tasks(title, items, checked, tags, time, notified, key);
         TaskList.setTaskList(position, tasks);
         Log.d("recyclerCreated", "outer created");
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
@@ -370,7 +391,12 @@ public class InboxFragment extends Fragment {
 
         //mAdapter.notifyDataSetChanged();
 
+        if (filteredTaskList.isEmpty()) {
+            noTasks.setVisibility(View.VISIBLE);
+        } else {
+            noTasks.setVisibility(View.GONE);
 
+        }
         Log.d("inboxFilterInboxEnd", Integer.toString(filteredTaskList.size()));
 
 

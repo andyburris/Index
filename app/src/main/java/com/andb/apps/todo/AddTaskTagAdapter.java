@@ -15,7 +15,7 @@ public class AddTaskTagAdapter extends RecyclerView.Adapter<AddTaskTagAdapter.My
     public static List<Integer> tagList = new ArrayList<>();
     public static boolean edit;
     public static int taskPosition;
-
+    ArrayList<Tasks> taskList = new ArrayList<>();
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView tagColor;
@@ -46,7 +46,8 @@ public class AddTaskTagAdapter extends RecyclerView.Adapter<AddTaskTagAdapter.My
     }
 
 
-    public AddTaskTagAdapter( boolean edit, int taskPosition) {
+    public AddTaskTagAdapter(ArrayList<Tasks> taskList, boolean edit, int taskPosition) {
+        this.taskList = taskList;
         this.edit = edit;
         this.taskPosition = taskPosition;
     }
@@ -70,7 +71,7 @@ public class AddTaskTagAdapter extends RecyclerView.Adapter<AddTaskTagAdapter.My
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
         if (edit) {
-            if (position < InboxFragment.filteredTaskList.get(taskPosition).getListTagsSize()) {
+            if (position < taskList.get(taskPosition).getListTagsSize()) {
                 holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
 
             }

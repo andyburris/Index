@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.joda.time.DateTimeFieldType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +76,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
-            timeText = (TextView) view.findViewById(R.id.dateTimeInboxText);
+            timeText = (TextView) view.findViewById(R.id.dateInboxText);
             timeIcon = (ImageView) view.findViewById(R.id.timeIcon);
 
 
@@ -95,16 +97,16 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                 }
             });
             moreTags.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int realPosition = getAdapterPosition();
-                        Intent intent = new Intent(v.getContext(), TaskView.class);
-                        intent.putExtra("pos", realPosition);
-                        intent.putExtra("inboxOrArchive", false);
-                        Log.d("onePosUpError", Integer.toString(realPosition));
-                        v.getContext().startActivity(intent);
-                    }
-                });
+                @Override
+                public void onClick(View v) {
+                    int realPosition = getAdapterPosition();
+                    Intent intent = new Intent(v.getContext(), TaskView.class);
+                    intent.putExtra("pos", realPosition);
+                    intent.putExtra("inboxOrArchive", false);
+                    Log.d("onePosUpError", Integer.toString(realPosition));
+                    v.getContext().startActivity(intent);
+                }
+            });
 
             backToInbox.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -134,7 +136,6 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
     }
 
 
-
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -157,8 +158,13 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         holder.name.setText(taskList.get(position).getListName());
 
         if (taskList.get(position).isListTime()) {
-            holder.timeText.setText(taskList.get(position).getDateTime().toString("MM/dd/yy"));
             holder.timeText.setText(taskList.get(position).getDateTime().toString("EEEE, MMMM d"));
+            if (taskList.get(position).getDateTime().get(DateTimeFieldType.secondOfMinute()) == 59) {
+                holder.timeText.setVisibility(View.GONE);
+            } else {
+                holder.timeText.setVisibility(View.VISIBLE);
+                holder.timeText.setText(taskList.get(position).getDateTime().toString("h:mm a"));
+            }
             if (SettingsActivity.darkTheme) {
                 holder.timeIcon.setColorFilter(Color.WHITE);
             }
@@ -182,12 +188,11 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         });
 
 
-
-        setTasks(position, holder.item1, holder.item2, holder.item3 ,holder.more, holder.encloser);
+        setTasks(position, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
         setTags(position, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.moreTags, holder.tagEncloser);
 
         holder.backToInbox.setVisibility(View.VISIBLE);
-        if(SettingsActivity.darkTheme) {
+        if (SettingsActivity.darkTheme) {
             holder.backToInbox.setColorFilter(Color.WHITE);
             holder.clearList.setColorFilter(Color.WHITE);
             holder.name.setTextColor(Color.WHITE);
@@ -217,7 +222,6 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             Log.d("items", "multipleItems");
 
 
-
             if (taskList.get(pos).getListItemsSize() == 1) {
 
                 check1.setChecked(taskList.get(pos).getListItemsChecked(0));
@@ -226,14 +230,14 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 0);
-                        if(check1.isChecked())
+                        if (check1.isChecked())
                             check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check1.isChecked())
+                if (check1.isChecked())
                     check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
@@ -241,7 +245,6 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                 check2.setVisibility(View.GONE);
 
                 check3.setVisibility(View.GONE);
-
 
 
             } else if (taskList.get(pos).getListItemsSize() == 2) {
@@ -253,13 +256,13 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 0);
-                        if(check1.isChecked())
+                        if (check1.isChecked())
                             check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
-                if(check1.isChecked())
+                if (check1.isChecked())
                     check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
@@ -271,21 +274,20 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 1);
-                        if(check2.isChecked())
+                        if (check2.isChecked())
                             check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check2.isChecked())
+                if (check2.isChecked())
                     check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
 
 
                 check3.setVisibility(View.GONE);
-
 
 
             } else if (taskList.get(pos).getListItemsSize() == 3) {
@@ -295,14 +297,14 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 0);
-                        if(check1.isChecked())
+                        if (check1.isChecked())
                             check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check1.isChecked())
+                if (check1.isChecked())
                     check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
@@ -314,14 +316,14 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 1);
-                        if(check2.isChecked())
+                        if (check2.isChecked())
                             check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check2.isChecked())
+                if (check2.isChecked())
                     check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
@@ -334,18 +336,17 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 2);
-                        if(check3.isChecked())
+                        if (check3.isChecked())
                             check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check3.isChecked())
+                if (check3.isChecked())
                     check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
 
 
             } else if (taskList.get(pos).getListItemsSize() >= 4) {
@@ -356,14 +357,14 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 0);
-                        if(check1.isChecked())
+                        if (check1.isChecked())
                             check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check1.isChecked())
+                if (check1.isChecked())
                     check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
@@ -375,14 +376,14 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 1);
-                        if(check2.isChecked())
+                        if (check2.isChecked())
                             check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check2.isChecked())
+                if (check2.isChecked())
                     check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
@@ -395,22 +396,21 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         ArchiveTaskList.getItem(pos).editListItemsChecked(isChecked, 2);
-                        if(check3.isChecked())
+                        if (check3.isChecked())
                             check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                         else
                             check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
                     }
                 });
 
-                if(check3.isChecked())
+                if (check3.isChecked())
                     check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
                     check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
 
 
-
                 more.setVisibility(View.VISIBLE);
-                if(SettingsActivity.darkTheme)
+                if (SettingsActivity.darkTheme)
                     more.setColorFilter(Color.WHITE);
 
 
@@ -451,7 +451,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                 image3.setVisibility(View.GONE);
                 image4.setVisibility(View.GONE);
                 image5.setVisibility(View.GONE);
-            }else if (taskList.get(pos).getAllListTags().size() == 3) {
+            } else if (taskList.get(pos).getAllListTags().size() == 3) {
                 Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
                 image1.setColorFilter(tag1temp.getTagColor());
                 Tags tag2temp = TagList.getItem(taskList.get(pos).getListTags(1));
@@ -496,7 +496,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                 image5.setColorFilter(tag5temp.getTagColor());
 
                 moreTags.setVisibility(View.VISIBLE);
-                if(SettingsActivity.darkTheme)
+                if (SettingsActivity.darkTheme)
                     moreTags.setColorFilter(Color.WHITE);
 
 
@@ -506,8 +506,6 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             layout.setVisibility(View.GONE);
         }
     }
-
-
 
 
 }
