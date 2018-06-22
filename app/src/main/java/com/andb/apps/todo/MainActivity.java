@@ -34,9 +34,16 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.fatboyindustrial.gsonjodatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
+import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -430,6 +437,13 @@ public class MainActivity extends AppCompatActivity
         SettingsActivity.coloredToolbar = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("colored_toolbar", false);
         SettingsActivity.subFilter = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("sub_Filter_pref", false);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
+        String json = prefs.getString("pref_notify_only_date", null);
+        Type type = new TypeToken<DateTime>() {
+        }.getType();
+        SettingsActivity.timeToNotifyForDateOnly = gson.fromJson(json, type);
+
     }
 
     public void loadTags() {
@@ -629,89 +643,18 @@ public class MainActivity extends AppCompatActivity
 
     private final static String todo_notification_channel = "Task Reminders";
 
-    /*public void triggerNotificationTest(Tasks task) {
 
-
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //define the importance level of the notification
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-
-            //build the actual notification channel, giving it a unique ID and name
-            NotificationChannel channel =
-                    new NotificationChannel(todo_notification_channel, todo_notification_channel, importance);
-
-            //we can optionally add a description for the channel
-            String description = "Shows notifications for tasks when they are due";
-            channel.setDescription(description);
-
-            //we can optionally set notification LED colour
-            channel.setLightColor(SettingsActivity.themeColor);
-
-            // Register the channel with the system
-            NotificationManager notificationManager = (NotificationManager) getApplicationContext().
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-
-        Intent bodyClickIntent = new Intent(getApplicationContext(), MainActivity.class);
-        bodyClickIntent.putExtra("posFromNotif", TaskList.taskList.indexOf(task));
-
-        //put together the PendingIntent
-        PendingIntent pendingClickIntent =
-                PendingIntent.getActivity(getApplicationContext(), 1, bodyClickIntent, FLAG_UPDATE_CURRENT);
-
-        int notifID = new Random().nextInt();
-        Log.d("notificationRemove", Integer.toString(notifID));
-
-
-        Intent doneClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
-        doneClickIntent.putExtra("posFromNotifClear", TaskList.taskList.indexOf(task));
-        doneClickIntent.putExtra("notifID", notifID);
-
-        PendingIntent pendingDoneClickIntent =
-                PendingIntent.getService(getApplicationContext(), 2, doneClickIntent, FLAG_UPDATE_CURRENT);
-
-
-        String notificationTitle = task.getListName();
-        String notificationText = "";
-
-        for (int i = 0; i < task.getAllListItems().size(); i++) {
-            notificationText = notificationText.concat(task.getListItems(i) + "\n");
-        }
-        notificationText = notificationText.concat(task.getDateTime().toString("MMM d, h:mm a"));
-
-        //build the notification
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(getApplicationContext(), todo_notification_channel)
-                        .setSmallIcon(R.drawable.ic_todo_small)
-                        .setContentTitle(notificationTitle)
-                        .setContentText(notificationText)
-                        .setContentIntent(pendingClickIntent)
-                        .setAutoCancel(true)
-                        .addAction(R.drawable.ic_todo_small, "DONE", pendingDoneClickIntent)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        //trigger the notification
-        NotificationManagerCompat notificationManager =
-                NotificationManagerCompat.from(getApplicationContext());
-
-        //we give each notification the ID of the event it's describing,
-        //to ensure they all show up and there are no duplicates
-
-
-        notificationManager.notify(notifID, notificationBuilder.build());
-
-    }*/
 
     public static void restartNotificationService() {
         //Here we set the request for the next notification
 
         if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
-            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime().minusSeconds(59));//notification played 59 seconds late;
+            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
+            if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
+                DateTime onlyDate = TaskList.getNextNotificationItem(false).getDateTime();
+                onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
+                duration = new Duration(DateTime.now(), onlyDate);
+            }
             long delay = duration.getStandardSeconds();
 
             OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)

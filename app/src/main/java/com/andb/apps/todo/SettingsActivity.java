@@ -21,9 +21,13 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.andrognito.flashbar.Flashbar;
+import com.fatboyindustrial.gsonjodatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jaredrummler.android.colorpicker.ColorPreference;
 
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
     public static boolean folderMode;
     public static boolean subFilter;
     public static int defaultSort;
+    public static DateTime timeToNotifyForDateOnly;
 
     private static Flashbar restartAppFlashbar;
     private static Flashbar restartAppFlashbar2;
@@ -151,6 +156,19 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                     Log.d("pref_resume", Boolean.toString(MainActivity.fromSettings));
 
                 }
+            } else if (preference instanceof TimePreference) {
+                if (preference.getKey().equals("timePref_Key")) {
+
+                    timeToNotifyForDateOnly = new DateTime(value);
+                    preference.setSummary(timeToNotifyForDateOnly.toString("h:mm a"));
+                    Log.d("timePicker", timeToNotifyForDateOnly.toString("h:mm:ss a"));
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(preference.getContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
+                    String json = gson.toJson(timeToNotifyForDateOnly);
+                    editor.putString("pref_notify_only_date", json);
+                    editor.apply();
+                }
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -234,7 +252,6 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
         restartAppFlashbar2 = restartApp();
 
 
-
     }
 
     /**
@@ -273,14 +290,12 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || ThemePreferenceFragment.class.getName().equals(fragmentName);
+                || ThemePreferenceFragment.class.getName().equals(fragmentName)
+                || FolderPreferenceFragment.class.getName().equals(fragmentName)
+                || NotificationPreferenceFragment.class.getName().equals(fragmentName);
     }
 
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
     public static class GeneralPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -295,12 +310,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
             bindPreferenceSummaryToValue(findPreference("test_name"));
             bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
 
-            Preference folderMode = findPreference("folder_mode");
-            folderMode.setDefaultValue(folderMode);
-            folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
-            Preference subFilter = findPreference(getResources().getString(R.string.pref_sub_folder_filter_key));
-            subFilter.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
         }
 
         @Override
@@ -315,11 +325,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
 
     }
 
-    /**
-     * This fragment shows notification preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
     public static class ThemePreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -350,6 +356,80 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
             if(SettingsActivity.darkTheme){
                 foreground.setColorFilter(getResources().getColor(R.color.slate_black));
             }*/
+
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+    }
+
+    public static class FolderPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_folders);
+            setHasOptionsMenu(true);
+
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+
+
+            Preference folderMode = findPreference("folder_mode");
+            folderMode.setDefaultValue(folderMode);
+            folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+            Preference subFilter = findPreference(getResources().getString(R.string.pref_sub_folder_filter_key));
+            subFilter.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+    }
+
+    public static class NotificationPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_notifications);
+            setHasOptionsMenu(true);
+
+            Preference timePreference = findPreference("timePref_Key");
+            if (timeToNotifyForDateOnly != null) {
+                Log.d("loadedTime", timeToNotifyForDateOnly.toString("h:mm a"));
+                timePreference.setDefaultValue(timeToNotifyForDateOnly.getMillis());
+                timePreference.setSummary(timeToNotifyForDateOnly.toString("h:mm a"));
+            } else {
+                timePreference.setDefaultValue(new DateTime().withHourOfDay(8).withMinuteOfHour(0).getMillis());
+                timePreference.setSummary("8:00 AM");
+            }
+            timePreference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+
 
         }
 
@@ -640,6 +720,174 @@ public class SettingsActivity extends AppCompatActivity/*AppCompatPreferenceActi
  * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public void onBuildHeaders(List<Header> target) {
  * loadHeadersFromResource(R.xml.pref_headers, target);
  * }
+ * This method stops fragment injection in malicious applications.
+ * Make sure to deny any unknown fragments here.
+ * <p>
+ * protected boolean isValidFragment(String fragmentName) {
+ * return PreferenceFragment.class.getName().equals(fragmentName)
+ * || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+ * || ThemePreferenceFragment.class.getName().equals(fragmentName);
+ * }
+ * This fragment shows general preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class GeneralPreferenceFragment extends Fragment/* extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * //addPreferencesFromResource(R.xml.pref_general);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * /*bindPreferenceSummaryToValue(("test_name"));
+ * bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
+ * <p>
+ * <p>
+ * folderMode.setDefaultValue(folderMode);
+ * folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);*
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * }
+ * <p>
+ * /**
+ * This fragment shows notification preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class ThemePreferenceFragment extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * addPreferencesFromResource(R.xml.pref_theme);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * Preference darkTheme = findPreference("dark_theme");
+ * darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * <p>
+ * Preference themeColor = findPreference("default_color");
+ * themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * <p>
+ * }
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * }
+ * <p>
+ * This method stops fragment injection in malicious applications.
+ * Make sure to deny any unknown fragments here.
+ * <p>
+ * protected boolean isValidFragment(String fragmentName) {
+ * return PreferenceFragment.class.getName().equals(fragmentName)
+ * || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+ * || ThemePreferenceFragment.class.getName().equals(fragmentName);
+ * }
+ * This fragment shows general preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class GeneralPreferenceFragment extends Fragment/* extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * //addPreferencesFromResource(R.xml.pref_general);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * /*bindPreferenceSummaryToValue(("test_name"));
+ * bindPreferenceSummaryToValue(findPreference("sort_mode_list"));
+ * <p>
+ * <p>
+ * folderMode.setDefaultValue(folderMode);
+ * folderMode.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);*
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * }
+ * <p>
+ * /**
+ * This fragment shows notification preferences only. It is used when the
+ * activity is showing a two-pane settings UI.
+ * @TargetApi(Build.VERSION_CODES.HONEYCOMB) public static class ThemePreferenceFragment extends PreferenceFragment {
+ * @Override public void onCreate(Bundle savedInstanceState) {
+ * super.onCreate(savedInstanceState);
+ * addPreferencesFromResource(R.xml.pref_theme);
+ * setHasOptionsMenu(true);
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+ * // to their values. When their values change, their summaries are
+ * // updated to reflect the new value, per the Android Design
+ * // guidelines.
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * Preference darkTheme = findPreference("dark_theme");
+ * darkTheme.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * <p>
+ * Preference themeColor = findPreference("default_color");
+ * themeColor.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+ * }
+ * @Override public boolean onOptionsItemSelected(MenuItem item) {
+ * int id = item.getItemId();
+ * if (id == android.R.id.home) {
+ * startActivity(new Intent(getActivity(), SettingsActivity.class));
+ * return true;
+ * }
+ * return super.onOptionsItemSelected(item);
+ * }
+ * <p>
+ * <p>
+ * }
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * <p>
+ * }
+ * <p>
  * This method stops fragment injection in malicious applications.
  * Make sure to deny any unknown fragments here.
  * <p>

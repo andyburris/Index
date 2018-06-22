@@ -434,6 +434,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 DatePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
                         .withMinDate(Calendar.getInstance().getTimeInMillis()))
                         .show(getSupportFragmentManager(), "DatePickerFragmentDialog");
+
             }
         });
 
@@ -608,6 +609,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         TextView timeText = (TextView) findViewById(R.id.dateTimeText);
         timeHasBeenSet = true;
         LocalTime localTime = new LocalTime(time);
+        localTime = localTime.secondOfMinute().setCopy(0);
         if (taskDateTime.isEqual(new DateTime(3000, 1, 1, 0, 0))) {
             taskDateTime = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(), 23, 0);
             Log.d("dateTime", taskDateTime.toString());
@@ -628,7 +630,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 notified = taskList.get(taskPosition).isNotified();
         }
 
-        Log.d("dateTime", taskDateTime.toString());
+        Log.d("dateTime", taskDateTime.toString("h:mm:ss"));
 
         resetTimeButton.setVisibility(View.VISIBLE);
 

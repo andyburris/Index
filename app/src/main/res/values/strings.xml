@@ -23,7 +23,7 @@
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
 
-    <string name="pref_title_sort_mode">Sort Mode</string>
+    <string name="pref_title_sort_mode">Default Sort Mode</string>
     <string-array name="pref_example_list_titles">
         <item>Date</item>
         <item>Alphabetical</item>
@@ -113,6 +113,11 @@
     <string name="subfoler_create_text">Subfolder</string>
     <string name="subfolder_filter_check_title">Treat subfolders as filters</string>
     <string name="pref_sub_folder_filter_key">sub_Filter_pref</string>
+    <string name="pref_notif_time_text">Time to notify for tasks with only a date</string>
+    <string name="pref_notif_time_title">Notification Time</string>
+
+    <string name="pref_header_folder">Folders</string>
+    <string name="pref_header_notif">Notifications</string>
 
 
 </resources>

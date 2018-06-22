@@ -13,5 +13,15 @@
         android:icon="@drawable/ic_palette_black_24dp"
         android:title="@string/pref_header_theme" />
 
+    <header
+        android:fragment="com.andb.apps.todo.SettingsActivity$NotificationPreferenceFragment"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="@string/pref_header_notif" />
+
+    <header
+        android:fragment="com.andb.apps.todo.SettingsActivity$FolderPreferenceFragment"
+        android:icon="@drawable/ic_folder_black_24dp"
+        android:title="@string/pref_header_folder" />
+
 
 </preference-headers>

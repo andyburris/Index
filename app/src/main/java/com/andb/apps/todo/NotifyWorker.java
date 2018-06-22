@@ -12,6 +12,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
 import java.util.Random;
@@ -125,7 +126,12 @@ public class NotifyWorker extends Worker {
 
         if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
 
-            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime().minusSeconds(59));//notification played 59 seconds late;
+            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
+            if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
+                DateTime onlyDate = TaskList.getNextNotificationItem(false).getDateTime();
+                onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
+                duration = new Duration(DateTime.now(), onlyDate);
+            }
             long delay = duration.getStandardSeconds();
 
             OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
