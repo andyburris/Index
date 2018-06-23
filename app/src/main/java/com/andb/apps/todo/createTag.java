@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -110,6 +111,30 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
             }
         });
 
+        switchCheck();
+
+
+    }
+
+    public void switchCheck() {
+        subFolderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    subFolderSwitch.getThumbDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
+                    subFolderSwitch.getTrackDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
+                } else {
+                    if (SettingsActivity.darkTheme) {
+                        subFolderSwitch.getThumbDrawable().setColorFilter(0xFFb9b9b9, PorterDuff.Mode.MULTIPLY);
+                        subFolderSwitch.getTrackDrawable().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.MULTIPLY);
+
+                    } else {
+                        subFolderSwitch.getThumbDrawable().setColorFilter(0xFFEEEEEE, PorterDuff.Mode.MULTIPLY);
+                        subFolderSwitch.getTrackDrawable().setColorFilter(0xFF000000, PorterDuff.Mode.MULTIPLY);
+                    }
+                }
+            }
+        });
     }
 
     public void darkThemeSet(Toolbar toolbar) {
@@ -221,6 +246,12 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
                 fab.setBackgroundTintList(ColorStateList.valueOf(tagColor));
                 tagNameEdit.clearFocus();
                 setInputTextLayoutColor(tagColor, tagNameEdit);
+
+                if (subFolderSwitch.isChecked()) {
+                    subFolderSwitch.getThumbDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
+                    subFolderSwitch.getTrackDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
+                }
+
                 break;
         }
     }

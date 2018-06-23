@@ -131,7 +131,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
     }
 
 
-    public BrowseTaskAdapter( List<Tasks> tasksList) {
+    public BrowseTaskAdapter(List<Tasks> tasksList) {
         this.taskList = tasksList;
     }
 
@@ -148,7 +148,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             itemView = LayoutInflater.from(context)
                     .inflate(R.layout.inbox_list_item, parent, false);
             d("viewType", Integer.toString(viewType));
-        }else {
+        } else {
             itemView = LayoutInflater.from(context)
                     .inflate(R.layout.browse_blank_list_item, parent, false);
             d("viewType", Integer.toString(viewType));
@@ -170,10 +170,10 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
 
         if (isSelected) {
             holder.inboxListItemBackground.setBackgroundColor(Color.GRAY);
-        }else {
-            if(SettingsActivity.darkTheme) {
+        } else {
+            if (SettingsActivity.darkTheme) {
                 holder.inboxListItemBackground.setBackgroundColor(0xFF424242);
-            }else {
+            } else {
                 holder.inboxListItemBackground.setBackgroundColor(Color.WHITE);
             }
         }
@@ -248,8 +248,9 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                     TaskList.taskList.remove(taskList.get(realPosition));
                     taskList.remove(realPosition);
                     notifyItemRemoved(realPosition);
-                    InboxFragment.setFilterMode(InboxFragment.filterMode);
-                    InboxFragment.mAdapter.notifyDataSetChanged();
+                    notifyItemRangeChanged(realPosition, taskList.size() - 1);
+                    BrowseFragment.fromAdapter = true;
+                    BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
                     WorkManager.getInstance().cancelAllWorkByTag(workTag);
                     MainActivity.restartNotificationService();
 
@@ -286,7 +287,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
     @Override
     public int getItemViewType(int position) {
 
-    if (InboxFragment.filterMode == 0) {
+        if (InboxFragment.filterMode == 0) {
             if (taskList.get(position).getListName().equals("OVERDUE")
                     | taskList.get(position).getListName().equals("TODAY")
                     | taskList.get(position).getListName().equals("WEEK")
@@ -353,9 +354,6 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                     break;
 
 
-
-
-
                 case 2:
                     Log.d("items", taskList.get(pos).getListName() + ", 2 items: " + taskList.get(pos).getListItemsSize());
 
@@ -399,10 +397,6 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                     check2.setVisibility(View.VISIBLE);
                     check3.setVisibility(View.GONE);
                     break;
-
-
-
-
 
 
                 case 3:
@@ -463,8 +457,6 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                     check3.setVisibility(View.VISIBLE);
 
                     break;
-
-
 
 
                 default:
@@ -542,18 +534,27 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             layout.setVisibility(View.VISIBLE);
 
 
-
-
         } else {
             Log.d("items", taskList.get(pos).getListName() + ", singleItem");
             layout.setVisibility(View.GONE);
         }
 
-        boolean c1 = false; boolean c2 = false; boolean c3 = false; boolean lay = false;
-        if (check1.getVisibility()==View.VISIBLE){ c1 = true; }
-        if (check2.getVisibility()==View.VISIBLE){ c2 = true; }
-        if (check3.getVisibility()==View.VISIBLE){ c3 = true; }
-        if (layout.getVisibility()==View.VISIBLE){ lay = true; }
+        boolean c1 = false;
+        boolean c2 = false;
+        boolean c3 = false;
+        boolean lay = false;
+        if (check1.getVisibility() == View.VISIBLE) {
+            c1 = true;
+        }
+        if (check2.getVisibility() == View.VISIBLE) {
+            c2 = true;
+        }
+        if (check3.getVisibility() == View.VISIBLE) {
+            c3 = true;
+        }
+        if (layout.getVisibility() == View.VISIBLE) {
+            lay = true;
+        }
         Log.d("items", "Showing:" + Boolean.toString(c1) + Boolean.toString(c2) + Boolean.toString(c3) + Boolean.toString(lay));
     }
 

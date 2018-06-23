@@ -1,5 +1,6 @@
 package com.andb.apps.todo;
 
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +63,8 @@ public class BrowseFragment extends Fragment {
     public static NestedScrollView nestedScrollView;
 
     public static boolean removing;
+
+    public static boolean fromAdapter = false;
 
 
     private BrowseFragment.OnFragmentInteractionListener mListener;
@@ -238,7 +241,7 @@ public class BrowseFragment extends Fragment {
         final NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
         final CardView browseCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
         final RecyclerView tagCardLayout = (RecyclerView) view.findViewById(R.id.browseTagRecycler);
-
+        final RecyclerView taskRecycler = (RecyclerView) view.findViewById(R.id.browseTaskRecycler);
 
         final float scale = getContext().getResources().getDisplayMetrics().density;
         final int pixels = (int) (56 * scale + 0.5f);
@@ -256,6 +259,8 @@ public class BrowseFragment extends Fragment {
                     Log.d("wontCollapse", "Won't collapse");
                     if (!tagCollapsed) {
 
+                        taskRecycler.setPadding(0, browseCard.getHeight() - pixels, 0, 0);//no jump
+
 
                         TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
                                 .addTransition(new ChangeBounds()));
@@ -263,8 +268,14 @@ public class BrowseFragment extends Fragment {
                         params.height = pixels;
                         browseCard.setLayoutParams(params);
 
+                        TransitionManager.beginDelayedTransition(taskRecycler, new TransitionSet()
+                                .addTransition(new ChangeBounds()));
+                        taskRecycler.setPadding(0, 0, 0, 0);//animate with card collapse, after it if need be
+
+
                         dividerItemDecoration.setVisibility(View.GONE);
-                        collapseButton.animate().setDuration(100).rotation(0).setListener(null);
+                        collapseButton.animate().setDuration(100).rotation(0).setListener(new AnimatorListenerAdapter() {
+                        });
 
                         tagCardLayout.setVisibility(View.GONE);
 
@@ -272,11 +283,19 @@ public class BrowseFragment extends Fragment {
                         tagCollapsed = true;
 
                     } else {
+
+                        taskRecycler.setPadding(0, 0, 0, 0);//same as last but vice-versa
+
                         TransitionManager.beginDelayedTransition(browseCard, new TransitionSet()
                                 .addTransition(new ChangeBounds()));
                         ViewGroup.LayoutParams params = browseCard.getLayoutParams();
                         params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         browseCard.setLayoutParams(params);
+
+                        TransitionManager.beginDelayedTransition(taskRecycler, new TransitionSet()
+                                .addTransition(new ChangeBounds()));
+                        taskRecycler.setPadding(0, browseCard.getHeight() - pixels, 0, 0);//no jump
+
 
                         tagCardLayout.setVisibility(View.VISIBLE);
 
@@ -454,7 +473,12 @@ public class BrowseFragment extends Fragment {
                 }
 
             }
-            mAdapter.notifyDataSetChanged();
+
+            if (!fromAdapter) {
+                mAdapter.notifyDataSetChanged();
+            } else {
+                fromAdapter = false;
+            }
             tAdapter.notifyDataSetChanged();
 
         } else
@@ -483,7 +507,11 @@ public class BrowseFragment extends Fragment {
             Log.d("noFilters", "TaskList size:" + Integer.toString(filteredTaskList.size()));
 
 
-            mAdapter.notifyDataSetChanged();
+            if (!fromAdapter) {
+                mAdapter.notifyDataSetChanged();
+            } else {
+                fromAdapter = false;
+            }
             tAdapter.notifyDataSetChanged();
         }
 

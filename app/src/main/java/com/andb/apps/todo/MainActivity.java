@@ -162,6 +162,8 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+        drawerResume();
+
         String label = getResources().getString(R.string.app_name);
         Bitmap icon = BitmapFactory.decodeResource(getResources(),
                 R.mipmap.ic_launcher);
@@ -764,6 +766,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        //navigationView.getMenu().getItem(0).setChecked(true);
         View headerView = navigationView.getHeaderView(0);
         LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
         headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
@@ -772,6 +775,8 @@ public class MainActivity extends AppCompatActivity
 
         if (lightText) {
             drawerToggle.getDrawerArrowDrawable().setColor(Color.WHITE);
+            navigationView.setItemTextColor(ColorStateList.valueOf(Color.WHITE));
+            navigationView.setItemIconTintList(ColorStateList.valueOf(Color.WHITE));
 
         } else {
             drawerToggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.slate_black));
@@ -785,6 +790,11 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void drawerResume() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.getMenu().getItem(0).setChecked(true);
+
+    }
 
     public void setName(TextView navName, boolean start) {
 
