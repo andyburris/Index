@@ -396,9 +396,10 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 itemsList.add("");
                 Log.d("addingValue", "adding #" + position);
                 mRecyclerView.setItemViewCacheSize(itemsList.size());
-
+                mAdapter.focused = true;
                 mAdapter.notifyItemInserted(itemsList.size() - 1);
-                mRecyclerView.scrollToPosition(position);
+                mRecyclerView.smoothScrollToPosition(position);
+
                 //mAdapter.notifyDataSetChanged();
             }
         });

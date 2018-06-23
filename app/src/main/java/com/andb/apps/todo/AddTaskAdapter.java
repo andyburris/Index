@@ -2,10 +2,8 @@ package com.andb.apps.todo;
 
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,6 +24,8 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
     public List<String> taskList = new ArrayList<>();
     public boolean edit;
     public int taskPosition;
+
+    public boolean focused;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
@@ -116,6 +116,10 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
                 }
             });
 
+        if (focused) {
+            holder.editText.requestFocus();
+            focused = false;
+        }
 
         //holder.taskColor.setColorFilter(task.getListColor());
         //to-do: get tasks

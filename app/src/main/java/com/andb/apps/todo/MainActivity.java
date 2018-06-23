@@ -44,6 +44,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
@@ -92,7 +94,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadSettings();
+        JodaTimeAndroid.init(this);//initialize joda-time
+        loadBeforeSettings();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         subTitle = toolbar;
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity
         fromSettings = false;
         themeSet(toolbar);
 
+        long startTime = System.nanoTime();
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -123,7 +127,21 @@ public class MainActivity extends AppCompatActivity
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_theme, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_notifications, false);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_folders, false);
 
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Get extras and set default values: " + Long.toString(duration));
+
+        fabInitialize();
+
+
+        drawerInitialize(toolbar);
+
+        loadAfterSettings();
 
         loadTasks();
 
@@ -134,10 +152,7 @@ public class MainActivity extends AppCompatActivity
 
         loadArchiveTasks();
 
-        fabInitialize();
 
-
-        drawerInitialize(toolbar);
 
 
     }
@@ -169,6 +184,59 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    public void loadBeforeSettings() {
+
+        long startTime = System.nanoTime();
+
+
+        SettingsActivity.themeColor = PreferenceManager.getDefaultSharedPreferences(this).getInt("default_color", 0);
+
+
+        SettingsActivity.folderMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("folder_mode", false);
+        SettingsActivity.darkTheme = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false);
+        Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
+        if (SettingsActivity.darkTheme) {
+            this.setTheme(R.style.AppThemeDarkMain);
+        } else {
+            this.setTheme(R.style.AppThemeLightMain);
+        }
+
+        SettingsActivity.defaultSort = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("sort_mode_list", "0"));
+        InboxFragment.filterMode = SettingsActivity.defaultSort;
+
+        SettingsActivity.coloredToolbar = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("colored_toolbar", false);
+        SettingsActivity.subFilter = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("sub_Filter_pref", false);
+
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration;//to seconds
+
+        Log.d("startupTime", "Load Before Settings: " + Long.toString(duration));
+
+
+    }
+
+    public void loadAfterSettings() {
+
+        long startTime = System.nanoTime();
+
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
+        String json = prefs.getString("pref_notify_only_date", null);
+        Type type = new TypeToken<DateTime>() {
+        }.getType();
+        SettingsActivity.timeToNotifyForDateOnly = gson.fromJson(json, type);
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration;//to seconds
+
+        Log.d("startupTime", "Load After Settings: " + Long.toString(duration));
+    }
+
+
     public int getStatusBarHeight() {
         int result = 0;
 
@@ -182,6 +250,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void themeSet(Toolbar toolbar) {
+
+        long startTime = System.nanoTime();
 
         if (SettingsActivity.coloredToolbar) {//colored toolbar theming
             toolbar.setBackgroundColor(SettingsActivity.themeColor);
@@ -288,6 +358,12 @@ public class MainActivity extends AppCompatActivity
                 menu.getItem(i).getIcon().setColorFilter(getResources().getColor(R.color.slate_black), PorterDuff.Mode.SRC_ATOP);
             }
         }
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Theme Set: " + Long.toString(duration));
     }
 
     public void settingsReturn() {
@@ -446,35 +522,11 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void loadSettings() {
-        SettingsActivity.themeColor = PreferenceManager.getDefaultSharedPreferences(this).getInt("default_color", 0);
-
-
-        SettingsActivity.folderMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("folder_mode", false);
-        SettingsActivity.darkTheme = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false);
-        Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
-        if (SettingsActivity.darkTheme) {
-            this.setTheme(R.style.AppThemeDarkMain);
-        } else {
-            this.setTheme(R.style.AppThemeLightMain);
-        }
-
-        SettingsActivity.defaultSort = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("sort_mode_list", "0"));
-        InboxFragment.filterMode = SettingsActivity.defaultSort;
-
-        SettingsActivity.coloredToolbar = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("colored_toolbar", false);
-        SettingsActivity.subFilter = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("sub_Filter_pref", false);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
-        String json = prefs.getString("pref_notify_only_date", null);
-        Type type = new TypeToken<DateTime>() {
-        }.getType();
-        SettingsActivity.timeToNotifyForDateOnly = gson.fromJson(json, type);
-
-    }
 
     public void loadTags() {
+
+        long startTime = System.nanoTime();
+
         TagList.loadTags(this);
 
         if (TagList.tagList == null) {
@@ -482,9 +534,18 @@ public class MainActivity extends AppCompatActivity
             TagList.saveTags(this);
             TagList.loadTags(this);
         }
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Load tags: " + Long.toString(duration));
     }
 
     public void loadTagLinks() {
+
+        long startTime = System.nanoTime();
+
         TagLinkList.loadTags(this);
 
         if (TagLinkList.linkList == null) {
@@ -493,10 +554,18 @@ public class MainActivity extends AppCompatActivity
             TagList.loadTags(this);
         }
 
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Load tag links: " + Long.toString(duration));
 
     }
 
     public void loadTasks() {
+
+        long startTime = System.nanoTime();
+
         TaskList.loadTasks(this);
 
         if (TaskList.taskList == null) {
@@ -517,10 +586,18 @@ public class MainActivity extends AppCompatActivity
             Log.d("putKeys", Integer.toString(TaskList.keyList.get(i)));
         }
 
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration;//to seconds
+
+        Log.d("startupTime", "Load tasks (and keys): " + Long.toString(duration));
 
     }
 
     public void loadArchiveTasks() {
+
+        long startTime = System.nanoTime();
+
         ArchiveTaskList.loadTasks(this);
 
         if (ArchiveTaskList.taskList == null) {
@@ -528,10 +605,20 @@ public class MainActivity extends AppCompatActivity
             ArchiveTaskList.saveTasks(this);
             ArchiveTaskList.loadTasks(this);
         }
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Load archived tasks: " + Long.toString(duration));
+
     }
 
 
     public void pagerInitialize() {
+
+        long startTime = System.nanoTime();
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -544,10 +631,18 @@ public class MainActivity extends AppCompatActivity
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         mViewPager = (ViewPager) findViewById(R.id.container);
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Initialize pager: " + Long.toString(duration));
     }
 
 
     public void fabInitialize() {
+
+        long startTime = System.nanoTime();
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
@@ -602,6 +697,8 @@ public class MainActivity extends AppCompatActivity
                 }
 
             }
+
+
         });
 
 
@@ -625,10 +722,19 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Fab initialize: " + Long.toString(duration));
     }
 
 
     public void drawerInitialize(Toolbar toolbar) {
+
+        long startTime = System.nanoTime();
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -653,6 +759,12 @@ public class MainActivity extends AppCompatActivity
         } else {
             drawerToggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.slate_black));
         }
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+
+        Log.d("startupTime", "Drawer Initialize: " + Long.toString(duration));
 
     }
 
