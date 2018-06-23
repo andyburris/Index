@@ -102,9 +102,6 @@ public class BrowseFragment extends Fragment {
         Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
         createFilteredTaskList(Filters.getCurrentFilter(), true);
 
-        if (filteredTaskList.isEmpty() & filteredTagLinks.isEmpty()) {
-            view.findViewById(R.id.noTasks).setVisibility(View.VISIBLE);
-        }
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
 
@@ -240,6 +237,7 @@ public class BrowseFragment extends Fragment {
         final View dividerItemDecoration = (View) view.findViewById(R.id.browseDivider);
         final NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
         final CardView browseCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
+        final RecyclerView tagCardLayout = (RecyclerView) view.findViewById(R.id.browseTagRecycler);
 
 
         final float scale = getContext().getResources().getDisplayMetrics().density;
@@ -268,7 +266,7 @@ public class BrowseFragment extends Fragment {
                         dividerItemDecoration.setVisibility(View.GONE);
                         collapseButton.animate().setDuration(100).rotation(0).setListener(null);
 
-                        browseCard.setVisibility(View.GONE);
+                        tagCardLayout.setVisibility(View.GONE);
 
 
                         tagCollapsed = true;
@@ -280,7 +278,7 @@ public class BrowseFragment extends Fragment {
                         params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         browseCard.setLayoutParams(params);
 
-                        browseCard.setVisibility(View.VISIBLE);
+                        tagCardLayout.setVisibility(View.VISIBLE);
 
 
                         dividerItemDecoration.setVisibility(View.VISIBLE);
@@ -366,7 +364,6 @@ public class BrowseFragment extends Fragment {
 
         filteredTagLinks.clear();
         filteredTaskList.clear();
-        addToInbox.clear();
 
         Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
 

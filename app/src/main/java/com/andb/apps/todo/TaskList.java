@@ -39,9 +39,6 @@ public class TaskList extends AppCompatActivity {
     }
 
 
-
-
-
     public static Tasks getNextNotificationItem(boolean beingUsed) {
 
         Log.d("notScheduled", "getting item, beingUsed = " + Boolean.toString(beingUsed));
@@ -137,11 +134,16 @@ public class TaskList extends AppCompatActivity {
         Type type = new TypeToken<ArrayList<Tasks>>() {
         }.getType();
         return gson.fromJson(json, type);
+        //ArrayList<TaskMigrate> taskMigrates =  gson.fromJson(json, type);
+
         /*ArrayList<Tasks> tasksArrayList = new ArrayList<>();
+
         for(int i = 0; i<taskMigrates.size(); i++){
+
             tasksArrayList.add(taskMigrates.get(i).toTask());
         }
-        return tasksArrayList;*/
+        return tasksArrayList;
+    */
     }
 
 
