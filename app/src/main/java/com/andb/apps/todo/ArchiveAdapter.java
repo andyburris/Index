@@ -48,6 +48,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         public LinearLayout tagEncloser;
         public ImageView moreTags;
         public ConstraintLayout timeLayout;
+        public TextView dateText;
         public TextView timeText;
         public ImageView timeIcon;
 
@@ -76,7 +77,8 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
-            timeText = (TextView) view.findViewById(R.id.dateInboxText);
+            dateText = (TextView) view.findViewById(R.id.dateInboxText);
+            timeText = (TextView) view.findViewById(R.id.timeInboxText);
             timeIcon = (ImageView) view.findViewById(R.id.timeIcon);
 
 
@@ -158,7 +160,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         holder.name.setText(taskList.get(position).getListName());
 
         if (taskList.get(position).isListTime()) {
-            holder.timeText.setText(taskList.get(position).getDateTime().toString("EEEE, MMMM d"));
+            holder.dateText.setText(taskList.get(position).getDateTime().toString("EEEE, MMMM d"));
             if (taskList.get(position).getDateTime().get(DateTimeFieldType.secondOfMinute()) == 59) {
                 holder.timeText.setVisibility(View.GONE);
             } else {

@@ -5,16 +5,24 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import com.fatboyindustrial.gsonjodatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
+import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -26,10 +34,10 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 public class NotifyWorker extends Worker {
 
     private final static String todo_notification_channel = "Task Reminders";
-    public static int lastItemPos; // TODO: 6/20/2018 check if higher and if so decrease by one on any remove
 
     public static final String workTag = "notifications";
 
+    public static boolean retry;
 
     @NonNull
     @Override
@@ -41,9 +49,19 @@ public class NotifyWorker extends Worker {
             TaskList.loadTasks(getApplicationContext());
         }
 
-        if (TaskList.getNextNotificationItem(false) != null)
+        if (SettingsActivity.timeToNotifyForDateOnly == null) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
+            String json = prefs.getString("pref_notify_only_date", null);
+            Type type = new TypeToken<DateTime>() {
+            }.getType();
+            SettingsActivity.timeToNotifyForDateOnly = gson.fromJson(json, type);
+        }
+
+        if (TaskList.getNextNotificationItem(false) != null) {
             Log.d("workManager", "Next isn't null");
             triggerNotification(TaskList.getNextNotificationItem(true));
+        }
 
         return Worker.Result.SUCCESS;
         // (Returning RETRY tells WorkManager to try this task again
@@ -126,14 +144,20 @@ public class NotifyWorker extends Worker {
 
         Log.d("notificationCreate", "Name: " + task.getListName() + ", Key: " + Integer.toString(task.getKey()));
 
-        lastItemPos = TaskList.taskList.lastIndexOf(task);
+
+        Log.d("serviceRestart", "Before Restart");
+
+
 
 
         //Here we set the request for the next notification
 
         if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
 
-            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
+            Log.d("serviceRestart", "Service Restarting");
+
+
+            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), TaskList.getNextNotificationItem(false).getDateTime());
             if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
                 notificationTitle = TaskList.getNextNotificationItem(false).getDateTime().toString("MMM d");
                 notificationBuilder.setContentTitle(notificationTitle);
@@ -152,6 +176,8 @@ public class NotifyWorker extends Worker {
             WorkManager.getInstance().enqueue(notificationWork);
 
         }
+
+        TaskList.saveTasks(getApplicationContext());
     }
 }
 

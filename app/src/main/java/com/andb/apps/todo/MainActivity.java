@@ -1,9 +1,13 @@
 package com.andb.apps.todo;
 
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -141,6 +145,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        String label = getResources().getString(R.string.app_name);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(),
+                R.mipmap.ic_launcher);
+        int colorPrimary;
+        if (SettingsActivity.coloredToolbar) {
+            colorPrimary = SettingsActivity.themeColor;
+        } else {
+            if (SettingsActivity.darkTheme) {
+                colorPrimary = getResources().getColor(R.color.colorDarkPrimary);
+            } else {
+                colorPrimary = getResources().getColor(R.color.colorPrimary);
+            }
+        }
+
+        ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label, icon, colorPrimary);
+        ((Activity) this).setTaskDescription(taskDescription);//set header color in recents
+
         if (fromSettings)
             settingsReturn();
 
@@ -290,7 +312,11 @@ public class MainActivity extends AppCompatActivity
 
         themeSet((Toolbar) findViewById(R.id.toolbar));
 
+        restartNotificationService();
+
         fromSettings = false;
+
+
     }
 
     @Override

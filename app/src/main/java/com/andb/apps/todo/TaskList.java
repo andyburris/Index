@@ -56,7 +56,7 @@ public class TaskList extends AppCompatActivity {
 
         boolean notificationsLeft = false;
         for (int i = 0; i < taskList.size(); i++) {
-            Log.d("notScheduled", "starting loop");
+            //Log.d("notScheduled", "starting loop"); potentially not finding all
             if (taskList.get(i).isListTime()) {
                 Log.d("notScheduled", taskList.get(i).getListName() + " is Time");
                 Tasks returnTask = taskList.get(i);
@@ -68,13 +68,15 @@ public class TaskList extends AppCompatActivity {
 
                     returnDateTime = returnTask.getDateTime().withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
 
-                    if (returnDateTime.isBefore(beforeTime) && !returnTask.isNotified()) {
+                    if ((returnDateTime.isBefore(beforeTime) || returnDateTime.isEqual(beforeTime)) && !returnTask.isNotified()) {
 
 
                         finalTask = returnTask;
                         notificationsLeft = true;
                         Log.d("notificationLastPosName", returnTask.getListName());
                         Log.d("alreadyNotifiedFilter", Boolean.toString(taskList.get(i).isNotified()));
+                    } else {
+                        returnDateTime = beforeTime;
                     }
 
                 } else {
@@ -99,6 +101,8 @@ public class TaskList extends AppCompatActivity {
             if (beingUsed) { //doesnt set if a null check
                 taskList.get(taskList.indexOf(finalTask)).setNotified(true);
             }
+            Log.d("alreadyNotifiedFilterNm", finalTask.getListName());
+            Log.d("alreadyNotifiedFilterNt", Boolean.toString(finalTask.isNotified()));
             Log.d("returnedTime", finalTask.getDateTime().toString("MMM d h:mm a"));
             return finalTask;
         }

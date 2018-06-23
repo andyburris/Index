@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.joda.time.DateTimeFieldType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +66,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
         public LinearLayout tagEncloser;
         public ImageView moreTags;
         public ConstraintLayout timeLayout;
+        public TextView dateText;
         public TextView timeText;
         public ImageView timeIcon;
 
@@ -100,7 +103,8 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
-            timeText = (TextView) view.findViewById(R.id.dateInboxText);
+            dateText = (TextView) view.findViewById(R.id.dateInboxText);
+            timeText = (TextView) view.findViewById(R.id.timeInboxText);
             timeIcon = (ImageView) view.findViewById(R.id.timeIcon);
 
 
@@ -213,7 +217,13 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                 holder.name.setTextColor(Color.WHITE);
 
             if (taskList.get(realPosition).isListTime()) {
-                holder.timeText.setText(taskList.get(realPosition).getDateTime().toString("EEEE, MMMM d"));
+                holder.dateText.setText(taskList.get(realPosition).getDateTime().toString("EEEE, MMMM d"));
+                if (taskList.get(position).getDateTime().get(DateTimeFieldType.secondOfMinute()) == 59) {
+                    holder.timeText.setVisibility(View.GONE);
+                } else {
+                    holder.timeText.setVisibility(View.VISIBLE);
+                    holder.timeText.setText(taskList.get(position).getDateTime().toString("h:mm a"));
+                }
                 if (SettingsActivity.darkTheme) {
                     holder.timeIcon.setColorFilter(Color.WHITE);
                 }

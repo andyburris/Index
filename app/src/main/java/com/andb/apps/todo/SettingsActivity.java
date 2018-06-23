@@ -168,6 +168,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                     String json = gson.toJson(timeToNotifyForDateOnly);
                     editor.putString("pref_notify_only_date", json);
                     editor.apply();
+                    MainActivity.fromSettings = true;
                 }
             } else {
                 // For all other preferences, set the summary to the value's

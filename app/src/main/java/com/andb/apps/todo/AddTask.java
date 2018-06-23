@@ -600,6 +600,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
         resetTimeButton.setVisibility(View.VISIBLE);
 
+        if (SettingsActivity.darkTheme)
+            resetTimeButton.setColorFilter(Color.WHITE);
+
 
 
     }
@@ -633,6 +636,8 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         Log.d("dateTime", taskDateTime.toString("h:mm:ss"));
 
         resetTimeButton.setVisibility(View.VISIBLE);
+        if (SettingsActivity.darkTheme)
+            resetTimeButton.setColorFilter(Color.WHITE);
 
 
     }
