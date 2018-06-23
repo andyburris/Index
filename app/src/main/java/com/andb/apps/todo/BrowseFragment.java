@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.transition.ChangeBounds;
 import android.support.transition.TransitionManager;
@@ -238,7 +237,6 @@ public class BrowseFragment extends Fragment {
 
 
         final ImageView collapseButton = (ImageView) view.findViewById(R.id.tagCollapseButton);
-        final ConstraintLayout tagView = (ConstraintLayout) view.findViewById(R.id.tagRecyclerViewHolder);
         final View dividerItemDecoration = (View) view.findViewById(R.id.browseDivider);
         final NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
         final CardView browseCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
@@ -270,7 +268,7 @@ public class BrowseFragment extends Fragment {
                         dividerItemDecoration.setVisibility(View.GONE);
                         collapseButton.animate().setDuration(100).rotation(0).setListener(null);
 
-                        tagView.setVisibility(View.GONE);
+                        browseCard.setVisibility(View.GONE);
 
 
                         tagCollapsed = true;
@@ -282,7 +280,7 @@ public class BrowseFragment extends Fragment {
                         params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         browseCard.setLayoutParams(params);
 
-                        tagView.setVisibility(View.VISIBLE);
+                        browseCard.setVisibility(View.VISIBLE);
 
 
                         dividerItemDecoration.setVisibility(View.VISIBLE);

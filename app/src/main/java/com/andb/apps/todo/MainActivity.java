@@ -39,18 +39,10 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fatboyindustrial.gsonjodatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import net.danlew.android.joda.JodaTimeAndroid;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -93,8 +85,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ///Debug.startMethodTracing("startup");
+
+        long startTime = System.nanoTime();
+
+
         super.onCreate(savedInstanceState);
-        JodaTimeAndroid.init(this);//initialize joda-time
         loadBeforeSettings();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -105,7 +101,6 @@ public class MainActivity extends AppCompatActivity
         fromSettings = false;
         themeSet(toolbar);
 
-        long startTime = System.nanoTime();
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -130,18 +125,15 @@ public class MainActivity extends AppCompatActivity
         PreferenceManager.setDefaultValues(this, R.xml.pref_notifications, false);
         PreferenceManager.setDefaultValues(this, R.xml.pref_folders, false);
 
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
 
-        Log.d("startupTime", "Get extras and set default values: " + Long.toString(duration));
+
 
         fabInitialize();
 
 
         drawerInitialize(toolbar);
 
-        loadAfterSettings();
+
 
         loadTasks();
 
@@ -152,7 +144,15 @@ public class MainActivity extends AppCompatActivity
 
         loadArchiveTasks();
 
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+        Log.d("startupTime", "OnCreate: " + Long.toString(duration));
 
+
+        reportFullyDrawn();
+
+        loadAfterSettings();
 
 
     }
@@ -182,6 +182,12 @@ public class MainActivity extends AppCompatActivity
             settingsReturn();
 
     }
+
+    /*@Override
+    public void onViewCreated(final View view, final Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Debug.stopMethodTracing();
+    }  */
 
 
     public void loadBeforeSettings() {
@@ -223,11 +229,8 @@ public class MainActivity extends AppCompatActivity
 
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
-        String json = prefs.getString("pref_notify_only_date", null);
-        Type type = new TypeToken<DateTime>() {
-        }.getType();
-        SettingsActivity.timeToNotifyForDateOnly = gson.fromJson(json, type);
+
+        SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notify_only_date", 0));
 
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
@@ -568,6 +571,11 @@ public class MainActivity extends AppCompatActivity
 
         TaskList.loadTasks(this);
 
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration;//to seconds
+
+        Log.d("startupTime", "Load tasks: " + Long.toString(duration));
         if (TaskList.taskList == null) {
             TaskList.taskList = InboxFragment.blankTaskList;
             TaskList.saveTasks(this);
@@ -575,22 +583,25 @@ public class MainActivity extends AppCompatActivity
         }
 
 
+        startTime = System.nanoTime();
+
         TaskList.keyList.clear();
         for (int i = 0; i < TaskList.taskList.size(); i++) {
             TaskList.keyList.add(TaskList.getItem(i).getKey());
         }
 
 
-        Log.d("putKeys", Integer.toString(TaskList.keyList.size()));
+
+        /*Log.d("putKeys", Integer.toString(TaskList.keyList.size()));
         for (int i = 0; i < TaskList.keyList.size(); i++) {
             Log.d("putKeys", Integer.toString(TaskList.keyList.get(i)));
-        }
+        }*/
 
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        endTime = System.nanoTime();
+        duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
         //duration = duration;//to seconds
 
-        Log.d("startupTime", "Load tasks (and keys): " + Long.toString(duration));
+        Log.d("startupTime", "Load keys: " + Long.toString(duration));
 
     }
 

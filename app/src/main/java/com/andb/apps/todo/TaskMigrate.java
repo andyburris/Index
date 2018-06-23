@@ -7,34 +7,34 @@ import org.joda.time.DateTime;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Tasks implements Serializable {
+public class TaskMigrate implements Serializable {
     private String listName;
     private ArrayList<String> listItems;
     private ArrayList<Boolean> listItemsChecked;
     private ArrayList<Integer> listTags;
-    private long listDue;
+    private DateTime listDue;
     private boolean notified;
     private int key;
     //private ArrayList<Time> listDue; //to-do: add time due by
 
-    public Tasks(){
+    public TaskMigrate() {
     }
 
-    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified) {
+    public TaskMigrate(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified) {
         this.listName = listName;
         this.listItems = listItems;
         this.listItemsChecked = listItemsChecked;
         this.listTags = listTags;
-        this.listDue = time.getMillis();
+        this.listDue = time;
         this.notified = notified;
     }
 
-    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int key) {
+    public TaskMigrate(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int key) {
         this.listName = listName;
         this.listItems = listItems;
         this.listItemsChecked = listItemsChecked;
         this.listTags = listTags;
-        this.listDue = time.getMillis();
+        this.listDue = time;
         this.notified = notified;
         this.key = key;
     }
@@ -49,8 +49,8 @@ public class Tasks implements Serializable {
     }
 
 
-    public boolean doesListContainTag(int tags){
-        if(!listTags.isEmpty()) {
+    public boolean doesListContainTag(int tags) {
+        if (!listTags.isEmpty()) {
             for (int i = 0; i < listTags.size(); i++) {
                 if (listTags.get(i) == tags) {
                     return true;
@@ -63,67 +63,62 @@ public class Tasks implements Serializable {
     }
 
 
-
-    public String getListItems(int pos){
+    public String getListItems(int pos) {
         return listItems.get(pos);
     }
 
-    public void setListItems(String item){
+    public void setListItems(String item) {
         this.listItems.add(item);
     }
 
-    public ArrayList<String> getAllListItems(){
+    public ArrayList<String> getAllListItems() {
         return listItems;
     }
 
-    public int getListItemsSize(){
+    public int getListItemsSize() {
         return listItems.size();
     }
 
-    public boolean isListItems (){
-        if(listItems.isEmpty() ){
+    public boolean isListItems() {
+        if (listItems.isEmpty()) {
             return false;
-        }else{
+        } else {
             return true;
         }
     }
 
+    public Tasks toTask() {
+        Tasks tasks = new Tasks(listName, listItems, listItemsChecked, listTags, listDue, notified, key);
+        ;
+        return tasks;
+    }
 
 
-
-
-
-    public boolean getListItemsChecked(int pos){
+    public boolean getListItemsChecked(int pos) {
 
         Log.d("browseCheckCheckingItem", Integer.toString(pos));
 
-        if(listItemsChecked==null){
+        if (listItemsChecked == null) {
             listItemsChecked = new ArrayList<>();
-            for(int i = 1; i<=listItems.size(); i++ ){
+            for (int i = 1; i <= listItems.size(); i++) {
                 listItemsChecked.add(false);
             }
-        }else if (listItemsChecked.isEmpty() | listItemsChecked.size()==0){
+        } else if (listItemsChecked.isEmpty() | listItemsChecked.size() == 0) {
             listItemsChecked = new ArrayList<>();
-            for(int i = 1; i<=listItems.size(); i++ ){
+            for (int i = 1; i <= listItems.size(); i++) {
                 listItemsChecked.add(false);
             }
         }
         return listItemsChecked.get(pos);
     }
 
-    public void editListItemsChecked(boolean checked, int pos){
+    public void editListItemsChecked(boolean checked, int pos) {
         this.listItemsChecked.set(pos, checked);
     }
 
-    public ArrayList<Boolean> getAllListItemsChecked(){
+    public ArrayList<Boolean> getAllListItemsChecked() {
         return listItemsChecked;
     }
-
-
-
-
-
-
 
 
     public int getListTags(int pos) {
@@ -132,39 +127,39 @@ public class Tasks implements Serializable {
         return listTags.get(pos);
     }
 
-    public void setListTags(int listPos ,int tagPos) {
+    public void setListTags(int listPos, int tagPos) {
         this.listTags.set(listPos, tagPos);
     }
 
-    public ArrayList<Integer> getAllListTags(){
+    public ArrayList<Integer> getAllListTags() {
         return listTags;
     }
 
-    public int getListTagsSize(){
+    public int getListTagsSize() {
         return listTags.size();
     }
 
-    public boolean isListTags(){
-        if(listTags.isEmpty()){
+    public boolean isListTags() {
+        if (listTags.isEmpty()) {
             return false;
-        }else{
+        } else {
             return true;
         }
     }
 
 
     public DateTime getDateTime() {
-        return new DateTime(listDue);
+        return listDue;
     }
 
     public void setDateTime(DateTime datetime) {
-        this.listDue = datetime.getMillis();
+        this.listDue = datetime;
     }
 
-    public boolean isListTime(){
+    public boolean isListTime() {
         if (new DateTime(listDue).isEqual(new DateTime(3000, 1, 1, 0, 0))) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }

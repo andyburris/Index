@@ -118,6 +118,7 @@
 
     <string name="pref_header_folder">Folders</string>
     <string name="pref_header_notif">Notifications</string>
+    <string name="no_remaining_tasks">No Tasks Left!</string>
 
 
 </resources>

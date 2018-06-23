@@ -13,16 +13,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-import com.fatboyindustrial.gsonjodatime.Converters;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -51,11 +47,9 @@ public class NotifyWorker extends Worker {
 
         if (SettingsActivity.timeToNotifyForDateOnly == null) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
-            String json = prefs.getString("pref_notify_only_date", null);
-            Type type = new TypeToken<DateTime>() {
-            }.getType();
-            SettingsActivity.timeToNotifyForDateOnly = gson.fromJson(json, type);
+            Gson gson = new Gson();
+
+            SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notify_only_date", 0));
         }
 
         if (TaskList.getNextNotificationItem(false) != null) {

@@ -21,9 +21,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.andrognito.flashbar.Flashbar;
-import com.fatboyindustrial.gsonjodatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.jaredrummler.android.colorpicker.ColorPreference;
 
 import org.jetbrains.annotations.NotNull;
@@ -164,9 +161,9 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
                     Log.d("timePicker", timeToNotifyForDateOnly.toString("h:mm:ss a"));
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(preference.getContext());
                     SharedPreferences.Editor editor = prefs.edit();
-                    Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
-                    String json = gson.toJson(timeToNotifyForDateOnly);
-                    editor.putString("pref_notify_only_date", json);
+
+                    Long time = timeToNotifyForDateOnly.getMillis();
+                    editor.putLong("pref_notify_only_date", time);
                     editor.apply();
                     MainActivity.fromSettings = true;
                 }
