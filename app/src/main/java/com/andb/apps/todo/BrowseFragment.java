@@ -231,6 +231,10 @@ public class BrowseFragment extends Fragment {
 
     }
 
+
+    private static final int[] STATE_ZERO = {R.attr.state_on, -R.attr.state_off};
+    private static final int[] STATE_ONE = {-R.attr.state_on, R.attr.state_off};
+
     @SuppressLint("ClickableViewAccessibility")
 //accessibility not needed as warning only concerns visual workaround.
     public void prepareTagCollapse(final View view) {
@@ -247,7 +251,12 @@ public class BrowseFragment extends Fragment {
         final int pixels = (int) (56 * scale + 0.5f);
 
 
-        collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
+        //collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
+        collapseButton.setImageState(STATE_ONE, true);
+
+
+
+
 
         Log.d("wontCollapse", "got here");
 
@@ -277,6 +286,7 @@ public class BrowseFragment extends Fragment {
                         collapseButton.animate().setDuration(100).rotation(0).setListener(new AnimatorListenerAdapter() {
                         });
 
+
                         tagCardLayout.setVisibility(View.GONE);
 
 
@@ -303,14 +313,14 @@ public class BrowseFragment extends Fragment {
                         dividerItemDecoration.setVisibility(View.VISIBLE);
                         collapseButton.animate().setDuration(100).rotation(180).setListener(null);
 
-
                         tagCollapsed = false;
 
                     }
                 } else {
                     removing = false;
                     tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
-                    collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
+                    //collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
+                    collapseButton.setImageState(STATE_ONE, true);
 
                 }
             }
@@ -327,12 +337,17 @@ public class BrowseFragment extends Fragment {
                 Log.d("wontCollapse", "longClick");
 
 
-                if (!tagCollapsed) {
+                if (!tagCollapsed && Filters.backTagFilters.size() > 1) {
                     if (!removing) {
                         removing = true;
 
                         //make arrow into x, start remove items
-                        collapseButton.setImageResource(R.drawable.ic_clear_black_24dp);
+                        //collapseButton.setImageResource(R.drawable.ic_clear_black_24dp);
+                        collapseButton.setImageState(STATE_ZERO, true);
+
+
+
+
                         tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
 
                         collapseButton.setOnClickListener(null);

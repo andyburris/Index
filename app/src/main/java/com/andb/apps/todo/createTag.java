@@ -81,6 +81,8 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
             tagColor = TagList.getItem(tagPosition).getTagColor();
             ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.tagColorPreview);
             colorPanelView.setColor(tagColor);
+
+            subFolderSwitch.setChecked(TagList.getItem(tagPosition).isSubFolder());
         }
 
         ConstraintLayout colorPreview = (ConstraintLayout) findViewById(R.id.colorPreviewLayout);
@@ -110,6 +112,7 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
 
             }
         });
+
 
         switchCheck();
 

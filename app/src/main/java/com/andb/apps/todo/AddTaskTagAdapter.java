@@ -70,14 +70,8 @@ public class AddTaskTagAdapter extends RecyclerView.Adapter<AddTaskTagAdapter.My
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        if (edit) {
-            if (position < taskList.get(taskPosition).getListTagsSize()) {
-                holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
+        holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
 
-            }
-        } else {
-            holder.tagColor.setColorFilter(TagList.getItem(tagList.get(position)).getTagColor());
-        }
     }
 
 
