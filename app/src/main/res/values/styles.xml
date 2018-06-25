@@ -1,6 +1,15 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
+
+    <style name="AppThemeLight.Launcher">
+        <item name="android:windowBackground">@color/launch</item>
+        <item name="android:statusBarColor">@color/statusBarTransparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+
+
+    </style>
+
     <style name="AppThemeLight" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -52,7 +61,7 @@
         <item name="android:popupBackground">@color/cardview_light_background</item>
 
 
-</style>
+    </style>
 
     <style name="AppThemeDarkMain" parent="Theme.AppCompat">
         <!-- Customize your theme here. -->

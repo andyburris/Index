@@ -3,6 +3,8 @@ package com.andb.apps.todo;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -37,6 +39,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -431,6 +434,19 @@ public class MainActivity extends AppCompatActivity
                 menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
             }
         }
+
+
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+
+
+
+
         return true;
     }
 
@@ -631,6 +647,15 @@ public class MainActivity extends AppCompatActivity
 
         Log.d("startupTime", "Load archived tasks: " + Long.toString(duration));
 
+    }
+
+    public void loadSearch() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
     }
 
 
