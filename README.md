@@ -3,3 +3,5 @@
 From simple tasks to folder-like organization with tags and much more, Saber Lists is the to-do list solution for everyone.
 
 v0.5
+
+This branch is a temporary home for the potentially app-breaking changes that will occur in the switch to an sqlite-based storage system.
