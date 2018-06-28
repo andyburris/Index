@@ -100,11 +100,19 @@ public class NotifyWorker extends Worker {
 
 
         Intent doneClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
+        doneClickIntent.putExtra("reschedule", false);
+        doneClickIntent.putExtra("posFromNotifClear", task.getKey());
+
+        Intent rescheduleClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
+        doneClickIntent.putExtra("reschedule", true);
         doneClickIntent.putExtra("posFromNotifClear", task.getKey());
 
 
         PendingIntent pendingDoneClickIntent =
                 PendingIntent.getService(getApplicationContext(), task.getKey(), doneClickIntent, FLAG_UPDATE_CURRENT);
+
+        PendingIntent pendingRescheduleClickIntent =
+                PendingIntent.getService(getApplicationContext(), task.getKey(), rescheduleClickIntent, FLAG_UPDATE_CURRENT);
 
 
         String notificationTitle = task.getListName();
@@ -124,6 +132,7 @@ public class NotifyWorker extends Worker {
                         .setContentIntent(pendingClickIntent)
                         .setAutoCancel(true)
                         .addAction(R.drawable.ic_check_white_24dp, "DONE", pendingDoneClickIntent)
+                        .addAction(R.drawable.ic_access_time_black_24dp, "RESCHEDULE", pendingRescheduleClickIntent)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         //trigger the notification

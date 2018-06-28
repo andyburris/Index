@@ -1,6 +1,8 @@
 package com.andb.apps.todo;
 
+import android.app.AlertDialog;
 import android.app.Service;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,13 +10,15 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class NotificationHeadless extends Service {
 
     public static int notifKey = 0;
     public static boolean deleteFromNotif;
-
+    public boolean reschedule = false;
 
 
     @Nullable
@@ -32,12 +36,9 @@ public class NotificationHeadless extends Service {
         bundle = intent.getExtras();
 
         //just checking
-        if (bundle != null)
-            Toast.makeText(this, Integer.toString(bundle.getInt("posFromNotifClear")), Toast.LENGTH_SHORT).show();
-        else {
+        if (bundle == null)
             Toast.makeText(this, "NULL", Toast.LENGTH_SHORT).show();
 
-        }
 
 
         if (TaskList.taskList == null || TaskList.taskList.isEmpty()) {
@@ -64,6 +65,10 @@ public class NotificationHeadless extends Service {
         if (bundle != null)
 
         {
+
+            if (bundle.containsKey("reschedule")) {
+                reschedule = bundle.getBoolean("reschedule");
+            }
 
             if (bundle.containsKey("posFromNotifClear")) {
                 notifKey = bundle.getInt("posFromNotifClear", 0);
@@ -95,29 +100,46 @@ public class NotificationHeadless extends Service {
             Log.d("workManager", "Index: " + index + ", Size: " + TaskList.keyList.size());
 
 
-            Log.d("notificationRemove", Integer.toString(TaskList.taskList.size()));
-            Log.d("notificationRemoveIndex", Integer.toString(index));
-            if (index != -1) {
-                Log.d("notificationRemove", Integer.toString(ArchiveTaskList.taskList.size()));
-                ArchiveTaskList.addTaskList(TaskList.getItem(TaskList.keyList.indexOf(notifKey)));
-                Log.d("notificationRemove", Integer.toString(ArchiveTaskList.taskList.size()));
+            if (!reschedule) {
+                Log.d("notificationRemove", Integer.toString(TaskList.taskList.size()));
+                Log.d("notificationRemoveIndex", Integer.toString(index));
+                if (index != -1) {
+                    Log.d("notificationRemove", Integer.toString(ArchiveTaskList.taskList.size()));
+                    ArchiveTaskList.addTaskList(TaskList.getItem(TaskList.keyList.indexOf(notifKey)));
+                    Log.d("notificationRemove", Integer.toString(ArchiveTaskList.taskList.size()));
 
-                Log.d("workManager", "Size Before: " + TaskList.taskList.size());
+                    Log.d("workManager", "Size Before: " + TaskList.taskList.size());
 
-                TaskList.taskList.remove(TaskList.keyList.indexOf(notifKey));
-                TaskList.keyList.remove((Integer) notifKey);
+                    TaskList.taskList.remove(TaskList.keyList.indexOf(notifKey));
+                    TaskList.keyList.remove((Integer) notifKey);
 
-                Log.d("workManager", "Size After: " + TaskList.taskList.size());
+                    Log.d("workManager", "Size After: " + TaskList.taskList.size());
 
+                } else {
+                    Toast.makeText(this, "Couldn't find that task", Toast.LENGTH_SHORT).show();
+                }
+                Log.d("notificationRemove", Integer.toString(TaskList.taskList.size()));
+
+                ArchiveTaskList.saveTasks(getApplicationContext());
+                TaskList.saveTasks(getApplicationContext());
+
+                Log.d("workManager", "Size: " + TaskList.taskList.size());
             } else {
-                Toast.makeText(this, "Couldn't find that task", Toast.LENGTH_SHORT).show();
+                Tasks tasks = TaskList.getItem(index);
+
+                View mView = TimePicker.inflate(this, R.layout.pref_dialog_time, null);
+
+                new AlertDialog.Builder(this)
+                        .setCancelable(true)
+                        .setTitle("Reschedule Task")
+                        .setView(mView)
+                        .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                System.exit(0);
+                            }
+                        }).create().show();
+
             }
-            Log.d("notificationRemove", Integer.toString(TaskList.taskList.size()));
-
-            ArchiveTaskList.saveTasks(getApplicationContext());
-            TaskList.saveTasks(getApplicationContext());
-
-            Log.d("workManager", "Size: " + TaskList.taskList.size());
 
 
         }

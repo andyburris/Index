@@ -2,4 +2,5 @@
 <resources>
 
     <integer name="sd_open_animation_duration">200</integer>
+    <integer name="rv_slide_bottom_anim_duration">150</integer>
 </resources>

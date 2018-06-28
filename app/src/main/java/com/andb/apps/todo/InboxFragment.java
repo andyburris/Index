@@ -47,7 +47,7 @@ public class InboxFragment extends Fragment {
 
     public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
 
-    private RecyclerView mRecyclerView;
+    private static RecyclerView mRecyclerView;
     public static InboxAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -267,19 +267,19 @@ public class InboxFragment extends Fragment {
 
         filterMode = mode;
 
-        ArrayList<Tasks> tempList = filteredTaskList;
+        ArrayList<Tasks> tempList = new ArrayList<>(filteredTaskList);
 
         Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
 
         for (int i = 0; i < tempList.size(); i++) {
-            if (tempList.get(i).getListName().equals("OVERDUE") | tempList.get(i).getListName().equals("TODAY") | tempList.get(i).getListName().equals("WEEK") | tempList.get(i).getListName().equals("MONTH") | tempList.get(i).getListName().equals("FUTURE")) {
-                Log.d("removing", "removing " + tempList.get(i).getListName());
+            Tasks task = tempList.get(i);
+            if (task.getListName().equals("OVERDUE") | task.getListName().equals("TODAY") | task.getListName().equals("WEEK") | task.getListName().equals("MONTH") | task.getListName().equals("FUTURE")) {
+                Log.d("removing", "removing " + task.getListName());
                 filteredTaskList.remove(i);
-                i--;
             }
         }
 
-        tempList = filteredTaskList;
+        tempList = new ArrayList<>(filteredTaskList);
 
         Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
 
@@ -296,12 +296,16 @@ public class InboxFragment extends Fragment {
 
             Log.d("loopStart", "Size: " + Integer.toString(filteredTaskList.size()));
 
-            for (int i = 0; i < tempList.size(); i++) {
+            int i = 0;
+
+            for (Tasks task : tempList) {
+
+
                 Log.d("loopStart", "loop through " + Integer.toString(i));
-                DateTime taskDateTime = new DateTime(tempList.get(i).getDateTime());
+                DateTime taskDateTime = new DateTime(task.getDateTime());
                 if (taskDateTime.isBefore(DateTime.now())) {
                     if (overdue) {
-                        Log.d("addDivider", "adding OVERDUE from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
+                        Log.d("addDivider", "adding OVERDUE from " + task.getListName() + ", " + task.getDateTime().toString());
                         Tasks tasks = new Tasks("OVERDUE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(1970, 1, 1, 0, 0), false);
 
                         filteredTaskList.add(i, tasks);
@@ -309,10 +313,10 @@ public class InboxFragment extends Fragment {
 
                         overdue = false;
                     }
-                } else if (taskDateTime.isBefore(DateTime.now().plusDays(1))) {
+                } else if (taskDateTime.isBefore(DateTime.now().withTime(23, 59, 59, 999))) {
                     if (today) {
-                        Log.d("addDivider", "adding TODAY from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
-                        Log.d("addDivider", tempList.get(i).getListName());
+                        Log.d("addDivider", "adding TODAY from " + task.getListName() + ", " + task.getDateTime().toString());
+                        Log.d("addDivider", task.getListName());
                         Tasks tasks = new Tasks("TODAY", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now()), false);//drop one category to show at top
 
                         filteredTaskList.add(i, tasks);
@@ -320,9 +324,9 @@ public class InboxFragment extends Fragment {
 
                         today = false;
                     }
-                } else if (taskDateTime.isBefore(DateTime.now().plusWeeks(1))) {
+                } else if (taskDateTime.isBefore(DateTime.now().plusWeeks(1).minusDays(1).withTime(23, 59, 59, 999))) {
                     if (thisWeek) {
-                        Log.d("addDivider", "adding WEEK from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString() + " at position " + Integer.toString(i));
+                        Log.d("addDivider", "adding WEEK from " + task.getListName() + ", " + task.getDateTime().toString() + " at position " + Integer.toString(i));
                         Tasks tasks = new Tasks("WEEK", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusDays(1)), false);
 
                         filteredTaskList.add(i, tasks);
@@ -330,9 +334,9 @@ public class InboxFragment extends Fragment {
 
                         thisWeek = false;
                     }
-                } else if (taskDateTime.isBefore(DateTime.now().plusMonths(1))) {
+                } else if (taskDateTime.isBefore(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999))) {
                     if (thisMonth) {
-                        Log.d("addDivider", "adding MONTH from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
+                        Log.d("addDivider", "adding MONTH from " + task.getListName() + ", " + task.getDateTime().toString());
                         Tasks tasks = new Tasks("MONTH", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusWeeks(1)), false);
 
                         filteredTaskList.add(i, tasks);
@@ -340,9 +344,9 @@ public class InboxFragment extends Fragment {
                         thisMonth = false;
                     }
 
-                } else if (taskDateTime.isAfter(DateTime.now().plusMonths(1))) {
+                } else if (taskDateTime.isAfter(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999))) {
                     if (future) {
-                        Log.d("addDivider", "adding FUTURE from " + tempList.get(i).getListName() + ", " + tempList.get(i).getDateTime().toString());
+                        Log.d("addDivider", "adding FUTURE from " + task.getListName() + ", " + task.getDateTime().toString());
                         Tasks tasks = new Tasks("FUTURE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusMonths(1)), false);
 
                         filteredTaskList.add(i, tasks);
@@ -352,6 +356,8 @@ public class InboxFragment extends Fragment {
                     }
 
                 }
+
+                i++;
             }
 
             Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
@@ -400,6 +406,11 @@ public class InboxFragment extends Fragment {
         Log.d("inboxFilterInboxEnd", Integer.toString(filteredTaskList.size()));
 
 
+    }
+
+    public static void refreshWithAnim() {
+        mAdapter.notifyDataSetChanged();
+        mRecyclerView.scheduleLayoutAnimation();
     }
 
 

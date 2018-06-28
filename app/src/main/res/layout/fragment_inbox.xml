@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical|center_horizontal"
+        android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim"
         android:paddingTop="48dp">
 
 

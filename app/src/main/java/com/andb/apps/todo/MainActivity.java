@@ -86,15 +86,18 @@ public class MainActivity extends AppCompatActivity
 
     public static int notifKey = 0;
 
+    private boolean appStart;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ///Debug.startMethodTracing("startup");
 
-        long startTime = System.nanoTime();
+        //long startTime = System.nanoTime();
 
 
         super.onCreate(savedInstanceState);
+        appStart = true;
         loadBeforeSettings();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -130,33 +133,18 @@ public class MainActivity extends AppCompatActivity
         PreferenceManager.setDefaultValues(this, R.xml.pref_folders, false);
 
 
-
-
         fabInitialize();
 
 
         drawerInitialize(toolbar);
 
-
-
-        loadTasks();
-
-
-        loadTags();
-
-        loadTagLinks();
-
-        loadArchiveTasks();
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
-        Log.d("startupTime", "OnCreate: " + Long.toString(duration));
-
-
         reportFullyDrawn();
 
-        loadAfterSettings();
+
+        //long endTime = System.nanoTime();
+        //long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+        //duration = duration/1000;//to seconds
+        //Log.d("startupTime", "OnCreate: " + Long.toString(duration));
 
 
     }
@@ -164,6 +152,23 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (appStart) {
+            loadTasks();
+
+
+            loadTags();
+
+            loadTagLinks();
+
+            loadArchiveTasks();
+
+            loadAfterSettings();
+
+            appStart = false;
+        }
+
+
 
         drawerResume();
 
@@ -189,11 +194,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    /*@Override
-    public void onViewCreated(final View view, final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Debug.stopMethodTracing();
-    }  */
+
 
 
     public void loadBeforeSettings() {
@@ -472,11 +473,11 @@ public class MainActivity extends AppCompatActivity
                         switch (id) {
                             case R.id.sortDate:
                                 InboxFragment.setFilterMode(0);
-                                InboxFragment.mAdapter.notifyDataSetChanged();
+                                InboxFragment.refreshWithAnim();
                                 break;
                             case R.id.sortAlpha:
                                 InboxFragment.setFilterMode(1);
-                                InboxFragment.mAdapter.notifyDataSetChanged();
+                                InboxFragment.refreshWithAnim();
                                 break;
 
                         }
@@ -893,6 +894,8 @@ public class MainActivity extends AppCompatActivity
         ed.apply();
 
     }
+
+
 }
 
 

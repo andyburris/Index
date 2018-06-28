@@ -53,8 +53,8 @@ public class TagSelect extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if(SettingsActivity.darkTheme)
-        darkThemeSet(toolbar);
+        if (SettingsActivity.darkTheme)
+            darkThemeSet(toolbar);
 
         Bundle bundle = getIntent().getExtras();
         if (bundle.containsKey("isTaskCreate")) {
@@ -96,16 +96,16 @@ public class TagSelect extends AppCompatActivity {
                     AddTask.addTag(position);
                     finish();
                 } else if (isTagLink && Filters.getCurrentFilter().size() > 0) {
-                    int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size()-1);
+                    int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1);
 
                     if (TagLinkList.contains(tagParent) != null) {
 
                         if (TagLinkList.contains(tagParent).contains(position)) {
                             //Log.d("tagAdding", "Already Added" + TagLinkList.contains(tagParent).getTagLink(TagLinkList.contains(tagParent).getLinkPosition(position)) + " to " + Integer.toString(tagParent));
                             tagExists(TagSelect.this).show();
-                        }else if(position == tagParent){
+                        } else if (position == tagParent) {
                             sameTag(TagSelect.this).show();
-                        }else {
+                        } else {
                             //Log.d("tagAdding", "Adding " + Integer.toString(position) + " to " + Integer.toString(positionInLinkList));
                             TagLinkList.contains(tagParent).addLink(position);
 
@@ -113,7 +113,7 @@ public class TagSelect extends AppCompatActivity {
                             BrowseFragment.mAdapter.notifyDataSetChanged();
                             finish();
                         }
-                    }else{
+                    } else {
                         Log.d("tagAdding", "Starting links for tag " + Integer.toString(tagParent) + ".");
                         ArrayList<Integer> arrayList = new ArrayList<>();
                         arrayList.add(position);
@@ -158,10 +158,9 @@ public class TagSelect extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(0);
 
 
-
     }
 
-    private static Flashbar tagExists(Activity activity){
+    private static Flashbar tagExists(Activity activity) {
         return new Flashbar.Builder(activity)
                 .gravity(Flashbar.Gravity.BOTTOM)
                 .title("Tag Exists")
@@ -171,7 +170,8 @@ public class TagSelect extends AppCompatActivity {
                 .build();
 
     }
-    private static Flashbar sameTag(Activity activity){
+
+    private static Flashbar sameTag(Activity activity) {
         return new Flashbar.Builder(activity)
                 .gravity(Flashbar.Gravity.BOTTOM)
                 .title("Same Tag")
@@ -183,12 +183,11 @@ public class TagSelect extends AppCompatActivity {
     }
 
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_tag_select, menu);
-        if(SettingsActivity.darkTheme)
+        if (SettingsActivity.darkTheme)
             menu.getItem(0).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         return true;
     }
@@ -230,7 +229,7 @@ public class TagSelect extends AppCompatActivity {
 
 
     public ActionMode.Callback setCallback(final int position) {
-        final ActionMode.Callback callback = new ActionMode.Callback() {
+        return new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuInflater menuInflater = new MenuInflater(TagSelect.this.getApplicationContext());
@@ -255,8 +254,11 @@ public class TagSelect extends AppCompatActivity {
                         return true;
                     case R.id.deleteTag:
                         deleteTag(position);
+                        mode.finish();
+
 
                 }
+
                 return false;
             }
 
@@ -265,36 +267,56 @@ public class TagSelect extends AppCompatActivity {
             }
         };
 
-        return callback;
     }
 
     public void deleteTag(int pos) {
         TagList.tagList.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         if (!TaskList.taskList.isEmpty()) {
-            for (int i = 0; i < TaskList.taskList.size(); i++) {
-                if (TaskList.getItem(i).isListTags()) {
-                    for (int j = 0; j < TaskList.getItem(i).getAllListTags().size(); j++) {
-                        if (TaskList.getItem(i).getListTags(j) == pos) {
-                            TaskList.getItem(i).getAllListTags().remove(j);
-                            i--;
-                        } else if (TaskList.getItem(i).getListTags(j)>pos){
-                            TaskList.getItem(i).setListTags(j, (TaskList.getItem(i).getListTags(j)-1));
+            for (Tasks tasks : TaskList.taskList) {
+                if (tasks.isListTags()) {
+                    ArrayList<Integer> toRemove = new ArrayList<>();
+                    for (int tag : tasks.getAllListTags()) {
+                        if (tag == pos) {
+                            toRemove.add(tag);
+                        } else if (tag > pos) {
+                            tasks.setListTags(tasks.getAllListTags().indexOf(tag), tag - 1);
                         }
                     }
+                    tasks.getAllListTags().removeAll(toRemove);
                 }
             }
         }
+        if (!TagLinkList.linkList.isEmpty()) {
+            ArrayList<TagLinks> toRemoveParent = new ArrayList<>();
+            for (TagLinks tagLinks : TagLinkList.linkList) {
+                if (tagLinks.tagParent() == pos) {
+                    toRemoveParent.add(tagLinks);
+                } else {
+                    ArrayList<Integer> toRemoveChild = new ArrayList<>();
+                    for (int linkPos : tagLinks.getAllTagLinks()) {
+                        if (linkPos == pos) {
+                            toRemoveChild.add(linkPos);
+                        } else if (linkPos > pos) {
+                            tagLinks.getAllTagLinks().set(tagLinks.getAllTagLinks().indexOf(linkPos), linkPos - 1);
+                        }
+                    }
+                    tagLinks.getAllTagLinks().removeAll(toRemoveChild);
+                }
+            }
+            TagLinkList.linkList.removeAll(toRemoveParent);
+        }
         TaskList.saveTasks(this);
         TagList.saveTags(this);
+        TagLinkList.saveTags(this);
 
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
-        if(isTagLink){
+        if (isTagLink) {
             TagLinkList.saveTags(this);
         }
     }
