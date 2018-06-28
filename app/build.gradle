@@ -20,6 +20,8 @@ android {
 
 dependencies {
     def work_version = "1.0.0-alpha04"
+    def room_version = "1.1.1"
+
 
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -34,6 +36,9 @@ dependencies {
     implementation 'joda-time:joda-time:2.9.9' //time library
     implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0' //fix for joda-time gson saving.
     implementation "android.arch.work:work-runtime:$work_version"//work-manager
+    implementation "android.arch.persistence.room:runtime:$room_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$room_version"
+    testImplementation "android.arch.persistence.room:testing:$room_version"// Test helpers
     debugImplementation 'com.pixiteapps.billingx:billingx:0.8.0'//donations
     releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
 

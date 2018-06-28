@@ -1,5 +1,9 @@
 package com.andb.apps.todo;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.joda.time.DateTime;
@@ -7,14 +11,29 @@ import org.joda.time.DateTime;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+@Entity
 public class Tasks implements Serializable {
-    private String listName;
-    private ArrayList<String> listItems;
-    private ArrayList<Boolean> listItemsChecked;
-    private ArrayList<Integer> listTags;
-    private long listDue;
-    private boolean notified;
+    @NonNull
+    @PrimaryKey
     private int key;
+
+    @ColumnInfo(name = "list_name")
+    private String listName;
+
+    @ColumnInfo(name = "list_items")
+    private ArrayList<String> listItems;
+
+    @ColumnInfo(name = "list_items_checked")
+    private ArrayList<Boolean> listItemsChecked;
+
+    @ColumnInfo(name = "list_tags")
+    private ArrayList<Integer> listTags;
+
+    @ColumnInfo(name = "list_due")
+    private long listDue;
+
+    @ColumnInfo(name = "list_notified")
+    private boolean notified;
     //private ArrayList<Time> listDue; //to-do: add time due by
 
     public Tasks(){
@@ -40,6 +59,34 @@ public class Tasks implements Serializable {
     }
 
 
+    public ArrayList<String> getListItems() {
+        return listItems;
+    }
+
+    public void setListItems(ArrayList<String> listItems) {
+        this.listItems = listItems;
+    }
+
+    public ArrayList<Boolean> getListItemsChecked() {
+        return listItemsChecked;
+    }
+
+    public void setListItemsChecked(ArrayList<Boolean> listItemsChecked) {
+        this.listItemsChecked = listItemsChecked;
+    }
+
+    public ArrayList<Integer> getListTags() {
+        return listTags;
+    }
+
+    public long getListDue() {
+        return listDue;
+    }
+
+    public void setListDue(long listDue) {
+        this.listDue = listDue;
+    }
+
     public String getListName() {
         return listName;
     }
@@ -47,7 +94,6 @@ public class Tasks implements Serializable {
     public void setListName(String listName) {
         this.listName = listName;
     }
-
 
     public boolean doesListContainTag(int tags){
         if(!listTags.isEmpty()) {
@@ -62,14 +108,8 @@ public class Tasks implements Serializable {
 
     }
 
-
-
     public String getListItems(int pos){
         return listItems.get(pos);
-    }
-
-    public void setListItems(String item){
-        this.listItems.add(item);
     }
 
     public ArrayList<String> getAllListItems(){
@@ -88,10 +128,9 @@ public class Tasks implements Serializable {
         }
     }
 
-
-
-
-
+    public void setListItems(String item) {
+        this.listItems.add(item);
+    }
 
     public boolean getListItemsChecked(int pos){
 
@@ -119,20 +158,13 @@ public class Tasks implements Serializable {
         return listItemsChecked;
     }
 
-
-
-
-
-
-
-
     public int getListTags(int pos) {
         Log.d("position", Integer.toString(pos));
         Log.d("position", Integer.toString(listTags.size()));
         return listTags.get(pos);
     }
 
-    public void setListTags(int listPos ,int tagPos) {
+    public void setListTags(int listPos , int tagPos) {
         this.listTags.set(listPos, tagPos);
     }
 
@@ -152,6 +184,9 @@ public class Tasks implements Serializable {
         }
     }
 
+    public void setListTags(ArrayList<Integer> listTags) {
+        this.listTags = listTags;
+    }
 
     public DateTime getDateTime() {
         return new DateTime(listDue);

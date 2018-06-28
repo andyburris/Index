@@ -104,8 +104,8 @@ public class NotifyWorker extends Worker {
         doneClickIntent.putExtra("posFromNotifClear", task.getKey());
 
         Intent rescheduleClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
-        doneClickIntent.putExtra("reschedule", true);
-        doneClickIntent.putExtra("posFromNotifClear", task.getKey());
+        rescheduleClickIntent.putExtra("reschedule", true);
+        rescheduleClickIntent.putExtra("posFromNotifClear", task.getKey());
 
 
         PendingIntent pendingDoneClickIntent =
