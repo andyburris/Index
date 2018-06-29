@@ -89,30 +89,32 @@ public class NotifyWorker extends Worker {
             }
         }
 
+        int key = task.getListKey();
+
         Intent bodyClickIntent = new Intent(getApplicationContext(), MainActivity.class);
-        bodyClickIntent.putExtra("posFromNotif", task.getKey());
+        bodyClickIntent.putExtra("posFromNotif", key);
 
         //put together the PendingIntent
         PendingIntent pendingClickIntent =
-                PendingIntent.getActivity(getApplicationContext(), task.getKey(), bodyClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(getApplicationContext(), task.getListKey(), bodyClickIntent, FLAG_UPDATE_CURRENT);
 
 
 
 
         Intent doneClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
         doneClickIntent.putExtra("reschedule", false);
-        doneClickIntent.putExtra("posFromNotifClear", task.getKey());
+        doneClickIntent.putExtra("posFromNotifClear", key);
 
         Intent rescheduleClickIntent = new Intent(getApplicationContext(), NotificationHeadless.class);
         rescheduleClickIntent.putExtra("reschedule", true);
-        rescheduleClickIntent.putExtra("posFromNotifClear", task.getKey());
+        rescheduleClickIntent.putExtra("posFromNotifClear", key);
 
 
         PendingIntent pendingDoneClickIntent =
-                PendingIntent.getService(getApplicationContext(), task.getKey(), doneClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getService(getApplicationContext(), key, doneClickIntent, FLAG_UPDATE_CURRENT);
 
         PendingIntent pendingRescheduleClickIntent =
-                PendingIntent.getService(getApplicationContext(), task.getKey(), rescheduleClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getService(getApplicationContext(), key, rescheduleClickIntent, FLAG_UPDATE_CURRENT);
 
 
         String notificationTitle = task.getListName();
@@ -143,9 +145,9 @@ public class NotifyWorker extends Worker {
         //to ensure they all show up and there are no duplicates
 
 
-        notificationManager.notify(Integer.toString(task.getKey()), task.getKey(), notificationBuilder.build());
+        notificationManager.notify(Integer.toString(key), key, notificationBuilder.build());
 
-        Log.d("notificationCreate", "Name: " + task.getListName() + ", Key: " + Integer.toString(task.getKey()));
+        Log.d("notificationCreate", "Name: " + task.getListName() + ", Key: " + Integer.toString(key));
 
 
         Log.d("serviceRestart", "Before Restart");

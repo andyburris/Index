@@ -3,6 +3,7 @@ package com.andb.apps.todo;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -58,6 +59,7 @@ public class InboxFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+
     public InboxFragment() {
         // Required empty public constructor
     }
@@ -68,9 +70,11 @@ public class InboxFragment extends Fragment {
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
 
     }
@@ -201,7 +205,7 @@ public class InboxFragment extends Fragment {
             int index = TaskList.keyList.indexOf(MainActivity.notifKey);
             int finalPos = -1;
             for (int i = 0; i < filteredTaskList.size(); i++) {
-                if (filteredTaskList.get(i).getKey() == MainActivity.notifKey) {
+                if (filteredTaskList.get(i).getListKey() == MainActivity.notifKey) {
                     finalPos = i;
                     break;
                 }
@@ -225,19 +229,34 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public static void addTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time) {
+    public static void addTask(final String title, final ArrayList<String> items, final ArrayList<Boolean> checked, final ArrayList<Integer> tags, final DateTime time) {
 
-        int key = new Random().nextInt();
 
-        while (TaskList.keyList.contains(key) || key == 0) {
-            key = new Random().nextInt();
-        }
-        TaskList.keyList.add(key);
+        //TaskList.keyList.add(key);
 
-        Log.d("putKeys", Integer.toString(key));
 
-        Tasks tasks = new Tasks(title, items, checked, tags, time, false, key);
-        TaskList.addTaskList(tasks);
+        //TaskList.addTaskList(tasks);
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                int key = new Random().nextInt();
+
+                while (TaskList.keyList.contains(key) || key == 0) {
+                    key = new Random().nextInt();
+                }
+
+                Log.d("putKeys", Integer.toString(key));
+
+
+                Tasks tasks = new Tasks(title, items, checked, tags, time, false, key);
+
+                MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
+
+                TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
+            }
+        });
+
         Log.d("recyclerCreated", "outer created");
 
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
@@ -248,11 +267,31 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public static void replaceTask(String title, ArrayList<String> items, ArrayList<Boolean> checked, ArrayList<Integer> tags, DateTime time, boolean notified, int position, int key) {
+    public static void replaceTask(final String title, final ArrayList<String> items, final ArrayList<Boolean> checked, final ArrayList<Integer> tags, final DateTime time, final boolean notified, final int position, final int key) {
 
 
-        Tasks tasks = new Tasks(title, items, checked, tags, time, notified, key);
-        TaskList.setTaskList(position, tasks);
+        //TaskList.setTaskList(position, tasks);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                int key = new Random().nextInt();
+
+                while (TaskList.keyList.contains(key) || key == 0) {
+                    key = new Random().nextInt();
+                }
+
+                Log.d("putKeys", Integer.toString(key));
+
+
+                Tasks tasks = new Tasks(title, items, checked, tags, time, false, key);
+
+                MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
+
+                TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
+            }
+        });
+
+
         Log.d("recyclerCreated", "outer created");
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
         InboxFragment.setFilterMode(InboxFragment.filterMode);

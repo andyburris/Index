@@ -3,8 +3,12 @@ package com.andb.apps.todo;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import android.arch.persistence.room.TypeConverters;
 import android.util.Log;
+
+import com.andb.apps.todo.typeconverters.CheckedConverter;
+import com.andb.apps.todo.typeconverters.ItemsConverter;
+import com.andb.apps.todo.typeconverters.TagConverter;
 
 import org.joda.time.DateTime;
 
@@ -13,21 +17,24 @@ import java.util.ArrayList;
 
 @Entity
 public class Tasks implements Serializable {
-    @NonNull
     @PrimaryKey
-    private int key;
+    private int listKey;
 
     @ColumnInfo(name = "list_name")
     private String listName;
 
+    @TypeConverters(ItemsConverter.class)
     @ColumnInfo(name = "list_items")
     private ArrayList<String> listItems;
 
+    @TypeConverters(CheckedConverter.class)
     @ColumnInfo(name = "list_items_checked")
     private ArrayList<Boolean> listItemsChecked;
 
+    @TypeConverters(TagConverter.class)
     @ColumnInfo(name = "list_tags")
     private ArrayList<Integer> listTags;
+
 
     @ColumnInfo(name = "list_due")
     private long listDue;
@@ -48,14 +55,14 @@ public class Tasks implements Serializable {
         this.notified = notified;
     }
 
-    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int key) {
+    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int listKey) {
         this.listName = listName;
         this.listItems = listItems;
         this.listItemsChecked = listItemsChecked;
         this.listTags = listTags;
         this.listDue = time.getMillis();
         this.notified = notified;
-        this.key = key;
+        this.listKey = listKey;
     }
 
 
@@ -212,11 +219,11 @@ public class Tasks implements Serializable {
         this.notified = notified;
     }
 
-    public int getKey() {
-        return this.key;
+    public int getListKey() {
+        return this.listKey;
     }
 
-    public void setKey(int key) {
-        this.key = key;
+    public void setListKey(int listKey) {
+        this.listKey = listKey;
     }
 }

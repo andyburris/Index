@@ -250,9 +250,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                         removeWithDivider(adapterPosition);
                     } else {
                         ArchiveTaskList.addTaskList(taskList.get(adapterPosition));
+                        MainActivity.tasksDatabase.tasksDao().deleteTask(taskList.get(adapterPosition));
                         taskList.remove(adapterPosition);
-                        TaskList.keyList.remove((Integer) taskList.get(adapterPosition).getKey());
-                        TaskList.taskList.remove(taskList.get(adapterPosition));
 
                         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
                         notifyItemRemoved(adapterPosition);
@@ -328,7 +327,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             if (belowDividerPosition > taskList.size() - 1) {
 
                 ArchiveTaskList.addTaskList(taskList.get(position));
-                TaskList.keyList.remove((Integer) taskList.get(position).getKey());
+                TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
 
@@ -350,7 +349,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     | taskList.get(belowDividerPosition).getListName().equals("FUTURE")) {
 
                 ArchiveTaskList.addTaskList(taskList.get(position));
-                TaskList.keyList.remove((Integer) taskList.get(position).getKey());
+                TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
 
@@ -368,7 +367,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
             } else {
                 ArchiveTaskList.addTaskList(taskList.get(position));
-                TaskList.keyList.remove((Integer) taskList.get(position).getKey());
+                TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
                 TaskList.taskList.remove(taskList.get(position));
                 taskList.remove(position);
                 notifyItemRangeChanged(position, getItemCount());

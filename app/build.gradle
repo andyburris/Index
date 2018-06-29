@@ -41,6 +41,8 @@ dependencies {
     testImplementation "android.arch.persistence.room:testing:$room_version"// Test helpers
     debugImplementation 'com.pixiteapps.billingx:billingx:0.8.0'//donations
     releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
+    api 'com.google.guava:guava:25.1-android'
+
 
 
 

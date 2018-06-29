@@ -51,7 +51,7 @@ public class NotificationHeadless extends Service {
         if (TaskList.keyList == null || TaskList.keyList.isEmpty()) {
             TaskList.keyList.clear();
             for (int i = 0; i < TaskList.taskList.size(); i++) {
-                TaskList.keyList.add(TaskList.getItem(i).getKey());
+                TaskList.keyList.add(TaskList.getItem(i).getListKey());
                 Log.d("workManager", "Size: " + TaskList.keyList.size());
 
             }

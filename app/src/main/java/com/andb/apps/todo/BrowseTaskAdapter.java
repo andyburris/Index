@@ -244,7 +244,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
 
 
                     ArchiveTaskList.addTaskList(taskList.get(realPosition));
-                    TaskList.keyList.remove((Integer) taskList.get(realPosition).getKey());
+                    TaskList.keyList.remove((Integer) taskList.get(realPosition).getListKey());
                     TaskList.taskList.remove(taskList.get(realPosition));
                     taskList.remove(realPosition);
                     notifyItemRemoved(realPosition);

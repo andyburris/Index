@@ -4,6 +4,7 @@ package com.andb.apps.todo;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.SearchManager;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,6 +48,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -87,6 +89,9 @@ public class MainActivity extends AppCompatActivity
     public static int notifKey = 0;
 
     private boolean appStart;
+
+    private static final String DATABASE_NAME = "Tasks_db";
+    public static TasksDatabase tasksDatabase;
 
 
     @Override
@@ -153,8 +158,21 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+
         if (appStart) {
-            loadTasks();
+            //loadTasks();
+
+            tasksDatabase = Room.databaseBuilder(getApplicationContext(),
+                    TasksDatabase.class, DATABASE_NAME)
+                    .fallbackToDestructiveMigration()
+                    .build();
+
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+                }
+            });
 
 
             loadTags();
@@ -167,7 +185,6 @@ public class MainActivity extends AppCompatActivity
 
             appStart = false;
         }
-
 
 
         drawerResume();
@@ -193,8 +210,6 @@ public class MainActivity extends AppCompatActivity
             settingsReturn();
 
     }
-
-
 
 
     public void loadBeforeSettings() {
@@ -445,9 +460,6 @@ public class MainActivity extends AppCompatActivity
                 searchManager.getSearchableInfo(getComponentName()));
 
 
-
-
-
         return true;
     }
 
@@ -508,7 +520,24 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_test) {
+            TaskList.loadTasks(this);
 
+            if (TaskList.taskList != null && !TaskList.taskList.isEmpty()) {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        tasksDatabase.tasksDao().insertMultipleTasks(TaskList.taskList);
+                        TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+                    }
+                });
+            } else {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+                    }
+                });
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -548,7 +577,6 @@ public class MainActivity extends AppCompatActivity
             return 2;
         }
     }
-
 
 
     public void loadTags() {
@@ -612,7 +640,7 @@ public class MainActivity extends AppCompatActivity
 
         TaskList.keyList.clear();
         for (int i = 0; i < TaskList.taskList.size(); i++) {
-            TaskList.keyList.add(TaskList.getItem(i).getKey());
+            TaskList.keyList.add(TaskList.getItem(i).getListKey());
         }
 
 
@@ -840,7 +868,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPause() {
         super.onPause();
-        TaskList.saveTasks(this);
+        // TaskList.saveTasks(this);
         ArchiveTaskList.saveTasks(this);
     }
 

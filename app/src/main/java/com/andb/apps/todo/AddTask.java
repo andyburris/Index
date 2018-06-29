@@ -493,7 +493,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
 
         if (editing) {
-            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getKey());
+            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getListKey());
             Log.d("taskPosition", Integer.toString(taskPosition));
 
             InboxFragment.mAdapter.notifyItemChanged(taskPosition);
