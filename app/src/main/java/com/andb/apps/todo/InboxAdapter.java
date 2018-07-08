@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,10 +23,6 @@ import org.joda.time.DateTimeFieldType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.work.WorkManager;
-
-import static com.andb.apps.todo.NotifyWorker.workTag;
 
 public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder> {
 
@@ -121,7 +118,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
 
     public InboxAdapter(List<Tasks> tasksList) {
-        this.taskList = tasksList;
+        taskList = tasksList;
     }
 
 
@@ -163,10 +160,10 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
         if (isSelected) {
             holder.inboxListItemBackground.setBackgroundColor(Color.GRAY);
-        }else if(viewType==TASK_VIEW_ITEM) {
-            if(SettingsActivity.darkTheme) {
+        } else if (viewType == TASK_VIEW_ITEM) {
+            if (SettingsActivity.darkTheme) {
                 holder.inboxListItemBackground.setBackgroundColor(0xFF424242);
-            }else {
+            } else {
                 holder.inboxListItemBackground.setBackgroundColor(Color.WHITE);
             }
         }
@@ -249,15 +246,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                         Log.d("removing", "removing " + Integer.toString(adapterPosition));
                         removeWithDivider(adapterPosition);
                     } else {
-                        ArchiveTaskList.addTaskList(taskList.get(adapterPosition));
-                        MainActivity.tasksDatabase.tasksDao().deleteTask(taskList.get(adapterPosition));
-                        taskList.remove(adapterPosition);
-
-                        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), false);
-                        notifyItemRemoved(adapterPosition);
-                        notifyItemRangeChanged(adapterPosition, getItemCount());
-                        WorkManager.getInstance().cancelAllWorkByTag(workTag);
-                        MainActivity.restartNotificationService();
+                        removeTask(adapterPosition, false);
                     }
 
 
@@ -265,9 +254,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             });
             if (SettingsActivity.darkTheme)
                 holder.clearList.setColorFilter(Color.WHITE);
-
-
-
 
 
             setTasks(realPosition, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
@@ -313,81 +299,38 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         Log.d("removing", "Clicked: " + taskList.get(position).getListName() + "\n");
         //Log.d("removing", "Below: " + taskList.get(belowDividerPosition).getListName() + "\n");
 
-        Tasks tasks = taskList.get(position);
+        final Tasks tasks = taskList.get(position);
+        Tasks dividerTask = taskList.get(dividerPosition);
 
 
+        if (dividerTask.getListName().equals("OVERDUE")
+                | dividerTask.getListName().equals("TODAY")
+                | dividerTask.getListName().equals("WEEK")
+                | dividerTask.getListName().equals("MONTH")
+                | dividerTask.getListName().equals("FUTURE")) {
 
-        if (taskList.get(dividerPosition).getListName().equals("OVERDUE")
-                | taskList.get(dividerPosition).getListName().equals("TODAY")
-                | taskList.get(dividerPosition).getListName().equals("WEEK")
-                | taskList.get(dividerPosition).getListName().equals("MONTH")
-                | taskList.get(dividerPosition).getListName().equals("FUTURE")) {
+            if (belowDividerPosition < taskList.size()) {
+                Log.d("size", Integer.toString(taskList.size()) + ", " + belowDividerPosition);
+                Tasks belowDividerTask = taskList.get(belowDividerPosition);
+                if (belowDividerTask.getListName().equals("OVERDUE")
+                        | belowDividerTask.getListName().equals("TODAY")
+                        | belowDividerTask.getListName().equals("WEEK")
+                        | belowDividerTask.getListName().equals("MONTH")
+                        | belowDividerTask.getListName().equals("FUTURE")) {
 
+                    removeTask(position, true);
+                    if (dividerPosition == 0) {
+                        notifyItemChanged(0); //updates top divider if necessary to redo padding
+                    }
 
-            if (belowDividerPosition > taskList.size() - 1) {
-
-                ArchiveTaskList.addTaskList(taskList.get(position));
-                TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
-                TaskList.taskList.remove(taskList.get(position));
-                taskList.remove(position);
-
-                notifyItemRemoved(position);
-
-                taskList.remove(dividerPosition);
-
-                notifyItemRemoved(dividerPosition);
-                notifyItemRangeChanged(dividerPosition, getItemCount());
-                Log.d("Tasklist", Integer.toString(position));
-                for (int i = 0; i < taskList.size(); i++) {
-                    Log.d("Tasklist", taskList.get(i).getListName());
                 }
-
-            } else if (taskList.get(belowDividerPosition).getListName().equals("OVERDUE")
-                    | taskList.get(belowDividerPosition).getListName().equals("TODAY")
-                    | taskList.get(belowDividerPosition).getListName().equals("WEEK")
-                    | taskList.get(belowDividerPosition).getListName().equals("MONTH")
-                    | taskList.get(belowDividerPosition).getListName().equals("FUTURE")) {
-
-                ArchiveTaskList.addTaskList(taskList.get(position));
-                TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
-                TaskList.taskList.remove(taskList.get(position));
-                taskList.remove(position);
-
-                taskList.remove(dividerPosition);
-                notifyItemRemoved(position);
-                notifyItemRemoved(dividerPosition);
-                notifyItemRangeChanged(dividerPosition, getItemCount());
-                Log.d("Tasklist", Integer.toString(position));
-                for (int i = 0; i < taskList.size(); i++) {
-                    Log.d("Tasklist", taskList.get(i).getListName());
-                }
-                if (dividerPosition == 0) {
-                    notifyItemChanged(0); //updates top divider if necessary to redo padding
-                }
-
             } else {
-                ArchiveTaskList.addTaskList(taskList.get(position));
-                TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
-                TaskList.taskList.remove(taskList.get(position));
-                taskList.remove(position);
-                notifyItemRangeChanged(position, getItemCount());
-                for (int i = 0; i < taskList.size(); i++) {
-                    Log.d("Tasklist", taskList.get(i).getListName());
-                }
-                notifyItemRemoved(position);
+                removeTask(position, true);
             }
 
 
         } else {
-            ArchiveTaskList.addTaskList(taskList.get(position));
-            TaskList.taskList.remove(taskList.get(position));
-            taskList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, getItemCount());
-            Log.d("Tasklist", Integer.toString(position));
-            for (int i = 0; i < taskList.size(); i++) {
-                Log.d("Tasklist", taskList.get(i).getListName());
-            }
+            removeTask(position, false);
 
         }
 
@@ -396,6 +339,38 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         }
 
         BrowseFragment.mAdapter.notifyDataSetChanged();
+
+
+    }
+
+    private void removeTask(int position, boolean above) {
+        final Tasks tasks = taskList.get(position);
+
+        ArchiveTaskList.addTaskList(taskList.get(position));
+        TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
+        TaskList.taskList.remove(taskList.get(position));
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.tasksDatabase.tasksDao().deleteTask(tasks);
+            }
+        });
+        taskList.remove(position);
+
+        notifyItemRemoved(position);
+
+
+        int dividerPosition = position - 1;
+
+        if (above) {
+
+
+            taskList.remove(dividerPosition);
+
+            notifyItemRemoved(dividerPosition);
+        }
+
+        notifyItemRangeChanged(dividerPosition, getItemCount());
 
 
     }
@@ -484,9 +459,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     break;
 
 
-
-
-
                 case 2:
                     Log.d("items", taskList.get(pos).getListName() + ", 2 items: " + taskList.get(pos).getListItemsSize());
 
@@ -531,10 +503,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     check3.setVisibility(View.GONE);
                     more.setVisibility(View.GONE);
                     break;
-
-
-
-
 
 
                 case 3:
@@ -597,8 +565,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
 
                     break;
-
-
 
 
                 default:
@@ -676,18 +642,27 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             layout.setVisibility(View.VISIBLE);
 
 
-
-
         } else {
             Log.d("items", taskList.get(pos).getListName() + ", singleItem");
             layout.setVisibility(View.GONE);
         }
 
-        boolean c1 = false; boolean c2 = false; boolean c3 = false; boolean lay = false;
-        if (check1.getVisibility()==View.VISIBLE){ c1 = true; }
-        if (check2.getVisibility()==View.VISIBLE){ c2 = true; }
-        if (check3.getVisibility()==View.VISIBLE){ c3 = true; }
-        if (layout.getVisibility()==View.VISIBLE){ lay = true; }
+        boolean c1 = false;
+        boolean c2 = false;
+        boolean c3 = false;
+        boolean lay = false;
+        if (check1.getVisibility() == View.VISIBLE) {
+            c1 = true;
+        }
+        if (check2.getVisibility() == View.VISIBLE) {
+            c2 = true;
+        }
+        if (check3.getVisibility() == View.VISIBLE) {
+            c3 = true;
+        }
+        if (layout.getVisibility() == View.VISIBLE) {
+            lay = true;
+        }
         Log.d("items", "Showing:" + Boolean.toString(c1) + Boolean.toString(c2) + Boolean.toString(c3) + Boolean.toString(lay));
     }
 

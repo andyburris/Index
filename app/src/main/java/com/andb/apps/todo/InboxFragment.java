@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -254,16 +255,19 @@ public class InboxFragment extends Fragment {
                 MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
 
                 TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
+
+
+                EventBus.getDefault().post(new UpdateEvent(true));
+
             }
+
+
         });
+
 
         Log.d("recyclerCreated", "outer created");
 
-        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-        setFilterMode(filterMode);
 
-        WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        MainActivity.restartNotificationService();
     }
 
 
@@ -288,6 +292,8 @@ public class InboxFragment extends Fragment {
                 MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
 
                 TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
+
+                EventBus.getDefault().post(new UpdateEvent(true));
             }
         });
 
@@ -315,6 +321,8 @@ public class InboxFragment extends Fragment {
             if (task.getListName().equals("OVERDUE") | task.getListName().equals("TODAY") | task.getListName().equals("WEEK") | task.getListName().equals("MONTH") | task.getListName().equals("FUTURE")) {
                 Log.d("removing", "removing " + task.getListName());
                 filteredTaskList.remove(i);
+                tempList.remove(i);
+                i--;
             }
         }
 
@@ -449,6 +457,8 @@ public class InboxFragment extends Fragment {
 
     public static void refreshWithAnim() {
         mAdapter.notifyDataSetChanged();
+        Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
+        Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
         mRecyclerView.scheduleLayoutAnimation();
     }
 

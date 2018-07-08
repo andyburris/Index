@@ -28,6 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+
 import java.util.ArrayList;
 
 
@@ -401,7 +404,6 @@ public class BrowseFragment extends Fragment {
 
         if (!tagsToFilter.isEmpty()) {
 
-            Log.d("noFilters", Integer.toString(tagsToFilter.size()));
 
 
             if (!TagList.tagList.isEmpty()) {
@@ -440,45 +442,20 @@ public class BrowseFragment extends Fragment {
 
 
             if (!TaskList.taskList.isEmpty()) {
-                for (Tasks tasks : TaskList.taskList) { //check all the tasks
-                    boolean contains = true;
-                    boolean isFoldered = false;
-                    for (int filter : tagsToFilter) { //for all the filters
-                        boolean filterFolder = SettingsActivity.folderMode; //turn to preferences var later,, rn is folder behavior
-                        if (!tasks.doesListContainTag(filter)) { //and see if they are linked by the filters
-                            contains = false;
-                        } else if (filterFolder) {
-                            //Log.d("folderFreeze", "running ");
-                            for (int tagLink : filteredTagLinks) {
-                                //Log.d("folderFreeze", "running j");
-                                if (tasks.doesListContainTag(tagLink)) {
-                                    if (SettingsActivity.subFilter) {
-                                        if (!TagList.getItem(tagLink).isSubFolder()) {
-                                            contains = false;
-                                            isFoldered = true;
-                                        }
 
-                                    } else {
-                                        contains = false;
-                                        isFoldered = true;
-                                    }
-                                }
-                            }
+                addToInbox = TaskList.taskList;
+                Collections2.filter(addToInbox, new TagFilter(tagsToFilter) {
+                });
 
-                        }
-                    }
-                    if (isFoldered) {
-                        Log.d("inboxFilterBrowse", "Adding");
-                        addToInbox.add(tasks);
-                        Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()) + ", " + tasks.getListName() + ", " + TaskList.taskList.size());
-
-                    }
-                    if (contains) { //and if so, add them
-                        filteredTaskList.add(tasks);
-                    }
+                if (SettingsActivity.folderMode) {
+                    filteredTaskList = TaskList.taskList;
+                    Collections2.filter(filteredTaskList, new TagFilter(tagsToFilter, filteredTagLinks) {
+                    });
+                } else {
+                    filteredTaskList = addToInbox;
                 }
-
             }
+
 
             if (!fromAdapter) {
                 refreshWithAnim();
@@ -489,6 +466,7 @@ public class BrowseFragment extends Fragment {
 
         } else {
 
+
             Log.d("noFilters", "no filters");
             for (Tags tag : TagList.tagList) {//if there are no filters, return all tags except subfolders
                 if (!tag.isSubFolder()) {
@@ -497,17 +475,30 @@ public class BrowseFragment extends Fragment {
             }
             Log.d("noFilters", "TagList size:" + Integer.toString(filteredTagLinks.size()));
 
-            for (Tasks tasks : TaskList.taskList) { //for all the tasklist items
-                if (SettingsActivity.folderMode) {//if folders, add all to inbox, only those w/o tags to browse
-                    if (!tasks.isListTags()) {
-                        filteredTaskList.add(tasks);
-                    } else {
-                        addToInbox.add(tasks);
+
+            if (SettingsActivity.folderMode) {//if folders, add all to inbox, only those w/o tags to browse
+
+                filteredTaskList = new ArrayList<>(TaskList.taskList);
+
+                Collections2.filter(filteredTaskList, new Predicate<Tasks>() {
+                    @Override
+                    public boolean apply(Tasks input) {
+                        if (!input.isListTags()) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
-                } else {//if not, add all to browse& inbox
-                    filteredTaskList.add(tasks);
-                }
+                });
+
+                addToInbox = new ArrayList<>(TaskList.taskList);
+
+
+            } else {//if not, add all to browse& inbox
+                filteredTaskList = new ArrayList<>(TaskList.taskList);
+                addToInbox = new ArrayList<>(filteredTaskList);
             }
+
             Log.d("noFilters", "TaskList size:" + Integer.toString(filteredTaskList.size()));
 
 
@@ -524,20 +515,27 @@ public class BrowseFragment extends Fragment {
 
 
         if (viewing) {
-            addToInbox.addAll(filteredTaskList);//add everything from browse
 
             Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
 
 
-            InboxFragment.filteredTaskList.clear();
-            InboxFragment.filteredTaskList.addAll(addToInbox);
+            InboxFragment.filteredTaskList = new ArrayList<>(addToInbox);
 
             Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
 
-            InboxFragment.setFilterMode(InboxFragment.filterMode);
-            InboxFragment.mAdapter.notifyDataSetChanged();
+            InboxFragment.refreshWithAnim();
 
-            Log.d("inboxFilterBrowse", Integer.toString(InboxAdapter.taskList.size()));
+            Log.d("inboxFilterBrowse", Integer.toString(InboxFragment.filteredTaskList.size()));
+            Log.d("inboxFilterBrowse", Integer.toString(InboxFragment.mAdapter.getItemCount()));
+            Log.d("inboxFilterBrowseBrowse", Integer.toString(filteredTaskList.size()));
+            Log.d("inboxFilterBrowseBrowse", Integer.toString(mAdapter.getItemCount()));
+
+            InboxFragment.filteredTaskList = new ArrayList<>(TaskList.taskList);
+
+            Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
+
+            InboxFragment.refreshWithAnim();
+
         }
 
         if (filteredTagLinks.isEmpty()) {

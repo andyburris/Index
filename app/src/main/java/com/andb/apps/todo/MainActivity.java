@@ -44,6 +44,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
@@ -101,6 +104,7 @@ public class MainActivity extends AppCompatActivity
         //long startTime = System.nanoTime();
 
 
+
         super.onCreate(savedInstanceState);
         appStart = true;
         loadBeforeSettings();
@@ -112,6 +116,8 @@ public class MainActivity extends AppCompatActivity
         pagerInitialize();
         fromSettings = false;
         themeSet(toolbar);
+
+        EventBus.getDefault().register(this);
 
 
         Bundle bundle = getIntent().getExtras();
@@ -171,6 +177,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+                    EventBus.getDefault().post(new UpdateEvent(true));
                 }
             });
 
@@ -535,6 +542,8 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void run() {
                         TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+                        EventBus.getDefault().post(new UpdateEvent(true));
+
                     }
                 });
             }
@@ -909,6 +918,8 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor ed = sp.edit();
         ed.putBoolean("active", true);
         ed.apply();
+
+
     }
 
     @Override
@@ -921,6 +932,24 @@ public class MainActivity extends AppCompatActivity
         ed.putBoolean("active", false);
         ed.apply();
 
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void OnUpdateEvent(UpdateEvent event) {
+
+        Log.d("eventbus", "received updateEvent");
+
+        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
+
+        WorkManager.getInstance().cancelAllWorkByTag(workTag);
+        MainActivity.restartNotificationService();
     }
 
 
