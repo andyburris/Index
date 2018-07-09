@@ -1,5 +1,7 @@
 package com.andb.apps.todo;
 
+import android.util.Log;
+
 import com.google.common.base.Predicate;
 
 import java.util.ArrayList;
@@ -7,9 +9,10 @@ import java.util.Collections;
 
 public class TagFilter implements Predicate<Tasks> {
 
-    ArrayList<Integer> tagList = new ArrayList<>();
-    boolean matches;
-    ArrayList<Integer> linkList = new ArrayList<>();
+    private ArrayList<Integer> tagList = new ArrayList<>();
+    private boolean matches;
+    private ArrayList<Integer> linkList = new ArrayList<>();
+
 
     public TagFilter(final ArrayList<Integer> tagList) {
         this.tagList = tagList;
@@ -18,7 +21,7 @@ public class TagFilter implements Predicate<Tasks> {
 
     public TagFilter(final ArrayList<Integer> tagList, final ArrayList<Integer> linkList) {
         this.tagList = tagList;
-        this.matches = true;
+        this.matches = !linkList.isEmpty();
         this.linkList = linkList;
     }
 
@@ -26,17 +29,11 @@ public class TagFilter implements Predicate<Tasks> {
     public boolean apply(Tasks tasks) {
 
         if (matches) {
-            if (tasks.getAllListTags().containsAll(tagList) && !Collections.disjoint(tasks.getAllListTags(), linkList)) {
-                return true;
-            } else {
-                return false;
-            }
+            return tasks.getAllListTags().containsAll(tagList) && Collections.disjoint(tasks.getAllListTags(), linkList);
+
         } else {
-            if (tasks.getAllListTags().containsAll(tagList)) {
-                return true;
-            } else {
-                return false;
-            }
+            Log.d("tagPredicate", Boolean.toString(tasks.getAllListTags().containsAll(tagList)));
+            return tasks.getAllListTags().containsAll(tagList);
         }
 
 

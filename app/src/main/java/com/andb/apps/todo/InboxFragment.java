@@ -195,7 +195,13 @@ public class InboxFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
+
+        ///filteredTaskList = TaskList.taskList;
+
         mAdapter = new InboxAdapter(filteredTaskList);
+        Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
+        Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
+
         mRecyclerView.setAdapter(mAdapter);
 
 
@@ -459,6 +465,7 @@ public class InboxFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
         Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
         Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
+        Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
         mRecyclerView.scheduleLayoutAnimation();
     }
 

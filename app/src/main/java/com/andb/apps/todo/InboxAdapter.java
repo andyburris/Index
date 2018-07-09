@@ -26,7 +26,7 @@ import java.util.List;
 
 public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder> {
 
-    public static List<Tasks> taskList = new ArrayList<>();
+    public List<Tasks> taskList = new ArrayList<>();
 
     private Context context;
     private ActionMode actionMode;
@@ -118,7 +118,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
 
     public InboxAdapter(List<Tasks> tasksList) {
-        taskList = tasksList;
+        this.taskList = tasksList;
     }
 
 

@@ -44,7 +44,7 @@ public class Filters {
 
 
     public static void tagForward(int tag) {
-        ArrayList<Integer> newFilter = new ArrayList<Integer>(backTagFilters.get(backTagFilters.size() - 1));//copies old filter
+        ArrayList<Integer> newFilter = new ArrayList<>(backTagFilters.get(backTagFilters.size() - 1));//copies old filter
         newFilter.add(tag);//adds tag that is sent to it
         backTagFilters.add(newFilter);//adds new filter to stack
 

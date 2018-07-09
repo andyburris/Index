@@ -443,16 +443,32 @@ public class BrowseFragment extends Fragment {
 
             if (!TaskList.taskList.isEmpty()) {
 
-                addToInbox = TaskList.taskList;
-                Collections2.filter(addToInbox, new TagFilter(tagsToFilter) {
-                });
+                Log.d("tagPredicate", "filtering");
+
+                ArrayList<Tasks> tempList = new ArrayList<>();
+
+                addToInbox.addAll(TaskList.taskList);
+                Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
+                tempList = new ArrayList<>(Collections2.filter(addToInbox, new TagFilter(tagsToFilter) {
+                }));
+
+
+                addToInbox.clear();
+                addToInbox.addAll(tempList);
+
+                tempList = new ArrayList<>();
+
+                Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
 
                 if (SettingsActivity.folderMode) {
-                    filteredTaskList = TaskList.taskList;
-                    Collections2.filter(filteredTaskList, new TagFilter(tagsToFilter, filteredTagLinks) {
-                    });
+                    filteredTaskList.addAll(TaskList.taskList);
+                    tempList = new ArrayList<>(Collections2.filter(filteredTaskList, new TagFilter(tagsToFilter, filteredTagLinks) {
+                    }));
+
+                    filteredTaskList.clear();
+                    filteredTaskList.addAll(tempList);
                 } else {
-                    filteredTaskList = addToInbox;
+                    filteredTaskList.addAll(addToInbox);
                 }
             }
 
@@ -478,9 +494,11 @@ public class BrowseFragment extends Fragment {
 
             if (SettingsActivity.folderMode) {//if folders, add all to inbox, only those w/o tags to browse
 
-                filteredTaskList = new ArrayList<>(TaskList.taskList);
+                ArrayList<Tasks> tempList = new ArrayList<>();
 
-                Collections2.filter(filteredTaskList, new Predicate<Tasks>() {
+                filteredTaskList.addAll(TaskList.taskList);
+
+                tempList = new ArrayList<>(Collections2.filter(filteredTaskList, new Predicate<Tasks>() {
                     @Override
                     public boolean apply(Tasks input) {
                         if (!input.isListTags()) {
@@ -489,14 +507,17 @@ public class BrowseFragment extends Fragment {
                             return false;
                         }
                     }
-                });
+                }));
 
-                addToInbox = new ArrayList<>(TaskList.taskList);
+                filteredTaskList.clear();
+                filteredTaskList.addAll(tempList);
+
+                addToInbox.addAll(TaskList.taskList);
 
 
             } else {//if not, add all to browse& inbox
-                filteredTaskList = new ArrayList<>(TaskList.taskList);
-                addToInbox = new ArrayList<>(filteredTaskList);
+                filteredTaskList.addAll(TaskList.taskList);
+                addToInbox.addAll(filteredTaskList);
             }
 
             Log.d("noFilters", "TaskList size:" + Integer.toString(filteredTaskList.size()));
@@ -519,7 +540,8 @@ public class BrowseFragment extends Fragment {
             Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
 
 
-            InboxFragment.filteredTaskList = new ArrayList<>(addToInbox);
+            InboxFragment.filteredTaskList.clear();
+            InboxFragment.filteredTaskList.addAll(addToInbox);
 
             Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
 
@@ -530,7 +552,7 @@ public class BrowseFragment extends Fragment {
             Log.d("inboxFilterBrowseBrowse", Integer.toString(filteredTaskList.size()));
             Log.d("inboxFilterBrowseBrowse", Integer.toString(mAdapter.getItemCount()));
 
-            InboxFragment.filteredTaskList = new ArrayList<>(TaskList.taskList);
+            //InboxFragment.filteredTaskList = new ArrayList<>(TaskList.taskList);
 
             Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
 
