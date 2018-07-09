@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTimeFieldType;
 
 import java.util.ArrayList;
@@ -114,14 +116,29 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
                 @Override
                 public void onClick(View v) {
                     int position = getLayoutPosition();
-                    TaskList.addTaskList(taskList.get(position));
+                    final Tasks tasks = taskList.get(position);
                     taskList.remove(position);
                     notifyItemRemoved(position);
-                    //notifyItemRangeChanged(position, taskList.size());
-                    BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-                    InboxFragment.setFilterMode(InboxFragment.filterMode);
-                    InboxFragment.mAdapter.notifyDataSetChanged();
                     Log.d("backToInbox", "backToInbox");
+
+
+                    AsyncTask.execute(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
+
+                            TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
+
+
+                            EventBus.getDefault().post(new UpdateEvent(true));
+
+                        }
+
+
+                    });
+
+
                 }
             });
 

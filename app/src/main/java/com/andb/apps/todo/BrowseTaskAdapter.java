@@ -277,7 +277,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             debugSetTasks++;
 
             setTasks(realPosition, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
-            setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.moreTags, holder.tagEncloser);
+            setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.moreTags, holder.tagEncloser, holder.divider1);
 
 
         }
@@ -558,7 +558,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
         Log.d("items", "Showing:" + Boolean.toString(c1) + Boolean.toString(c2) + Boolean.toString(c3) + Boolean.toString(lay));
     }
 
-    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ImageView moreTags, LinearLayout layout) {
+    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ImageView moreTags, LinearLayout layout, View divider) {
         ImageView image1 = (ImageView) tag1.findViewById(R.id.tagImage);
         ImageView image2 = (ImageView) tag2.findViewById(R.id.tagImage);
         ImageView image3 = (ImageView) tag3.findViewById(R.id.tagImage);
@@ -566,8 +566,12 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
         ImageView image5 = (ImageView) tag5.findViewById(R.id.tagImage);
 
 
+
         if (taskList.get(pos).isListTags()) {
             Log.d("tags", "multipleTags");
+            layout.setVisibility(View.VISIBLE);
+            divider.setVisibility(View.VISIBLE);
+
 
             if (taskList.get(pos).getAllListTags().size() == 1) {
 
@@ -666,6 +670,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             Log.d("inboxFilterAdapter", Integer.toString(taskList.size()));
             Log.d("items", "singleItem");
             layout.setVisibility(View.GONE);
+            divider.setVisibility(View.GONE);
         }
     }
 

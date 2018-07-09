@@ -177,7 +177,8 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
-                    EventBus.getDefault().post(new UpdateEvent(true));
+
+                    //InboxFragment.setFilterMode(InboxFragment.filterMode);
                 }
             });
 
@@ -185,6 +186,10 @@ public class MainActivity extends AppCompatActivity
             loadTags();
 
             loadTagLinks();
+
+            Filters.homeViewAdd(); //add current filter to back stack
+            Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
+
 
             loadArchiveTasks();
 

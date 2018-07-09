@@ -31,6 +31,8 @@ import android.widget.ImageView;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
 
@@ -98,15 +100,17 @@ public class BrowseFragment extends Fragment {
         Log.d("inflating", "inbox inflating");
         View view = inflater.inflate(R.layout.fragment_browse, container, false);
         prepareRecyclerView(view);
+
+
+        EventBus.getDefault().post(new UpdateEvent(true));//all things needed for this to run have been loaded
+
         tagCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
         prepareTagCollapse(view);
 
         nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
 
 
-        Filters.homeViewAdd(); //add current filter to back stack
-        Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
-        createFilteredTaskList(Filters.getCurrentFilter(), true);
+
 
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
@@ -546,6 +550,8 @@ public class BrowseFragment extends Fragment {
             InboxFragment.filteredTaskList.clear();
             InboxFragment.filteredTaskList.addAll(addToInbox);
 
+            InboxFragment.setFilterMode(InboxFragment.filterMode);
+
             Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
 
             InboxFragment.refreshWithAnim();
@@ -555,11 +561,8 @@ public class BrowseFragment extends Fragment {
             Log.d("inboxFilterBrowseBrowse", Integer.toString(filteredTaskList.size()));
             Log.d("inboxFilterBrowseBrowse", Integer.toString(mAdapter.getItemCount()));
 
-            //InboxFragment.filteredTaskList = new ArrayList<>(TaskList.taskList);
-
             Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
 
-            InboxFragment.refreshWithAnim();
 
         }
 

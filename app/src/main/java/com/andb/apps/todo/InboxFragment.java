@@ -271,7 +271,6 @@ public class InboxFragment extends Fragment {
         });
 
 
-        Log.d("recyclerCreated", "outer created");
 
 
     }
