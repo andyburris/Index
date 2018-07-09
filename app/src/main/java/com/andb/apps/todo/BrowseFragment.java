@@ -392,6 +392,7 @@ public class BrowseFragment extends Fragment {
         long startTime = System.nanoTime();
 
         ArrayList<Tasks> addToInbox = new ArrayList<>();
+        ArrayList<Integer> noSubLinkList = new ArrayList<>();
 
         Log.d("noFilters", Integer.toString(tagsToFilter.size()));
 
@@ -431,6 +432,8 @@ public class BrowseFragment extends Fragment {
 
                         if (!tagsToFilter.contains(tag)) {//check if tag is part of filters
                             filteredTagLinks.add(tag);
+                            if (!SettingsActivity.subFilter || !TagList.tagList.get(tag).isSubFolder())
+                                noSubLinkList.add(tag);
                         }
 
 
@@ -462,7 +465,7 @@ public class BrowseFragment extends Fragment {
 
                 if (SettingsActivity.folderMode) {
                     filteredTaskList.addAll(TaskList.taskList);
-                    tempList = new ArrayList<>(Collections2.filter(filteredTaskList, new TagFilter(tagsToFilter, filteredTagLinks) {
+                    tempList = new ArrayList<>(Collections2.filter(filteredTaskList, new TagFilter(tagsToFilter, noSubLinkList) {
                     }));
 
                     filteredTaskList.clear();
