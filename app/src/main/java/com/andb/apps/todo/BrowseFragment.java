@@ -31,8 +31,6 @@ import android.widget.ImageView;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 
 
@@ -102,7 +100,7 @@ public class BrowseFragment extends Fragment {
         prepareRecyclerView(view);
 
 
-        EventBus.getDefault().post(new UpdateEvent(true));//all things needed for this to run have been loaded
+        //EventBus.getDefault().post(new UpdateEvent(true));//all things needed for this to run have been loaded
 
         tagCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
         prepareTagCollapse(view);

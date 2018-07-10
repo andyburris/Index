@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -52,6 +53,7 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ///Debug.startMethodTracing("startup");
+        Debug.startMethodTracing("startup");
 
         //long startTime = System.nanoTime();
 
@@ -149,7 +151,7 @@ public class MainActivity extends AppCompatActivity
 
         drawerInitialize(toolbar);
 
-        reportFullyDrawn();
+        //reportFullyDrawn();
 
 
         //long endTime = System.nanoTime();
@@ -178,17 +180,21 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
 
+                    loadTags();
+
+                    loadTagLinks();
+
+                    Filters.homeViewAdd(); //add current filter to back stack
+                    Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
+
+                    EventBus.getDefault().post(new UpdateEvent(true));
+
                     //InboxFragment.setFilterMode(InboxFragment.filterMode);
                 }
             });
 
 
-            loadTags();
 
-            loadTagLinks();
-
-            Filters.homeViewAdd(); //add current filter to back stack
-            Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
 
 
             loadArchiveTasks();
@@ -533,6 +539,22 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_test) {
             TaskList.loadTasks(this);
+            ArrayList<Integer> keyList = new ArrayList<>();
+
+            for (int i = 0; i < TaskList.taskList.size(); i++) {
+                Tasks tasks = TaskList.taskList.get(i);
+                if (keyList.contains(tasks.getListKey()) || tasks.getListKey() == 0) {
+                    int key = new Random().nextInt();
+                    while (keyList.contains(key)) {
+                        key = new Random().nextInt();
+                    }
+                    tasks.setListKey(new Random().nextInt());
+                    keyList.add(key);
+                } else {
+                    keyList.add(tasks.getListKey());
+                }
+
+            }
 
             if (TaskList.taskList != null && !TaskList.taskList.isEmpty()) {
                 AsyncTask.execute(new Runnable() {
