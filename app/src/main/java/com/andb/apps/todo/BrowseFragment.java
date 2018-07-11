@@ -445,6 +445,14 @@ public class BrowseFragment extends Fragment {
 
             }
 
+            long endTime = System.nanoTime();
+            long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+            //duration = duration;//to seconds
+
+            Log.d("startupTime", "Create filtered tasklist - Tags: " + Long.toString(duration));
+
+            startTime = System.nanoTime();
+
 
             if (!TaskList.taskList.isEmpty()) {
 

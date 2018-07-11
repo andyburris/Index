@@ -27,7 +27,7 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import java.lang.reflect.Field;
 
 
-public class createTag extends AppCompatActivity implements ColorPickerDialogListener {
+public class CreateTag extends AppCompatActivity implements ColorPickerDialogListener {
 
     public EditText tagNameEdit;
     public Switch subFolderSwitch;
@@ -42,6 +42,7 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
     private static final int DIALOG_ID = 0;
 
     Flashbar flashbar;
+    Flashbar usedFlashbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
         }
 
         flashbar = blankText();
+        usedFlashbar = keyUsed();
 
 
         Bundle bundle = getIntent().getExtras();
@@ -96,7 +98,7 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
                         .setColor(tagColor)
                         .setShowAlphaSlider(false)
                         .setDialogId(DIALOG_ID)
-                        .show(createTag.this);
+                        .show(CreateTag.this);
             }
         });
 
@@ -210,6 +212,8 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
 
         if (TextUtils.isEmpty(tagNameEdit.getText())) {
             flashbar.show();
+        } else if (TagList.keyList.contains(tagNameEdit.getText().toString())) {
+            usedFlashbar.show();
         } else {
 
             if (editing) {
@@ -235,6 +239,17 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
 
     }
 
+    private Flashbar keyUsed() {
+        return new Flashbar.Builder(this)
+                .gravity(Flashbar.Gravity.BOTTOM)
+                .title("Tag Exists")
+                .message("A tag with this name already exists, please choose another one")
+                .dismissOnTapOutside()
+                .backgroundColor(SettingsActivity.themeColor)
+                .build();
+
+    }
+
 
     @Override
     public void onColorSelected(int dialogId, int color) {
@@ -244,7 +259,7 @@ public class createTag extends AppCompatActivity implements ColorPickerDialogLis
                 tagColor = color;
                 ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.tagColorPreview);
                 colorPanelView.setColor(color);
-                Toast.makeText(createTag.this, "Selected Color: #" + Integer.toHexString(color), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateTag.this, "Selected Color: #" + Integer.toHexString(color), Toast.LENGTH_SHORT).show();
                 final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
                 fab.setBackgroundTintList(ColorStateList.valueOf(tagColor));
                 tagNameEdit.clearFocus();

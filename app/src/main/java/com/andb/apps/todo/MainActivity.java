@@ -15,7 +15,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -44,6 +43,8 @@ import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.andb.apps.todo.databases.TasksDatabase;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Debug.startMethodTracing("startup");
+        //Debug.startMethodTracing("startup");
 
         //long startTime = System.nanoTime();
 
@@ -194,12 +195,16 @@ public class MainActivity extends AppCompatActivity
             });
 
 
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    loadArchiveTasks();
+
+                    loadAfterSettings();
 
 
-
-            loadArchiveTasks();
-
-            loadAfterSettings();
+                }
+            });
 
             appStart = false;
         }
@@ -234,12 +239,14 @@ public class MainActivity extends AppCompatActivity
 
         long startTime = System.nanoTime();
 
+        SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        SettingsActivity.themeColor = PreferenceManager.getDefaultSharedPreferences(this).getInt("default_color", 0);
+
+        SettingsActivity.themeColor = defaultSharedPrefs.getInt("default_color", 0);
 
 
-        SettingsActivity.folderMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("folder_mode", false);
-        SettingsActivity.darkTheme = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dark_theme", false);
+        SettingsActivity.folderMode = defaultSharedPrefs.getBoolean("folder_mode", false);
+        SettingsActivity.darkTheme = defaultSharedPrefs.getBoolean("dark_theme", false);
         Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
         if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDarkMain);
@@ -247,11 +254,11 @@ public class MainActivity extends AppCompatActivity
             this.setTheme(R.style.AppThemeLightMain);
         }
 
-        SettingsActivity.defaultSort = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("sort_mode_list", "0"));
+        SettingsActivity.defaultSort = Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0"));
         InboxFragment.filterMode = SettingsActivity.defaultSort;
 
-        SettingsActivity.coloredToolbar = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("colored_toolbar", false);
-        SettingsActivity.subFilter = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("sub_Filter_pref", false);
+        SettingsActivity.coloredToolbar = defaultSharedPrefs.getBoolean("colored_toolbar", false);
+        SettingsActivity.subFilter = defaultSharedPrefs.getBoolean("sub_Filter_pref", false);
 
 
         long endTime = System.nanoTime();
@@ -627,6 +634,10 @@ public class MainActivity extends AppCompatActivity
             TagList.loadTags(this);
         }
 
+        for (Tags tags : TagList.tagList) {
+            TagList.keyList.add(tags.getTagName());
+        }
+
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
         //duration = duration/1000;//to seconds
@@ -974,6 +985,7 @@ public class MainActivity extends AppCompatActivity
         Log.d("eventbus", "received updateEvent");
 
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
+
 
         WorkManager.getInstance().cancelAllWorkByTag(workTag);
         MainActivity.restartNotificationService();

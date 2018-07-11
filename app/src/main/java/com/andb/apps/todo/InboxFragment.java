@@ -61,6 +61,7 @@ public class InboxFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
 
+
     public InboxFragment() {
         // Required empty public constructor
     }
@@ -457,6 +458,10 @@ public class InboxFragment extends Fragment {
         }
         Log.d("inboxFilterInboxEnd", Integer.toString(filteredTaskList.size()));
 
+
+    }
+
+    public void loading(boolean state) {
 
     }
 

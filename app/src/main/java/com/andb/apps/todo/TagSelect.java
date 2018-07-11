@@ -196,7 +196,7 @@ public class TagSelect extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.app_bar_add:
-                Intent editTask = new Intent(this, createTag.class);
+                Intent editTask = new Intent(this, CreateTag.class);
                 editTask.putExtra("edit", false);
                 startActivity(editTask);
                 return true;
@@ -246,7 +246,7 @@ public class TagSelect extends AppCompatActivity {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.editTag:
-                        Intent editTask = new Intent(TagSelect.this.getApplicationContext(), createTag.class);
+                        Intent editTask = new Intent(TagSelect.this.getApplicationContext(), CreateTag.class);
                         editTask.putExtra("edit", true);
                         editTask.putExtra("editPos", position);
                         startActivity(editTask);

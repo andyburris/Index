@@ -34,7 +34,7 @@
             android:label="@string/title_activity_tag_select"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
-            android:name=".createTag"
+            android:name=".CreateTag"
             android:label="@string/title_activity_create_tag"
             android:theme="@style/AppThemeLight.NoActionBar" />
         <activity
