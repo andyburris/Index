@@ -54,7 +54,6 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.OneTimeWorkRequest;
@@ -545,7 +544,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_test) {
-            TaskList.loadTasks(this);
+            /*TaskList.loadTasks(this);
             ArrayList<Integer> keyList = new ArrayList<>();
 
             for (int i = 0; i < TaskList.taskList.size(); i++) {
@@ -580,7 +579,7 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 });
-            }
+            }*/
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
