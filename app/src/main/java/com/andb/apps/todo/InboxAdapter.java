@@ -20,6 +20,7 @@ import android.widget.TextView;
 import org.joda.time.DateTimeFieldType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -678,7 +679,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         if (taskList.get(pos).isListTags()) {
             Log.d("tags", "multipleTags");
 
-            if (taskList.get(pos).getAllListTags().size() == 1) {
+            /*if (taskList.get(pos).getAllListTags().size() == 1) {
 
                 Log.d("errorLoadingTags", Integer.toString(taskList.get(pos).getListTags(0)));
 
@@ -770,7 +771,30 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     moreTags.setColorFilter(Color.WHITE);
 
 
+            }*/
+
+            ArrayList<ImageView> tagPointers = new ArrayList<>(Arrays.asList(image1, image2, image3, image4, image5));
+
+            for (int i = 0; i < tagPointers.size(); i++) {
+                if (i < taskList.get(pos).getAllListTags().size()) {
+                    Tags tagtemp = TagList.getItem(taskList.get(pos).getListTags(i));
+                    tagPointers.get(i).setColorFilter(tagtemp.getTagColor());
+                    tagPointers.get(i).setVisibility(View.VISIBLE);
+                } else {
+                    tagPointers.get(i).setVisibility(View.GONE);
+                }
             }
+
+            if (taskList.get(pos).getAllListTags().size() >= 6) {
+
+
+                moreTags.setVisibility(View.VISIBLE);
+                if (SettingsActivity.darkTheme)
+                    moreTags.setColorFilter(Color.WHITE);
+
+
+            }
+
         } else {
             Log.d("inboxFilterAdapter", Integer.toString(taskList.size()));
             Log.d("items", "singleItem");

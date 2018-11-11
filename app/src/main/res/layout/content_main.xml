@@ -8,32 +8,7 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:elevation="4dp"
-        app:tabSelectedTextColor="@color/tabSelectedTextColor"
-        app:tabTextColor="@color/tabUnselectedTextColor">
 
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_1" />
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabItem2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_2"
-
-            />
-
-
-    </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/container"

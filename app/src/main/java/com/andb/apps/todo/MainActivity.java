@@ -20,11 +20,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -179,6 +176,8 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+
+                    //InboxFragment.setTaskCountText(TaskList.taskList.size());
 
                     loadTags();
 
@@ -341,7 +340,6 @@ public class MainActivity extends AppCompatActivity
 
 
             }
-
 
             toolbar.setTitleTextColor(textColor);
             toolbar.getOverflowIcon().setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
@@ -767,8 +765,8 @@ public class MainActivity extends AppCompatActivity
 
         Log.d("prefLoad", Integer.toHexString(SettingsActivity.themeColor));
 
-
-        final FloatingActionButton fab_main = (FloatingActionButton) findViewById(R.id.fab_main);
+//old fab logic
+        /*final FloatingActionButton fab_main = (FloatingActionButton) findViewById(R.id.fab_main);
 
         fab_main.setBackgroundTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
 
@@ -840,7 +838,18 @@ public class MainActivity extends AppCompatActivity
 
 
             }
+        });*/
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, AddTask.class);
+                intent.putExtra("edit", false);
+                startActivity(intent);
+            }
         });
+
 
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.

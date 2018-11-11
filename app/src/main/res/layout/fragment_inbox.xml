@@ -23,15 +23,32 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/inboxRecycler"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/inboxScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center_vertical|center_horizontal"
-        android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim"
-        android:paddingTop="48dp">
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                layout="@layout/inbox_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/inboxRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim">
 
 
-    </androidx.recyclerview.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </FrameLayout>

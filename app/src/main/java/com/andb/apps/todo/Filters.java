@@ -40,6 +40,7 @@ public class Filters {
         }
 
         MainActivity.subTitle.setSubtitle(subtitle);
+        InboxFragment.setPathText(subtitle);
     }
 
 
@@ -65,6 +66,7 @@ public class Filters {
 
 
         MainActivity.subTitle.setSubtitle(subtitle);
+        InboxFragment.setPathText(subtitle);
     }
 
     public static void tagReset(int tag) {
@@ -89,6 +91,7 @@ public class Filters {
         }
 
         MainActivity.subTitle.setSubtitle(subtitle);
+        InboxFragment.setPathText(subtitle);
     }
 
     public static int getMostRecent() {

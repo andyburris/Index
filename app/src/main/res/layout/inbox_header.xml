@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/task_count_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="48dp"
+        android:text="# TASKS"
+        android:textColor="@color/tabSelectedTextColor"
+        android:textSize="36sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/task_path_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:text="All/Tag 1/Groceries"
+        android:textAlignment="center"
+        android:textColor="@color/tabSelectedTextColor"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/task_count_text" />
+
+
+    <Button
+        android:id="@+id/tag_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:layout_marginBottom="36dp"
+        android:background="@drawable/rounded_button_background"
+        android:backgroundTintMode="src_over"
+        android:drawableLeft="@drawable/ic_label_black_24dp"
+        android:drawablePadding="12dp"
+        android:elevation="8dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="24dp"
+        android:text="TAGS"
+        android:textAppearance="@style/Base.TextAppearance.MaterialComponents.Button"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/task_path_text" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

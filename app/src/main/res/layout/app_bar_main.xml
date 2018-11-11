@@ -6,24 +6,52 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <include
-        layout="@layout/content_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <include
+            layout="@layout/content_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:layout_marginBottom="48dp"
             android:theme="@style/Base.Theme.MaterialComponents"
             app:backgroundTint="@color/colorPrimary"
             app:fabAlignmentMode="center"
             app:navigationIcon="@drawable/ic_menu_black_24dp" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/colorPrimary"
+            app:tabSelectedTextColor="@color/tabSelectedTextColor"
+            app:tabTextColor="@color/tabUnselectedTextColor">
+
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_1" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabItem2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_2"
+
+                />
+
+
+        </com.google.android.material.tabs.TabLayout>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -33,54 +61,6 @@
             android:src="@drawable/ic_add_black_24dp"
             app:fabSize="normal"
             app:layout_anchor="@id/toolbar" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom|end"
-            android:visibility="gone">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_main"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="@dimen/fab_margin"
-                app:fabSize="normal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:srcCompat="@drawable/ic_add_white_24dp" />
-
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_list"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_margin="@dimen/fab_margin"
-                android:scaleType="center"
-                android:visibility="gone"
-                app:fabSize="normal"
-                app:layout_constraintBottom_toTopOf="@+id/fab_main"
-                app:layout_constraintLeft_toLeftOf="@+id/fab_main"
-                app:layout_constraintRight_toRightOf="@+id/fab_main"
-                app:srcCompat="@drawable/ic_edit_white_24dp" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_tag"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="bottom|center"
-                android:layout_margin="@dimen/fab_margin"
-                android:scaleType="center"
-                android:tint="@android:color/white"
-                android:visibility="gone"
-                app:fabSize="normal"
-                app:layout_constraintBottom_toTopOf="@+id/fab_list"
-                app:layout_constraintLeft_toLeftOf="@+id/fab_list"
-                app:layout_constraintRight_toRightOf="@+id/fab_list"
-                app:srcCompat="@drawable/ic_label_black_24dp" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

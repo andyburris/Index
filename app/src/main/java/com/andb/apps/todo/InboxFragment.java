@@ -13,9 +13,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
@@ -57,10 +56,12 @@ public class InboxFragment extends Fragment {
     private ActionMode contextualToolbar;
     public boolean selected = false;
 
+    private static TextView taskCountText;
+    private static TextView currentPathText;
+
     private static TextView noTasks;
 
     private OnFragmentInteractionListener mListener;
-
 
 
     public InboxFragment() {
@@ -79,13 +80,11 @@ public class InboxFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
 
 
         // Inflate the layout for this fragment
@@ -95,9 +94,11 @@ public class InboxFragment extends Fragment {
 
         noTasks = view.findViewById(R.id.noTasks);
 
+        taskCountText = view.findViewById(R.id.task_count_text);
+        currentPathText = view.findViewById(R.id.task_path_text);
 
-
-
+        setPathText(Filters.subtitle);
+        setTaskCountText(TaskList.taskList.size());
 
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
@@ -121,7 +122,7 @@ public class InboxFragment extends Fragment {
         });
 
         //hide fab on scroll
-        final FloatingActionButton fabMain = (FloatingActionButton) getActivity().findViewById(R.id.fab_main);
+        /*final FloatingActionButton fabMain = (FloatingActionButton) getActivity().findViewById(R.id.fab_main);
         final FloatingActionButton fabList = (FloatingActionButton) getActivity().findViewById(R.id.fab_list);
         final FloatingActionButton fabTag = (FloatingActionButton) getActivity().findViewById(R.id.fab_tag);
         final int scrollSensitivity = 5;
@@ -140,6 +141,18 @@ public class InboxFragment extends Fragment {
                         fabTag.show();
                     }
                 }
+            }
+        });*/
+
+        Button tag_button = view.findViewById(R.id.tag_button);
+        tag_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), TagSelect.class);
+                intent.putExtra("isTagLink", true);
+                startActivity(intent);
+
+
             }
         });
 
@@ -271,8 +284,6 @@ public class InboxFragment extends Fragment {
 
 
         });
-
-
 
 
     }
@@ -516,5 +527,20 @@ public class InboxFragment extends Fragment {
         return callback;
     }
 
+    public static void setTaskCountText(int numTasks) {
+        String toApply;
+        if (numTasks != 1) {
+            toApply = " Tasks";
+        } else {
+            toApply = " Task";
+        }
+        toApply = Integer.toString(numTasks) + toApply;
+        taskCountText.setText(toApply);
+
+    }
+
+    public static void setPathText(String text) {
+        currentPathText.setText(text);
+    }
 
 }

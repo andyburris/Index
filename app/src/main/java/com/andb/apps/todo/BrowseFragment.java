@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
@@ -133,7 +132,7 @@ public class BrowseFragment extends Fragment {
         });
 
         //hide fab on scroll
-        final FloatingActionButton fabMain = (FloatingActionButton) getActivity().findViewById(R.id.fab_main);
+        /*final FloatingActionButton fabMain = (FloatingActionButton) getActivity().findViewById(R.id.fab_main);
         final FloatingActionButton fabList = (FloatingActionButton) getActivity().findViewById(R.id.fab_list);
         final FloatingActionButton fabTag = (FloatingActionButton) getActivity().findViewById(R.id.fab_tag);
         final int scrollSensitivity = 5;
@@ -153,7 +152,7 @@ public class BrowseFragment extends Fragment {
                     }
                 }
             }
-        });
+        });*/
 
 
         return view;
@@ -579,6 +578,12 @@ public class BrowseFragment extends Fragment {
         } else {
             tagCard.setVisibility(View.VISIBLE);
 
+        }
+
+        if (Filters.getCurrentFilter().size() != 0) {
+            InboxFragment.setTaskCountText(filteredTaskList.size());
+        } else {
+            InboxFragment.setTaskCountText(TaskList.taskList.size());
         }
 
         long endTime = System.nanoTime();
