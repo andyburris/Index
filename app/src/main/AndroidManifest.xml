@@ -22,10 +22,6 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".TabExample"
-            android:label="@string/title_activity_tab_example"
-            android:theme="@style/AppThemeLight.NoActionBar" />
-        <activity
             android:name=".AddTask"
             android:label="@string/title_activity_add_list"
             android:theme="@style/AppThemeLight.NoActionBar" />

@@ -1,8 +1,6 @@
 package com.andb.apps.todo;
 
 import android.content.res.ColorStateList;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +8,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import java.util.List;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.MyViewHolder> {
 

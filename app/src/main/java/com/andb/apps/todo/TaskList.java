@@ -3,7 +3,6 @@ package com.andb.apps.todo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -14,6 +13,8 @@ import org.joda.time.DateTimeFieldType;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class TaskList extends AppCompatActivity {
     public static ArrayList<Tasks> taskList = new ArrayList<>();

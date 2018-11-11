@@ -1,6 +1,5 @@
 package com.andb.apps.todo;
 
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 public class TagAdapter extends RecyclerView.Adapter<TagAdapter.MyViewHolder> {
 

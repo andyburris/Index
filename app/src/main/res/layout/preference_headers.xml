@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/pref_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/prefGeneralLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -56,9 +56,9 @@
                     app:layout_constraintBottom_toBottomOf="@+id/prefGeneralIcon"
                     app:layout_constraintLeft_toRightOf="@+id/prefGeneralIcon"
                     app:layout_constraintTop_toTopOf="@+id/prefGeneralIcon" />
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/prefThemeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -84,9 +84,9 @@
                     app:layout_constraintBottom_toBottomOf="@+id/prefThemeIcon"
                     app:layout_constraintLeft_toRightOf="@+id/prefThemeIcon"
                     app:layout_constraintTop_toTopOf="@+id/prefThemeIcon" />
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/prefFolderLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,8 +110,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/prefFolderIcon"
                     app:layout_constraintLeft_toRightOf="@+id/prefFolderIcon"
                     app:layout_constraintTop_toTopOf="@+id/prefFolderIcon" />
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </ScrollView>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

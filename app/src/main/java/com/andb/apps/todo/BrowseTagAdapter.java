@@ -2,13 +2,6 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.constraint.ConstraintLayout;
-import android.support.transition.AutoTransition;
-import android.support.transition.Slide;
-import android.support.transition.TransitionManager;
-import android.support.transition.Visibility;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -21,6 +14,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.Slide;
+import androidx.transition.TransitionManager;
+import androidx.transition.Visibility;
 
 public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyViewHolder> {
     public static List<Integer> tagLinks = new ArrayList<>();
