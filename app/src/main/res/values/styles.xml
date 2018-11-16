@@ -20,16 +20,6 @@
         <item name="android:windowBackground">@color/white</item>
         <item name="windowActionBar">false</item>
 
-        <item name="toolbar_color">@color/white</item>
-        <item name="toolbar_text_color">@color/slate_black</item>
-        <item name="fab_color_attr">@color/colorAccent</item>
-        <item name="fab_text_color_attr">@color/white</item>
-        <item name="background_color">@color/white</item>
-        <item name="card_color">@color/white</item>
-        <item name="text_color">@color/slate_black</item>
-        <item name="selected_tab">@color/slate_black</item>
-        <item name="unselected_tab">@color/slate_black</item>
-        <item name="tab_indicator">@color/colorAccent</item>
 
         <item name="windowNoTitle">true</item>
     </style>

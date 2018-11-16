@@ -4,6 +4,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -288,7 +289,7 @@ public class BrowseFragment extends Fragment {
                         });
 
 
-                        //tagCardLayout.setVisibility(View.GONE);
+                        tagCardLayout.setVisibility(View.GONE);
 
 
                         tagCollapsed = true;
@@ -382,9 +383,9 @@ public class BrowseFragment extends Fragment {
             }
         });
 
-/*        if (SettingsActivity.darkTheme) {
+        if (SettingsActivity.darkTheme) {
             collapseButton.setColorFilter(Color.WHITE);
-        }*/
+        }
     }
 
 

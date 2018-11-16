@@ -63,6 +63,8 @@ public class InboxFragment extends Fragment {
 
     private static TextView noTasks;
 
+    public static Button tagButton;
+
     private OnFragmentInteractionListener mListener;
 
 
@@ -85,20 +87,6 @@ public class InboxFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        View view = getView();
-
-        taskCountText = view.findViewById(R.id.task_count_text);
-        currentPathText = view.findViewById(R.id.task_path_text);
-
-        setPathText(Filters.subtitle);
-        setTaskCountText(TaskList.taskList.size());
-        setTagButton(view, getContext());
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -109,6 +97,27 @@ public class InboxFragment extends Fragment {
         prepareRecyclerView(view);
 
         noTasks = view.findViewById(R.id.noTasks);
+
+        taskCountText = view.findViewById(R.id.task_count_text);
+        currentPathText = view.findViewById(R.id.task_path_text);
+
+        setPathText(Filters.subtitle);
+        setTaskCountText(TaskList.taskList.size());
+
+        tagButton = view.findViewById(R.id.tag_button);
+        tagButton.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.SRC_ATOP);
+
+        Drawable drawable = getResources().getDrawable(R.drawable.ic_label_black_24dp).mutate();
+        if (MainActivity.lightOnBackground(SettingsActivity.themeColor)) {
+            int color = 0xFFFFFFFF;
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+            tagButton.setTextColor(color);
+        } else {
+            int color = 0xFF000000;
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+            tagButton.setTextColor(color);
+        }
+        tagButton.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
 
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
@@ -154,8 +163,7 @@ public class InboxFragment extends Fragment {
             }
         });*/
 
-        Button tag_button = view.findViewById(R.id.tag_button);
-        tag_button.setOnClickListener(new View.OnClickListener() {
+        tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), TagSelect.class);
@@ -547,45 +555,10 @@ public class InboxFragment extends Fragment {
         toApply = Integer.toString(numTasks) + toApply;
         taskCountText.setText(toApply);
 
-        /*if(SettingsActivity.darkTheme){
-            taskCountText.setTextColor(Color.WHITE);
-
-        }*/
-
     }
 
     public static void setPathText(String text) {
         currentPathText.setText(text);
-/*        if(SettingsActivity.darkTheme){
-            currentPathText.setTextColor(Color.WHITE);
-
-        }*/
-    }
-
-    public static void setTagButton(View view, Context ctxt) {
-        int color = (int) Long.parseLong(Integer.toHexString(SettingsActivity.themeColor), 16);
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = (color >> 0) & 0xFF;
-
-        int textColor;
-
-        if ((r * 0.299 + g * 0.587 + b * 0.114) > 186) {
-            textColor = 0xFF000000;
-        } else {
-            textColor = 0xFFFFFFFF;
-        }
-
-        Button button = view.findViewById(R.id.tag_button);
-        /*button.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.SRC_OVER);
-
-        button.setTextColor(textColor);*/
-
-        Drawable drawable = ctxt.getDrawable(R.drawable.ic_label_black_24dp).mutate();
-        drawable.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
-
-        button.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-
     }
 
 }

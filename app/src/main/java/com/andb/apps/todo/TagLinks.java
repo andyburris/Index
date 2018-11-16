@@ -1,14 +1,9 @@
 package com.andb.apps.todo;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 
 public class TagLinks {
-    @SerializedName("tagPosition")
     private int tagPosition;
-
-    @SerializedName("links")
     private ArrayList<Integer> links;
 
     public TagLinks (int parent, ArrayList<Integer> links){

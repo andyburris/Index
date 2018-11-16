@@ -1,6 +1,7 @@
 package com.andb.apps.todo;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -163,8 +164,8 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             slide.setMode(Visibility.MODE_IN);
             slide.setDuration(1000);
 
-/*            if (SettingsActivity.darkTheme)
-                holder.removeButton.setColorFilter(Color.WHITE);*/
+            if (SettingsActivity.darkTheme)
+                holder.removeButton.setColorFilter(Color.WHITE);
             TransitionManager.beginDelayedTransition(holder.browseLayout, new AutoTransition()
             );
 

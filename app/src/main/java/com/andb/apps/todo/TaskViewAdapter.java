@@ -1,5 +1,6 @@
 package com.andb.apps.todo;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,17 +63,17 @@ public class TaskViewAdapter extends RecyclerView.Adapter<TaskViewAdapter.MyView
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 parentList.get(parentTask).editListItemsChecked(isChecked, realPosition);
 
-                /*if(holder.box.isChecked())
+                if (holder.box.isChecked())
                     holder.box.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
                 else
-                    holder.box.setButtonTintList(ColorStateList.valueOf(0xFF757575));*/
+                    holder.box.setButtonTintList(ColorStateList.valueOf(0xFF757575));
 
             }
         });
-/*        if(holder.box.isChecked())
+        if (holder.box.isChecked())
             holder.box.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
         else
-            holder.box.setButtonTintList(ColorStateList.valueOf(0xFF757575));*/
+            holder.box.setButtonTintList(ColorStateList.valueOf(0xFF757575));
 
 
         holder.box.setText(task);

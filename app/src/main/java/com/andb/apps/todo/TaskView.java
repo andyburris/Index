@@ -30,11 +30,11 @@ public class TaskView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        if (SettingsActivity.darkTheme) {
+        if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDark);
         } else {
             this.setTheme(R.style.AppThemeLight);
-        }*/
+        }
         setContentView(R.layout.activity_task_view);
 
 
@@ -60,9 +60,9 @@ public class TaskView extends AppCompatActivity {
         getSupportActionBar().setTitle(taskList.get(position).getListName());
         Log.d("onePosUpError", taskList.get(position).getListName());
 
-/*        if (SettingsActivity.darkTheme) {
+        if (SettingsActivity.darkTheme) {
             darkThemeSet(toolbar);
-        }*/
+        }
 
         prepareRecyclerView();
 

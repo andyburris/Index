@@ -3,6 +3,7 @@ package com.andb.apps.todo;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -44,17 +45,17 @@ public class TagSelect extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        if (SettingsActivity.darkTheme) {
+        if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDark);
         } else {
             this.setTheme(R.style.AppThemeLight);
-        }*/
+        }
         setContentView(R.layout.activity_tag_select);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-/*        if (SettingsActivity.darkTheme)
-            darkThemeSet(toolbar);*/
+        if (SettingsActivity.darkTheme)
+            darkThemeSet(toolbar);
 
         Bundle bundle = getIntent().getExtras();
         if (bundle.containsKey("isTaskCreate")) {
@@ -187,9 +188,8 @@ public class TagSelect extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_tag_select, menu);
-/*        if (SettingsActivity.darkTheme)
+        if (SettingsActivity.darkTheme)
             menu.getItem(0).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-            */
         return true;
     }
 

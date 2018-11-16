@@ -162,11 +162,11 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         if (isSelected) {
             holder.inboxListItemBackground.setBackgroundColor(Color.GRAY);
         } else if (viewType == TASK_VIEW_ITEM) {
- /*           if (SettingsActivity.darkTheme) {
+            if (SettingsActivity.darkTheme) {
                 holder.inboxListItemBackground.setBackgroundColor(0xFF424242);
             } else {
                 holder.inboxListItemBackground.setBackgroundColor(Color.WHITE);
-            }*/
+            }
         }
 
 
@@ -210,8 +210,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             Log.d("errorSetText", taskList.get(realPosition).getListName());
 
             holder.name.setText(taskList.get(position).getListName());
-/*            if (SettingsActivity.darkTheme)
-                holder.name.setTextColor(Color.WHITE);*/
+            if (SettingsActivity.darkTheme)
+                holder.name.setTextColor(Color.WHITE);
 
 
             if (taskList.get(position).isListTime()) {
@@ -222,9 +222,9 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                     holder.timeText.setVisibility(View.VISIBLE);
                     holder.timeText.setText(taskList.get(position).getDateTime().toString("h:mm a"));
                 }
-                /*if (SettingsActivity.darkTheme) {
+                if (SettingsActivity.darkTheme) {
                     holder.timeIcon.setColorFilter(Color.WHITE);
-                }*/
+                }
                 holder.divider2.setVisibility(View.VISIBLE);
                 holder.timeLayout.setVisibility(View.VISIBLE);
             } else {
@@ -253,8 +253,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
                 }
             });
-/*            if (SettingsActivity.darkTheme)
-                holder.clearList.setColorFilter(Color.WHITE);*/
+            if (SettingsActivity.darkTheme)
+                holder.clearList.setColorFilter(Color.WHITE);
 
 
             setTasks(realPosition, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
@@ -829,6 +829,5 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             layout.setVisibility(View.GONE);
         }
     }
-
 
 }
