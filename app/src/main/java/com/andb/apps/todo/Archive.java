@@ -15,11 +15,11 @@ public class Archive extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SettingsActivity.darkTheme) {
+/*        if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDark);
         } else {
             this.setTheme(R.style.AppThemeLight);
-        }
+        }*/
         setContentView(R.layout.activity_archive);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

@@ -19,7 +19,7 @@
         <item
             android:id="@+id/nav_test"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Test" />
+            android:title="Import/Export" />
     </group>
 
 

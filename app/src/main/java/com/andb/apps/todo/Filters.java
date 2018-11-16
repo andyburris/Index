@@ -39,7 +39,12 @@ public class Filters {
             subtitle +=  "/"+ TagList.getItem(getCurrentFilter().get(i)).getTagName();
         }
 
-        MainActivity.subTitle.setSubtitle(subtitle);
+        if (getCurrentFilter().size() > 0) {
+            MainActivity.subTitle.setText(TagList.getItem(getMostRecent()).getTagName());
+
+        } else {
+            MainActivity.subTitle.setText(R.string.app_name);
+        }
         InboxFragment.setPathText(subtitle);
     }
 
@@ -65,7 +70,7 @@ public class Filters {
         }
 
 
-        MainActivity.subTitle.setSubtitle(subtitle);
+        MainActivity.subTitle.setText(TagList.getItem(getMostRecent()).getTagName());
         InboxFragment.setPathText(subtitle);
     }
 
@@ -90,7 +95,7 @@ public class Filters {
             subtitle +=  "/"+ TagList.getItem(getCurrentFilter().get(i)).getTagName();
         }
 
-        MainActivity.subTitle.setSubtitle(subtitle);
+        MainActivity.subTitle.setText(TagList.getItem(getMostRecent()).getTagName());
         InboxFragment.setPathText(subtitle);
     }
 

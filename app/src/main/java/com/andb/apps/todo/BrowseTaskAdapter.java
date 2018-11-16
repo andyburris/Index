@@ -2,7 +2,6 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.ActionMode;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 import org.joda.time.DateTimeFieldType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.cardview.widget.CardView;
@@ -171,11 +171,11 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
         if (isSelected) {
             holder.inboxListItemBackground.setBackgroundColor(Color.GRAY);
         } else {
-            if (SettingsActivity.darkTheme) {
+/*            if (SettingsActivity.darkTheme) {
                 holder.inboxListItemBackground.setBackgroundColor(0xFF424242);
             } else {
                 holder.inboxListItemBackground.setBackgroundColor(Color.WHITE);
-            }
+            }*/
         }
 
 
@@ -213,8 +213,8 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             d("errorSetText", taskList.get(realPosition).getListName());
 
             holder.name.setText(taskList.get(realPosition).getListName());
-            if (SettingsActivity.darkTheme)
-                holder.name.setTextColor(Color.WHITE);
+ /*           if (SettingsActivity.darkTheme)
+                holder.name.setTextColor(Color.WHITE);*/
 
             if (taskList.get(realPosition).isListTime()) {
                 holder.dateText.setText(taskList.get(realPosition).getDateTime().toString("EEEE, MMMM d"));
@@ -224,9 +224,9 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                     holder.timeText.setVisibility(View.VISIBLE);
                     holder.timeText.setText(taskList.get(position).getDateTime().toString("h:mm a"));
                 }
-                if (SettingsActivity.darkTheme) {
+/*                if (SettingsActivity.darkTheme) {
                     holder.timeIcon.setColorFilter(Color.WHITE);
-                }
+                }*/
                 holder.divider2.setVisibility(View.VISIBLE);
                 holder.timeLayout.setVisibility(View.VISIBLE);
             } else {
@@ -323,10 +323,38 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
         final CheckBox check2 = (CheckBox) box2.findViewById(R.id.listTextView);
         final CheckBox check3 = (CheckBox) box3.findViewById(R.id.listTextView);
 
+        ArrayList<CheckBox> checkBoxes = new ArrayList<>(Arrays.asList(check1, check2, check3));
+
         if (taskList.get(pos).isListItems()) {
             Log.d("items", taskList.get(pos).getListName() + ", multipleItems: " + taskList.get(pos).getListItemsSize());
 
-            switch (taskList.get(pos).getListItemsSize()) {
+            for (int i = 0; i < 4; i++) {
+                final int toSet = i;
+                if (i < taskList.get(pos).getListItemsSize()) {
+                    if (i == 3) {
+                        more.setVisibility(View.VISIBLE);
+                    } else {
+                        checkBoxes.get(i).setText(taskList.get(pos).getListItems(i));
+                        checkBoxes.get(i).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                taskList.get(pos).editListItemsChecked(isChecked, toSet);
+                            }
+                        });
+                        checkBoxes.get(i).setChecked(taskList.get(pos).getListItemsChecked(i));
+                        checkBoxes.get(i).setVisibility(View.VISIBLE);
+                    }
+
+
+                } else {
+                    if (i == 3) {
+                        more.setVisibility(View.GONE);
+                    } else {
+                        checkBoxes.get(i).setVisibility(View.GONE);
+                    }
+                }
+            }
+            /*switch (taskList.get(pos).getListItemsSize()) {
                 case 1:
                     Log.d("items", taskList.get(pos).getListName() + ", 1 item: " + taskList.get(pos).getListItemsSize());
                     check1.setText(taskList.get(pos).getListItems(0));
@@ -529,7 +557,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
 
 
                     break;
-            }
+            }*/
 
             layout.setVisibility(View.VISIBLE);
 
@@ -565,9 +593,29 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
         ImageView image4 = (ImageView) tag4.findViewById(R.id.tagImage);
         ImageView image5 = (ImageView) tag5.findViewById(R.id.tagImage);
 
+        ArrayList<ImageView> tagPointers = new ArrayList<>(Arrays.asList(image1, image2, image3, image4, image5));
+
+        for (int i = 0; i < tagPointers.size(); i++) {
+            if (i < taskList.get(pos).getAllListTags().size()) {
+                Tags tagtemp = TagList.getItem(taskList.get(pos).getListTags(i));
+                tagPointers.get(i).setColorFilter(tagtemp.getTagColor());
+                tagPointers.get(i).setVisibility(View.VISIBLE);
+            } else {
+                tagPointers.get(i).setVisibility(View.GONE);
+            }
+        }
+
+        if (taskList.get(pos).getAllListTags().size() >= 6) {
 
 
-        if (taskList.get(pos).isListTags()) {
+            moreTags.setVisibility(View.VISIBLE);
+/*            if (SettingsActivity.darkTheme)
+                moreTags.setColorFilter(Color.WHITE);*/
+
+
+        }
+
+/*        if (taskList.get(pos).isListTags()) {
             Log.d("tags", "multipleTags");
             layout.setVisibility(View.VISIBLE);
             divider.setVisibility(View.VISIBLE);
@@ -661,8 +709,10 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                 image5.setVisibility(View.VISIBLE);
 
                 moreTags.setVisibility(View.VISIBLE);
+*//*
                 if (SettingsActivity.darkTheme)
                     moreTags.setColorFilter(Color.WHITE);
+*//*
 
 
             }
@@ -671,7 +721,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             Log.d("items", "singleItem");
             layout.setVisibility(View.GONE);
             divider.setVisibility(View.GONE);
-        }
+        }*/
     }
 
 }

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.andb.apps.todo.typeconverters.CheckedConverter;
 import com.andb.apps.todo.typeconverters.ItemsConverter;
 import com.andb.apps.todo.typeconverters.TagConverter;
+import com.google.gson.annotations.SerializedName;
 
 import org.joda.time.DateTime;
 
@@ -19,28 +20,35 @@ import androidx.room.TypeConverters;
 @Entity
 public class Tasks implements Serializable {
     @PrimaryKey
+    @SerializedName("listKey")
     private int listKey;
 
     @ColumnInfo(name = "list_name")
+    @SerializedName("listName")
     private String listName;
 
     @TypeConverters(ItemsConverter.class)
     @ColumnInfo(name = "list_items")
+    @SerializedName("listItems")
     private ArrayList<String> listItems;
 
     @TypeConverters(CheckedConverter.class)
     @ColumnInfo(name = "list_items_checked")
+    @SerializedName("listItemsChecked")
     private ArrayList<Boolean> listItemsChecked;
 
     @TypeConverters(TagConverter.class)
     @ColumnInfo(name = "list_tags")
+    @SerializedName("listTags")
     private ArrayList<Integer> listTags;
 
 
     @ColumnInfo(name = "list_due")
+    @SerializedName("listDue")
     private long listDue;
 
     @ColumnInfo(name = "list_notified")
+    @SerializedName("notified")
     private boolean notified;
     //private ArrayList<Time> listDue; //to-do: add time due by
 
@@ -129,6 +137,10 @@ public class Tasks implements Serializable {
     }
 
     public boolean isListItems (){
+        if (listItems == null) {
+            listItems = new ArrayList<>();
+            return false;
+        }
         if(listItems.isEmpty() ){
             return false;
         }else{
@@ -185,6 +197,7 @@ public class Tasks implements Serializable {
     }
 
     public boolean isListTags(){
+
         if(listTags.isEmpty()){
             return false;
         }else{
@@ -226,5 +239,20 @@ public class Tasks implements Serializable {
 
     public void setListKey(int listKey) {
         this.listKey = listKey;
+    }
+
+
+    public void normalizeAfterImport() {
+        if (listTags == null) {
+            listTags = new ArrayList<>();
+
+        }
+        if (listItems == null) {
+            listItems = new ArrayList<>();
+
+        }
+        if (listName == null) {
+            listName = "";
+        }
     }
 }

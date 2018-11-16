@@ -48,19 +48,19 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SettingsActivity.darkTheme) {
+/*        if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDark);
         } else {
             this.setTheme(R.style.AppThemeLight);
-        }
+        }*/
         setContentView(R.layout.activity_create_tag);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //toolbar.setTitleTextColor(getResources.getColor(R.color.darkPrimary));
         setSupportActionBar(toolbar);
 
-        if (SettingsActivity.darkTheme) {
+/*        if (SettingsActivity.darkTheme) {
             darkThemeSet(toolbar);
-        }
+        }*/
 
         flashbar = blankText();
         usedFlashbar = keyUsed();
@@ -127,17 +127,17 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    subFolderSwitch.getThumbDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
-                    subFolderSwitch.getTrackDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
+/*                    subFolderSwitch.getThumbDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
+                    subFolderSwitch.getTrackDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);*/
                 } else {
-                    if (SettingsActivity.darkTheme) {
+/*                    if (SettingsActivity.darkTheme) {
                         subFolderSwitch.getThumbDrawable().setColorFilter(0xFFb9b9b9, PorterDuff.Mode.MULTIPLY);
                         subFolderSwitch.getTrackDrawable().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.MULTIPLY);
 
                     } else {
                         subFolderSwitch.getThumbDrawable().setColorFilter(0xFFEEEEEE, PorterDuff.Mode.MULTIPLY);
                         subFolderSwitch.getTrackDrawable().setColorFilter(0xFF000000, PorterDuff.Mode.MULTIPLY);
-                    }
+                    }*/
                 }
             }
         });

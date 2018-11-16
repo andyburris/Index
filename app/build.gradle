@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'todo'
+            keyPassword 'XMcmUsSAX9Z6hAG'
+            storeFile file('C:/Users/andb3003/andbappskeystore.jks')
+            storePassword '8P7gpUIcm26v'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.andb.apps.todo"
@@ -15,6 +23,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix '.debug'
@@ -26,35 +35,27 @@ android {
 dependencies {
     def work_version = "1.0.0-alpha04"
     def room_version = "1.1.1"
-
-
-
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.1'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.1.0-alpha01'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
-    implementation 'com.google.code.gson:gson:2.8.5' //translates arraylists into savedpreference-compatible json
-    implementation 'com.jaredrummler:colorpicker:1.0.2' //color picker library
-    implementation 'com.github.k0shk0sh:RetainedDateTimePickers:1.0.2' //time/date picker library
-    implementation 'com.andrognito.flashbar:flashbar:1.0.2' //alert library
-    implementation 'joda-time:joda-time:2.9.9' //time library
-    implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0' //fix for joda-time gson saving.
+    implementation 'com.google.code.gson:gson:2.8.5'//translates arraylists into savedpreference-compatible json
+    implementation 'com.jaredrummler:colorpicker:1.0.2'//color picker library
+    implementation 'com.github.k0shk0sh:RetainedDateTimePickers:1.0.2'//time/date picker library
+    implementation 'com.andrognito.flashbar:flashbar:1.0.2'//alert library
+    implementation 'joda-time:joda-time:2.9.9'//time library
+    implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0'//fix for joda-time gson saving.
     implementation "android.arch.work:work-runtime:$work_version"//work-manager
     implementation 'androidx.room:room-runtime:2.1.0-alpha02'
     annotationProcessor 'androidx.room:room-compiler:2.1.0-alpha02'
     testImplementation 'androidx.room:room-testing:2.1.0-alpha02'// Test helpers
     debugImplementation 'com.pixiteapps.billingx:billingx:0.8.0'//donations
-    releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
-    implementation 'org.greenrobot:eventbus:3.1.1' //communicate across threads
-
-
+    releaseImplementation 'com.android.billingclient:billing:1.0'//donations release
+    implementation 'org.greenrobot:eventbus:3.1.1'//communicate across threads
+    implementation 'com.afollestad:aesthetic:1.0.0-beta05'//theming library
+    implementation 'com.afollestad:material-cab:1.3.1'//contextual action bar
     api 'com.google.guava:guava:25.1-android'
-
-
-
-
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
