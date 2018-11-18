@@ -79,11 +79,11 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SettingsActivity.darkTheme) {
-            this.setTheme(R.style.AppThemeDark);
-        } else {
+        //if (SettingsActivity.darkTheme) {
+        //    this.setTheme(R.style.AppThemeDark);
+        //} else {
             this.setTheme(R.style.AppThemeLight);
-        }
+        //}
         setContentView(R.layout.activity_add_task);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (SettingsActivity.darkTheme) {
@@ -709,7 +709,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
     @Override
     public void onPause() {
         super.onPause();
-        TaskList.saveTasks(this);
     }
 
 

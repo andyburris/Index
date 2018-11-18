@@ -48,11 +48,11 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SettingsActivity.darkTheme) {
-            this.setTheme(R.style.AppThemeDark);
-        } else {
+        //if (SettingsActivity.darkTheme) {
+        //    this.setTheme(R.style.AppThemeDark);
+        //} else {
             this.setTheme(R.style.AppThemeLight);
-        }
+        //}
         setContentView(R.layout.activity_create_tag);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //toolbar.setTitleTextColor(getResources.getColor(R.color.darkPrimary));

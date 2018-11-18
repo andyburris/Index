@@ -26,6 +26,17 @@
             app:fabAlignmentMode="center"
             app:navigationIcon="@drawable/ic_menu_black_24dp" />
 
+        <TextView
+            android:id="@+id/toolbar_text"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="56dp"
+            android:text="@string/app_name"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_anchor="@id/toolbar"
+            app:layout_anchorGravity="center_vertical" />
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"

@@ -19,13 +19,14 @@
         <item name="android:textColorPrimary">@color/slate_black</item>
         <item name="android:windowBackground">@color/white</item>
         <item name="windowActionBar">false</item>
-
-
         <item name="windowNoTitle">true</item>
+
+        <item name="bottomBarIconColor">@color/slate_black</item>
+
     </style>
     <!-- Dark application theme. -->
-    <style name="AppThemeDark" parent="Theme.AppCompat">
-        <!-- Customize your theme here. -->
+    <!--<style name="AppThemeDark" parent="Theme.AppCompat">
+        <!- Customize your theme here. ->
         <item name="colorPrimary">@color/colorDarkPrimary</item>
         <item name="colorPrimaryDark">@color/colorDarkPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -34,17 +35,17 @@
         <item name="android:windowBackground">@color/slate_black</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
+    </style>-->
 
     <style name="AppThemeLight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppThemeDark.NoActionBar">
+    <!--<style name="AppThemeDark.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
+    </style>-->
 
 
     <style name="AppThemeLightMain" parent="Theme.AppCompat.Light">
@@ -63,8 +64,8 @@
 
     </style>
 
-    <style name="AppThemeDarkMain" parent="Theme.AppCompat">
-        <!-- Customize your theme here. -->
+    <!--<style name="AppThemeDarkMain" parent="Theme.AppCompat">
+        <!- Customize your theme here. ->
         <item name="colorPrimary">@color/colorDarkPrimary</item>
         <item name="colorPrimaryDark">@color/colorDarkPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -75,7 +76,7 @@
         <item name="android:statusBarColor">@color/statusBarTransparent</item>
         <item name="windowNoTitle">true</item>
         <item name="android:popupBackground">@color/cardview_dark_background</item>
-    </style>
+    </style>-->
 
 
     <!-- ToolBar -->

@@ -31,7 +31,13 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.aesthetic.Aesthetic;
+import com.afollestad.aesthetic.AestheticActivity;
+import com.afollestad.aesthetic.AutoSwitchMode;
+import com.afollestad.aesthetic.ColorMode;
+import com.afollestad.aesthetic.NavigationViewMode;
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -47,7 +53,6 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -62,16 +67,9 @@ import androidx.work.WorkManager;
 import static com.andb.apps.todo.NotifyWorker.workTag;
 
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AestheticActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    /**
-     * The {@link androidx.core.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link androidx.core.app.FragmentStatePagerAdapter}.
-     */
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
@@ -81,7 +79,7 @@ public class MainActivity extends AppCompatActivity
 
     private TabLayout tabLayout;
 
-    public static Toolbar subTitle;
+    public static TextView subTitle;
 
     public static boolean fabOpen; //for InboxFragment to tell if fabs are visible
 
@@ -95,7 +93,7 @@ public class MainActivity extends AppCompatActivity
 
     private boolean appStart;
 
-    private static final String DATABASE_NAME = "Tasks_db";
+    public static final String DATABASE_NAME = "Tasks_db";
     public static TasksDatabase tasksDatabase;
 
 
@@ -112,12 +110,11 @@ public class MainActivity extends AppCompatActivity
         loadBeforeSettings();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        subTitle = toolbar;
-        subTitle.setSubtitle(Filters.subtitle);
         setSupportActionBar(toolbar);
         pagerInitialize();
         fromSettings = false;
-        themeSet(toolbar);
+        //themeSet(toolbar);
+        aestheticSet();
 
         EventBus.getDefault().register(this);
 
@@ -249,11 +246,11 @@ public class MainActivity extends AppCompatActivity
         SettingsActivity.folderMode = defaultSharedPrefs.getBoolean("folder_mode", false);
         SettingsActivity.darkTheme = defaultSharedPrefs.getBoolean("dark_theme", false);
         Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
-        if (SettingsActivity.darkTheme) {
-            this.setTheme(R.style.AppThemeDarkMain);
-        } else {
+        //if (SettingsActivity.darkTheme) {
+        //    this.setTheme(R.style.AppThemeDarkMain);
+        //} else {
             this.setTheme(R.style.AppThemeLightMain);
-        }
+        //}
 
         SettingsActivity.defaultSort = Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0"));
         InboxFragment.filterMode = SettingsActivity.defaultSort;
@@ -303,6 +300,64 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return result;
+    }
+
+    public void aestheticSet() {
+
+        int colorPrimary;
+        ColorMode tabIndicator;
+        ColorMode tabBackground;
+        int tabText;
+        int toolbarColor;
+
+        if (SettingsActivity.coloredToolbar) {
+            //colorPrimary = SettingsActivity.themeColor;
+            tabIndicator = ColorMode.PRIMARY;
+            tabBackground = ColorMode.ACCENT;
+            toolbarColor = SettingsActivity.themeColor;
+            if (SettingsActivity.darkTheme) {
+                colorPrimary = getResources().getColor(R.color.colorDarkPrimary);
+            } else {
+                colorPrimary = getResources().getColor(R.color.colorPrimary);
+            }
+            if (lightOnBackground(SettingsActivity.themeColor)) {
+                tabText = Color.WHITE;
+            } else {
+                tabText = Color.BLACK;
+            }
+        } else if (SettingsActivity.darkTheme) {
+            colorPrimary = getResources().getColor(R.color.colorDarkPrimary);
+            tabIndicator = ColorMode.ACCENT;
+            tabBackground = ColorMode.PRIMARY;
+            tabText = Color.WHITE;
+            toolbarColor = colorPrimary;
+        } else {
+            colorPrimary = getResources().getColor(R.color.colorPrimary);
+            tabIndicator = ColorMode.ACCENT;
+            tabBackground = ColorMode.PRIMARY;
+            tabText = Color.BLACK;
+            toolbarColor = colorPrimary;
+        }
+
+        BottomAppBar toolbar = findViewById(R.id.toolbar);
+        toolbar.setBackgroundTint(ColorStateList.valueOf(toolbarColor));
+        Drawable navDrawable = getDrawable(R.drawable.ic_label_black_24dp);
+        toolbar.setNavigationIcon(navDrawable);
+        subTitle = findViewById(R.id.toolbar_text);
+        subTitle.setTextColor(tabText);
+
+        //Log.d("tabIndicator", Integer.toHexString(tabIndicator));
+
+        Aesthetic.get()
+                .colorPrimary(colorPrimary, null)
+                .colorAccent(SettingsActivity.themeColor, null)
+                .attribute(R.attr.bottomBarIconColor, tabText, null, true)
+                .tabLayoutIndicatorMode(tabIndicator)
+                .tabLayoutBackgroundMode(tabBackground)
+                .navigationViewMode(NavigationViewMode.SELECTED_ACCENT)
+                .colorStatusBarAuto()
+                .lightStatusBarMode(AutoSwitchMode.AUTO)
+                .apply();
     }
 
     public void themeSet(Toolbar toolbar) {
@@ -441,7 +496,7 @@ public class MainActivity extends AppCompatActivity
         Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
 
 
-        themeSet((Toolbar) findViewById(R.id.toolbar));
+        //themeSet((Toolbar) findViewById(R.id.toolbar));
 
         restartNotificationService();
 
@@ -684,45 +739,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void loadTasks() {
 
-        long startTime = System.nanoTime();
-
-        TaskList.loadTasks(this);
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration;//to seconds
-
-        Log.d("startupTime", "Load tasks: " + Long.toString(duration));
-        if (TaskList.taskList == null) {
-            TaskList.taskList = InboxFragment.blankTaskList;
-            TaskList.saveTasks(this);
-            TaskList.loadTasks(this);
-        }
-
-
-        startTime = System.nanoTime();
-
-        TaskList.keyList.clear();
-        for (int i = 0; i < TaskList.taskList.size(); i++) {
-            TaskList.keyList.add(TaskList.getItem(i).getListKey());
-        }
-
-
-
-        /*Log.d("putKeys", Integer.toString(TaskList.keyList.size()));
-        for (int i = 0; i < TaskList.keyList.size(); i++) {
-            Log.d("putKeys", Integer.toString(TaskList.keyList.get(i)));
-        }*/
-
-        endTime = System.nanoTime();
-        duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration;//to seconds
-
-        Log.d("startupTime", "Load keys: " + Long.toString(duration));
-
-    }
 
     public void loadArchiveTasks() {
 
@@ -797,23 +814,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        fab.setBackgroundColor(SettingsActivity.themeColor);
 
-        int color = (int) Long.parseLong(Integer.toHexString(SettingsActivity.themeColor), 16);
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = (color >> 0) & 0xFF;
-
-        int textColor;
-
-        if ((r * 0.299 + g * 0.587 + b * 0.114) > 186) {
-            textColor = 0xFF000000;
-        } else {
-            textColor = 0xFFFFFFFF;
-        }
-
-        Drawable drawableMain = fab.getDrawable().mutate();
-        drawableMain.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
 
 
         long endTime = System.nanoTime();
@@ -974,8 +975,7 @@ public class MainActivity extends AppCompatActivity
         BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
 
 
-        WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        MainActivity.restartNotificationService();
+        NotificationHandler.resetNotifications(this);
     }
 
 

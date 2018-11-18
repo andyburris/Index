@@ -45,11 +45,11 @@ public class TagSelect extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SettingsActivity.darkTheme) {
-            this.setTheme(R.style.AppThemeDark);
-        } else {
+        //if (SettingsActivity.darkTheme) {
+        //    this.setTheme(R.style.AppThemeDark);
+        //} else {
             this.setTheme(R.style.AppThemeLight);
-        }
+        //}
         setContentView(R.layout.activity_tag_select);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

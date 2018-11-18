@@ -1,17 +1,10 @@
 package com.andb.apps.todo;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -107,7 +100,7 @@ public class TaskList extends AppCompatActivity {
     }
 
 
-    public static void loadTasks(Context ctxt) {
+    /*public static void loadTasks(Context ctxt) {
         taskList = getArrayList(savedList, ctxt);
         Log.d("resume", "Tasks Initialized");
     }
@@ -145,7 +138,7 @@ public class TaskList extends AppCompatActivity {
         }
         return tasksArrayList;
     */
-    }
+    //}
 
 
 }
