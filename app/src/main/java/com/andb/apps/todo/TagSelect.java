@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -274,7 +275,7 @@ public class TagSelect extends AppCompatActivity {
         TagList.tagList.remove(pos);
         mAdapter.notifyItemRemoved(pos);
         if (!TaskList.taskList.isEmpty()) {
-            for (Tasks tasks : TaskList.taskList) {
+            for (final Tasks tasks : TaskList.taskList) {
                 if (tasks.isListTags()) {
                     ArrayList<Integer> toRemove = new ArrayList<>();
                     for (int tag : tasks.getAllListTags()) {
@@ -285,6 +286,12 @@ public class TagSelect extends AppCompatActivity {
                         }
                     }
                     tasks.getAllListTags().removeAll(toRemove);
+                    AsyncTask.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            MainActivity.tasksDatabase.tasksDao().updateTask(tasks);
+                        }
+                    });
                 }
             }
         }
@@ -307,7 +314,7 @@ public class TagSelect extends AppCompatActivity {
             }
             TagLinkList.linkList.removeAll(toRemoveParent);
         }
-        TaskList.saveTasks(this);
+
         TagList.saveTags(this);
         TagLinkList.saveTags(this);
 

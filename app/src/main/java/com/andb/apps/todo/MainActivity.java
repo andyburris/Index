@@ -46,11 +46,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeFieldType;
-import org.joda.time.Duration;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -61,10 +58,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
-import static com.andb.apps.todo.NotifyWorker.workTag;
 
 
 public class MainActivity extends AestheticActivity
@@ -498,7 +491,7 @@ public class MainActivity extends AestheticActivity
 
         //themeSet((Toolbar) findViewById(R.id.toolbar));
 
-        restartNotificationService();
+        NotificationHandler.resetNotifications(this);
 
         fromSettings = false;
 
@@ -599,7 +592,7 @@ public class MainActivity extends AestheticActivity
         } else if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
 
-        } else if (id == R.id.nav_test) {
+        } else if (id == R.id.nav_import_export) {
             /*TaskList.loadTasks(this);
             ArrayList<Integer> keyList = new ArrayList<>();
 
@@ -655,6 +648,9 @@ public class MainActivity extends AestheticActivity
 
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
+        } else if (id == R.id.nav_test) {
+            Intent intent = new Intent(this, Reschedule.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -907,33 +903,6 @@ public class MainActivity extends AestheticActivity
         ArchiveTaskList.saveTasks(this);
     }
 
-    private final static String todo_notification_channel = "Task Reminders";
-
-
-    public static void restartNotificationService() {
-        //Here we set the request for the next notification
-
-
-        if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
-            Log.d("workManager", TaskList.getNextNotificationItem(false).getListName());
-            Duration duration = new Duration(DateTime.now(), TaskList.getNextNotificationItem(false).getDateTime());
-            Log.d("workManager", TaskList.getNextNotificationItem(false).getDateTime().toString("MMM d, h:mm:ss a"));
-            if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
-                DateTime onlyDate = TaskList.getNextNotificationItem(false).getDateTime();
-                onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
-                duration = new Duration(DateTime.now(), onlyDate);
-            }
-            long delay = duration.getStandardSeconds();
-
-            OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
-                    .setInitialDelay(delay, TimeUnit.SECONDS)
-                    .addTag(workTag)
-                    .build();
-
-
-            WorkManager.getInstance().enqueue(notificationWork);
-        }
-    }
 
     @Override
     protected void onStart() {

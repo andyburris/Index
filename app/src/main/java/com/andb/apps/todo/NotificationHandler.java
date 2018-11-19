@@ -18,6 +18,8 @@ import com.andb.apps.todo.databases.TasksDatabase;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -137,9 +139,9 @@ public class NotificationHandler extends Service {
 
     public static void resetNotifications(Context ctxt) {
         WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        if (TaskList.getNextNotificationItem(false) != null) {
+        if (TaskList.getNextNotificationItem() != null) {
             Log.d("workManager", "Next isn't null");
-            createNotification(TaskList.getNextNotificationItem(true), ctxt);
+            NotifyWorker.nextWork();
         }
     }
 
@@ -149,9 +151,13 @@ public class NotificationHandler extends Service {
 
                 initializeDatabase(ctxt);
 
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(ctxt);
+                notificationManager.cancel(Integer.toString(key), key);
+
+
                 if (reschedule) {
                     //reschedule
-
+                    rescheduleTask(key, ctxt);
                 } else {
                     //delete
                     deleteTask(key, ctxt);
@@ -175,16 +181,31 @@ public class NotificationHandler extends Service {
     }
 
     public static void rescheduleTask(final int key, final Context ctxt) {
+        Log.d("rescheduleNotification", "rescheduling notification");
+
+        //DateTime taskDateTime = new DateTime();
+
+
+        Intent intent = new Intent(ctxt, Reschedule.class);
+        intent.putExtra("key", key);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ctxt.startActivity(intent);
+
+        Log.d("rescheduleNotification", "activity called");
+
 
     }
 
     public static void deleteTask(final int key, final Context ctxt) {
+
+        Log.d("deleteNotification", "deleting notification");
+
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 tasksDatabase.tasksDao().deleteTask(tasksDatabase.tasksDao().findTaskById(key));
-
                 if (checkActive(ctxt)) {
+                    TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
                     EventBus.getDefault().post(new UpdateEvent(true));
                 }
             }

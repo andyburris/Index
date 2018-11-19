@@ -99,6 +99,7 @@
     <string name="title_activity_task_view">TaskView</string><!--not needed, sets dynamically based on task title-->
     <string name="title_activity_search">Search</string>
     <string name="title_activity_archive">Archive</string>
+    <string name="title_activity_reschedule">Reschedule</string>
 
     <!--Color picker text-->
     <string name="color_default_summary">Pick a Color</string>

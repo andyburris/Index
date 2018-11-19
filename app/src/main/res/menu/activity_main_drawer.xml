@@ -17,9 +17,13 @@
             android:icon="@drawable/ic_settings_black_24dp"
             android:title="Settings" />
         <item
+            android:id="@+id/nav_import_export"
+            android:icon="@drawable/ic_import_export_black_24dp"
+            android:title="Import/Export" />
+        <item
             android:id="@+id/nav_test"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Import/Export" />
+            android:title="Test" />
     </group>
 
 

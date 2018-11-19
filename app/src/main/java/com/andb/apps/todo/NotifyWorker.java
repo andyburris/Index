@@ -44,9 +44,9 @@ public class NotifyWorker extends Worker {
             SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notify_only_date", 0));
         }
 
-        if (TaskList.getNextNotificationItem(false) != null) {
+        if (TaskList.getNextNotificationItem() != null) {
             Log.d("workManager", "Next isn't null");
-            NotificationHandler.createNotification(TaskList.getNextNotificationItem(true), getApplicationContext());
+            NotificationHandler.createNotification(TaskList.getNextNotificationItem(NotificationHandler.tasksDatabase), getApplicationContext());
         }
 
         return Worker.Result.SUCCESS;
@@ -58,14 +58,14 @@ public class NotifyWorker extends Worker {
 
         //Here we set the request for the next notification
 
-        if (TaskList.getNextNotificationItem(false) != null) {//if there are any left, restart the service
+        if (TaskList.getNextNotificationItem() != null) {//if there are any left, restart the service
 
             Log.d("serviceRestart", "Service Restarting");
 
 
-            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), TaskList.getNextNotificationItem(false).getDateTime());
-            if (TaskList.getNextNotificationItem(false).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
-                DateTime onlyDate = TaskList.getNextNotificationItem(false).getDateTime();
+            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), TaskList.getNextNotificationItem().getDateTime());
+            if (TaskList.getNextNotificationItem().getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
+                DateTime onlyDate = TaskList.getNextNotificationItem().getDateTime();
                 onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
                 duration = new Duration(DateTime.now(), onlyDate);
             }

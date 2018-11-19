@@ -1,6 +1,8 @@
 package com.andb.apps.todo;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -13,15 +15,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.andrognito.flashbar.Flashbar;
-import com.fastaccess.datetimepicker.DatePickerFragmentDialog;
-import com.fastaccess.datetimepicker.DateTimeBuilder;
-import com.fastaccess.datetimepicker.TimePickerFragmentDialog;
 import com.fastaccess.datetimepicker.callback.DatePickerCallback;
 import com.fastaccess.datetimepicker.callback.TimePickerCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,7 +32,6 @@ import org.joda.time.LocalTime;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -424,7 +424,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     public void checkAddTime() {
         ImageView timeButton = (ImageView) findViewById(R.id.timeButton);
-        ImageView dateButton = (ImageView) findViewById(R.id.dateButton);
+        final ImageView dateButton = (ImageView) findViewById(R.id.dateButton);
         final TextView timeText = (TextView) findViewById(R.id.dateTimeText);
 
 
@@ -433,9 +433,40 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
-                        .withMinDate(Calendar.getInstance().getTimeInMillis()))
-                        .show(getSupportFragmentManager(), "DatePickerFragmentDialog");
+                DatePickerDialog dialog = new DatePickerDialog(AddTask.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                        TextView timeText = (TextView) findViewById(R.id.dateTimeText);
+
+                        taskDateTime = taskDateTime.withDate(i, i1, i2);
+                        if (!timeHasBeenSet) {
+                            taskDateTime = taskDateTime.withTime(23, 59, 59, 0);
+                            timeText.setText(taskDateTime.toString("MMM d"));
+
+                        } else {
+                            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
+                        }
+                        Log.d("dateTime", taskDateTime.toString());
+
+                        if (editing) {
+                            if (taskDateTime.isAfter(DateTime.now()))
+                                notified = false;
+                            else if (taskDateTime.isBefore(taskList.get(taskPosition).getDateTime()))
+                                notified = taskList.get(taskPosition).isNotified();
+                        }
+
+                        resetTimeButton.setVisibility(View.VISIBLE);
+
+                        if (SettingsActivity.darkTheme)
+                            resetTimeButton.setColorFilter(Color.WHITE);
+                    }
+                }, DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth());
+                dialog.show();
+
+
+//                DatePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
+//                        .withMinDate(Calendar.getInstance().getTimeInMillis()))
+//                        .show(getSupportFragmentManager(), "DatePickerFragmentDialog");
 
             }
         });
@@ -443,9 +474,48 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(AddTask.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                        TextView timeText = (TextView) findViewById(R.id.dateTimeText);
+                        timeHasBeenSet = true;
+                        LocalTime localTime = new LocalTime().withHourOfDay(i).withMinuteOfHour(i1);
+                        localTime = localTime.secondOfMinute().setCopy(0);
+                        if (taskDateTime.isEqual(new DateTime(3000, 1, 1, 0, 0))) {
+                            taskDateTime = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(), 23, 0);
+                            Log.d("dateTime", taskDateTime.toString());
+                            taskDateTime = taskDateTime.withTime(localTime);
+                            timeText.setText(taskDateTime.toString("h:mm a"));
+
+
+                        } else {
+                            taskDateTime = taskDateTime.withTime(localTime);
+                            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
+
+                        }
+
+                        if (editing) {
+                            if (taskDateTime.isAfter(DateTime.now()))
+                                notified = false;
+                            else if (taskDateTime.isBefore(taskList.get(taskPosition).getDateTime()))
+                                notified = taskList.get(taskPosition).isNotified();
+                        }
+
+                        Log.d("dateTime", taskDateTime.toString("h:mm:ss"));
+
+                        resetTimeButton.setVisibility(View.VISIBLE);
+                        if (SettingsActivity.darkTheme)
+                            resetTimeButton.setColorFilter(Color.WHITE);
+
+
+                    }
+                }, DateTime.now().getHourOfDay(), DateTime.now().getMinuteOfHour(), false);
+                timePickerDialog.show();
+
+/*                TimePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
                         .withMinDate(timeMin))
-                        .show(getSupportFragmentManager(), "TimePickerFragmentDialog");
+                        .show(getSupportFragmentManager(), "TimePickerFragmentDialog");*/
             }
         });
 
@@ -494,7 +564,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
 
         if (editing) {
-            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getListKey());
+            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getListKey(), getApplicationContext());
             Log.d("taskPosition", Integer.toString(taskPosition));
 
             InboxFragment.mAdapter.notifyItemChanged(taskPosition);
@@ -577,33 +647,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
     @Override
     public void onDateSet(long date) {
 
-        TextView timeText = (TextView) findViewById(R.id.dateTimeText);
 
-        taskDateTime = taskDateTime.withDate(new org.joda.time.LocalDate(date));
-        if (new org.joda.time.LocalDate(date) == new DateTime().toLocalDate()) {
-            timeMin = date;
-            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
-        }
-        if (!timeHasBeenSet) {
-            taskDateTime = taskDateTime.withTime(23, 59, 59, 0);
-            timeText.setText(taskDateTime.toString("MMM d"));
-
-        } else {
-            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
-        }
-        Log.d("dateTime", taskDateTime.toString());
-
-        if (editing) {
-            if (taskDateTime.isAfter(DateTime.now()))
-                notified = false;
-            else if (taskDateTime.isBefore(taskList.get(taskPosition).getDateTime()))
-                notified = taskList.get(taskPosition).isNotified();
-        }
-
-        resetTimeButton.setVisibility(View.VISIBLE);
-
-        if (SettingsActivity.darkTheme)
-            resetTimeButton.setColorFilter(Color.WHITE);
 
 
 
@@ -611,36 +655,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     @Override
     public void onTimeSet(long time, long date) {
-        TextView timeText = (TextView) findViewById(R.id.dateTimeText);
-        timeHasBeenSet = true;
-        LocalTime localTime = new LocalTime(time);
-        localTime = localTime.secondOfMinute().setCopy(0);
-        if (taskDateTime.isEqual(new DateTime(3000, 1, 1, 0, 0))) {
-            taskDateTime = new DateTime(DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth(), 23, 0);
-            Log.d("dateTime", taskDateTime.toString());
-            taskDateTime = taskDateTime.withTime(localTime);
-            timeText.setText(taskDateTime.toString("h:mm a"));
-
-
-        } else {
-            taskDateTime = taskDateTime.withTime(localTime);
-            timeText.setText(taskDateTime.toString("MMM d, h:mm a"));
-
-        }
-
-        if (editing) {
-            if (taskDateTime.isAfter(DateTime.now()))
-                notified = false;
-            else if (taskDateTime.isBefore(taskList.get(taskPosition).getDateTime()))
-                notified = taskList.get(taskPosition).isNotified();
-        }
-
-        Log.d("dateTime", taskDateTime.toString("h:mm:ss"));
-
-        resetTimeButton.setVisibility(View.VISIBLE);
-        if (SettingsActivity.darkTheme)
-            resetTimeButton.setColorFilter(Color.WHITE);
-
 
     }
 

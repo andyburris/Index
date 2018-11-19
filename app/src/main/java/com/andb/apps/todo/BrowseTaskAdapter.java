@@ -253,7 +253,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                     BrowseFragment.fromAdapter = true;
                     BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
                     WorkManager.getInstance().cancelAllWorkByTag(workTag);
-                    MainActivity.restartNotificationService();
+                    NotificationHandler.resetNotifications(BrowseTaskAdapter.this.context);
 
                 }
             });

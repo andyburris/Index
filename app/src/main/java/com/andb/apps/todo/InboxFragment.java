@@ -286,7 +286,8 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public static void replaceTask(final String title, final ArrayList<String> items, final ArrayList<Boolean> checked, final ArrayList<Integer> tags, final DateTime time, final boolean notified, final int position, final int key) {
+    public static void replaceTask(final String title, final ArrayList<String> items, final ArrayList<Boolean> checked, final ArrayList<Integer> tags,
+                                   final DateTime time, final boolean notified, final int position, final int key, Context ctxt) {
 
 
         //TaskList.setTaskList(position, tasks);
@@ -319,7 +320,7 @@ public class InboxFragment extends Fragment {
         mAdapter.isSelected = false;
         mAdapter.notifyDataSetChanged();
         WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        MainActivity.restartNotificationService();
+        NotificationHandler.resetNotifications(ctxt);
     }
 
 

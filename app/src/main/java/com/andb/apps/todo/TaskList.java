@@ -1,6 +1,9 @@
 package com.andb.apps.todo;
 
+import android.os.AsyncTask;
 import android.util.Log;
+
+import com.andb.apps.todo.databases.TasksDatabase;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -33,9 +36,9 @@ public class TaskList extends AppCompatActivity {
     }
 
 
-    public static Tasks getNextNotificationItem(boolean beingUsed) {
+    public static Tasks getNextNotificationItem() {
 
-        Log.d("notScheduled", "getting item, beingUsed = " + Boolean.toString(beingUsed));
+        //Log.d("notScheduled", "getting item, beingUsed = " + Boolean.toString(beingUsed));
 
         Tasks finalTask = new Tasks();
 
@@ -87,16 +90,28 @@ public class TaskList extends AppCompatActivity {
             }
         }
         if (notificationsLeft) {
-            if (beingUsed) { //doesnt set if a null check
-                taskList.get(taskList.indexOf(finalTask)).setNotified(true);
-            }
-            Log.d("alreadyNotifiedFilterNm", finalTask.getListName());
-            Log.d("alreadyNotifiedFilterNt", Boolean.toString(finalTask.isNotified()));
-            Log.d("returnedTime", finalTask.getDateTime().toString("MMM d h:mm a"));
             return finalTask;
         }
 
         return null;
+    }
+
+    public static Tasks getNextNotificationItem(final TasksDatabase toUpdate) {
+        Tasks finalTask = getNextNotificationItem();
+
+        taskList.get(taskList.indexOf(finalTask)).setNotified(true);
+        Log.d("alreadyNotifiedFilterNm", finalTask.getListName());
+        Log.d("alreadyNotifiedFilterNt", Boolean.toString(finalTask.isNotified()));
+        Log.d("returnedTime", finalTask.getDateTime().toString("MMM d h:mm a"));
+        final Tasks taskToUpdate = finalTask;
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                toUpdate.tasksDao().updateTask(taskToUpdate);
+            }
+        });
+
+        return finalTask;
     }
 
 
