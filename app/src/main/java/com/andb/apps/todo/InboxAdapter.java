@@ -62,6 +62,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         public ConstraintLayout tag3;
         public ConstraintLayout tag4;
         public ConstraintLayout tag5;
+        public ConstraintLayout tag6;
         public LinearLayout tagEncloser;
         public ImageView moreTags;
         public ConstraintLayout timeLayout;
@@ -94,6 +95,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             tag3 = (ConstraintLayout) view.findViewById(R.id.tag3);
             tag4 = (ConstraintLayout) view.findViewById(R.id.tag4);
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
+            tag6 = (ConstraintLayout) view.findViewById(R.id.tag6);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
             dateText = (TextView) view.findViewById(R.id.dateInboxText);
             timeText = (TextView) view.findViewById(R.id.timeInboxText);
@@ -258,7 +260,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
 
 
             setTasks(realPosition, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
-            setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.moreTags, holder.tagEncloser);
+            setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.tag6, holder.moreTags, holder.tagEncloser);
         } else {
             Log.d("adapterPosition", Integer.toString(realPosition));
 
@@ -696,124 +698,43 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         Log.d("items", "Showing:" + Boolean.toString(c1) + Boolean.toString(c2) + Boolean.toString(c3) + Boolean.toString(lay));
     }
 
-    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ImageView moreTags, LinearLayout layout) {
+    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ConstraintLayout tag6, ImageView moreTags, LinearLayout layout) {
         ImageView image1 = (ImageView) tag1.findViewById(R.id.tagImage);
         ImageView image2 = (ImageView) tag2.findViewById(R.id.tagImage);
         ImageView image3 = (ImageView) tag3.findViewById(R.id.tagImage);
         ImageView image4 = (ImageView) tag4.findViewById(R.id.tagImage);
         ImageView image5 = (ImageView) tag5.findViewById(R.id.tagImage);
+        ImageView image6 = (ImageView) tag6.findViewById(R.id.tagImage);
+
+        TextView text1 = (TextView) tag1.findViewById(R.id.inbox_item_tag_name);
+        TextView text2 = (TextView) tag2.findViewById(R.id.inbox_item_tag_name);
+        TextView text3 = (TextView) tag3.findViewById(R.id.inbox_item_tag_name);
+        TextView text4 = (TextView) tag4.findViewById(R.id.inbox_item_tag_name);
+        TextView text5 = (TextView) tag5.findViewById(R.id.inbox_item_tag_name);
+        TextView text6 = (TextView) tag6.findViewById(R.id.inbox_item_tag_name);
+
 
 
         if (taskList.get(pos).isListTags()) {
             Log.d("tags", "multipleTags");
 
-            /*if (taskList.get(pos).getAllListTags().size() == 1) {
 
-                Log.d("errorLoadingTags", Integer.toString(taskList.get(pos).getListTags(0)));
+            ArrayList<ImageView> tagImages = new ArrayList<>(Arrays.asList(image1, image2, image3, image4, image5, image6));
+            ArrayList<TextView> tagNames = new ArrayList<>(Arrays.asList(text1, text2, text3, text4, text5, text6));
 
-                Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
-                image1.setColorFilter(tag1temp.getTagColor());
-                Log.d("color", Integer.toString(tag1temp.getTagColor()));
-                image1.setVisibility(View.VISIBLE);
-                image2.setVisibility(View.GONE);
-                image3.setVisibility(View.GONE);
-                image4.setVisibility(View.GONE);
-                image5.setVisibility(View.GONE);
-
-            } else if (taskList.get(pos).getAllListTags().size() == 2) {
-
-                Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
-                image1.setColorFilter(tag1temp.getTagColor());
-                image1.setVisibility(View.VISIBLE);
-                Tags tag2temp = TagList.getItem(taskList.get(pos).getListTags(1));
-                image2.setColorFilter(tag2temp.getTagColor());
-                image2.setVisibility(View.VISIBLE);
-                image3.setVisibility(View.GONE);
-                image4.setVisibility(View.GONE);
-                image5.setVisibility(View.GONE);
-            } else if (taskList.get(pos).getAllListTags().size() == 3) {
-                Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
-                image1.setColorFilter(tag1temp.getTagColor());
-                Tags tag2temp = TagList.getItem(taskList.get(pos).getListTags(1));
-                image2.setColorFilter(tag2temp.getTagColor());
-                Tags tag3temp = TagList.getItem(taskList.get(pos).getListTags(2));
-                image3.setColorFilter(tag3temp.getTagColor());
-
-                image1.setVisibility(View.VISIBLE);
-                image2.setVisibility(View.VISIBLE);
-                image3.setVisibility(View.VISIBLE);
-                image4.setVisibility(View.GONE);
-                image5.setVisibility(View.GONE);
-            } else if (taskList.get(pos).getAllListTags().size() == 4) {
-                Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
-                image1.setColorFilter(tag1temp.getTagColor());
-                Tags tag2temp = TagList.getItem(taskList.get(pos).getListTags(1));
-                image2.setColorFilter(tag2temp.getTagColor());
-                Tags tag3temp = TagList.getItem(taskList.get(pos).getListTags(2));
-                image3.setColorFilter(tag3temp.getTagColor());
-                Tags tag4temp = TagList.getItem(taskList.get(pos).getListTags(3));
-                image4.setColorFilter(tag4temp.getTagColor());
-                image1.setVisibility(View.VISIBLE);
-                image2.setVisibility(View.VISIBLE);
-                image3.setVisibility(View.VISIBLE);
-                image4.setVisibility(View.VISIBLE);
-                image5.setVisibility(View.GONE);
-            } else if (taskList.get(pos).getAllListTags().size() == 5) {
-                Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
-                image1.setColorFilter(tag1temp.getTagColor());
-                Tags tag2temp = TagList.getItem(taskList.get(pos).getListTags(1));
-                image2.setColorFilter(tag2temp.getTagColor());
-                Tags tag3temp = TagList.getItem(taskList.get(pos).getListTags(2));
-                image3.setColorFilter(tag3temp.getTagColor());
-                Tags tag4temp = TagList.getItem(taskList.get(pos).getListTags(3));
-                image4.setColorFilter(tag4temp.getTagColor());
-                Tags tag5temp = TagList.getItem(taskList.get(pos).getListTags(4));
-                image5.setColorFilter(tag5temp.getTagColor());
-
-                image1.setVisibility(View.VISIBLE);
-                image2.setVisibility(View.VISIBLE);
-                image3.setVisibility(View.VISIBLE);
-                image4.setVisibility(View.VISIBLE);
-                image5.setVisibility(View.VISIBLE);
-            } else if (taskList.get(pos).getAllListTags().size() >= 6) {
-
-                Tags tag1temp = TagList.getItem(taskList.get(pos).getListTags(0));
-                image1.setColorFilter(tag1temp.getTagColor());
-                Tags tag2temp = TagList.getItem(taskList.get(pos).getListTags(1));
-                image2.setColorFilter(tag2temp.getTagColor());
-                Tags tag3temp = TagList.getItem(taskList.get(pos).getListTags(2));
-                image3.setColorFilter(tag3temp.getTagColor());
-                Tags tag4temp = TagList.getItem(taskList.get(pos).getListTags(3));
-                image4.setColorFilter(tag4temp.getTagColor());
-                Tags tag5temp = TagList.getItem(taskList.get(pos).getListTags(4));
-                image5.setColorFilter(tag5temp.getTagColor());
-
-                image1.setVisibility(View.VISIBLE);
-                image2.setVisibility(View.VISIBLE);
-                image3.setVisibility(View.VISIBLE);
-                image4.setVisibility(View.VISIBLE);
-                image5.setVisibility(View.VISIBLE);
-
-                moreTags.setVisibility(View.VISIBLE);
-                if (SettingsActivity.darkTheme)
-                    moreTags.setColorFilter(Color.WHITE);
-
-
-            }*/
-
-            ArrayList<ImageView> tagPointers = new ArrayList<>(Arrays.asList(image1, image2, image3, image4, image5));
-
-            for (int i = 0; i < tagPointers.size(); i++) {
+            for (int i = 0; i < tagImages.size(); i++) {
                 if (i < taskList.get(pos).getAllListTags().size()) {
                     Tags tagtemp = TagList.getItem(taskList.get(pos).getListTags(i));
-                    tagPointers.get(i).setColorFilter(tagtemp.getTagColor());
-                    tagPointers.get(i).setVisibility(View.VISIBLE);
+                    tagImages.get(i).setColorFilter(tagtemp.getTagColor());
+                    tagImages.get(i).setVisibility(View.VISIBLE);
+                    tagNames.get(i).setText(TagList.getItem(taskList.get(pos).getListTags(i)).getTagName());
                 } else {
-                    tagPointers.get(i).setVisibility(View.GONE);
+                    tagImages.get(i).setVisibility(View.GONE);
+                    tagNames.get(i).setVisibility(View.GONE);
                 }
             }
 
-            if (taskList.get(pos).getAllListTags().size() >= 6) {
+            if (taskList.get(pos).getAllListTags().size() >= 7) {
 
 
                 moreTags.setVisibility(View.VISIBLE);

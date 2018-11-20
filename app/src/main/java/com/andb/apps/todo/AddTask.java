@@ -438,7 +438,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                         TextView timeText = (TextView) findViewById(R.id.dateTimeText);
 
-                        taskDateTime = taskDateTime.withDate(i, i1, i2);
+                        taskDateTime = taskDateTime.withDate(i, i1 + 1, i2);
                         if (!timeHasBeenSet) {
                             taskDateTime = taskDateTime.withTime(23, 59, 59, 0);
                             timeText.setText(taskDateTime.toString("MMM d"));
@@ -460,7 +460,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                         if (SettingsActivity.darkTheme)
                             resetTimeButton.setColorFilter(Color.WHITE);
                     }
-                }, DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth());
+                }, DateTime.now().getYear(), DateTime.now().getMonthOfYear() - 1, DateTime.now().getDayOfMonth());
                 dialog.show();
 
 

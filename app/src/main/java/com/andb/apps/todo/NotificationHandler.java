@@ -189,6 +189,7 @@ public class NotificationHandler extends Service {
         Intent intent = new Intent(ctxt, Reschedule.class);
         intent.putExtra("key", key);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         ctxt.startActivity(intent);
 
         Log.d("rescheduleNotification", "activity called");

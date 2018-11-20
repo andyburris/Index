@@ -45,7 +45,8 @@
             android:name=".Reschedule"
             android:exported="true"
             android:label="@string/title_activity_reschedule"
-            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar">
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

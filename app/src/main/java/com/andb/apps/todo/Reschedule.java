@@ -39,7 +39,7 @@ public class Reschedule extends AppCompatActivity {
         DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                final DateTime taskDateTime = new DateTime().withDate(i, i1, i2);
+                final DateTime taskDateTime = new DateTime().withDate(i, i1 + 1, i2);
                 TimePickerDialog timePickerDialog = new TimePickerDialog(Reschedule.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int i, int i1) {
@@ -58,11 +58,11 @@ public class Reschedule extends AppCompatActivity {
                             }
                         });
                     }
-                }, DateTime.now().getHourOfDay(), DateTime.now().getMinuteOfHour(), true);
+                }, DateTime.now().getHourOfDay(), DateTime.now().getMinuteOfHour(), false);
                 timePickerDialog.show();
             }
 
-        }, DateTime.now().getYear(), DateTime.now().getMonthOfYear(), DateTime.now().getDayOfMonth());
+        }, DateTime.now().getYear(), DateTime.now().getMonthOfYear() - 1, DateTime.now().getDayOfMonth());
         dialog.show();
     }
 

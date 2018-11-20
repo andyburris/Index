@@ -62,7 +62,7 @@ public class AddTaskTagAdapter extends RecyclerView.Adapter<AddTaskTagAdapter.My
 
 
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.inbox_tag_list_item, parent, false);
+                .inflate(R.layout.add_task_tag_list_item, parent, false);
         //itemView.startAnimation(AnimationUtils.loadAnimation(parent.getContext(), android.R.anim.slide_in_left));
 
         return new MyViewHolder(itemView);

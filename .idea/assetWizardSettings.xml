@@ -69,7 +69,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/D:/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/communication/ic_import_export_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/D:/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_brightness_1_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -80,7 +80,7 @@
                         <option name="values">
                           <map>
                             <entry key="autoMirrored" value="true" />
-                            <entry key="outputName" value="ic_import_export_black_24dp" />
+                            <entry key="outputName" value="ic_dot_black_24dp" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="D:\Documents\Illustrator\Phone\Apps\Icons\ToDo\InAppIcons\Notification\SVG\ic_material_product_icon_192px.svg" />
                           </map>
