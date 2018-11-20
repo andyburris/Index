@@ -70,7 +70,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         public TextView timeText;
         public ImageView timeIcon;
 
-        public View divider1;
         public View divider2;
 
         public TextView dividerName;
@@ -80,7 +79,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         public MyViewHolder(View view) {
             super(view);
 
-            divider1 = (View) view.findViewById(R.id.tagDivider);
             divider2 = (View) view.findViewById(R.id.timeDivider);
 
             dividerName = (TextView) view.findViewById(R.id.dividerName);
@@ -235,7 +233,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             }
 
             if (!taskList.get(position).isListTags()) {
-                holder.divider1.setVisibility(View.GONE);
+                //holder.divider1.setVisibility(View.GONE);
             }
 
             final int adapterPosition = holder.getAdapterPosition();

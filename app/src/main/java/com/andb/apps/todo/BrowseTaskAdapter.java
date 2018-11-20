@@ -236,7 +236,7 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             }
 
             if (!taskList.get(realPosition).isListTags()) {
-                holder.divider1.setVisibility(View.GONE);
+                //holder.divider1.setVisibility(View.GONE);
             }
 
             holder.clearList.setOnClickListener(new View.OnClickListener() {
