@@ -36,7 +36,7 @@
         <activity
             android:name=".TaskView"
             android:label="@string/title_activity_task_view"
-            android:theme="@style/AppThemeLight.NoActionBar" />
+            android:theme="@style/AppThemeLightCollapse" />
         <activity
             android:name=".Archive"
             android:label="@string/title_activity_archive"

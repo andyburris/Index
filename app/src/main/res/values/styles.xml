@@ -24,6 +24,23 @@
         <item name="bottomBarIconColor">@color/slate_black</item>
 
     </style>
+
+    <style name="AppThemeLightCollapse" parent="Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <!--<item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>-->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:textColorPrimary">@color/slate_black</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:colorBackgroundCacheHint">@android:color/transparent</item>
+
+        <item name="bottomBarIconColor">@color/slate_black</item>
+
+    </style>
     <!-- Dark application theme. -->
     <!--<style name="AppThemeDark" parent="Theme.AppCompat">
         <!- Customize your theme here. ->

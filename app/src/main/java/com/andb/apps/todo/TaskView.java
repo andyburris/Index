@@ -1,17 +1,19 @@
 package com.andb.apps.todo;
 
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import me.saket.inboxrecyclerview.PullCollapsibleActivity;
 
-public class TaskView extends AppCompatActivity {
+public class TaskView extends PullCollapsibleActivity {
 
     int position;
     boolean inboxOrArchive; //true is inbox, false is archive
@@ -33,14 +35,21 @@ public class TaskView extends AppCompatActivity {
         /*if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDark);
         } else {*/
-            this.setTheme(R.style.AppThemeLight);
+        this.setTheme(R.style.AppThemeLightCollapse);
         //}
+
         setContentView(R.layout.activity_task_view);
 
 
 
 
         Bundle bundle=getIntent().getExtras();
+        ArrayList<Integer> rectList = new ArrayList<>(bundle.getIntegerArrayList("rect"));
+
+        Rect expand_from;
+        expand_from = new Rect(rectList.get(0), rectList.get(1), rectList.get(2), rectList.get(3));
+        expandFrom(expand_from);
+
         position=bundle.getInt("pos");
         Log.d("onePosUpError", Integer.toString(position));
         inboxOrArchive = bundle.getBoolean("inboxOrArchive");
@@ -57,12 +66,16 @@ public class TaskView extends AppCompatActivity {
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(taskList.get(position).getListName());
+        getSupportActionBar().setTitle("");
+        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
         Log.d("onePosUpError", taskList.get(position).getListName());
 
         if (SettingsActivity.darkTheme) {
             darkThemeSet(toolbar);
         }
+
+        TextView task_title = findViewById(R.id.task_view_task_name);
+        task_title.setText(taskList.get(position).getListName().toUpperCase());
 
         prepareRecyclerView();
 
@@ -100,7 +113,7 @@ public class TaskView extends AppCompatActivity {
         tRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        tLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        tLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)

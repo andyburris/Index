@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".TaskView"
     tools:showIn="@layout/activity_task_view">
@@ -17,24 +18,71 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />-->
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/taskViewRecycler">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/taskViewTagRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/taskViewRecycler"
-        tools:layout_editor_absoluteX="16dp" />
+            <TextView
+                android:id="@+id/task_view_task_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="32dp"
+                android:text="TASK NAME"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textSize="36sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/taskViewRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/task_view_header">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <View
+                android:id="@+id/task_view_tag_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
+                android:background="?android:attr/listDivider" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/taskViewTagRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@+id/taskViewRecycler"
+                tools:layout_editor_absoluteX="16dp" />
+
+            <View
+                android:id="@+id/task_view_time_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
+                android:background="?android:attr/listDivider" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/taskViewFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

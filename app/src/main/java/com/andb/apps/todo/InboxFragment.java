@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
+import me.saket.inboxrecyclerview.InboxRecyclerView;
 
 import static com.andb.apps.todo.NotifyWorker.workTag;
 
@@ -51,7 +52,7 @@ public class InboxFragment extends Fragment {
 
     public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
 
-    private static RecyclerView mRecyclerView;
+    private static InboxRecyclerView mRecyclerView;
     public static InboxAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -196,7 +197,8 @@ public class InboxFragment extends Fragment {
     public void prepareRecyclerView(View view) {
 
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.inboxRecycler);
+        mRecyclerView = (InboxRecyclerView) view.findViewById(R.id.inboxRecycler);
+        //ExpandablePageLayout taskView = view.findViewById(R.id.task_view_expandable_layout);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -213,6 +215,7 @@ public class InboxFragment extends Fragment {
         mAdapter = new InboxAdapter(filteredTaskList);
         Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
         Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
+        mAdapter.setHasStableIds(true);
 
         mRecyclerView.setAdapter(mAdapter);
 

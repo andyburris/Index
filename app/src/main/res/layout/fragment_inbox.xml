@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <androidx.recyclerview.widget.RecyclerView
+            <me.saket.inboxrecyclerview.InboxRecyclerView
                 android:id="@+id/inboxRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -48,7 +48,7 @@
                 android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim">
 
 
-            </androidx.recyclerview.widget.RecyclerView>
+            </me.saket.inboxrecyclerview.InboxRecyclerView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

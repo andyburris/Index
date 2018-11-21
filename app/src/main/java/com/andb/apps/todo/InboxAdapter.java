@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import me.saket.inboxrecyclerview.InboxRecyclerView;
 
-public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder> {
+public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewHolder> {
 
     public List<Tasks> taskList = new ArrayList<>();
 
@@ -69,6 +71,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         public TextView dateText;
         public TextView timeText;
         public ImageView timeIcon;
+        public CardView inboxCard;
 
         public View divider2;
 
@@ -97,7 +100,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
             dateText = (TextView) view.findViewById(R.id.dateInboxText);
             timeText = (TextView) view.findViewById(R.id.timeInboxText);
-
+            inboxCard = (CardView) view.findViewById(R.id.inboxCard);
 
             encloser = (LinearLayout) view.findViewById(R.id.checklistEncloser);
             tagEncloser = (LinearLayout) view.findViewById(R.id.tagOnTaskLayout);
@@ -175,10 +178,28 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
     public void setUpByViewType(int position, final MyViewHolder holder, final int realPosition) {
 
 
+
         if (viewType == 0) {
+            holder.inboxListItemBackground.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int[] l = new int[2];
+                    holder.inboxCard.getLocationOnScreen(l);
+                    ArrayList<Integer> rect = new ArrayList<>(Arrays.asList(l[0], l[1], holder.inboxListItemBackground.getWidth(), holder.inboxListItemBackground.getHeight()));
+                    RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+                    holder.inboxCard.setLayoutParams(layoutParams);
+                    int pos = holder.getLayoutPosition();
+                    Intent intent = new Intent(view.getContext(), TaskView.class);
+                    intent.putExtra("pos", pos);
+                    intent.putExtra("inboxOrArchive", true);
+                    intent.putExtra("browse", false);
+                    intent.putExtra("rect", rect);
+                    Log.d("onePosUpError", Integer.toString(pos));
+                    view.getContext().startActivity(intent);
+                }
+            });
 
-
-            if (taskList.get(realPosition).getListItemsSize() > 3) {
+            /*if (taskList.get(realPosition).getListItemsSize() > 3) {
                 holder.more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -196,16 +217,10 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
                 holder.moreTags.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int pos = holder.getLayoutPosition();
-                        Intent intent = new Intent(v.getContext(), TaskView.class);
-                        intent.putExtra("pos", pos);
-                        intent.putExtra("inboxOrArchive", true);
-                        intent.putExtra("browse", false);
-                        Log.d("onePosUpError", Integer.toString(pos));
-                        v.getContext().startActivity(intent);
+
                     }
                 });
-            }
+            }*/
 
             Log.d("errorSetText", taskList.get(realPosition).getListName());
 
@@ -749,4 +764,9 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.MyViewHolder
         }
     }
 
+    @Override
+    public long getItemId(int position) {
+        //return super.getItemId(position);
+        return taskList.get(position).getListKey();
+    }
 }
