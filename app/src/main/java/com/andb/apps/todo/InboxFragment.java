@@ -2,11 +2,16 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -26,7 +31,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
@@ -223,10 +231,11 @@ public class InboxFragment extends Fragment {
         ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page);
         mRecyclerView.setExpandablePage(taskView);
 
+        ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
+        ith.attachToRecyclerView(mRecyclerView);
 
 
 
-        String taskName;
 
 
 
@@ -457,10 +466,6 @@ public class InboxFragment extends Fragment {
 
     }
 
-    public void loading(boolean state) {
-
-    }
-
     public static void refreshWithAnim() {
         mAdapter.notifyDataSetChanged();
         Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
@@ -509,6 +514,187 @@ public class InboxFragment extends Fragment {
         };
 
         return callback;
+    }
+
+    // Extend the Callback class
+    ItemTouchHelper.Callback _ithCallback = new ItemTouchHelper.Callback() {
+        //and in your implementation of
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            Log.d("swipeAction", "swiped");
+
+            TransitionManager.beginDelayedTransition(mRecyclerView, new ChangeBounds());
+            ViewGroup.LayoutParams layoutParams = mRecyclerView.getChildAt(viewHolder.getAdapterPosition()).getLayoutParams();
+            layoutParams.height = 0;
+            mRecyclerView.getChildAt(viewHolder.getAdapterPosition()).setLayoutParams(layoutParams);
+            if (InboxFragment.filterMode == 0) {
+                Log.d("removing", "removing date sorted " + Integer.toString(viewHolder.getAdapterPosition()));
+                removeWithDivider(viewHolder.getAdapterPosition());
+            } else {
+                Log.d("removing", "removing alphabetical " + Integer.toString(viewHolder.getAdapterPosition()));
+                removeTask(viewHolder.getAdapterPosition(), false);
+            }
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+            Drawable deleteIcon = ContextCompat.getDrawable(getContext(), R.drawable.ic_done_all_black_24dp).mutate();
+            deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+            int intrinsicWidth = deleteIcon.getIntrinsicWidth();
+            int intrinsicHeight = deleteIcon.getIntrinsicHeight();
+            GradientDrawable background = new GradientDrawable();
+            int backgroundColor = Color.parseColor("#1B7D1B");
+
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            View itemView = viewHolder.itemView;
+            int itemHeight = itemView.getBottom() - itemView.getTop();
+
+            // Draw the green delete background
+            background.setColor(backgroundColor);
+            background.setBounds(
+                    itemView.getLeft(),
+                    itemView.getTop(),
+                    itemView.getRight(),
+                    itemView.getBottom()
+            );
+
+            background.setCornerRadius(8);
+
+
+            background.draw(c);
+
+            // Calculate position of delete icon
+            int deleteIconTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
+            int deleteIconMargin = (itemHeight - intrinsicHeight) / 2;
+            int deleteIconLeft = itemView.getLeft() + deleteIconMargin / 2;
+            int deleteIconRight = itemView.getLeft() + deleteIconMargin / 2 + intrinsicWidth;
+            int deleteIconBottom = deleteIconTop + intrinsicHeight;
+            // Draw the delete icon
+            deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
+            deleteIcon.draw(c);
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX / 2, dY, actionState, isCurrentlyActive);
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return true;
+        }
+
+        //defines the enabled move directions in each state (idle, swiping, dragging).
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            if (viewHolder.getItemViewType() == 0) {
+                return makeFlag(ItemTouchHelper.ACTION_STATE_SWIPE,
+                        ItemTouchHelper.RIGHT);
+            } else {
+                return 0;
+            }
+        }
+    };
+
+    private void removeWithDivider(int position) {
+
+        long startTime = System.nanoTime();
+
+
+        int dividerPosition = position - 1;
+        int belowDividerPosition = position + 1;
+        Log.d("removing", "Above: " + filteredTaskList.get(dividerPosition).getListName() + "\n");
+        Log.d("removing", "Clicked: " + filteredTaskList.get(position).getListName() + "\n");
+        //Log.d("removing", "Below: " + filteredTaskList.get(belowDividerPosition).getListName() + "\n");
+
+        final Tasks tasks = filteredTaskList.get(position);
+        Tasks dividerTask = filteredTaskList.get(dividerPosition);
+
+
+        if (dividerTask.getListName().equals("OVERDUE")
+                | dividerTask.getListName().equals("TODAY")
+                | dividerTask.getListName().equals("WEEK")
+                | dividerTask.getListName().equals("MONTH")
+                | dividerTask.getListName().equals("FUTURE")) {
+
+            if (belowDividerPosition < filteredTaskList.size()) {
+                Log.d("size", Integer.toString(filteredTaskList.size()) + ", " + belowDividerPosition);
+                Tasks belowDividerTask = filteredTaskList.get(belowDividerPosition);
+                if (belowDividerTask.getListName().equals("OVERDUE")
+                        | belowDividerTask.getListName().equals("TODAY")
+                        | belowDividerTask.getListName().equals("WEEK")
+                        | belowDividerTask.getListName().equals("MONTH")
+                        | belowDividerTask.getListName().equals("FUTURE")) {
+
+                    removeTask(position, true);
+                    if (dividerPosition == 0) {
+                        mAdapter.notifyItemChanged(0); //updates top divider if necessary to redo padding
+                    }
+
+                } else {
+                    removeTask(position, false);
+                }
+            } else {
+                removeTask(position, true);
+            }
+
+
+        } else {
+            removeTask(position, false);
+
+        }
+
+        if (BrowseFragment.filteredTaskList.contains(tasks)) {
+            BrowseFragment.filteredTaskList.remove(tasks);
+        }
+
+        BrowseFragment.mAdapter.notifyDataSetChanged();
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+
+        Log.d("removeTaskTime", Long.toString(duration) + " milliseconds");
+
+
+    }
+
+    private void removeTask(int position, boolean above) {
+
+        Log.d("removeTask", "removing task");
+
+
+        final Tasks tasks = filteredTaskList.get(position);
+
+        ArchiveTaskList.addTaskList(filteredTaskList.get(position));
+        TaskList.keyList.remove((Integer) filteredTaskList.get(position).getListKey());
+        TaskList.taskList.remove(filteredTaskList.get(position));
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.tasksDatabase.tasksDao().deleteTask(tasks);
+            }
+        });
+        filteredTaskList.remove(position);
+
+        mAdapter.notifyItemRemoved(position);
+
+
+        int dividerPosition = position - 1;
+
+        if (above) {
+
+
+            filteredTaskList.remove(dividerPosition);
+
+            mAdapter.notifyItemRemoved(dividerPosition);
+        }
+
+        mAdapter.notifyItemRangeChanged(dividerPosition, mAdapter.getItemCount());
+
+
     }
 
     public static void setTaskCountText(int numTasks) {

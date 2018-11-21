@@ -113,7 +113,7 @@
                 <include
                     android:id="@+id/tag1"
                     layout="@layout/inbox_tag_list_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0" />
@@ -121,7 +121,7 @@
                 <include
                     android:id="@+id/tag2"
                     layout="@layout/inbox_tag_list_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0" />
@@ -129,7 +129,7 @@
                 <include
                     android:id="@+id/tag3"
                     layout="@layout/inbox_tag_list_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0" />
@@ -137,7 +137,7 @@
                 <include
                     android:id="@+id/tag4"
                     layout="@layout/inbox_tag_list_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0" />
@@ -145,7 +145,7 @@
                 <include
                     android:id="@+id/tag5"
                     layout="@layout/inbox_tag_list_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0" />
@@ -153,7 +153,7 @@
                 <include
                     android:id="@+id/tag6"
                     layout="@layout/inbox_tag_list_item"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="0" />

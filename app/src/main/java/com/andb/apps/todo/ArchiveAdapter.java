@@ -193,9 +193,6 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             holder.timeLayout.setVisibility(View.GONE);
         }
 
-        if (!taskList.get(position).isListTags()) {
-            holder.divider1.setVisibility(View.GONE);
-        }
 
 
         holder.clearList.setOnClickListener(new View.OnClickListener() {

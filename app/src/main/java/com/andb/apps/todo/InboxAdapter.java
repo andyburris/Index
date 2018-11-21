@@ -3,7 +3,7 @@ package com.andb.apps.todo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.AsyncTask;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -196,7 +196,7 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
 
                     int[] l = new int[2];
                     holder.inboxCard.getLocationOnScreen(l);
-                    ArrayList<Integer> rect = new ArrayList<>(Arrays.asList(l[0], l[1], holder.inboxListItemBackground.getWidth(), holder.inboxListItemBackground.getHeight()));
+                    Rect rect = new Rect(l[0], l[1], holder.inboxListItemBackground.getWidth(), holder.inboxListItemBackground.getHeight());
                     /*
                     ViewGroup.LayoutParams params = holder.inboxCard.getLayoutParams();
                     WindowManager manager = (WindowManager) holder.itemView.getContext().getSystemService(Context.WINDOW_SERVICE);
@@ -239,9 +239,17 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
                     ft.add(R.id.expandable_page, taskView);
                     ft.commit();
 
-
                     InboxFragment.mRecyclerView.expandItem(getItemId(realPosition));
+                    //InboxFragment.mRecyclerView.setExpandedItem(new InboxRecyclerView.ExpandedItem(realPosition, getItemId(realPosition), rect));
 
+
+                    for (int i = 0; i < InboxFragment.mAdapter.getItemCount(); i++) {
+                        if (getItemId(realPosition) == InboxFragment.mAdapter.getItemId(i)) {
+                            Log.d("expandLocationTest", "Clicked: " + realPosition + ", Got: " + i);
+                            Log.d("expandLocationTest", Integer.toString(InboxFragment.mRecyclerView.getExpandedItem().getViewIndex()));
+
+                        }
+                    }
 
                 }
             });
@@ -307,12 +315,7 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
                 @Override
                 public void onClick(View v) {
 
-                    if (InboxFragment.filterMode == 0) {
-                        Log.d("removing", "removing " + Integer.toString(adapterPosition));
-                        removeWithDivider(adapterPosition);
-                    } else {
-                        removeTask(adapterPosition, false);
-                    }
+
 
 
                 }
@@ -357,88 +360,8 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
         }
     }
 
-    private void removeWithDivider(int position) {
-        int dividerPosition = position - 1;
-        int belowDividerPosition = position + 1;
-        Log.d("removing", "Above: " + taskList.get(dividerPosition).getListName() + "\n");
-        Log.d("removing", "Clicked: " + taskList.get(position).getListName() + "\n");
-        //Log.d("removing", "Below: " + taskList.get(belowDividerPosition).getListName() + "\n");
-
-        final Tasks tasks = taskList.get(position);
-        Tasks dividerTask = taskList.get(dividerPosition);
 
 
-        if (dividerTask.getListName().equals("OVERDUE")
-                | dividerTask.getListName().equals("TODAY")
-                | dividerTask.getListName().equals("WEEK")
-                | dividerTask.getListName().equals("MONTH")
-                | dividerTask.getListName().equals("FUTURE")) {
-
-            if (belowDividerPosition < taskList.size()) {
-                Log.d("size", Integer.toString(taskList.size()) + ", " + belowDividerPosition);
-                Tasks belowDividerTask = taskList.get(belowDividerPosition);
-                if (belowDividerTask.getListName().equals("OVERDUE")
-                        | belowDividerTask.getListName().equals("TODAY")
-                        | belowDividerTask.getListName().equals("WEEK")
-                        | belowDividerTask.getListName().equals("MONTH")
-                        | belowDividerTask.getListName().equals("FUTURE")) {
-
-                    removeTask(position, true);
-                    if (dividerPosition == 0) {
-                        notifyItemChanged(0); //updates top divider if necessary to redo padding
-                    }
-
-                }
-            } else {
-                removeTask(position, true);
-            }
-
-
-        } else {
-            removeTask(position, false);
-
-        }
-
-        if (BrowseFragment.filteredTaskList.contains(tasks)) {
-            BrowseFragment.filteredTaskList.remove(tasks);
-        }
-
-        BrowseFragment.mAdapter.notifyDataSetChanged();
-
-
-    }
-
-    private void removeTask(int position, boolean above) {
-        final Tasks tasks = taskList.get(position);
-
-        ArchiveTaskList.addTaskList(taskList.get(position));
-        TaskList.keyList.remove((Integer) taskList.get(position).getListKey());
-        TaskList.taskList.remove(taskList.get(position));
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                MainActivity.tasksDatabase.tasksDao().deleteTask(tasks);
-            }
-        });
-        taskList.remove(position);
-
-        notifyItemRemoved(position);
-
-
-        int dividerPosition = position - 1;
-
-        if (above) {
-
-
-            taskList.remove(dividerPosition);
-
-            notifyItemRemoved(dividerPosition);
-        }
-
-        notifyItemRangeChanged(dividerPosition, getItemCount());
-
-
-    }
 
 
     @Override
@@ -816,6 +739,10 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
     @Override
     public long getItemId(int position) {
         //return super.getItemId(position);
-        return taskList.get(position).getListKey();
+        if (getItemViewType(position) == 0) {
+            return taskList.get(position).getListKey();
+        } else {
+            return (-1 * getItemViewType(position));
+        }
     }
 }
