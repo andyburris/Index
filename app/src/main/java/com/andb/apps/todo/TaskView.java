@@ -1,19 +1,24 @@
 package com.andb.apps.todo;
 
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import me.saket.inboxrecyclerview.PullCollapsibleActivity;
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
-public class TaskView extends PullCollapsibleActivity {
+public class TaskView extends Fragment {
 
     int position;
     boolean inboxOrArchive; //true is inbox, false is archive
@@ -30,25 +35,35 @@ public class TaskView extends PullCollapsibleActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*if (SettingsActivity.darkTheme) {
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //return super.onCreateView(inflater, container, savedInstanceState);
+
+    /*if (SettingsActivity.darkTheme) {
             this.setTheme(R.style.AppThemeDark);
         } else {*/
-        this.setTheme(R.style.AppThemeLightCollapse);
+        //this.setTheme(R.style.AppThemeLightCollapse);
         //}
 
-        setContentView(R.layout.activity_task_view);
+        return inflater.inflate(R.layout.activity_task_view, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
 
-
-
-        Bundle bundle=getIntent().getExtras();
-        ArrayList<Integer> rectList = new ArrayList<>(bundle.getIntegerArrayList("rect"));
+        Bundle bundle = getArguments();
+        /*ArrayList<Integer> rectList = new ArrayList<>(bundle.getIntegerArrayList("rect"));
 
         Rect expand_from;
-        expand_from = new Rect(rectList.get(0), rectList.get(1), rectList.get(2), rectList.get(3));
-        expandFrom(expand_from);
+        expand_from = new Rect(rectList.get(0), rectList.get(1), rectList.get(0)+rectList.get(2), rectList.get(1)+rectList.get(3));
+        expandFrom(expand_from);*/
 
         position=bundle.getInt("pos");
         Log.d("onePosUpError", Integer.toString(position));
@@ -64,9 +79,9 @@ public class TaskView extends PullCollapsibleActivity {
         }else {
             taskList = ArchiveTaskList.taskList;
         }
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        //getSupportActionBar().setTitle("");
         toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
         Log.d("onePosUpError", taskList.get(position).getListName());
 
@@ -74,10 +89,10 @@ public class TaskView extends PullCollapsibleActivity {
             darkThemeSet(toolbar);
         }
 
-        TextView task_title = findViewById(R.id.task_view_task_name);
+        TextView task_title = view.findViewById(R.id.task_view_task_name);
         task_title.setText(taskList.get(position).getListName().toUpperCase());
 
-        prepareRecyclerView();
+        prepareRecyclerView(view);
 
 
     }
@@ -85,35 +100,35 @@ public class TaskView extends PullCollapsibleActivity {
     public void darkThemeSet(Toolbar toolbar) {
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
-        getWindow().getDecorView().setSystemUiVisibility(0);
+        //getWindow().getDecorView().setSystemUiVisibility(0);
 
 
     }
 
 
-    public void prepareRecyclerView(){
-        mRecyclerView = (RecyclerView) findViewById(R.id.taskViewRecycler);
+    public void prepareRecyclerView(View view) {
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.taskViewRecycler);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
         mAdapter = new TaskViewAdapter(taskList.get(position).getAllListItems(), position, taskList);
         mRecyclerView.setAdapter(mAdapter);
 
-        tRecyclerView = (RecyclerView) findViewById(R.id.taskViewTagRecycler);
+        tRecyclerView = (RecyclerView) view.findViewById(R.id.taskViewTagRecycler);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         tRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        tLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        tLayoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)
@@ -122,11 +137,16 @@ public class TaskView extends PullCollapsibleActivity {
 
     }
 
+    public static ExpandablePageLayout returnViewForExpandable(View view) {
+        return view.findViewById(R.id.task_view_parent);
+    }
+
     @Override
     public void onPause(){
         super.onPause();
         InboxFragment.mAdapter.notifyDataSetChanged();
         BrowseFragment.mAdapter.notifyDataSetChanged();
     }
+
 
 }

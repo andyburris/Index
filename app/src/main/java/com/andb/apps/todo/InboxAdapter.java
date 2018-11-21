@@ -1,10 +1,10 @@
 package com.andb.apps.todo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -24,8 +24,12 @@ import java.util.List;
 
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
 public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewHolder> {
 
@@ -72,12 +76,14 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
         public TextView timeText;
         public ImageView timeIcon;
         public CardView inboxCard;
+        public ExpandablePageLayout taskView;
 
         public View divider2;
 
         public TextView dividerName;
 
         public ConstraintLayout inboxListItemBackground;
+        public NestedScrollView scrollView;
 
         public MyViewHolder(View view) {
             super(view);
@@ -109,6 +115,10 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             more = (ImageView) view.findViewById(R.id.itemsMore);
 
             inboxListItemBackground = (ConstraintLayout) view.findViewById(R.id.inboxListBackground);
+            scrollView = InboxFragment.mRecyclerView.getRootView().findViewById(R.id.inboxScrollView);
+            taskView = InboxFragment.mRecyclerView.getRootView().findViewById(R.id.expandable_page);
+
+            Log.d("expandablePageView", Boolean.toString(taskView == null));
 
             //this.setIsRecyclable(false);
 
@@ -175,7 +185,7 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
 
     }
 
-    public void setUpByViewType(int position, final MyViewHolder holder, final int realPosition) {
+    public void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
 
 
 
@@ -183,21 +193,60 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             holder.inboxListItemBackground.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
                     int[] l = new int[2];
                     holder.inboxCard.getLocationOnScreen(l);
                     ArrayList<Integer> rect = new ArrayList<>(Arrays.asList(l[0], l[1], holder.inboxListItemBackground.getWidth(), holder.inboxListItemBackground.getHeight()));
-                    RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
-                    holder.inboxCard.setLayoutParams(layoutParams);
-                    int pos = holder.getLayoutPosition();
+                    /*
+                    ViewGroup.LayoutParams params = holder.inboxCard.getLayoutParams();
+                    WindowManager manager = (WindowManager) holder.itemView.getContext().getSystemService(Context.WINDOW_SERVICE);
+                    Display display = manager.getDefaultDisplay();
+                    Point size = new Point();
+                    display.getSize(size);
+                    params.height = size.y;
+                    TransitionManager.beginDelayedTransition(holder.inboxCard, new TransitionSet()
+                            .addTransition(new ChangeBounds()));
+                    holder.scrollView.smoothScrollBy(0, l[1]);
+                    holder.inboxCard.setLayoutParams(params);
+                    */
+
+
+
+
+                    /*int pos = holder.getLayoutPosition();
                     Intent intent = new Intent(view.getContext(), TaskView.class);
                     intent.putExtra("pos", pos);
                     intent.putExtra("inboxOrArchive", true);
                     intent.putExtra("browse", false);
                     intent.putExtra("rect", rect);
                     Log.d("onePosUpError", Integer.toString(pos));
-                    view.getContext().startActivity(intent);
+                    view.getContext().startActivity(intent);*/
+
+                    int pos = holder.getLayoutPosition();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("pos", pos);
+                    bundle.putBoolean("inboxOrArchive", true);
+                    bundle.putBoolean("browse", false);
+
+                    FragmentActivity activity = (FragmentActivity) context;
+
+
+                    FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+
+                    TaskView taskView = new TaskView();
+                    taskView.setArguments(bundle);
+
+                    ft.add(R.id.expandable_page, taskView);
+                    ft.commit();
+
+
+                    InboxFragment.mRecyclerView.expandItem(getItemId(realPosition));
+
+
                 }
             });
+
+
 
             /*if (taskList.get(realPosition).getListItemsSize() > 3) {
                 holder.more.setOnClickListener(new View.OnClickListener() {

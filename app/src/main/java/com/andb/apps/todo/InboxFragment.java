@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
 import static com.andb.apps.todo.NotifyWorker.workTag;
 
@@ -52,7 +53,7 @@ public class InboxFragment extends Fragment {
 
     public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
 
-    private static InboxRecyclerView mRecyclerView;
+    public static InboxRecyclerView mRecyclerView;
     public static InboxAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -219,33 +220,15 @@ public class InboxFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
+        ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page);
+        mRecyclerView.setExpandablePage(taskView);
+
+
+
 
         String taskName;
 
-        if (MainActivity.notifKey != 0) {
 
-            int index = TaskList.keyList.indexOf(MainActivity.notifKey);
-            int finalPos = -1;
-            for (int i = 0; i < filteredTaskList.size(); i++) {
-                if (filteredTaskList.get(i).getListKey() == MainActivity.notifKey) {
-                    finalPos = i;
-                    break;
-                }
-
-
-            }
-
-            Log.d("scrollBug", Integer.toString(finalPos) + ", Size: " + Integer.toString(filteredTaskList.size()));
-            if (finalPos != -1) {
-                taskName = filteredTaskList.get(finalPos).getListName();
-
-
-                if (taskName.equals("OVERDUE") | taskName.equals("TODAY") | taskName.equals("WEEK") | taskName.equals("MONTH") | taskName.equals("FUTURE"))
-                    mRecyclerView.scrollToPosition(finalPos - 1);
-                else
-                    mRecyclerView.scrollToPosition(finalPos);
-            }
-        }
 
 
     }
