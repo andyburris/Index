@@ -6,8 +6,6 @@
     android:id="@+id/fragment_archive_container"
     tools:context=".ArchiveFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/archiveRecycler"
         android:layout_width="match_parent"

@@ -36,7 +36,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
-        public ImageView clearList;
+        //public ImageView clearList;
         public ImageView backToInbox;
         public ConstraintLayout item1;
         public ConstraintLayout item2;
@@ -70,7 +70,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             dividerName = (TextView) view.findViewById(R.id.dividerName);
 
             name = (TextView) view.findViewById(R.id.listTextView);
-            clearList = (ImageView) view.findViewById(R.id.clearList);
+            //clearList = (ImageView) view.findViewById(R.id.clearList);
             item1 = (ConstraintLayout) view.findViewById(R.id.item1);
             item2 = (ConstraintLayout) view.findViewById(R.id.item2);
             item3 = (ConstraintLayout) view.findViewById(R.id.item3);
@@ -89,7 +89,7 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
             tagEncloser = (LinearLayout) view.findViewById(R.id.tagOnTaskLayout);
             timeLayout = (ConstraintLayout) view.findViewById(R.id.dateTimeInboxLayout);
             more = (ImageView) view.findViewById(R.id.itemsMore);
-            backToInbox = (ImageView) view.findViewById(R.id.backToInbox);
+            //backToInbox = (ImageView) view.findViewById(R.id.backToInbox);
 
             more.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -194,26 +194,8 @@ public class ArchiveAdapter extends RecyclerView.Adapter<ArchiveAdapter.MyViewHo
         }
 
 
-
-        holder.clearList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                taskList.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, taskList.size());
-            }
-        });
-
-
         setTasks(position, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
         setTags(position, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.moreTags, holder.tagEncloser);
-
-        holder.backToInbox.setVisibility(View.VISIBLE);
-        if (SettingsActivity.darkTheme) {
-            holder.backToInbox.setColorFilter(Color.WHITE);
-            holder.clearList.setColorFilter(Color.WHITE);
-            holder.name.setTextColor(Color.WHITE);
-        }
 
 
     }

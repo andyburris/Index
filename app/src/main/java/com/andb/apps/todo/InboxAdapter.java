@@ -57,7 +57,6 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
-        public ImageView clearList;
         public ConstraintLayout item1;
         public ConstraintLayout item2;
         public ConstraintLayout item3;
@@ -71,6 +70,7 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
         public ConstraintLayout tag6;
         public LinearLayout tagEncloser;
         public ImageView moreTags;
+        public ImageView moreTagsHorizontal;
         public ConstraintLayout timeLayout;
         public TextView dateText;
         public TextView timeText;
@@ -93,7 +93,6 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             dividerName = (TextView) view.findViewById(R.id.dividerName);
 
             name = (TextView) view.findViewById(R.id.listTextView);
-            clearList = (ImageView) view.findViewById(R.id.clearList);
             item1 = (ConstraintLayout) view.findViewById(R.id.item1);
             item2 = (ConstraintLayout) view.findViewById(R.id.item2);
             item3 = (ConstraintLayout) view.findViewById(R.id.item3);
@@ -104,6 +103,8 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             tag5 = (ConstraintLayout) view.findViewById(R.id.tag5);
             tag6 = (ConstraintLayout) view.findViewById(R.id.tag6);
             moreTags = (ImageView) view.findViewById(R.id.tagMore);
+            moreTagsHorizontal = (ImageView) view.findViewById(R.id.tagMoreHorizontal);
+
             dateText = (TextView) view.findViewById(R.id.dateInboxText);
             timeText = (TextView) view.findViewById(R.id.timeInboxText);
             inboxCard = (CardView) view.findViewById(R.id.inboxCard);
@@ -186,7 +187,6 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
     }
 
     public void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
-
 
 
         if (viewType == 0) {
@@ -311,21 +311,11 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             final int adapterPosition = holder.getAdapterPosition();
             Log.d("adapterPosition", Integer.toString(adapterPosition));
 
-            holder.clearList.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
 
-
-
-
-                }
-            });
-            if (SettingsActivity.darkTheme)
-                holder.clearList.setColorFilter(Color.WHITE);
 
 
             setTasks(realPosition, holder.item1, holder.item2, holder.item3, holder.more, holder.encloser);
-            setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.tag6, holder.moreTags, holder.tagEncloser);
+            setTags(realPosition, holder.tag1, holder.tag2, holder.tag3, holder.tag4, holder.tag5, holder.tag6, holder.moreTags, holder.moreTagsHorizontal, holder.tagEncloser);
         } else {
             Log.d("adapterPosition", Integer.toString(realPosition));
 
@@ -359,9 +349,6 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             }
         }
     }
-
-
-
 
 
     @Override
@@ -448,220 +435,16 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
                 }
             }
 
-            /*switch (taskList.get(pos).getListItemsSize()) {
-                case 1:
-                    Log.d("items", taskList.get(pos).getListName() + ", 1 item: " + taskList.get(pos).getListItemsSize());
-                    check1.setText(taskList.get(pos).getListItems(0));
-                    check1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 0);
-                            if (check1.isChecked())
-                                check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check1.setChecked(taskList.get(pos).getListItemsChecked(0));
-
-                    if (check1.isChecked())
-                        check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check1.setVisibility(View.VISIBLE);
-                    check2.setVisibility(View.GONE);
-                    check3.setVisibility(View.GONE);
-                    more.setVisibility(View.GONE);
-                    break;
-
-
-                case 2:
-                    Log.d("items", taskList.get(pos).getListName() + ", 2 items: " + taskList.get(pos).getListItemsSize());
-
-                    check1.setText(taskList.get(pos).getListItems(0));
-                    check1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 0);
-                            if (check1.isChecked())
-                                check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check1.setChecked(taskList.get(pos).getListItemsChecked(0));
-
-                    if (check1.isChecked())
-                        check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check2.setText(taskList.get(pos).getListItems(1));
-                    check2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 1);
-                            if (check2.isChecked())
-                                check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check2.setChecked(taskList.get(pos).getListItemsChecked(1));
-
-                    if (check2.isChecked())
-                        check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check1.setVisibility(View.VISIBLE);
-                    check2.setVisibility(View.VISIBLE);
-                    check3.setVisibility(View.GONE);
-                    more.setVisibility(View.GONE);
-                    break;
-
-
-                case 3:
-                    check1.setText(taskList.get(pos).getListItems(0));
-                    check1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 0);
-                            if (check1.isChecked())
-                                check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check1.setChecked(taskList.get(pos).getListItemsChecked(0));
-                    if (check1.isChecked())
-                        check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check2.setText(taskList.get(pos).getListItems(1));
-                    check2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 1);
-                            if (check2.isChecked())
-                                check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check2.setChecked(taskList.get(pos).getListItemsChecked(1));
-                    if (check2.isChecked())
-                        check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check3.setText(taskList.get(pos).getListItems(2));
-
-                    check3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 2);
-                            if (check3.isChecked())
-                                check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check3.setChecked(taskList.get(pos).getListItemsChecked(2));
-                    if (check3.isChecked())
-                        check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check1.setVisibility(View.VISIBLE);
-                    check2.setVisibility(View.VISIBLE);
-                    check3.setVisibility(View.VISIBLE);
-                    more.setVisibility(View.GONE);
-
-
-                    break;
-
-
-                default:
-
-                    Log.d("items", taskList.get(pos).getListName() + ", more than 3 items: " + taskList.get(pos).getListItemsSize());
-
-                    check1.setText(taskList.get(pos).getListItems(0));
-                    check1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 0);
-                            if (check1.isChecked())
-                                check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check1.setChecked(taskList.get(pos).getListItemsChecked(0));
-
-                    if (check1.isChecked())
-                        check1.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check1.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-
-                    check2.setText(taskList.get(pos).getListItems(1));
-                    check2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 1);
-                            if (check2.isChecked())
-                                check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check2.setChecked(taskList.get(pos).getListItemsChecked(1));
-
-                    if (check2.isChecked())
-                        check2.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check2.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    check3.setText(taskList.get(pos).getListItems(2));
-
-                    check3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            taskList.get(pos).editListItemsChecked(isChecked, 2);
-                            if (check3.isChecked())
-                                check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                            else
-                                check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-                        }
-                    });
-                    check3.setChecked(taskList.get(pos).getListItemsChecked(2));
-
-                    if (check3.isChecked())
-                        check3.setButtonTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-                    else
-                        check3.setButtonTintList(ColorStateList.valueOf(0xFF757575));
-
-                    more.setVisibility(View.VISIBLE);
-                    if (SettingsActivity.darkTheme)
-                        more.setColorFilter(Color.WHITE);
-
-                    check1.setVisibility(View.VISIBLE);
-                    check2.setVisibility(View.VISIBLE);
-                    check3.setVisibility(View.VISIBLE);
-
-
-                    break;
-            }*/
 
             layout.setVisibility(View.VISIBLE);
 
 
         } else {
             Log.d("items", taskList.get(pos).getListName() + ", singleItem");
-            layout.setVisibility(View.GONE);
+            check1.setVisibility(View.GONE);
+            check2.setVisibility(View.GONE);
+            check3.setVisibility(View.GONE);
+
         }
 
         boolean c1 = false;
@@ -683,7 +466,7 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
         Log.d("items", "Showing:" + Boolean.toString(c1) + Boolean.toString(c2) + Boolean.toString(c3) + Boolean.toString(lay));
     }
 
-    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ConstraintLayout tag6, ImageView moreTags, LinearLayout layout) {
+    private void setTags(int pos, ConstraintLayout tag1, ConstraintLayout tag2, ConstraintLayout tag3, ConstraintLayout tag4, ConstraintLayout tag5, ConstraintLayout tag6, ImageView moreTags, ImageView moreTagsHorizontal, LinearLayout layout) {
         ImageView image1 = (ImageView) tag1.findViewById(R.id.tagImage);
         ImageView image2 = (ImageView) tag2.findViewById(R.id.tagImage);
         ImageView image3 = (ImageView) tag3.findViewById(R.id.tagImage);
@@ -699,7 +482,6 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
         TextView text6 = (TextView) tag6.findViewById(R.id.inbox_item_tag_name);
 
 
-
         if (taskList.get(pos).isListTags()) {
             Log.d("tags", "multipleTags");
 
@@ -707,27 +489,47 @@ public class InboxAdapter extends InboxRecyclerView.Adapter<InboxAdapter.MyViewH
             ArrayList<ImageView> tagImages = new ArrayList<>(Arrays.asList(image1, image2, image3, image4, image5, image6));
             ArrayList<TextView> tagNames = new ArrayList<>(Arrays.asList(text1, text2, text3, text4, text5, text6));
 
+            int tagsToDisplay = 2;
+
+            for (int i = 0; i < 2; i++) {
+                if (i < taskList.get(pos).getListItemsSize()) {
+                    tagsToDisplay = tagsToDisplay + 2;
+                }
+            }
+
+
+            /*tagImages = new ArrayList<>(tagImages.subList(0, tagsToDisplay));
+            tagNames = new ArrayList<>(tagNames.subList(0, tagsToDisplay));
+
+            Log.d("tagDisplaySize", Integer.toString(tagImages.size()));*/
+
+
             for (int i = 0; i < tagImages.size(); i++) {
-                if (i < taskList.get(pos).getAllListTags().size()) {
+
+
+                if (i < taskList.get(pos).getAllListTags().size() && i < tagsToDisplay) {
                     Tags tagtemp = TagList.getItem(taskList.get(pos).getListTags(i));
                     tagImages.get(i).setColorFilter(tagtemp.getTagColor());
                     tagImages.get(i).setVisibility(View.VISIBLE);
                     tagNames.get(i).setText(TagList.getItem(taskList.get(pos).getListTags(i)).getTagName());
+                    tagNames.get(i).setVisibility(View.VISIBLE);
                 } else {
                     tagImages.get(i).setVisibility(View.GONE);
                     tagNames.get(i).setVisibility(View.GONE);
                 }
-            }
-
-            if (taskList.get(pos).getAllListTags().size() >= 7) {
-
-
-                moreTags.setVisibility(View.VISIBLE);
-/*                if (SettingsActivity.darkTheme)
-                    moreTags.setColorFilter(Color.WHITE);*/
-
 
             }
+
+            if (taskList.get(pos).getListTagsSize() > tagsToDisplay) {
+                if (tagsToDisplay == 2) {
+                    moreTagsHorizontal.setVisibility(View.VISIBLE);
+                    moreTags.setVisibility(View.GONE);
+                } else {
+                    moreTagsHorizontal.setVisibility(View.GONE);
+                    moreTags.setVisibility(View.VISIBLE);
+                }
+            }
+
 
         } else {
             Log.d("inboxFilterAdapter", Integer.toString(taskList.size()));

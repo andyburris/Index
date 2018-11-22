@@ -697,7 +697,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            //TODO
         }
 
         @Override

@@ -24,10 +24,8 @@ import java.util.List;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.work.WorkManager;
 
 import static android.util.Log.d;
-import static com.andb.apps.todo.NotifyWorker.workTag;
 
 public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.MyViewHolder> {
     public static List<Tasks> taskList = new ArrayList<>();
@@ -53,7 +51,6 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
-        public ImageView clearList;
         public ConstraintLayout item1;
         public ConstraintLayout item2;
         public ConstraintLayout item3;
@@ -94,7 +91,6 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
             dividerName = (TextView) view.findViewById(R.id.dividerName);
 
             name = (TextView) view.findViewById(R.id.listTextView);
-            clearList = (ImageView) view.findViewById(R.id.clearList);
             item1 = (ConstraintLayout) view.findViewById(R.id.item1);
             item2 = (ConstraintLayout) view.findViewById(R.id.item2);
             item3 = (ConstraintLayout) view.findViewById(R.id.item3);
@@ -239,26 +235,6 @@ public class BrowseTaskAdapter extends RecyclerView.Adapter<BrowseTaskAdapter.My
                 //holder.divider1.setVisibility(View.GONE);
             }
 
-            holder.clearList.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-                    ArchiveTaskList.addTaskList(taskList.get(realPosition));
-                    TaskList.keyList.remove((Integer) taskList.get(realPosition).getListKey());
-                    TaskList.taskList.remove(taskList.get(realPosition));
-                    taskList.remove(realPosition);
-                    notifyItemRemoved(realPosition);
-                    notifyItemRangeChanged(realPosition, taskList.size() - 1);
-                    BrowseFragment.fromAdapter = true;
-                    BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-                    WorkManager.getInstance().cancelAllWorkByTag(workTag);
-                    NotificationHandler.resetNotifications(BrowseTaskAdapter.this.context);
-
-                }
-            });
-            if (SettingsActivity.darkTheme)
-                holder.clearList.setColorFilter(Color.WHITE);
 
 
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
