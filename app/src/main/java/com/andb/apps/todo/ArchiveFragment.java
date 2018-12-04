@@ -32,7 +32,7 @@ public class ArchiveFragment extends Fragment {
 
 
     private RecyclerView mRecyclerView;
-    private static ArchiveAdapter mAdapter;
+    private static TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private OnFragmentInteractionListener mListener;
@@ -132,7 +132,7 @@ public class ArchiveFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new ArchiveAdapter(ArchiveTaskList.taskList);
+        mAdapter = new TaskAdapter(ArchiveTaskList.taskList);
         mRecyclerView.setAdapter(mAdapter);
     }
 

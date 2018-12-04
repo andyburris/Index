@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".InboxFragment">
 
-    <TextView
+    <!--<TextView
         android:id="@+id/noTasks"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -36,7 +36,7 @@
             <include
                 layout="@layout/inbox_header"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content" />-->
 
             <me.saket.inboxrecyclerview.InboxRecyclerView
                 android:id="@+id/inboxRecycler"
@@ -47,9 +47,10 @@
 
 
             </me.saket.inboxrecyclerview.InboxRecyclerView>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
+        <!---</LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>-->
     <me.saket.inboxrecyclerview.page.ExpandablePageLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -60,4 +61,5 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"/>-->
     </me.saket.inboxrecyclerview.page.ExpandablePageLayout>
+
 </FrameLayout>

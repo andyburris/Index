@@ -50,7 +50,7 @@ public class BrowseFragment extends Fragment {
 
 
     private static RecyclerView mRecyclerView;
-    public static BrowseTaskAdapter mAdapter;
+    public static TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private RecyclerView tRecyclerView;
@@ -104,6 +104,7 @@ public class BrowseFragment extends Fragment {
 
         tagCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
         prepareTagCollapse(view);
+        prepareTagAdd(view);
 
         nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
 
@@ -209,7 +210,7 @@ public class BrowseFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new BrowseTaskAdapter(filteredTaskList);
+        mAdapter = new TaskAdapter(filteredTaskList);
         mRecyclerView.setAdapter(mAdapter);
 
         ViewCompat.setNestedScrollingEnabled(mRecyclerView, false);
@@ -385,6 +386,17 @@ public class BrowseFragment extends Fragment {
         if (SettingsActivity.darkTheme) {
             collapseButton.setColorFilter(Color.WHITE);
         }
+    }
+    private static void prepareTagAdd(View view){
+        ImageView addButton = view.findViewById(R.id.tagAddButton);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), TagSelect.class);
+                intent.putExtra("isTagLink", true);
+                view.getContext().startActivity(intent);
+            }
+        });
     }
 
 

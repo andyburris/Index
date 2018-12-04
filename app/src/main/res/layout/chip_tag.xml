@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+    android:id="@+id/chip"
+    android:layout_width="wrap_content"
+    android:layout_height="24dp"
+    android:layout_marginRight="4dp"
+    android:layout_weight="1"
+    android:checkable="false"
+    android:text="Tag or Time"
+    android:textColor="@color/shadow_color"
+    app:chipBackgroundColor="@android:color/transparent"
+    app:chipCornerRadius="12dp"
+    app:chipIcon="@drawable/ic_dot_black_24dp"
+    app:chipIconEnabled="true"
+    app:chipIconSize="12dp"
+    app:chipStartPadding="8dp"
+    app:chipStrokeColor="@color/ate_icon_light"
+    app:chipStrokeWidth="1dp">
+
+</com.google.android.material.chip.Chip>

@@ -52,6 +52,7 @@ public class SettingsActivity extends /*AppCompatActivityAppCompat*/PreferenceAc
     public static int themeColor;
     public static boolean folderMode;
     public static boolean subFilter;
+    public static boolean subtaskDefaultShow = true;
     public static int defaultSort;
     public static DateTime timeToNotifyForDateOnly;
 

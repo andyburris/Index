@@ -62,7 +62,7 @@ public class InboxFragment extends Fragment {
     public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
 
     public static InboxRecyclerView mRecyclerView;
-    public static InboxAdapter mAdapter;
+    public static TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private ActionMode contextualToolbar;
@@ -71,7 +71,7 @@ public class InboxFragment extends Fragment {
     private static TextView taskCountText;
     private static TextView currentPathText;
 
-    private static TextView noTasks;
+    //private static TextView noTasks;
 
     public static Button tagButton;
 
@@ -106,15 +106,15 @@ public class InboxFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
         prepareRecyclerView(view);
 
-        noTasks = view.findViewById(R.id.noTasks);
+        //noTasks = view.findViewById(R.id.noTasks);
 
-        taskCountText = view.findViewById(R.id.task_count_text);
+        /*taskCountText = view.findViewById(R.id.task_count_text);
         currentPathText = view.findViewById(R.id.task_path_text);
 
         setPathText(Filters.subtitle);
-        setTaskCountText(TaskList.taskList.size());
+        setTaskCountText(TaskList.taskList.size());*/
 
-        tagButton = view.findViewById(R.id.tag_button);
+       /* tagButton = view.findViewById(R.id.tag_button);
         tagButton.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.SRC_ATOP);
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_label_black_24dp).mutate();
@@ -127,7 +127,7 @@ public class InboxFragment extends Fragment {
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
             tagButton.setTextColor(color);
         }
-        tagButton.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+        tagButton.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);*/
 
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
@@ -152,16 +152,16 @@ public class InboxFragment extends Fragment {
 
 
 
-        tagButton.setOnClickListener(new View.OnClickListener() {
+/*        tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), TagSelect.class);
-                intent.putExtra("isTagLink", true);
+                intent.putExtra("isTagLink", false);
                 startActivity(intent);
 
 
             }
-        });
+        });*/
 
         return view;
 
@@ -220,7 +220,7 @@ public class InboxFragment extends Fragment {
 
         ///filteredTaskList = TaskList.taskList;
 
-        mAdapter = new InboxAdapter(filteredTaskList);
+        mAdapter = new TaskAdapter(filteredTaskList);
         Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
         Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
         mAdapter.setHasStableIds(true);
@@ -454,12 +454,12 @@ public class InboxFragment extends Fragment {
 
         //mAdapter.notifyDataSetChanged();
 
-        if (filteredTaskList.isEmpty()) {
+        /*if (filteredTaskList.isEmpty()) {
             noTasks.setVisibility(View.VISIBLE);
         } else {
             noTasks.setVisibility(View.GONE);
 
-        }
+        }*/
         Log.d("inboxFilterInboxEnd", Integer.toString(filteredTaskList.size()));
 
 

@@ -10,7 +10,7 @@
 
     </style>
 
-    <style name="AppThemeLight" parent="Theme.AppCompat.Light">
+    <style name="AppThemeLight" parent="Theme.MaterialComponents.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -65,7 +65,7 @@
     </style>-->
 
 
-    <style name="AppThemeLightMain" parent="Theme.AppCompat.Light">
+    <style name="AppThemeLightMain" parent="Theme.MaterialComponents.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
