@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.andb.apps.todo.settings.SettingsActivity;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;

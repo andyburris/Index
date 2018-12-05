@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.andb.apps.todo.settings.SettingsActivity;
+
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;

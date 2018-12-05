@@ -6,6 +6,7 @@
     <color name="tabSelectedTextColor">#000000</color>
     <color name="tabUnselectedTextColor">#99000000</color>
     <color name="statusBarTransparent">#00FFFFFF</color>
+    <color name="dividerColor">#FFEEEEEE</color>
 
     <color name="colorDarkPrimary">#1f1f1f</color>
     <color name="colorDarkPrimaryDark">#141414</color>

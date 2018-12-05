@@ -37,6 +37,8 @@ import com.afollestad.aesthetic.AutoSwitchMode;
 import com.afollestad.aesthetic.ColorMode;
 import com.afollestad.aesthetic.NavigationViewMode;
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.andb.apps.todo.notifications.NotificationHandler;
+import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;

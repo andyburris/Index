@@ -23,6 +23,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.andb.apps.todo.notifications.NotificationHandler;
+
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
@@ -41,7 +43,7 @@ import androidx.work.WorkManager;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
-import static com.andb.apps.todo.NotifyWorker.workTag;
+import static com.andb.apps.todo.notifications.NotifyWorker.workTag;
 
 
 /**

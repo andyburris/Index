@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andb.apps.todo.settings.SettingsActivity;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

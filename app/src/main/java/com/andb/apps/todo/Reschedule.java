@@ -8,6 +8,8 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+import com.andb.apps.todo.notifications.NotificationHandler;
+
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import static com.andb.apps.todo.NotificationHandler.tasksDatabase;
+import static com.andb.apps.todo.notifications.NotificationHandler.tasksDatabase;
 
 public class Reschedule extends AppCompatActivity {
 

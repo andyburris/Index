@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
@@ -132,29 +133,6 @@ public class BrowseFragment extends Fragment {
         }) {
         });
 
-        //hide fab on scroll
-        /*final FloatingActionButton fabMain = (FloatingActionButton) getActivity().findViewById(R.id.fab_main);
-        final FloatingActionButton fabList = (FloatingActionButton) getActivity().findViewById(R.id.fab_list);
-        final FloatingActionButton fabTag = (FloatingActionButton) getActivity().findViewById(R.id.fab_tag);
-        final int scrollSensitivity = 5;
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy > scrollSensitivity) {
-                    fabMain.hide();
-                    fabList.hide();
-                    fabTag.hide();
-
-                } else if (dy < scrollSensitivity) {
-                    fabMain.show();
-                    if (MainActivity.fabOpen) { //checks if extra fabs are open, if yes then return them to view
-                        fabList.show();
-                        fabTag.show();
-                    }
-                }
-            }
-        });*/
-
 
         return view;
 
@@ -166,12 +144,6 @@ public class BrowseFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
     }
 
     @Override

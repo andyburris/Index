@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +19,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.android.material.chip.Chip;
-
-import org.joda.time.DateTimeFieldType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -335,11 +333,17 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
             }
 
             if(SettingsActivity.subtaskDefaultShow){
+                ViewGroup.LayoutParams layoutParams = layout.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                layout.setLayoutParams(layoutParams);
                 layout.setVisibility(View.VISIBLE);
                 toggle.setImageState(STATE_ZERO, true);
                 toggled = true;
             }else {
-                layout.setVisibility(View.GONE);
+                ViewGroup.LayoutParams layoutParams = layout.getLayoutParams();
+                layoutParams.height = 0;
+                layout.setLayoutParams(layoutParams);
+                //layout.setVisibility(View.GONE);
                 toggle.setImageState(STATE_ONE, true);
                 toggled = false;
             }
@@ -350,10 +354,21 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
                     toggled = !toggled;
                     if(toggled){
                         toggle.setImageState(STATE_ZERO, true);
-                        layout.setVisibility(View.VISIBLE);
+                        //layout.setVisibility(View.VISIBLE);
+
+                        TransitionManager.beginDelayedTransition(layout, new TransitionSet().addTransition(new ChangeBounds()));
+                        ViewGroup.LayoutParams layoutParams = layout.getLayoutParams();
+                        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        layout.setLayoutParams(layoutParams);
+
                     }else {
                         toggle.setImageState(STATE_ONE, true);
-                        layout.setVisibility(View.GONE);
+
+                        TransitionManager.beginDelayedTransition(layout, new TransitionSet().addTransition(new ChangeBounds()));
+                        ViewGroup.LayoutParams layoutParams = layout.getLayoutParams();
+                        layoutParams.height = 1;
+                        layout.setLayoutParams(layoutParams);
+                        //layout.setVisibility(View.GONE);
                     }
                 }
             });

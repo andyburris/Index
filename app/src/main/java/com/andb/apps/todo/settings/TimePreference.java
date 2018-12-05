@@ -1,4 +1,4 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.settings;
 
 import android.content.Context;
 import android.content.res.TypedArray;

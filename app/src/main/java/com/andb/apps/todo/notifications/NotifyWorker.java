@@ -1,9 +1,11 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.notifications;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.TaskList;
 import com.google.gson.Gson;
 
 import org.joda.time.DateTime;

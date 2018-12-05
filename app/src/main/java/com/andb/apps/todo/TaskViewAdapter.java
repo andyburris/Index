@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import com.andb.apps.todo.settings.SettingsActivity;
+
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;

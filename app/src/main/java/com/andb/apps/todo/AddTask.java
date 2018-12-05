@@ -22,6 +22,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.andb.apps.todo.settings.SettingsActivity;
 import com.andrognito.flashbar.Flashbar;
 import com.fastaccess.datetimepicker.callback.DatePickerCallback;
 import com.fastaccess.datetimepicker.callback.TimePickerCallback;

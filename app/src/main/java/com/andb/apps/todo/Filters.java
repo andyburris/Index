@@ -2,6 +2,8 @@ package com.andb.apps.todo;
 
 import android.util.Log;
 
+import com.andb.apps.todo.settings.SettingsActivity;
+
 import java.util.ArrayList;
 
 public class Filters {

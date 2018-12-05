@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".AddTask"
@@ -64,7 +64,7 @@
 
         </activity>
 
-        <service android:name=".NotificationHandler" />
+        <service android:name=".notifications.NotificationHandler" />
 
 
     </application>

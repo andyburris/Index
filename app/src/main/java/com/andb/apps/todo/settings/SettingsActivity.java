@@ -1,4 +1,4 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.settings;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -20,6 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.andb.apps.todo.BrowseFragment;
+import com.andb.apps.todo.Filters;
+import com.andb.apps.todo.MainActivity;
+import com.andb.apps.todo.R;
 import com.andrognito.flashbar.Flashbar;
 import com.jaredrummler.android.colorpicker.ColorPreference;
 

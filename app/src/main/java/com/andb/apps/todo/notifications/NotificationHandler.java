@@ -1,4 +1,4 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.notifications;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,6 +14,13 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.andb.apps.todo.MainActivity;
+import com.andb.apps.todo.R;
+import com.andb.apps.todo.Reschedule;
+import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.TaskList;
+import com.andb.apps.todo.Tasks;
+import com.andb.apps.todo.UpdateEvent;
 import com.andb.apps.todo.databases.TasksDatabase;
 
 import org.greenrobot.eventbus.EventBus;
