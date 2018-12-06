@@ -235,7 +235,7 @@ public class MainActivity extends AestheticActivity
         SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 
-        SettingsActivity.themeColor = defaultSharedPrefs.getInt("default_color", 0);
+        SettingsActivity.themeColor = defaultSharedPrefs.getInt("theme_color", 0x008080);
 
 
         SettingsActivity.folderMode = defaultSharedPrefs.getBoolean("folder_mode", false);
@@ -272,7 +272,7 @@ public class MainActivity extends AestheticActivity
             public void run() {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-                SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notify_only_date", 0));
+                SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notif_only_date", 0));
             }
         });
 
@@ -595,42 +595,6 @@ public class MainActivity extends AestheticActivity
             startActivity(new Intent(this, SettingsActivity.class));
 
         } else if (id == R.id.nav_import_export) {
-            /*TaskList.loadTasks(this);
-            ArrayList<Integer> keyList = new ArrayList<>();
-
-            for (int i = 0; i < TaskList.taskList.size(); i++) {
-                Tasks tasks = TaskList.taskList.get(i);
-                if (keyList.contains(tasks.getListKey()) || tasks.getListKey() == 0) {
-                    int key = new Random().nextInt();
-                    while (keyList.contains(key)) {
-                        key = new Random().nextInt();
-                    }
-                    tasks.setListKey(new Random().nextInt());
-                    keyList.add(key);
-                } else {
-                    keyList.add(tasks.getListKey());
-                }
-
-            }
-
-            if (TaskList.taskList != null && !TaskList.taskList.isEmpty()) {
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        tasksDatabase.tasksDao().insertMultipleTasks(TaskList.taskList);
-                        TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
-                    }
-                });
-            } else {
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
-                        EventBus.getDefault().post(new UpdateEvent(true));
-
-                    }
-                });
-            }*/
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage("Import or export tasks, tags, and links")
