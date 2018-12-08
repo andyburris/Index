@@ -23,7 +23,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.lists.ArchiveTaskList;
+import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.lists.interfaces.TaskListInterface;
 import com.andb.apps.todo.notifications.NotificationHandler;
+import com.andb.apps.todo.objects.Tasks;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -40,8 +45,6 @@ import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,14 +68,13 @@ import static com.andb.apps.todo.notifications.NotifyWorker.workTag;
 
 public class InboxFragment extends Fragment {
 
-    public static ArrayList<Tasks> blankTaskList = new ArrayList<>();
+
     public static int filterMode = 0; //0=date, 1=alphabetical, more to come
 
-    public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
+
 
     public static InboxRecyclerView mRecyclerView;
     public static TaskAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     private ActionMode contextualToolbar;
     public boolean selected = false;
@@ -182,12 +184,6 @@ public class InboxFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
     }
 
     @Override
@@ -222,16 +218,15 @@ public class InboxFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(view.getContext());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(view.getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
 
-        ///filteredTaskList = TaskList.taskList;
+        ///FilteredLists.inboxTaskList = TaskList.taskList;
 
-        mAdapter = new TaskAdapter(filteredTaskList, TaskAdapter.FROM_INBOX);
-        Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
-        Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
+        mAdapter = new TaskAdapter(FilteredLists.inboxTaskList, TaskAdapter.FROM_INBOX);
+
         mAdapter.setHasStableIds(true);
 
         mRecyclerView.setAdapter(mAdapter);
@@ -271,103 +266,30 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public static void addTask(final String title, final ArrayList<String> items, final ArrayList<Boolean> checked, final ArrayList<Integer> tags, final DateTime time) {
 
-
-        //TaskList.keyList.add(key);
-
-
-        //TaskList.addTaskList(tasks);
-
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                int key = new Random().nextInt();
-
-                while (TaskList.keyList.contains(key) || key == 0) {
-                    key = new Random().nextInt();
-                }
-
-                Log.d("putKeys", Integer.toString(key));
-
-
-                Tasks tasks = new Tasks(title, items, checked, tags, time, false, key);
-
-                MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
-
-                TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
-
-
-                EventBus.getDefault().post(new UpdateEvent(true));
-
-            }
-
-
-        });
-
-
-    }
-
-
-    public static void replaceTask(final String title, final ArrayList<String> items, final ArrayList<Boolean> checked, final ArrayList<Integer> tags,
-                                   final DateTime time, final boolean notified, final int position, final int key, Context ctxt) {
-
-
-        //TaskList.setTaskList(position, tasks);
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                int key = new Random().nextInt();
-
-                while (TaskList.keyList.contains(key) || key == 0) {
-                    key = new Random().nextInt();
-                }
-
-                Log.d("putKeys", Integer.toString(key));
-
-
-                Tasks tasks = new Tasks(title, items, checked, tags, time, false, key);
-
-                MainActivity.tasksDatabase.tasksDao().insertOnlySingleTask(tasks);
-
-                TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
-
-                EventBus.getDefault().post(new UpdateEvent(true));
-            }
-        });
-
-
-        Log.d("recyclerCreated", "outer created");
-        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-        InboxFragment.setFilterMode(InboxFragment.filterMode);
-        mAdapter.isSelected = false;
-        mAdapter.notifyDataSetChanged();
-        WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        NotificationHandler.resetNotifications(ctxt);
-    }
 
 
     public static void setFilterMode(int mode) {
 
         filterMode = mode;
 
-        ArrayList<Tasks> tempList = new ArrayList<>(filteredTaskList);
+        ArrayList<Tasks> tempList = new ArrayList<>(FilteredLists.inboxTaskList);
 
-        Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
+        Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size()));
 
         for (int i = 0; i < tempList.size(); i++) {
             Tasks task = tempList.get(i);
             if (task.getListName().equals("OVERDUE") | task.getListName().equals("TODAY") | task.getListName().equals("WEEK") | task.getListName().equals("MONTH") | task.getListName().equals("FUTURE")) {
                 Log.d("removing", "removing " + task.getListName());
-                filteredTaskList.remove(i);
+                FilteredLists.inboxTaskList.remove(i);
                 tempList.remove(i);
                 i--;
             }
         }
 
-        tempList = new ArrayList<>(filteredTaskList);
+        tempList = new ArrayList<>(FilteredLists.inboxTaskList);
 
-        Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
+        Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size()));
 
 
         if (mode == 0) {
@@ -380,7 +302,7 @@ public class InboxFragment extends Fragment {
             boolean future = true;
 
 
-            Log.d("loopStart", "Size: " + Integer.toString(filteredTaskList.size()));
+            Log.d("loopStart", "Size: " + Integer.toString(FilteredLists.inboxTaskList.size()));
 
             int i = 0;
 
@@ -394,7 +316,7 @@ public class InboxFragment extends Fragment {
                         Log.d("addDivider", "adding OVERDUE from " + task.getListName() + ", " + task.getDateTime().toString());
                         Tasks tasks = new Tasks("OVERDUE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(1970, 1, 1, 0, 0), false);
 
-                        filteredTaskList.add(i, tasks);
+                        FilteredLists.inboxTaskList.add(i, tasks);
 
 
                         overdue = false;
@@ -405,7 +327,7 @@ public class InboxFragment extends Fragment {
                         Log.d("addDivider", task.getListName());
                         Tasks tasks = new Tasks("TODAY", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now()), false);//drop one category to show at top
 
-                        filteredTaskList.add(i, tasks);
+                        FilteredLists.inboxTaskList.add(i, tasks);
 
 
                         today = false;
@@ -415,7 +337,7 @@ public class InboxFragment extends Fragment {
                         Log.d("addDivider", "adding WEEK from " + task.getListName() + ", " + task.getDateTime().toString() + " at position " + Integer.toString(i));
                         Tasks tasks = new Tasks("WEEK", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusDays(1)), false);
 
-                        filteredTaskList.add(i, tasks);
+                        FilteredLists.inboxTaskList.add(i, tasks);
 
 
                         thisWeek = false;
@@ -425,7 +347,7 @@ public class InboxFragment extends Fragment {
                         Log.d("addDivider", "adding MONTH from " + task.getListName() + ", " + task.getDateTime().toString());
                         Tasks tasks = new Tasks("MONTH", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusWeeks(1)), false);
 
-                        filteredTaskList.add(i, tasks);
+                        FilteredLists.inboxTaskList.add(i, tasks);
 
                         thisMonth = false;
                     }
@@ -435,7 +357,7 @@ public class InboxFragment extends Fragment {
                         Log.d("addDivider", "adding FUTURE from " + task.getListName() + ", " + task.getDateTime().toString());
                         Tasks tasks = new Tasks("FUTURE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusMonths(1)), false);
 
-                        filteredTaskList.add(i, tasks);
+                        FilteredLists.inboxTaskList.add(i, tasks);
 
 
                         future = false;
@@ -446,10 +368,10 @@ public class InboxFragment extends Fragment {
                 i++;
             }
 
-            Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
+            Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size()));
 
 
-            Collections.sort(filteredTaskList, new Comparator<Tasks>() {
+            Collections.sort(FilteredLists.inboxTaskList, new Comparator<Tasks>() {
                 @Override
                 public int compare(Tasks o1, Tasks o2) {
                     if (o1.getDateTime() == null) {
@@ -463,42 +385,28 @@ public class InboxFragment extends Fragment {
                 }
             });
 
-            Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
 
 
         } else if (mode == 1) {
 
 
-            Collections.sort(filteredTaskList, new Comparator<Tasks>() {
+            Collections.sort(FilteredLists.inboxTaskList, new Comparator<Tasks>() {
                 @Override
                 public int compare(Tasks o1, Tasks o2) {
                     return o1.getListName().compareTo(o2.getListName());
                 }
             });
 
-            Log.d("inboxFilterInbox", Integer.toString(filteredTaskList.size()));
 
 
         }
 
-        //mAdapter.notifyDataSetChanged();
-
-        /*if (filteredTaskList.isEmpty()) {
-            noTasks.setVisibility(View.VISIBLE);
-        } else {
-            noTasks.setVisibility(View.GONE);
-
-        }*/
-        Log.d("inboxFilterInboxEnd", Integer.toString(filteredTaskList.size()));
 
 
     }
 
     public static void refreshWithAnim() {
         mAdapter.notifyDataSetChanged();
-        Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
-        Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
-        Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
         mRecyclerView.scheduleLayoutAnimation();
     }
 
@@ -545,7 +453,7 @@ public class InboxFragment extends Fragment {
     }
 
     // Extend the Callback class
-    ItemTouchHelper.Callback _ithCallback = new ItemTouchHelper.Callback() {
+    private ItemTouchHelper.Callback _ithCallback = new ItemTouchHelper.Callback() {
         //and in your implementation of
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             return false;
@@ -592,22 +500,26 @@ public class InboxFragment extends Fragment {
                     itemView.getBottom()
             );
 
-            background.setCornerRadius(8);
+            //background.setCornerRadius(0);
 
 
             background.draw(c);
 
             // Calculate position of delete icon
             int deleteIconTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
-            int deleteIconMargin = (itemHeight - intrinsicHeight) / 2;
-            int deleteIconLeft = itemView.getLeft() + deleteIconMargin / 2;
-            int deleteIconRight = itemView.getLeft() + deleteIconMargin / 2 + intrinsicWidth;
+            int deleteIconLeft = itemView.getLeft() + intrinsicWidth;
+            int deleteIconRight = itemView.getLeft() + intrinsicWidth*2;
             int deleteIconBottom = deleteIconTop + intrinsicHeight;
             // Draw the delete icon
             deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
             deleteIcon.draw(c);
 
-            super.onChildDraw(c, recyclerView, viewHolder, dX / 2, dY, actionState, isCurrentlyActive);
+            float newDx = (dX*9)/10;
+            if (newDx >= 300f) {
+                newDx = 300f;
+            }
+
+            super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive);
         }
 
         @Override
@@ -634,12 +546,12 @@ public class InboxFragment extends Fragment {
 
         int dividerPosition = position - 1;
         int belowDividerPosition = position + 1;
-        Log.d("removing", "Above: " + filteredTaskList.get(dividerPosition).getListName() + "\n");
-        Log.d("removing", "Clicked: " + filteredTaskList.get(position).getListName() + "\n");
-        //Log.d("removing", "Below: " + filteredTaskList.get(belowDividerPosition).getListName() + "\n");
+        Log.d("removing", "Above: " + FilteredLists.inboxTaskList.get(dividerPosition).getListName() + "\n");
+        Log.d("removing", "Clicked: " + FilteredLists.inboxTaskList.get(position).getListName() + "\n");
+        //Log.d("removing", "Below: " + FilteredLists.inboxTaskList.get(belowDividerPosition).getListName() + "\n");
 
-        final Tasks tasks = filteredTaskList.get(position);
-        Tasks dividerTask = filteredTaskList.get(dividerPosition);
+        final Tasks tasks = FilteredLists.inboxTaskList.get(position);
+        Tasks dividerTask = FilteredLists.inboxTaskList.get(dividerPosition);
 
 
         if (dividerTask.getListName().equals("OVERDUE")
@@ -648,35 +560,34 @@ public class InboxFragment extends Fragment {
                 | dividerTask.getListName().equals("MONTH")
                 | dividerTask.getListName().equals("FUTURE")) {
 
-            if (belowDividerPosition < filteredTaskList.size()) {
-                Log.d("size", Integer.toString(filteredTaskList.size()) + ", " + belowDividerPosition);
-                Tasks belowDividerTask = filteredTaskList.get(belowDividerPosition);
+            if (belowDividerPosition < FilteredLists.inboxTaskList.size()) {
+                Log.d("size", Integer.toString(FilteredLists.inboxTaskList.size()) + ", " + belowDividerPosition);
+                Tasks belowDividerTask = FilteredLists.inboxTaskList.get(belowDividerPosition);
                 if (belowDividerTask.getListName().equals("OVERDUE")
                         | belowDividerTask.getListName().equals("TODAY")
                         | belowDividerTask.getListName().equals("WEEK")
                         | belowDividerTask.getListName().equals("MONTH")
                         | belowDividerTask.getListName().equals("FUTURE")) {
 
-                    removeTask(position, true);
+                    removeTask(position, true); //sandwiched by dividers, remove top one
                     if (dividerPosition == 0) {
                         mAdapter.notifyItemChanged(0); //updates top divider if necessary to redo padding
                     }
 
-                } else {
+                } else { //more tasks below this
                     removeTask(position, false);
                 }
-            } else {
+            } else { //last in list w/ divider above this
                 removeTask(position, true);
             }
 
 
         } else {
             removeTask(position, false);
-
         }
 
-        if (BrowseFragment.filteredTaskList.contains(tasks)) {
-            BrowseFragment.filteredTaskList.remove(tasks);
+        if (FilteredLists.browseTaskList.contains(tasks)) {
+            FilteredLists.browseTaskList.remove(tasks);
         }
 
         BrowseFragment.mAdapter.notifyDataSetChanged();
@@ -694,28 +605,20 @@ public class InboxFragment extends Fragment {
         Log.d("removeTask", "removing task");
 
 
-        final Tasks tasks = filteredTaskList.get(position);
+        final Tasks tasks = FilteredLists.inboxTaskList.get(position);
 
-        ArchiveTaskList.addTaskList(filteredTaskList.get(position));
-        TaskList.keyList.remove((Integer) filteredTaskList.get(position).getListKey());
-        TaskList.taskList.remove(filteredTaskList.get(position));
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                MainActivity.tasksDatabase.tasksDao().deleteTask(tasks);
-            }
-        });
-        filteredTaskList.remove(position);
+        TaskListInterface.removeTask(tasks);
+
+        FilteredLists.inboxTaskList.remove(position);
 
         mAdapter.notifyItemRemoved(position);
-
 
         int dividerPosition = position - 1;
 
         if (above) {
 
 
-            filteredTaskList.remove(dividerPosition);
+            FilteredLists.inboxTaskList.remove(dividerPosition);
 
             mAdapter.notifyItemRemoved(dividerPosition);
         }

@@ -11,6 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.filtering.Filters;
+import com.andb.apps.todo.lists.TagLinkList;
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.objects.TagLinks;
 import com.andb.apps.todo.settings.SettingsActivity;
 
 import java.util.ArrayList;
@@ -156,7 +161,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
                                 + Filters.backTagFilters.size());
                         int tagClicked;
                         if (Filters.backTagFilters.size() > 1) {
-                            tagClicked = BrowseFragment.filteredTagLinks.get(position);
+                            tagClicked = FilteredLists.filteredTagLinks.get(position);
 
                         } else {
                             tagClicked = position;
@@ -175,7 +180,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             @Override
             public boolean onLongClick(View v) {
                 if (!TagList.getItem(tagLinks.get(realPosition)).isSubFolder()) {
-                    Filters.tagReset(BrowseFragment.filteredTagLinks.get(position));
+                    Filters.tagReset(FilteredLists.filteredTagLinks.get(position));
                 }
                 return true;
             }

@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
+import com.andb.apps.todo.objects.Tasks;
+
 import java.util.ArrayList;
 import java.util.List;
 

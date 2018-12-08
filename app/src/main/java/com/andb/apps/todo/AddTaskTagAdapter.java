@@ -6,6 +6,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.objects.Tasks;
+
 import java.util.ArrayList;
 import java.util.List;
 

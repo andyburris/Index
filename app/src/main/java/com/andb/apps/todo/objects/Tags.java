@@ -1,4 +1,4 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.objects;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

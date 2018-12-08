@@ -14,6 +14,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.lists.interfaces.TagListInterface;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andrognito.flashbar.Flashbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -56,12 +58,8 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         //}
         setContentView(R.layout.activity_create_tag);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //toolbar.setTitleTextColor(getResources.getColor(R.color.darkPrimary));
         setSupportActionBar(toolbar);
 
-        if (SettingsActivity.darkTheme) {
-            darkThemeSet(toolbar);
-        }
 
         flashbar = blankText();
         usedFlashbar = keyUsed();
@@ -144,13 +142,6 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         });
     }
 
-    public void darkThemeSet(Toolbar toolbar) {
-        toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
-        getWindow().getDecorView().setSystemUiVisibility(0);
-
-
-    }
 
     private void setInputTextLayoutColor(final int color, final EditText editText) {
 
@@ -219,9 +210,11 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         } else {
 
             if (editing) {
-                TagSelect.replaceTag(tagName, tagColor, tagPosition, subFolder);
+                TagListInterface.replaceTag(tagName, tagColor, tagPosition, subFolder);
+                TagSelect.mAdapter.notifyItemChanged(tagPosition);
             } else {
-                TagSelect.addTag(tagName, tagColor, subFolder);
+                TagListInterface.addTag(tagName, tagColor, subFolder);
+                TagSelect.mAdapter.notifyDataSetChanged();
             }
             finish();
 

@@ -1,10 +1,11 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.lists;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.andb.apps.todo.objects.Tags;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

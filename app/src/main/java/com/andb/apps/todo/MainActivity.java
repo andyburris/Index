@@ -14,20 +14,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.SpannableStringBuilder;
-import android.text.style.TypefaceSpan;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -36,18 +31,23 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.aesthetic.Aesthetic;
-import com.afollestad.aesthetic.AestheticActivity;
-import com.afollestad.aesthetic.AutoSwitchMode;
-import com.afollestad.aesthetic.ColorMode;
-import com.afollestad.aesthetic.NavigationViewMode;
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.filtering.Filters;
+import com.andb.apps.todo.lists.ArchiveTaskList;
+import com.andb.apps.todo.lists.TagLinkList;
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.notifications.NotificationHandler;
+import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.jaredrummler.cyanea.Cyanea;
+import com.jaredrummler.cyanea.app.CyaneaActivity;
+import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -58,8 +58,6 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -69,7 +67,7 @@ import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 
 
-public class MainActivity extends AestheticActivity
+public class MainActivity extends CyaneaAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -115,7 +113,7 @@ public class MainActivity extends AestheticActivity
         pagerInitialize();
         fromSettings = false;
         //themeSet(toolbar);
-        aestheticSet();
+
 
         EventBus.getDefault().register(this);
 
@@ -303,65 +301,23 @@ public class MainActivity extends AestheticActivity
         return result;
     }
 
-    public void aestheticSet() {
-
-        int colorPrimary;
-        ColorMode tabIndicator;
-        ColorMode tabBackground;
-        int tabText;
-        int toolbarColor;
-
-        if (SettingsActivity.coloredToolbar) {
-            //colorPrimary = SettingsActivity.themeColor;
-            tabIndicator = ColorMode.PRIMARY;
-            tabBackground = ColorMode.ACCENT;
-            toolbarColor = SettingsActivity.themeColor;
-            if (SettingsActivity.darkTheme) {
-                colorPrimary = getResources().getColor(R.color.colorDarkPrimary);
-            } else {
-                colorPrimary = getResources().getColor(R.color.colorPrimary);
-            }
-            if (lightOnBackground(SettingsActivity.themeColor)) {
-                tabText = Color.WHITE;
-            } else {
-                tabText = Color.BLACK;
-            }
-        } else if (SettingsActivity.darkTheme) {
-            colorPrimary = getResources().getColor(R.color.colorDarkPrimary);
-            tabIndicator = ColorMode.ACCENT;
-            tabBackground = ColorMode.PRIMARY;
-            tabText = Color.WHITE;
-            toolbarColor = colorPrimary;
-        } else {
-            colorPrimary = getResources().getColor(R.color.colorPrimary);
-            tabIndicator = ColorMode.ACCENT;
-            tabBackground = ColorMode.PRIMARY;
-            tabText = Color.BLACK;
-            toolbarColor = colorPrimary;
+    public void cyaneaSet(){
+        int bgcolor = getResources().getColor(R.color.white);
+        if(SettingsActivity.darkTheme){
+            bgcolor = getResources().getColor(R.color.slate_black);
         }
+        Cyanea.getInstance().edit()
+                .primary(SettingsActivity.themeColor)
+                .accent(SettingsActivity.themeColor)
+                .background(bgcolor)
+                .apply()
+                .recreate(this);
 
-        BottomAppBar toolbar = findViewById(R.id.toolbar);
-        toolbar.setBackgroundTint(ColorStateList.valueOf(toolbarColor));
-        Drawable navDrawable = getDrawable(R.drawable.ic_label_black_24dp);
-        toolbar.setNavigationIcon(navDrawable);
-        subTitle = findViewById(R.id.toolbar_text);
-        subTitle.setTextColor(tabText);
 
-        //Log.d("tabIndicator", Integer.toHexString(tabIndicator));
 
-        Aesthetic.get()
-                .colorPrimary(colorPrimary, null)
-                .colorAccent(SettingsActivity.themeColor, null)
-                .attribute(R.attr.bottomBarIconColor, tabText, null, true)
-                .tabLayoutIndicatorMode(tabIndicator)
-                .tabLayoutBackgroundMode(tabBackground)
-                .navigationViewMode(NavigationViewMode.SELECTED_ACCENT)
-                .colorStatusBarAuto()
-                .lightStatusBarMode(AutoSwitchMode.AUTO)
-                .apply();
     }
 
-    public void themeSet(Toolbar toolbar) {
+    /*public void themeSet(Toolbar toolbar) {
 
         long startTime = System.nanoTime();
 
@@ -475,7 +431,7 @@ public class MainActivity extends AestheticActivity
         //duration = duration/1000;//to seconds
 
         Log.d("startupTime", "Theme Set: " + Long.toString(duration));
-    }
+    }*/
 
     public void settingsReturn() {
         fabInitialize();
@@ -622,8 +578,7 @@ public class MainActivity extends AestheticActivity
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         } else if (id == R.id.nav_test) {
-            Intent intent = new Intent(this, Reschedule.class);
-            startActivity(intent);
+            cyaneaSet();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -916,7 +871,7 @@ public class MainActivity extends AestheticActivity
 
         Log.d("eventbus", "received updateEvent");
 
-        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
+        FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
 
 
         NotificationHandler.resetNotifications(this);

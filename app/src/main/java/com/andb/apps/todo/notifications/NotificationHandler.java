@@ -18,8 +18,8 @@ import com.andb.apps.todo.MainActivity;
 import com.andb.apps.todo.R;
 import com.andb.apps.todo.Reschedule;
 import com.andb.apps.todo.settings.SettingsActivity;
-import com.andb.apps.todo.TaskList;
-import com.andb.apps.todo.Tasks;
+import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.UpdateEvent;
 import com.andb.apps.todo.databases.TasksDatabase;
 

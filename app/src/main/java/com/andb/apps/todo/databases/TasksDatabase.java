@@ -1,6 +1,6 @@
 package com.andb.apps.todo.databases;
 
-import com.andb.apps.todo.Tasks;
+import com.andb.apps.todo.objects.Tasks;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

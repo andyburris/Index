@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.lists.ArchiveTaskList;
+import com.andb.apps.todo.objects.Tasks;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -53,13 +56,13 @@ public class TaskView extends Fragment {
 
         switch (inboxBrowseArchive) {
             case TaskAdapter.FROM_BROWSE:
-                taskList = BrowseFragment.filteredTaskList;
+                taskList = FilteredLists.browseTaskList;
                 break;
             case TaskAdapter.FROM_ARCHIVE:
                 taskList = ArchiveTaskList.taskList;
                 break;
             default: //inbox
-                taskList = InboxFragment.filteredTaskList;
+                taskList = FilteredLists.inboxTaskList;
                 break;
         }
     }

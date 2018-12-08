@@ -17,7 +17,7 @@
     app:chipIconEnabled="true"
     app:chipIconSize="12dp"
     app:chipStartPadding="8dp"
-    app:chipStrokeColor="@color/ate_icon_light"
+    app:chipStrokeColor="@color/iconColor"
     app:chipStrokeWidth="1dp">
 
 </com.google.android.material.chip.Chip>

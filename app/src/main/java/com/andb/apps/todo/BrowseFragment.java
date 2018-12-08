@@ -18,6 +18,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.filtering.Filters;
+import com.andb.apps.todo.lists.TagLinkList;
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.objects.TagLinks;
+import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -48,8 +56,8 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 public class BrowseFragment extends Fragment {
     public static ArrayList<TagLinks> blankTagLinkList = new ArrayList<>();
 
-    public static ArrayList<Integer> filteredTagLinks = new ArrayList<>();
-    public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
+
+
 
 
     public static InboxRecyclerView mRecyclerView;
@@ -69,8 +77,6 @@ public class BrowseFragment extends Fragment {
     public static NestedScrollView nestedScrollView;
 
     public static boolean removing;
-
-    public static boolean fromAdapter = false;
 
 
     private BrowseFragment.OnFragmentInteractionListener mListener;
@@ -184,7 +190,7 @@ public class BrowseFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(filteredTaskList, TaskAdapter.FROM_BROWSE);
+        mAdapter = new TaskAdapter(FilteredLists.browseTaskList, TaskAdapter.FROM_BROWSE);
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -206,7 +212,7 @@ public class BrowseFragment extends Fragment {
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)
-        tAdapter = new BrowseTagAdapter(filteredTagLinks);
+        tAdapter = new BrowseTagAdapter(FilteredLists.filteredTagLinks);
 
         tRecyclerView.setAdapter(tAdapter);
 
@@ -301,7 +307,7 @@ public class BrowseFragment extends Fragment {
                     }
                 } else {
                     removing = false;
-                    tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+                    tAdapter.notifyItemRangeChanged(0, FilteredLists.filteredTagLinks.size());
                     //collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
                     collapseButton.setImageState(STATE_ONE, true);
 
@@ -329,7 +335,7 @@ public class BrowseFragment extends Fragment {
                         collapseButton.setImageState(STATE_ZERO, true);
 
 
-                        tAdapter.notifyItemRangeChanged(0, filteredTagLinks.size());
+                        tAdapter.notifyItemRangeChanged(0, FilteredLists.filteredTagLinks.size());
 
                         collapseButton.setOnClickListener(null);
                         collapseButton.setOnTouchListener(new View.OnTouchListener() {
@@ -381,210 +387,7 @@ public class BrowseFragment extends Fragment {
     }
 
 
-    public static void createFilteredTaskList(ArrayList<Integer> tagsToFilter, boolean viewing) {
 
-        long startTime = System.nanoTime();
-
-        ArrayList<Tasks> addToInbox = new ArrayList<>();
-        ArrayList<Integer> noSubLinkList = new ArrayList<>();
-
-        Log.d("noFilters", Integer.toString(tagsToFilter.size()));
-
-
-        filteredTagLinks.clear();
-        filteredTaskList.clear();
-
-        Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
-
-
-        if (!tagsToFilter.isEmpty()) {
-
-
-
-            if (!TagList.tagList.isEmpty()) {
-                for (int tag = 0; tag < TagList.tagList.size(); tag++) { //check all the tags
-
-                    boolean contains = false;
-
-                    int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1); //for the most recent filter
-                    if (TagLinkList.contains(tagParent) != null) { //Catch error
-
-
-                        if (TagLinkList.contains(tagParent).contains(tag)) { //and see if they are linked by the filters
-                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
-
-                            contains = true;
-                        } else {
-                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
-                        }
-
-                    } else {
-                        Log.d("tagAdding", "Tag " + Integer.toString(tag) + " is not there.");
-                    }
-
-                    if (contains) { //and if so, add them
-
-                        if (!tagsToFilter.contains(tag)) {//check if tag is part of filters
-                            filteredTagLinks.add(tag);
-                            if (!SettingsActivity.subFilter || !TagList.tagList.get(tag).isSubFolder())
-                                noSubLinkList.add(tag);
-                        }
-
-
-                    }
-
-                }
-
-            }
-
-            long endTime = System.nanoTime();
-            long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-            //duration = duration;//to seconds
-
-            Log.d("startupTime", "Create filtered tasklist - Tags: " + Long.toString(duration));
-
-            startTime = System.nanoTime();
-
-
-            if (!TaskList.taskList.isEmpty()) {
-
-                Log.d("tagPredicate", "filtering");
-
-                ArrayList<Tasks> tempList = new ArrayList<>();
-
-                addToInbox.addAll(TaskList.taskList);
-                Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
-                tempList = new ArrayList<>(Collections2.filter(addToInbox, new TagFilter(tagsToFilter) {
-                }));
-
-
-                addToInbox.clear();
-                addToInbox.addAll(tempList);
-
-                tempList = new ArrayList<>();
-
-                Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
-
-                if (SettingsActivity.folderMode) {
-                    filteredTaskList.addAll(TaskList.taskList);
-                    tempList = new ArrayList<>(Collections2.filter(filteredTaskList, new TagFilter(tagsToFilter, noSubLinkList) {
-                    }));
-
-                    filteredTaskList.clear();
-                    filteredTaskList.addAll(tempList);
-                } else {
-                    filteredTaskList.addAll(addToInbox);
-                }
-            }
-
-
-            if (!fromAdapter) {
-                refreshWithAnim();
-            } else {
-                fromAdapter = false;
-            }
-            tAdapter.notifyDataSetChanged();
-
-        } else {
-
-
-            Log.d("noFilters", "no filters");
-            for (Tags tag : TagList.tagList) {//if there are no filters, return all tags except subfolders
-                if (!tag.isSubFolder()) {
-                    filteredTagLinks.add(TagList.tagList.indexOf(tag));
-                }
-            }
-            Log.d("noFilters", "TagList size:" + Integer.toString(filteredTagLinks.size()));
-
-
-            if (SettingsActivity.folderMode) {//if folders, add all to inbox, only those w/o tags to browse
-
-                ArrayList<Tasks> tempList = new ArrayList<>();
-
-                filteredTaskList.addAll(TaskList.taskList);
-
-                tempList = new ArrayList<>(Collections2.filter(filteredTaskList, new Predicate<Tasks>() {
-                    @Override
-                    public boolean apply(Tasks input) {
-                        if (!input.isListTags()) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                }));
-
-                filteredTaskList.clear();
-                filteredTaskList.addAll(tempList);
-
-                addToInbox.addAll(TaskList.taskList);
-
-
-            } else {//if not, add all to browse& inbox
-                filteredTaskList.addAll(TaskList.taskList);
-                addToInbox.addAll(filteredTaskList);
-            }
-
-            Log.d("noFilters", "TaskList size:" + Integer.toString(filteredTaskList.size()));
-
-
-            if (!fromAdapter) {
-                refreshWithAnim();
-            } else {
-                fromAdapter = false;
-            }
-            tAdapter.notifyDataSetChanged();
-        }
-
-        Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
-        Log.d("inboxFilterBrowse", Integer.toString(filteredTaskList.size()));
-
-
-        if (viewing) {
-
-            Log.d("inboxFilterBrowse", Integer.toString(addToInbox.size()));
-
-
-            InboxFragment.filteredTaskList.clear();
-            InboxFragment.filteredTaskList.addAll(addToInbox);
-
-            InboxFragment.setFilterMode(InboxFragment.filterMode);
-
-            Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
-
-            InboxFragment.refreshWithAnim();
-
-            Log.d("inboxFilterBrowse", Integer.toString(InboxFragment.filteredTaskList.size()));
-            Log.d("inboxFilterBrowse", Integer.toString(InboxFragment.mAdapter.getItemCount()));
-            Log.d("inboxFilterBrowseBrowse", Integer.toString(filteredTaskList.size()));
-            Log.d("inboxFilterBrowseBrowse", Integer.toString(mAdapter.getItemCount()));
-
-            Log.d("inboxFilter", Integer.toString(InboxFragment.filteredTaskList.size()));
-
-
-        }
-
-        if (filteredTagLinks.isEmpty()) {
-            tagCard.setVisibility(View.GONE);
-            nestedScrollView.scrollTo(0, 0);
-        } else {
-            tagCard.setVisibility(View.VISIBLE);
-
-        }
-
-        if (Filters.getCurrentFilter().size() != 0) {
-            InboxFragment.setTaskCountText(filteredTaskList.size());
-        } else {
-            InboxFragment.setTaskCountText(TaskList.taskList.size());
-        }
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration;//to seconds
-
-        Log.d("startupTime", "Create filtered tasklist: " + Long.toString(duration));
-
-    }
 
     public static void refreshWithAnim() {
         mAdapter.notifyDataSetChanged();

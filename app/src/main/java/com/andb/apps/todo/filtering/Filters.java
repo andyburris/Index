@@ -1,7 +1,12 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.filtering;
 
 import android.util.Log;
 
+import com.andb.apps.todo.BrowseFragment;
+import com.andb.apps.todo.InboxFragment;
+import com.andb.apps.todo.MainActivity;
+import com.andb.apps.todo.R;
+import com.andb.apps.todo.lists.TagList;
 import com.andb.apps.todo.settings.SettingsActivity;
 
 import java.util.ArrayList;
@@ -30,7 +35,7 @@ public class Filters {
         backTagFilters.remove(backTagFilters.size() - 1);
 
 
-        BrowseFragment.createFilteredTaskList(getCurrentFilter(),true);
+        FilteredLists.createFilteredTaskList(getCurrentFilter(),true);
 
         subtitle = "All";
 
@@ -57,7 +62,7 @@ public class Filters {
 
         Log.d("backStack", Integer.toString(backTagFilters.get(backTagFilters.size()-2).size()) + ", " + Integer.toString(backTagFilters.get(backTagFilters.size()-1).size()));
 
-        BrowseFragment.createFilteredTaskList(getCurrentFilter(), true);//filters tasklist with new filter
+        FilteredLists.createFilteredTaskList(getCurrentFilter(), true);//filters tasklist with new filter
         BrowseFragment.mAdapter.notifyDataSetChanged();//updates recyclerviews
 
 
@@ -87,7 +92,7 @@ public class Filters {
         ArrayList<Integer> newFilter = new ArrayList<Integer>(backTagFilters.get(backTagFilters.size() - 1));
         newFilter.add(tag);
         backTagFilters.add(newFilter);
-        BrowseFragment.createFilteredTaskList(getCurrentFilter(),true);
+        FilteredLists.createFilteredTaskList(getCurrentFilter(),true);
         BrowseFragment.mAdapter.notifyDataSetChanged();
 
         subtitle = "All";

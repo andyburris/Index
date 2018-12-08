@@ -189,8 +189,6 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:layout_weight="0"
-            android:tint="@color/ate_icon_light"
-            android:tintMode="src_atop"
             app:srcCompat="@drawable/list_dropdown_selector" />
 
         <TextView

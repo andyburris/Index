@@ -19,6 +19,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.android.material.chip.Chip;
 
@@ -31,7 +34,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
 public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHolder> {
 

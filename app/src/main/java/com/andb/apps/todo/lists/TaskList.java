@@ -1,9 +1,10 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.lists;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 
 import org.joda.time.DateTime;

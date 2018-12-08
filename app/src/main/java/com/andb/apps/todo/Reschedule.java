@@ -8,7 +8,9 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.notifications.NotificationHandler;
+import com.andb.apps.todo.objects.Tasks;
 
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;

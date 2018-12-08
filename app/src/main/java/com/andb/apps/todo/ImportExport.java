@@ -8,6 +8,14 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.filtering.Filters;
+import com.andb.apps.todo.lists.TagLinkList;
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.objects.TagLinks;
+import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.objects.Tasks;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -113,7 +121,7 @@ public class ImportExport {
                             task.normalizeAfterImport();
                         }
 
-                        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
+                        FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
 
                         AsyncTask.execute(new Runnable() {
                             @Override

@@ -7,12 +7,14 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.andb.apps.todo.lists.ArchiveTaskList;
 import com.andb.apps.todo.settings.SettingsActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import me.saket.inboxrecyclerview.PullCollapsibleActivity;
 
-public class Archive extends AppCompatActivity {
+public class Archive extends PullCollapsibleActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,10 +22,12 @@ public class Archive extends AppCompatActivity {
         //if (SettingsActivity.darkTheme) {
         //    this.setTheme(R.style.AppThemeDark);
         //} else {
-            this.setTheme(R.style.AppThemeLight);
+            this.setTheme(R.style.AppThemeLightCollapse);
         //}
         setContentView(R.layout.activity_archive);
+        expandFromTop();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
         setSupportActionBar(toolbar);
 
         if (SettingsActivity.darkTheme) {

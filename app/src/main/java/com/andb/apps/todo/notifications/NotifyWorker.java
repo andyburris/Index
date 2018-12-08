@@ -5,7 +5,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.andb.apps.todo.settings.SettingsActivity;
-import com.andb.apps.todo.TaskList;
+import com.andb.apps.todo.lists.TaskList;
 import com.google.gson.Gson;
 
 import org.joda.time.DateTime;

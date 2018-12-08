@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
 
-    <style name="AppThemeGlobal" parent="Theme.MaterialComponents.Light">
+    <style name="AppThemeGlobal" parent="Theme.Cyanea.Light">
         <item name="android:fontFamily">@font/worksans_regular</item>
         <item name="textAppearanceButton">@font/worksans_semibold</item>
     </style>

@@ -11,6 +11,8 @@
     <color name="colorDarkPrimary">#1f1f1f</color>
     <color name="colorDarkPrimaryDark">#141414</color>
 
+    <color name="iconColor">#88000000</color>
+
     <color name="launch">#888888</color>
 
 </resources>

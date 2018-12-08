@@ -2,6 +2,7 @@ package com.andb.apps.todo;
 
 import android.util.Log;
 
+import com.andb.apps.todo.objects.Tasks;
 import com.google.common.base.Predicate;
 
 import java.util.ArrayList;

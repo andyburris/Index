@@ -22,6 +22,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.filtering.Filters;
+import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.lists.interfaces.TaskListInterface;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andrognito.flashbar.Flashbar;
 import com.fastaccess.datetimepicker.callback.DatePickerCallback;
@@ -126,9 +131,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
             boolean browse = bundle.getBoolean("browse");
 
             if (browse) {
-                taskList = BrowseFragment.filteredTaskList;
+                taskList = FilteredLists.browseTaskList;
             } else {
-                taskList = InboxFragment.filteredTaskList;
+                taskList = FilteredLists.inboxTaskList;
             }
 
             taskPosition = bundle.getInt("editPos");
@@ -565,14 +570,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
 
         if (editing) {
-            InboxFragment.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getListKey(), getApplicationContext());
-            Log.d("taskPosition", Integer.toString(taskPosition));
-
-            InboxFragment.mAdapter.notifyItemChanged(taskPosition);
-
-
+            TaskListInterface.replaceTask(taskName.getText().toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(taskList.get(taskPosition)), taskList.get(taskPosition).getListKey(), getApplicationContext());
         } else {
-            InboxFragment.addTask(taskName.getText().toString(), items, checked, tags, taskDateTime);
+            TaskListInterface.addTask(taskName.getText().toString(), items, checked, tags, taskDateTime);
         }
 
     }

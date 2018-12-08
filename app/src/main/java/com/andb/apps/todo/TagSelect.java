@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +12,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.andb.apps.todo.filtering.Filters;
+import com.andb.apps.todo.lists.TagLinkList;
+import com.andb.apps.todo.lists.TagList;
+import com.andb.apps.todo.lists.interfaces.LinkListInterface;
+import com.andb.apps.todo.lists.interfaces.TagListInterface;
+import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andrognito.flashbar.Flashbar;
 
@@ -33,7 +37,7 @@ public class TagSelect extends AppCompatActivity {
 
 
     private RecyclerView mRecyclerView;
-    private static TagAdapter mAdapter;
+    public static TagAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private boolean isTaskCreate = false;
@@ -99,42 +103,10 @@ public class TagSelect extends AppCompatActivity {
                     AddTask.addTag(position);
                     finish();
                 } else if (isTagLink && Filters.getCurrentFilter().size() > 0) {
-                    int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1);
-
-                    if (TagLinkList.contains(tagParent) != null) {
-
-                        if (TagLinkList.contains(tagParent).contains(position)) {
-                            //Log.d("tagAdding", "Already Added" + TagLinkList.contains(tagParent).getTagLink(TagLinkList.contains(tagParent).getLinkPosition(position)) + " to " + Integer.toString(tagParent));
-                            tagExists(TagSelect.this).show();
-                        } else if (position == tagParent) {
-                            sameTag(TagSelect.this).show();
-                        } else {
-                            //Log.d("tagAdding", "Adding " + Integer.toString(position) + " to " + Integer.toString(positionInLinkList));
-                            TagLinkList.contains(tagParent).addLink(position);
-
-                            BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-                            BrowseFragment.mAdapter.notifyDataSetChanged();
-                            finish();
-                        }
-                    } else {
-                        Log.d("tagAdding", "Starting links for tag " + Integer.toString(tagParent) + ".");
-                        ArrayList<Integer> arrayList = new ArrayList<>();
-                        arrayList.add(position);
-                        TagLinkList.addLinkListItem(new TagLinks(tagParent, arrayList));
-
-                        boolean debug = false;
-                        if (TagLinkList.contains(tagParent) != null)
-                            debug = true;
-
-
-                        //Log.d("tagAdding","Now added " + TagLinkList.getLinkListItem(TagLinkList.contains(tagParent)).getTagLink(0) + " to " + Integer.toString(tagParent) + ", " + debug + ", " + TagLinkList.getLinkListItem(TagLinkList.contains(tagParent)).contains(position));
-
-                        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-                        BrowseFragment.mAdapter.notifyDataSetChanged();
+                    boolean finish = LinkListInterface.addLinkToCurrentDirectory(position, TagSelect.this);
+                    if(finish){
                         finish();
-
                     }
-
                 } else {
                     Filters.tagForward(position);
                     finish();
@@ -163,7 +135,7 @@ public class TagSelect extends AppCompatActivity {
 
     }
 
-    private static Flashbar tagExists(Activity activity) {
+    public static Flashbar tagExists(Activity activity) {
         return new Flashbar.Builder(activity)
                 .gravity(Flashbar.Gravity.BOTTOM)
                 .title("Tag Exists")
@@ -174,7 +146,7 @@ public class TagSelect extends AppCompatActivity {
 
     }
 
-    private static Flashbar sameTag(Activity activity) {
+    public static Flashbar sameTag(Activity activity) {
         return new Flashbar.Builder(activity)
                 .gravity(Flashbar.Gravity.BOTTOM)
                 .title("Same Tag")
@@ -212,23 +184,6 @@ public class TagSelect extends AppCompatActivity {
     }
 
 
-    public static void addTag(String name, int color, boolean sub) {
-        Tags tags = new Tags(name, color, sub);
-        TagList.addTagList(tags);
-        mAdapter.notifyDataSetChanged();
-        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-
-
-    }
-
-    public static void replaceTag(String name, int color, int pos, boolean sub) {
-        Tags tags = new Tags(name, color, sub);
-        TagList.setTagList(pos, tags);
-        mAdapter.notifyItemChanged(pos);
-        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-
-
-    }
 
 
     public ActionMode.Callback setCallback(final int position) {
@@ -256,7 +211,8 @@ public class TagSelect extends AppCompatActivity {
                         mode.finish();
                         return true;
                     case R.id.deleteTag:
-                        deleteTag(position);
+                        TagListInterface.deleteTag(position, getApplicationContext());
+                        mAdapter.notifyItemRemoved(position);
                         mode.finish();
 
 
@@ -272,55 +228,7 @@ public class TagSelect extends AppCompatActivity {
 
     }
 
-    public void deleteTag(int pos) {
-        TagList.tagList.remove(pos);
-        mAdapter.notifyItemRemoved(pos);
-        if (!TaskList.taskList.isEmpty()) {
-            for (final Tasks tasks : TaskList.taskList) {
-                if (tasks.isListTags()) {
-                    ArrayList<Integer> toRemove = new ArrayList<>();
-                    for (int tag : tasks.getAllListTags()) {
-                        if (tag == pos) {
-                            toRemove.add(tag);
-                        } else if (tag > pos) {
-                            tasks.setListTags(tasks.getAllListTags().indexOf(tag), tag - 1);
-                        }
-                    }
-                    tasks.getAllListTags().removeAll(toRemove);
-                    AsyncTask.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            MainActivity.tasksDatabase.tasksDao().updateTask(tasks);
-                        }
-                    });
-                }
-            }
-        }
-        if (!TagLinkList.linkList.isEmpty()) {
-            ArrayList<TagLinks> toRemoveParent = new ArrayList<>();
-            for (TagLinks tagLinks : TagLinkList.linkList) {
-                if (tagLinks.tagParent() == pos) {
-                    toRemoveParent.add(tagLinks);
-                } else {
-                    ArrayList<Integer> toRemoveChild = new ArrayList<>();
-                    for (int linkPos : tagLinks.getAllTagLinks()) {
-                        if (linkPos == pos) {
-                            toRemoveChild.add(linkPos);
-                        } else if (linkPos > pos) {
-                            tagLinks.getAllTagLinks().set(tagLinks.getAllTagLinks().indexOf(linkPos), linkPos - 1);
-                        }
-                    }
-                    tagLinks.getAllTagLinks().removeAll(toRemoveChild);
-                }
-            }
-            TagLinkList.linkList.removeAll(toRemoveParent);
-        }
 
-        TagList.saveTags(this);
-        TagLinkList.saveTags(this);
-
-        BrowseFragment.createFilteredTaskList(Filters.getCurrentFilter(), true);
-    }
 
     @Override
     public void onPause() {

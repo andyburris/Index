@@ -2,6 +2,8 @@ package com.andb.apps.todo;
 
 import android.util.Log;
 
+import com.andb.apps.todo.objects.Tasks;
+
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
