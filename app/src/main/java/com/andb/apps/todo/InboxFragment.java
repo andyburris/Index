@@ -24,6 +24,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.andb.apps.todo.notifications.NotificationHandler;
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
@@ -34,14 +37,18 @@ import java.util.Comparator;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
+import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks;
 
 import static com.andb.apps.todo.notifications.NotifyWorker.workTag;
 
@@ -132,6 +139,7 @@ public class InboxFragment extends Fragment {
         tagButton.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);*/
 
 
+        mRecyclerView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
 
             @Override
@@ -204,11 +212,10 @@ public class InboxFragment extends Fragment {
     }
 
 
-    public void prepareRecyclerView(View view) {
+    public void prepareRecyclerView(final View view) {
 
 
         mRecyclerView = (InboxRecyclerView) view.findViewById(R.id.inboxRecycler);
-        //ExpandablePageLayout taskView = view.findViewById(R.id.task_view_expandable_layout);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -222,15 +229,35 @@ public class InboxFragment extends Fragment {
 
         ///filteredTaskList = TaskList.taskList;
 
-        mAdapter = new TaskAdapter(filteredTaskList);
+        mAdapter = new TaskAdapter(filteredTaskList, TaskAdapter.FROM_INBOX);
         Log.d("inboxFilterRefresh", Integer.toString(filteredTaskList.size()));
         Log.d("inboxFilterRefresh", Integer.toString(mAdapter.getItemCount()));
         mAdapter.setHasStableIds(true);
 
         mRecyclerView.setAdapter(mAdapter);
 
-        ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page);
+        final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_inbox);
         mRecyclerView.setExpandablePage(taskView);
+
+        taskView.addStateChangeCallbacks(new SimplePageStateChangeCallbacks() {
+            @Override
+            public void onPageCollapsed() {
+                super.onPageCollapsed();
+
+                BottomAppBar toolbar = getActivity().findViewById(R.id.toolbar);
+                FloatingActionButton fab = getActivity().findViewById(R.id.fab);
+                TabLayout tabLayout = getActivity().findViewById(R.id.tabs);
+
+                toolbar.setNavigationIcon(TaskView.oldNavIcon);
+                CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) toolbar.getLayoutParams();
+                layoutParams.bottomMargin = TaskView.oldMargin;
+
+                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_black_24dp).mutate());
+                layoutParams = (CoordinatorLayout.LayoutParams) tabLayout.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                tabLayout.setLayoutParams(layoutParams);
+            }
+        });
 
         ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
         ith.attachToRecyclerView(mRecyclerView);
@@ -706,12 +733,12 @@ public class InboxFragment extends Fragment {
             toApply = " TASK";
         }
         toApply = Integer.toString(numTasks) + toApply;
-        taskCountText.setText(toApply);
+        //taskCountText.setText(toApply);
 
     }
 
     public static void setPathText(String text) {
-        currentPathText.setText(text);
+        //currentPathText.setText(text);
     }
 
 }

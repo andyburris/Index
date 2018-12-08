@@ -52,14 +52,11 @@
 
     </androidx.core.widget.NestedScrollView>-->
     <me.saket.inboxrecyclerview.page.ExpandablePageLayout
+        android:id="@+id/expandable_page_inbox"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/expandable_page"
         android:elevation="72dp">
-        <!--<include
-            layout="@layout/activity_task_view"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>-->
+
     </me.saket.inboxrecyclerview.page.ExpandablePageLayout>
 
 </FrameLayout>

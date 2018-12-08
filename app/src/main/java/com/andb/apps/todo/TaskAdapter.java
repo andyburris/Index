@@ -49,8 +49,13 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     private static final int THIS_WEEK_DIVIDER = 3;
     private static final int THIS_MONTH_DIVIDER = 4;
     private static final int FUTURE_DIVIDER = 5;
+
+    public static final int FROM_INBOX = 0;
+    public static final int FROM_BROWSE = 1;
+    public static final int FROM_ARCHIVE = 2;
     //Preferences for which to show
 
+    public int inboxBrowseArchive;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
@@ -66,7 +71,6 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
         public LinearLayout tagEncloser;
 
         public ConstraintLayout inboxItemBackground;
-        public ExpandablePageLayout taskView;
 
         public TextView dividerName;
 
@@ -78,10 +82,10 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
             super(view);
 
 
-            dividerName = (TextView) view.findViewById(R.id.dividerName);
+            dividerName = view.findViewById(R.id.dividerName);
 
-            name = (TextView) view.findViewById(R.id.taskName);
-            item1 =  view.findViewById(R.id.item1);
+            name  = view.findViewById(R.id.taskName);
+            item1 = view.findViewById(R.id.item1);
             item2 = view.findViewById(R.id.item2);
             item3 = view.findViewById(R.id.item3);
             chip1 = view.findViewById(R.id.chip1);
@@ -96,7 +100,6 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
             more = view.findViewById(R.id.itemsMore);
             moreTags = view.findViewById(R.id.moreTags);
 
-            taskView = InboxFragment.mRecyclerView.getRootView().findViewById(R.id.expandable_page);
 
             toggle = view.findViewById(R.id.sublistIcon);
 
@@ -106,8 +109,9 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     }
 
 
-    public TaskAdapter(List<Tasks> tasksList) {
+    public TaskAdapter(List<Tasks> tasksList, int inboxBrowseArchive) {
         this.taskList = tasksList;
+        this.inboxBrowseArchive = inboxBrowseArchive;
     }
 
 
@@ -162,21 +166,31 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
             holder.inboxItemBackground.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+
                     int pos = holder.getLayoutPosition();
                     Bundle bundle = new Bundle();
                     bundle.putInt("pos", pos);
-                    bundle.putBoolean("inboxOrArchive", true);
-                    bundle.putBoolean("browse", false);
+                    bundle.putInt("inboxBrowseArchive", inboxBrowseArchive);
 
                     FragmentActivity activity = (FragmentActivity) context;
                     FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
 
                     TaskView taskView = new TaskView();
                     taskView.setArguments(bundle);
-                    ft.add(R.id.expandable_page, taskView);
+                    ft.add(R.id.expandable_page_inbox, taskView);
                     ft.commit();
 
-                    InboxFragment.mRecyclerView.expandItem(getItemId(realPosition));
+                    switch (inboxBrowseArchive) {
+                        case TaskAdapter.FROM_BROWSE:
+                            BrowseFragment.mRecyclerView.expandItem(getItemId(realPosition));
+                            break;
+                        case TaskAdapter.FROM_ARCHIVE:
+                            break;
+                        default: //inbox
+                            InboxFragment.mRecyclerView.expandItem(getItemId(realPosition));
+                            break;
+                    }
 
                 }
             });

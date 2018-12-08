@@ -132,7 +132,7 @@ public class ArchiveFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(ArchiveTaskList.taskList);
+        mAdapter = new TaskAdapter(ArchiveTaskList.taskList, TaskAdapter.FROM_ARCHIVE);
         mRecyclerView.setAdapter(mAdapter);
     }
 

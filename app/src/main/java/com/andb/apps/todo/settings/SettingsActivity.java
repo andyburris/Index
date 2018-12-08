@@ -3,11 +3,13 @@ package com.andb.apps.todo.settings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ImageView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.andb.apps.todo.R;
 import com.andrognito.flashbar.Flashbar;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.Maxr1998.modernpreferences.PreferenceScreen;
 import de.Maxr1998.modernpreferences.PreferencesAdapter;
+import me.saket.inboxrecyclerview.PullCollapsibleActivity;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -35,7 +38,7 @@ import de.Maxr1998.modernpreferences.PreferencesAdapter;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatActivity implements PreferencesAdapter.OnScreenChangeListener, ColorPickerDialogListener {
+public class SettingsActivity extends PullCollapsibleActivity implements PreferencesAdapter.OnScreenChangeListener, ColorPickerDialogListener {
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -61,9 +64,15 @@ public class SettingsActivity extends AppCompatActivity implements PreferencesAd
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.setTheme(R.style.AppThemeLightCollapse);
 
-        RecyclerView prefView = new RecyclerView(this);
-        setContentView(prefView);
+
+        setContentView(R.layout.activity_settings);
+        expandFromTop();
+        Toolbar toolbar = findViewById(R.id.settings_toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
+        toolbar.inflateMenu(R.menu.toolbar_settings);
+        RecyclerView prefView = findViewById(R.id.settings_rv);
         prefView.setLayoutManager(new LinearLayoutManager(this));
         prefView.setAdapter(preferencesAdapter);
 
@@ -129,6 +138,15 @@ public class SettingsActivity extends AppCompatActivity implements PreferencesAd
         preferencesAdapter.getCurrentScreen().get("theme_color").commitInt(color);
         ((ColorPanelView)findViewById(R.id.colorPanel)).setColor(SettingsActivity.themeColor);
         preferencesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(preferencesAdapter.isInSubScreen()){
+            preferencesAdapter.goBack();
+        }else {
+            super.onBackPressed();
+        }
     }
 }
 

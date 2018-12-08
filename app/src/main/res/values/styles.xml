@@ -2,6 +2,13 @@
 
     <!-- Base application theme. -->
 
+    <style name="AppThemeGlobal" parent="Theme.MaterialComponents.Light">
+        <item name="android:fontFamily">@font/worksans_regular</item>
+        <item name="textAppearanceButton">@font/worksans_semibold</item>
+    </style>
+
+
+
     <style name="AppThemeLight.Launcher">
         <item name="android:windowBackground">@color/launch</item>
         <item name="android:statusBarColor">@color/statusBarTransparent</item>
@@ -10,8 +17,7 @@
 
     </style>
 
-    <style name="AppThemeLight" parent="Theme.MaterialComponents.Light">
-        <!-- Customize your theme here. -->
+    <style name="AppThemeLight" parent="AppThemeGlobal">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -65,7 +71,7 @@
     </style>-->
 
 
-    <style name="AppThemeLightMain" parent="Theme.MaterialComponents.Light">
+    <style name="AppThemeLightMain" parent="AppThemeGlobal">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -106,7 +112,6 @@
 
     </style>
 
-    <!-- Customize theme for transparent activity -->
     <style name="Theme.AppCompat.Transparent.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Transparent the theme here -->
 
@@ -184,6 +189,9 @@
                 Control whether dimming behind the window is enabled.
         -->
         <item name="android:backgroundDimEnabled">false</item>
-    </style>
+    </style> <!--for reschedule background-->
+    <style name="AppThemeNavDrawer" parent="AppThemeGlobal">
+        <item name="android:fontFamily">@font/worksans_semibold</item>
+    </style> <!--for navdrawer font-->
 
 </resources>

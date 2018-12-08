@@ -1,6 +1,7 @@
 package com.andb.apps.todo;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,22 +9,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
 public class TaskView extends Fragment {
 
     int position;
-    boolean inboxOrArchive; //true is inbox, false is archive
+    int inboxBrowseArchive; //true is inbox, false is archive
+    int viewPos = 0;
     ArrayList<Tasks> taskList;
 
     private RecyclerView mRecyclerView;
@@ -34,25 +38,36 @@ public class TaskView extends Fragment {
     private static TaskViewTagAdapter tAdapter;
     private RecyclerView.LayoutManager tLayoutManager;
 
+    public static Drawable oldNavIcon;
+    public static int oldMargin;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle bundle = getArguments();
+
+        position = bundle.getInt("pos");
+        Log.d("onePosUpError", Integer.toString(position));
+        inboxBrowseArchive = bundle.getInt("inboxBrowseArchive");
+
+        switch (inboxBrowseArchive) {
+            case TaskAdapter.FROM_BROWSE:
+                taskList = BrowseFragment.filteredTaskList;
+                break;
+            case TaskAdapter.FROM_ARCHIVE:
+                taskList = ArchiveTaskList.taskList;
+                break;
+            default: //inbox
+                taskList = InboxFragment.filteredTaskList;
+                break;
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //return super.onCreateView(inflater, container, savedInstanceState);
-
-    /*if (SettingsActivity.darkTheme) {
-            this.setTheme(R.style.AppThemeDark);
-        } else {*/
-        //this.setTheme(R.style.AppThemeLightCollapse);
-        //}
-
-        return inflater.inflate(R.layout.activity_task_view, container, false);
+        return inflater.inflate(R.layout.activity_task_view, (ViewGroup) container.getParent(), false);
     }
 
     @Override
@@ -60,36 +75,11 @@ public class TaskView extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
 
-        Bundle bundle = getArguments();
-        /*ArrayList<Integer> rectList = new ArrayList<>(bundle.getIntegerArrayList("rect"));
+        collapseAndChangeAppBar((BottomAppBar) getActivity().findViewById(R.id.toolbar), (FloatingActionButton) getActivity().findViewById(R.id.fab), (TabLayout) getActivity().findViewById(R.id.tabs));
 
-        Rect expand_from;
-        expand_from = new Rect(rectList.get(0), rectList.get(1), rectList.get(0)+rectList.get(2), rectList.get(1)+rectList.get(3));
-        expandFrom(expand_from);*/
 
-        position=bundle.getInt("pos");
-        Log.d("onePosUpError", Integer.toString(position));
-        inboxOrArchive = bundle.getBoolean("inboxOrArchive");
-        if(inboxOrArchive){
-            boolean browse = bundle.getBoolean("browse");
-
-            if(browse){
-                taskList = BrowseFragment.filteredTaskList;
-            }else {
-                taskList = InboxFragment.filteredTaskList;
-            }
-        }else {
-            taskList = ArchiveTaskList.taskList;
-        }
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-        //getSupportActionBar().setTitle("");
-        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
         Log.d("onePosUpError", taskList.get(position).getListName());
 
-        if (SettingsActivity.darkTheme) {
-            darkThemeSet(toolbar);
-        }
 
         TextView task_title = view.findViewById(R.id.task_view_task_name);
         task_title.setText(taskList.get(position).getListName().toUpperCase());
@@ -104,6 +94,30 @@ public class TaskView extends Fragment {
         toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
         //getWindow().getDecorView().setSystemUiVisibility(0);
 
+
+    }
+
+    public void collapseAndChangeAppBar(Toolbar toolbar, FloatingActionButton fab, TabLayout tabLayout) {
+        oldNavIcon = toolbar.getNavigationIcon().mutate();
+        oldMargin = ((CoordinatorLayout.LayoutParams) toolbar.getLayoutParams()).bottomMargin;
+        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
+
+        //TransitionManager.beginDelayedTransition(tabLayout, new ChangeBounds());
+        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) tabLayout.getLayoutParams();
+        layoutParams.height = 1;
+        tabLayout.setLayoutParams(layoutParams);
+
+        //TransitionManager.beginDelayedTransition((ViewGroup) toolbar.getRootView(), new ChangeBounds());
+        layoutParams = (CoordinatorLayout.LayoutParams) toolbar.getLayoutParams();
+        layoutParams.bottomMargin = 0;
+        toolbar.setLayoutParams(layoutParams);
+
+        fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_done_all_black_24dp).mutate());
+
+
+    }
+
+    public void expandAndChangeAppBar(Toolbar toolbar, FloatingActionButton fab, TabLayout tabLayout) {
 
     }
 
@@ -136,15 +150,11 @@ public class TaskView extends Fragment {
         // specify an adapter (see also next example)
         tAdapter = new TaskViewTagAdapter(taskList.get(position).getAllListTags());
         tRecyclerView.setAdapter(tAdapter);
-
     }
 
-    public static ExpandablePageLayout returnViewForExpandable(View view) {
-        return view.findViewById(R.id.task_view_parent);
-    }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         InboxFragment.mAdapter.notifyDataSetChanged();
         BrowseFragment.mAdapter.notifyDataSetChanged();

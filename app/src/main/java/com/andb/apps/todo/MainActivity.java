@@ -14,15 +14,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.SpannableStringBuilder;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -53,6 +58,8 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -97,7 +104,6 @@ public class MainActivity extends AestheticActivity
         //Debug.startMethodTracing("startup");
 
         //long startTime = System.nanoTime();
-
 
 
         super.onCreate(savedInstanceState);
@@ -244,7 +250,7 @@ public class MainActivity extends AestheticActivity
         //if (SettingsActivity.darkTheme) {
         //    this.setTheme(R.style.AppThemeDarkMain);
         //} else {
-            this.setTheme(R.style.AppThemeLightMain);
+        this.setTheme(R.style.AppThemeLightMain);
         //}
 
         SettingsActivity.defaultSort = Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0"));
@@ -592,7 +598,8 @@ public class MainActivity extends AestheticActivity
         } else if (id == R.id.nav_archive) {
             startActivity(new Intent(this, Archive.class));
         } else if (id == R.id.nav_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_import_export) {
 
@@ -702,7 +709,6 @@ public class MainActivity extends AestheticActivity
     }
 
 
-
     public void loadArchiveTasks() {
 
         long startTime = System.nanoTime();
@@ -777,8 +783,6 @@ public class MainActivity extends AestheticActivity
         });
 
 
-
-
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
         //duration = duration/1000;//to seconds
@@ -789,7 +793,7 @@ public class MainActivity extends AestheticActivity
 
     public void drawerInitialize(Toolbar toolbar) {
 
-        long startTime = System.nanoTime();
+        //long startTime = System.nanoTime();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -803,7 +807,6 @@ public class MainActivity extends AestheticActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //navigationView.getMenu().getItem(0).setChecked(true);
         View headerView = navigationView.getHeaderView(0);
         LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
         headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
@@ -819,11 +822,17 @@ public class MainActivity extends AestheticActivity
             drawerToggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.slate_black));
         }
 
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
+
+        navigationView.setItemTextAppearance(R.style.AppThemeNavDrawer);
+
+
+
+
+        //long endTime = System.nanoTime();
+        //long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
         //duration = duration/1000;//to seconds
 
-        Log.d("startupTime", "Drawer Initialize: " + Long.toString(duration));
+        //Log.d("startupTime", "Drawer Initialize: " + Long.toString(duration));
 
     }
 

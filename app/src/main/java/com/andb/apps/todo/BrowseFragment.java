@@ -33,6 +33,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.ChangeBounds;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
+import me.saket.inboxrecyclerview.InboxRecyclerView;
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
 
 /**
@@ -50,7 +52,7 @@ public class BrowseFragment extends Fragment {
     public static ArrayList<Tasks> filteredTaskList = new ArrayList<>();
 
 
-    private static RecyclerView mRecyclerView;
+    public static InboxRecyclerView mRecyclerView;
     public static TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -171,7 +173,7 @@ public class BrowseFragment extends Fragment {
     public void prepareRecyclerView(View view) {
 
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.browseTaskRecycler);
+        mRecyclerView = view.findViewById(R.id.browseTaskRecycler);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -182,8 +184,13 @@ public class BrowseFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(filteredTaskList);
+        mAdapter = new TaskAdapter(filteredTaskList, TaskAdapter.FROM_BROWSE);
+        mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
+
+
+        final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_browse);
+        mRecyclerView.setExpandablePage(taskView);
 
         ViewCompat.setNestedScrollingEnabled(mRecyclerView, false);
 
@@ -204,6 +211,8 @@ public class BrowseFragment extends Fragment {
         tRecyclerView.setAdapter(tAdapter);
 
         ViewCompat.setNestedScrollingEnabled(tRecyclerView, false);
+
+
 
 
     }

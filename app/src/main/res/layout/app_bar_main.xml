@@ -24,6 +24,8 @@
             android:theme="@style/Base.Theme.MaterialComponents"
             app:backgroundTint="@color/colorPrimary"
             app:fabAlignmentMode="center"
+            app:layout_anchor="@id/tabs"
+            app:layout_anchorGravity="bottom"
             app:navigationIcon="@drawable/ic_menu_black_24dp" />
 
         <TextView

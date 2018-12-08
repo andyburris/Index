@@ -82,6 +82,7 @@ object SettingsLayout {
 
             switch("dark_theme"){
                 title = "Dark Theme"
+                iconRes = R.drawable.ic_day_night_black_24dp
             }
             switch("colored_toolbar"){
                 title = "Colored Toolbar"
@@ -108,9 +109,11 @@ object SettingsLayout {
             switch("folder_mode"){
                 title = "Folder Mode"
                 summaryRes = R.string.pref_description_filter_folder
+                iconRes = R.drawable.ic_filter_list_black_24dp
             }
             checkBox(context.resources.getString(R.string.pref_sub_folder_filter_key)){
                 titleRes = R.string.subfolder_filter_check_title
+                iconRes = R.drawable.ic_subfolder_black_24dp
             }
         }
     }
