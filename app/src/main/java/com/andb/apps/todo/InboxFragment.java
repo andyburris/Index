@@ -32,6 +32,7 @@ import com.andb.apps.todo.objects.Tasks;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.jaredrummler.cyanea.app.CyaneaFragment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
@@ -66,7 +67,7 @@ import static com.andb.apps.todo.notifications.NotifyWorker.workTag;
  */
 
 
-public class InboxFragment extends Fragment {
+public class InboxFragment extends CyaneaFragment {
 
 
     public static int filterMode = 0; //0=date, 1=alphabetical, more to come

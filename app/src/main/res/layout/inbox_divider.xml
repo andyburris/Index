@@ -2,8 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/dividerColor">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/dividerName"
@@ -13,7 +12,7 @@
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:text="DividerName"
-        android:textStyle="bold"
+        android:textAppearance="@style/Base.TextAppearance.MaterialComponents.Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

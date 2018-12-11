@@ -14,7 +14,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -23,8 +22,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -41,13 +38,12 @@ import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.notifications.NotificationHandler;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.settings.SettingsActivity;
-import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.jaredrummler.cyanea.Cyanea;
-import com.jaredrummler.cyanea.app.CyaneaActivity;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
+import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -112,6 +108,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         setSupportActionBar(toolbar);
         pagerInitialize();
         fromSettings = false;
+        subTitle = findViewById(R.id.toolbar_text);
         //themeSet(toolbar);
 
 
@@ -134,13 +131,6 @@ public class MainActivity extends CyaneaAppCompatActivity
             }
             Log.d("notificationBundle", Integer.toString(TaskList.keyList.indexOf(notifKey)));
         }
-
-
-        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-        PreferenceManager.setDefaultValues(this, R.xml.pref_theme, false);
-        PreferenceManager.setDefaultValues(this, R.xml.pref_notifications, false);
-        PreferenceManager.setDefaultValues(this, R.xml.pref_folders, false);
-
 
         fabInitialize();
 
@@ -213,15 +203,10 @@ public class MainActivity extends CyaneaAppCompatActivity
         Bitmap icon = BitmapFactory.decodeResource(getResources(),
                 R.mipmap.ic_launcher);
         int colorPrimary;
-        if (SettingsActivity.coloredToolbar) {
-            colorPrimary = SettingsActivity.themeColor;
-        } else {
-            if (SettingsActivity.darkTheme) {
-                colorPrimary = getResources().getColor(R.color.colorDarkPrimary);
-            } else {
-                colorPrimary = getResources().getColor(R.color.colorPrimary);
-            }
-        }
+
+
+        colorPrimary = getResources().getColor(R.color.cyanea_primary_reference);
+
 
         ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label, icon, colorPrimary);
         ((Activity) this).setTaskDescription(taskDescription);//set header color in recents
@@ -239,17 +224,12 @@ public class MainActivity extends CyaneaAppCompatActivity
         SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 
-        SettingsActivity.themeColor = defaultSharedPrefs.getInt("theme_color", 0x008080);
 
 
         SettingsActivity.folderMode = defaultSharedPrefs.getBoolean("folder_mode", false);
-        SettingsActivity.darkTheme = defaultSharedPrefs.getBoolean("dark_theme", false);
-        Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
-        //if (SettingsActivity.darkTheme) {
-        //    this.setTheme(R.style.AppThemeDarkMain);
-        //} else {
-        this.setTheme(R.style.AppThemeLightMain);
-        //}
+
+        this.setTheme(R.style.AppThemeGlobal);
+
 
         SettingsActivity.defaultSort = Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0"));
         InboxFragment.filterMode = SettingsActivity.defaultSort;
@@ -301,21 +281,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         return result;
     }
 
-    public void cyaneaSet(){
-        int bgcolor = getResources().getColor(R.color.white);
-        if(SettingsActivity.darkTheme){
-            bgcolor = getResources().getColor(R.color.slate_black);
-        }
-        Cyanea.getInstance().edit()
-                .primary(SettingsActivity.themeColor)
-                .accent(SettingsActivity.themeColor)
-                .background(bgcolor)
-                .apply()
-                .recreate(this);
 
-
-
-    }
 
     /*public void themeSet(Toolbar toolbar) {
 
@@ -440,7 +406,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         View headerView = navigationView.getHeaderView(0);
         LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
-        headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
+        headerColor.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.OVERLAY);
 
         Log.d("pref_resume", Boolean.toString(fromSettings));
 
@@ -449,8 +415,6 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         InboxFragment.mAdapter.notifyDataSetChanged();
         BrowseFragment.mAdapter.notifyDataSetChanged();
-
-        Log.d("darkTheme", Boolean.toString(SettingsActivity.darkTheme));
 
 
         //themeSet((Toolbar) findViewById(R.id.toolbar));
@@ -479,15 +443,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        Log.d("darkTheme", "Menu Size: " + menu.size());
-
-        if (lightText) {
-            for (int i = 0; i < menu.size() - 1; i++) {
-                Log.d("darkTheme", "Icon " + Integer.toString(i));
-                menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-            }
-        }
-
 
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -578,7 +533,7 @@ public class MainActivity extends CyaneaAppCompatActivity
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         } else if (id == R.id.nav_test) {
-            cyaneaSet();
+            startActivity(new Intent(this, CyaneaSettingsActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -725,8 +680,6 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        Log.d("prefLoad", Integer.toHexString(SettingsActivity.themeColor));
-
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -755,32 +708,18 @@ public class MainActivity extends CyaneaAppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        if (lightText) {
-            toggle.getDrawerArrowDrawable().setColor(Color.WHITE);
-        }
         drawerToggle = toggle;
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
         View headerView = navigationView.getHeaderView(0);
         LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
-        headerColor.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.OVERLAY);
+        headerColor.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.OVERLAY);
         TextView navName = headerView.findViewById(R.id.navName);
         setName(navName, true);
 
-        if (lightText) {
-            drawerToggle.getDrawerArrowDrawable().setColor(Color.WHITE);
-            navigationView.setItemTextColor(ColorStateList.valueOf(Color.WHITE));
-            navigationView.setItemIconTintList(ColorStateList.valueOf(Color.WHITE));
-
-        } else {
-            drawerToggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.slate_black));
-        }
-
-
         navigationView.setItemTextAppearance(R.style.AppThemeNavDrawer);
-
-
 
 
         //long endTime = System.nanoTime();
@@ -811,19 +750,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
     }
 
-    public static boolean lightOnBackground(int background) {
-        int color = (int) Long.parseLong(Integer.toHexString(background), 16);
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = (color >> 0) & 0xFF;
 
-
-        if ((r * 0.299 + g * 0.587 + b * 0.114) > 186) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
 
     @Override

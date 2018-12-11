@@ -22,6 +22,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+import com.jaredrummler.cyanea.Cyanea;
 
 import java.lang.reflect.Field;
 
@@ -40,7 +41,7 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
 
     boolean started = false;
 
-    public int tagColor = SettingsActivity.themeColor;
+    public int tagColor = Cyanea.getInstance().getAccent();
     public boolean subFolder;
 
     private static final int DIALOG_ID = 0;
@@ -51,11 +52,7 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //if (SettingsActivity.darkTheme) {
-        //    this.setTheme(R.style.AppThemeDark);
-        //} else {
-            this.setTheme(R.style.AppThemeLight);
-        //}
+
         setContentView(R.layout.activity_create_tag);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -116,31 +113,10 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         });
 
 
-        switchCheck();
-
 
     }
 
-    public void switchCheck() {
-        subFolderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    subFolderSwitch.getThumbDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
-                    subFolderSwitch.getTrackDrawable().setColorFilter(tagColor, PorterDuff.Mode.MULTIPLY);
-                } else {
-                    if (SettingsActivity.darkTheme) {
-                        subFolderSwitch.getThumbDrawable().setColorFilter(0xFFb9b9b9, PorterDuff.Mode.MULTIPLY);
-                        subFolderSwitch.getTrackDrawable().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.MULTIPLY);
 
-                    } else {
-                        subFolderSwitch.getThumbDrawable().setColorFilter(0xFFEEEEEE, PorterDuff.Mode.MULTIPLY);
-                        subFolderSwitch.getTrackDrawable().setColorFilter(0xFF000000, PorterDuff.Mode.MULTIPLY);
-                    }
-                }
-            }
-        });
-    }
 
 
     private void setInputTextLayoutColor(final int color, final EditText editText) {
@@ -229,7 +205,7 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
                 .title("Blank")
                 .message("Please fill in the tag name")
                 .dismissOnTapOutside()
-                .backgroundColor(SettingsActivity.themeColor)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }
@@ -240,7 +216,7 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
                 .title("Tag Exists")
                 .message("A tag with this name already exists, please choose another one")
                 .dismissOnTapOutside()
-                .backgroundColor(SettingsActivity.themeColor)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }

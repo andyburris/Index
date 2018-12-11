@@ -29,6 +29,7 @@ import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.jaredrummler.cyanea.app.CyaneaFragment;
 
 import java.util.ArrayList;
 
@@ -53,7 +54,7 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
  * Use the {@link BrowseFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BrowseFragment extends Fragment {
+public class BrowseFragment extends CyaneaFragment {
     public static ArrayList<TagLinks> blankTagLinkList = new ArrayList<>();
 
 
@@ -370,9 +371,6 @@ public class BrowseFragment extends Fragment {
             }
         });
 
-        if (SettingsActivity.darkTheme) {
-            collapseButton.setColorFilter(Color.WHITE);
-        }
     }
     private static void prepareTagAdd(View view){
         ImageView addButton = view.findViewById(R.id.tagAddButton);

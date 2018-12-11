@@ -10,6 +10,7 @@ import com.jaredrummler.android.colorpicker.ColorPanelView
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.jaredrummler.android.colorpicker.ColorPreference
+import com.jaredrummler.cyanea.Cyanea
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 
 class ColorPicker constructor(val activity: FragmentActivity): de.Maxr1998.modernpreferences.Preference("theme_color") {
@@ -17,12 +18,12 @@ class ColorPicker constructor(val activity: FragmentActivity): de.Maxr1998.moder
     override fun bindViews(holder: PreferencesAdapter.ViewHolder) {
         super.bindViews(holder)
         var cpv = (holder.widget as ColorPanelView)
-        cpv.color = SettingsActivity.themeColor
+        cpv.color = Cyanea.instance.accent
     }
 
     override fun onClick(holder: PreferencesAdapter.ViewHolder) {
         super.onClick(holder)
-        ColorPickerDialog.newBuilder().setColor(SettingsActivity.themeColor).show(activity)
+        ColorPickerDialog.newBuilder().setColor(Cyanea.instance.accent).show(activity)
     }
 
     override fun getWidgetLayoutResource(): Int = R.layout.pref_color_picker

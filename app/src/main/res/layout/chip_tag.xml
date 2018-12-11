@@ -8,9 +8,9 @@
     android:layout_height="24dp"
     android:layout_marginRight="4dp"
     android:layout_weight="1"
+
     android:checkable="false"
     android:text="Tag or Time"
-    android:textColor="@color/shadow_color"
     app:chipBackgroundColor="@android:color/transparent"
     app:chipCornerRadius="12dp"
     app:chipIcon="@drawable/ic_dot_black_24dp"

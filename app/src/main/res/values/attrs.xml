@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr format="color" name="bottomBarIconColor" />
+    <declare-styleable name="Icon">
+        <attr name="cyaneaBackground" format="integer">
+            <enum name="background" value="0"/>
+            <enum name="primary" value="1"/>
+            <enum name="accent" value="2"/>
+        </attr>
+    </declare-styleable>
 </resources>

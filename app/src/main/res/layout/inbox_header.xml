@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:paddingTop="48dp"
         android:text="# TASKS"
-        android:textColor="@color/tabSelectedTextColor"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -22,7 +21,7 @@
         android:paddingTop="16dp"
         android:text="All/Tag 1/Groceries"
         android:textAlignment="center"
-        android:textColor="@color/tabSelectedTextColor"
+
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +43,6 @@
         android:paddingRight="24dp"
         android:text="TAGS"
         android:textAppearance="@style/Base.TextAppearance.MaterialComponents.Button"
-        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

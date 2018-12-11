@@ -22,6 +22,7 @@ import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.UpdateEvent;
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.jaredrummler.cyanea.Cyanea;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -69,7 +70,7 @@ public class NotificationHandler extends Service {
             channel.setDescription(description);
 
             //we can optionally set notification LED colour
-            channel.setLightColor(SettingsActivity.themeColor);
+            channel.setLightColor(Cyanea.getInstance().getAccent());
 
             // Register the channel with the system
             NotificationManager notificationManager = (NotificationManager) ctxt.

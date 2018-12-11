@@ -32,6 +32,8 @@ import com.andrognito.flashbar.Flashbar;
 import com.fastaccess.datetimepicker.callback.DatePickerCallback;
 import com.fastaccess.datetimepicker.callback.TimePickerCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jaredrummler.cyanea.Cyanea;
+import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
@@ -49,7 +51,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-public class AddTask extends AppCompatActivity implements DatePickerCallback, TimePickerCallback {
+public class AddTask extends CyaneaAppCompatActivity implements DatePickerCallback, TimePickerCallback {
 
 
     private int position = 2;
@@ -85,16 +87,9 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //if (SettingsActivity.darkTheme) {
-        //    this.setTheme(R.style.AppThemeDark);
-        //} else {
-            this.setTheme(R.style.AppThemeLight);
-        //}
+
         setContentView(R.layout.activity_add_task);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (SettingsActivity.darkTheme) {
-            darkThemeSet(toolbar);
-        }
         setSupportActionBar(toolbar);
 
         resetTimeButton = (ImageView) findViewById(R.id.resetTimeButton);
@@ -110,9 +105,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 timeHasBeenSet = false;
             }
         });
-
-        EditText editname = (EditText) findViewById(R.id.taskName);
-        setInputTextLayoutColor(SettingsActivity.themeColor, editname);
 
         Bundle bundle = getIntent().getExtras();
         taskEditingLoaded = false;
@@ -178,66 +170,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     }
 
-    private void setInputTextLayoutColor(final int color, final EditText editText) {
-
-        editText.getBackground().setColorFilter(0xFF757575, PorterDuff.Mode.SRC_IN);
-
-
-        try {
-            // Get the cursor resource id
-            Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
-            field.setAccessible(true);
-            int drawableResId = field.getInt(editText);
-
-            // Get the editor
-            field = TextView.class.getDeclaredField("mEditor");
-            field.setAccessible(true);
-            Object editor = field.get(editText);
-
-            // Get the drawable and set a color filter
-            Drawable drawable = ContextCompat.getDrawable(editText.getContext(), drawableResId);
-            drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-            Drawable[] drawables = {drawable, drawable};
-
-            // Set the drawables
-            field = editor.getClass().getDeclaredField("mCursorDrawable");
-            field.setAccessible(true);
-            field.set(editor, drawables);
-        } catch (Exception ignored) {
-        }
-
-
-        editText.setHighlightColor(color);
-
-
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    editText.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_IN);
-                } else {
-                    editText.getBackground().setColorFilter(0xFF757575, PorterDuff.Mode.SRC_IN);
-                }
-            }
-        });
-
-
-    }
-
-    public void darkThemeSet(Toolbar toolbar) {
-        toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
-        getWindow().getDecorView().setSystemUiVisibility(0);
-
-        ImageView time = (ImageView) findViewById(R.id.timeButton);
-        ImageView date = (ImageView) findViewById(R.id.dateButton);
-        TextView dateTimeText = findViewById(R.id.dateTimeText);
-
-        time.setColorFilter(Color.WHITE);
-        date.setColorFilter(Color.WHITE);
-        dateTimeText.setTextColor(Color.WHITE);
-
-    }
 
     public void prepareItems() {
         for (int i = 0; i < position; i++) {
@@ -365,22 +297,10 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 if (isChecked) {
                     TransitionManager.beginDelayedTransition(task_layout);
                     task_layout.setVisibility(View.VISIBLE);
-                    int trackColor = SettingsActivity.themeColor;
-
-                    switch_task.getThumbDrawable().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.MULTIPLY);
-                    switch_task.getTrackDrawable().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.MULTIPLY);
 
                 } else {
                     TransitionManager.beginDelayedTransition(task_layout);
                     task_layout.setVisibility(View.GONE);
-                    if (SettingsActivity.darkTheme) {
-                        switch_task.getThumbDrawable().setColorFilter(0xFFb9b9b9, PorterDuff.Mode.MULTIPLY);
-                        switch_task.getTrackDrawable().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.MULTIPLY);
-
-                    } else {
-                        switch_task.getThumbDrawable().setColorFilter(0xFFEEEEEE, PorterDuff.Mode.MULTIPLY);
-                        switch_task.getTrackDrawable().setColorFilter(0xFF000000, PorterDuff.Mode.MULTIPLY);
-                    }
 
                 }
             }
@@ -390,10 +310,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     public void checkAddListItem() {
         ConstraintLayout addTask = (ConstraintLayout) findViewById(R.id.addButton);
-        if (SettingsActivity.darkTheme) {
-            ImageView addButton = (ImageView) findViewById(R.id.addImageButton);
-            addButton.setColorFilter(Color.WHITE);
-        }
 
         addTask.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -414,9 +330,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     public void checkAddTagItem() {
         ImageView addTag = (ImageView) findViewById(R.id.tagAddButton);
-        if (SettingsActivity.darkTheme) {
-            addTag.setColorFilter(Color.WHITE);
-        }
         addTag.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -463,8 +376,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
                         resetTimeButton.setVisibility(View.VISIBLE);
 
-                        if (SettingsActivity.darkTheme)
-                            resetTimeButton.setColorFilter(Color.WHITE);
                     }
                 }, DateTime.now().getYear(), DateTime.now().getMonthOfYear() - 1, DateTime.now().getDayOfMonth());
                 dialog.show();
@@ -511,8 +422,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                         Log.d("dateTime", taskDateTime.toString("h:mm:ss"));
 
                         resetTimeButton.setVisibility(View.VISIBLE);
-                        if (SettingsActivity.darkTheme)
-                            resetTimeButton.setColorFilter(Color.WHITE);
 
 
                     }
@@ -538,7 +447,6 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
 
     public void fabAddList() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setBackgroundTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -628,7 +536,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 .title("Blank field")
                 .message("Please fill in or remove any blank fields")
                 .dismissOnTapOutside()
-                .backgroundColor(SettingsActivity.themeColor)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }
@@ -639,7 +547,7 @@ public class AddTask extends AppCompatActivity implements DatePickerCallback, Ti
                 .title("Tag Exists")
                 .message("The tag you selected has already been added to this task")
                 .dismissOnTapOutside()
-                .backgroundColor(SettingsActivity.themeColor)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }

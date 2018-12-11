@@ -12,7 +12,7 @@
     <PreferenceCategory>
 
         <com.jaredrummler.android.colorpicker.ColorPreference
-            android:defaultValue="@color/colorAccent"
+            android:defaultValue="@color/cyanea_accent_reference"
             android:key="default_color"
             android:summary="@string/color_default_summary"
             android:title="@string/color_default_title"/>

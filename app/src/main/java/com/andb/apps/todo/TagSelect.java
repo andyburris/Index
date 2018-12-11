@@ -20,6 +20,7 @@ import com.andb.apps.todo.lists.interfaces.TagListInterface;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andrognito.flashbar.Flashbar;
+import com.jaredrummler.cyanea.Cyanea;
 
 import java.util.ArrayList;
 
@@ -51,17 +52,10 @@ public class TagSelect extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //if (SettingsActivity.darkTheme) {
-        //    this.setTheme(R.style.AppThemeDark);
-        //} else {
-            this.setTheme(R.style.AppThemeLight);
-        //}
         setContentView(R.layout.activity_tag_select);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (SettingsActivity.darkTheme)
-            darkThemeSet(toolbar);
 
         Bundle bundle = getIntent().getExtras();
         if (bundle.containsKey("isTaskCreate")) {
@@ -141,7 +135,7 @@ public class TagSelect extends AppCompatActivity {
                 .title("Tag Exists")
                 .message("The tag you selected has already been linked")
                 .dismissOnTapOutside()
-                .backgroundColorRes(R.color.colorAccent)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }
@@ -152,7 +146,7 @@ public class TagSelect extends AppCompatActivity {
                 .title("Same Tag")
                 .message("The tag you selected is the current tag. Why would you do that?")
                 .dismissOnTapOutside()
-                .backgroundColor(SettingsActivity.themeColor)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }
@@ -162,8 +156,6 @@ public class TagSelect extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_tag_select, menu);
-        if (SettingsActivity.darkTheme)
-            menu.getItem(0).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
         return true;
     }
 

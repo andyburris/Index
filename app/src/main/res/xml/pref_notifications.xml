@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <com.andb.apps.todo.settings.TimePreference
-        android:key="timePref_Key"
-        android:title="@string/pref_notif_time_title" />
-</PreferenceScreen>

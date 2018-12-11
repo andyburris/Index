@@ -2,25 +2,22 @@ package com.andb.apps.todo.settings;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.ImageView;
-import androidx.appcompat.widget.Toolbar;
 
 import com.andb.apps.todo.R;
 import com.andrognito.flashbar.Flashbar;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+import com.jaredrummler.cyanea.Cyanea;
 
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.Maxr1998.modernpreferences.PreferenceScreen;
@@ -45,9 +42,8 @@ public class SettingsActivity extends PullCollapsibleActivity implements Prefere
      * to reflect its new value.
      */
 
-    public static boolean darkTheme;
+
     public static boolean coloredToolbar;
-    public static int themeColor;
     public static boolean folderMode;
     public static boolean subFilter;
     public static boolean subtaskDefaultShow = true;
@@ -113,7 +109,7 @@ public class SettingsActivity extends PullCollapsibleActivity implements Prefere
                     }
                 })
                 .dismissOnTapOutside()
-                .backgroundColor(SettingsActivity.themeColor)
+                .backgroundColor(Cyanea.getInstance().getAccent())
                 .build();
 
     }
@@ -134,17 +130,17 @@ public class SettingsActivity extends PullCollapsibleActivity implements Prefere
 
     @Override
     public void onColorSelected(int dialogId, int color) {
-        SettingsActivity.themeColor = color;
+        Cyanea.getInstance().edit().accent(color).apply().recreate(this);
         preferencesAdapter.getCurrentScreen().get("theme_color").commitInt(color);
-        ((ColorPanelView)findViewById(R.id.colorPanel)).setColor(SettingsActivity.themeColor);
+        ((ColorPanelView) findViewById(R.id.colorPanel)).setColor(Cyanea.getInstance().getAccent());
         preferencesAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onBackPressed() {
-        if(preferencesAdapter.isInSubScreen()){
+        if (preferencesAdapter.isInSubScreen()) {
             preferencesAdapter.goBack();
-        }else {
+        } else {
             super.onBackPressed();
         }
     }

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -72,7 +73,7 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
         public ImageView moreTags;
         public LinearLayout tagEncloser;
 
-        public ConstraintLayout inboxItemBackground;
+        public CardView inboxItemBackground;
 
         public TextView dividerName;
 
@@ -150,12 +151,6 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
 
         if (isSelected) {
             holder.inboxItemBackground.setBackgroundColor(Color.GRAY);
-        } else if (viewType == TASK_VIEW_ITEM) {
-            if (SettingsActivity.darkTheme) {
-                holder.inboxItemBackground.setBackgroundColor(0xFF424242);
-            } else {
-                holder.inboxItemBackground.setBackgroundColor(Color.WHITE);
-            }
         }
 
 

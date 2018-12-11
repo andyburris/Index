@@ -124,8 +124,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             slide.setMode(Visibility.MODE_IN);
             slide.setDuration(1000);
 
-            if (SettingsActivity.darkTheme)
-                holder.removeButton.setColorFilter(Color.WHITE);
+
             TransitionManager.beginDelayedTransition(holder.browseLayout, new AutoTransition()
             );
 

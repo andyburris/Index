@@ -96,8 +96,6 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
                 holder.editText.setText(taskList.get(realPosition));
             }
 
-            setInputTextLayoutColor(SettingsActivity.themeColor, holder.editText);
-
             holder.editText.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {

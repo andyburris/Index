@@ -19,20 +19,16 @@ public class Archive extends PullCollapsibleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //if (SettingsActivity.darkTheme) {
-        //    this.setTheme(R.style.AppThemeDark);
-        //} else {
+
             this.setTheme(R.style.AppThemeLightCollapse);
-        //}
+
         setContentView(R.layout.activity_archive);
         expandFromTop();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
         setSupportActionBar(toolbar);
 
-        if (SettingsActivity.darkTheme) {
-            darkThemeSet(toolbar);
-        }
+
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

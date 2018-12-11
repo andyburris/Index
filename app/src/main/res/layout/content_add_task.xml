@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -17,22 +18,21 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                >
 
-
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/taskName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
                     android:hint="Name" />
-            </LinearLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -110,7 +110,6 @@
                                 android:layout_marginStart="16dp"
                                 android:layout_marginTop="8dp"
                                 android:background="@android:color/transparent"
-                                android:tint="@color/cardview_dark_background"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
@@ -147,7 +146,7 @@
 
                         </androidx.recyclerview.widget.RecyclerView>
 
-                        <ImageView
+                        <com.andb.apps.todo.views.Icon
                             android:id="@+id/tagAddButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -155,8 +154,8 @@
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="16dp"
                             android:background="@android:color/transparent"
-                            android:tint="@color/cardview_dark_background"
-                            app:srcCompat="@drawable/ic_add_tag_black_24dp" />
+                            app:srcCompat="@drawable/ic_add_tag_black_24dp"
+                            custom:cyaneaBackground="background"/>
 
                     </LinearLayout>
 
@@ -177,12 +176,11 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:text="@string/add_time_text"
-                    android:textColor="@android:color/background_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <com.andb.apps.todo.views.Icon
                     android:id="@+id/resetTimeButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -191,9 +189,10 @@
                     app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
                     app:layout_constraintRight_toLeftOf="@+id/timeButton"
                     app:layout_constraintTop_toTopOf="@+id/dateTimeText"
-                    app:srcCompat="@drawable/ic_refresh_black_24dp" />
+                    app:srcCompat="@drawable/ic_refresh_black_24dp"
+                    custom:cyaneaBackground="background"/>
 
-                <ImageView
+                <com.andb.apps.todo.views.Icon
                     android:id="@+id/timeButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -201,9 +200,10 @@
                     app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
                     app:layout_constraintRight_toLeftOf="@+id/dateButton"
                     app:layout_constraintTop_toTopOf="@+id/dateTimeText"
-                    app:srcCompat="@drawable/ic_access_time_black_24dp" />
+                    app:srcCompat="@drawable/ic_access_time_black_24dp"
+                    custom:cyaneaBackground="background"/>
 
-                <ImageView
+                <com.andb.apps.todo.views.Icon
                     android:id="@+id/dateButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -211,7 +211,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/dateTimeText"
-                    app:srcCompat="@drawable/ic_event_black_24dp" />
+                    app:srcCompat="@drawable/ic_event_black_24dp"
+                    custom:cyaneaBackground="background"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
