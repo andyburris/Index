@@ -29,16 +29,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
 
 public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHolder> {
 
-    public List<Tasks> taskList = new ArrayList<>();
+    public List<Tasks> taskList;
 
     private Context context;
 
@@ -61,50 +65,39 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     public int inboxBrowseArchive;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView name;
-        public CheckBox item1;
-        public CheckBox item2;
-        public CheckBox item3;
-        public Chip chip1;
-        public Chip chip2;
-        public Chip chip3;
-        public LinearLayout encloser;
-        public ImageView more;
-        public ImageView moreTags;
-        public LinearLayout tagEncloser;
+        @Nullable @BindView(R.id.taskName) TextView name;
 
-        public CardView inboxItemBackground;
+        @Nullable @BindView(R.id.item1) CheckBox item1;
 
-        public TextView dividerName;
+        @Nullable @BindView(R.id.item2) CheckBox item2;
 
-        public ImageView toggle;
+        @Nullable @BindView(R.id.item3) CheckBox item3;
+
+        @Nullable @BindView(R.id.chip1) Chip chip1;
+
+        @Nullable @BindView(R.id.chip2) Chip chip2;
+
+        @Nullable @BindView(R.id.chip3) Chip chip3;
+
+        @Nullable @BindView(R.id.checklistEncloser) LinearLayout encloser;
+
+        @Nullable @BindView(R.id.itemsMore) ImageView more;
+
+        @Nullable @BindView(R.id.moreTags) ImageView moreTags;
+
+        @Nullable @BindView(R.id.tagOnTaskLayout) LinearLayout tagEncloser;
+
+        @Nullable @BindView(R.id.inboxCard) CardView inboxItemBackground;
+
+        @Nullable @BindView(R.id.dividerName) TextView dividerName;
+
+        @Nullable @BindView(R.id.sublistIcon) ImageView toggle;
 
         //public NestedScrollView scrollView;
 
         public MyViewHolder(View view) {
             super(view);
-
-
-            dividerName = view.findViewById(R.id.dividerName);
-
-            name  = view.findViewById(R.id.taskName);
-            item1 = view.findViewById(R.id.item1);
-            item2 = view.findViewById(R.id.item2);
-            item3 = view.findViewById(R.id.item3);
-            chip1 = view.findViewById(R.id.chip1);
-            chip2 = view.findViewById(R.id.chip2);
-            chip3 = view.findViewById(R.id.chip3);
-
-
-            inboxItemBackground =  view.findViewById(R.id.inboxCard);
-
-            encloser = view.findViewById(R.id.checklistEncloser);
-            tagEncloser = view.findViewById(R.id.tagOnTaskLayout);
-            more = view.findViewById(R.id.itemsMore);
-            moreTags = view.findViewById(R.id.moreTags);
-
-
-            toggle = view.findViewById(R.id.sublistIcon);
+            ButterKnife.bind(this, view);
 
         }
 

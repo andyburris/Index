@@ -11,7 +11,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="62dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,13 +21,13 @@
             android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                >
+                app:boxStrokeColor="@color/cyanea_accent_reference">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/taskName"
@@ -55,10 +57,10 @@
                             android:id="@+id/switch_task"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
                             android:layout_marginLeft="20dp"
-                            android:layout_marginRight="16dp"
                             android:layout_marginTop="16dp"
+                            android:layout_marginRight="16dp"
+                            android:layout_marginBottom="8dp"
                             android:layout_weight="1"
                             android:text="List" />
                     </LinearLayout>
@@ -89,9 +91,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:paddingBottom="16dp"
                             android:paddingStart="4dp"
-                            android:paddingTop="16dp">
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp">
 
                             <TextView
                                 android:id="@+id/textView3"
@@ -113,7 +115,8 @@
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:srcCompat="@drawable/ic_add_box_black_24dp" />
+                                app:srcCompat="@drawable/ic_add_box_black_24dp"
+                                android:contentDescription="TODO" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -150,12 +153,12 @@
                             android:id="@+id/tagAddButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="16dp"
+                            android:layout_marginBottom="16dp"
                             android:background="@android:color/transparent"
                             app:srcCompat="@drawable/ic_add_tag_black_24dp"
-                            custom:cyaneaBackground="background"/>
+                            custom:cyaneaIconBackground="background" />
 
                     </LinearLayout>
 
@@ -167,8 +170,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="8dp"
-                android:paddingStart="8dp">
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
 
                 <TextView
                     android:id="@+id/dateTimeText"
@@ -190,29 +193,31 @@
                     app:layout_constraintRight_toLeftOf="@+id/timeButton"
                     app:layout_constraintTop_toTopOf="@+id/dateTimeText"
                     app:srcCompat="@drawable/ic_refresh_black_24dp"
-                    custom:cyaneaBackground="background"/>
+                    custom:cyaneaIconBackground="background" />
 
                 <com.andb.apps.todo.views.Icon
                     android:id="@+id/timeButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:alpha=".54"
                     android:padding="16dp"
                     app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
                     app:layout_constraintRight_toLeftOf="@+id/dateButton"
                     app:layout_constraintTop_toTopOf="@+id/dateTimeText"
                     app:srcCompat="@drawable/ic_access_time_black_24dp"
-                    custom:cyaneaBackground="background"/>
+                    custom:cyaneaIconBackground="background" />
 
                 <com.andb.apps.todo.views.Icon
                     android:id="@+id/dateButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:alpha=".54"
                     android:padding="16dp"
                     app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/dateTimeText"
                     app:srcCompat="@drawable/ic_event_black_24dp"
-                    custom:cyaneaBackground="background"/>
+                    custom:cyaneaIconBackground="background" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 

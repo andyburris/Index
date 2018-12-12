@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -443,6 +444,20 @@ public class MainActivity extends CyaneaAppCompatActivity
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+
+        for (int i = 0; i<menu.size(); i++){
+            try {
+                Drawable drawable = menu.getItem(i).getIcon().mutate();
+                if (Utilities.lightOnBackground(Cyanea.getInstance().getPrimary())) {
+                    drawable.setColorFilter(Utilities.colorFromAlpha(Color.WHITE, getCyanea().getPrimary(), 0.8f), PorterDuff.Mode.SRC_ATOP);
+                } else {
+                    drawable.setColorFilter(Utilities.colorFromAlpha(Color.BLACK, getCyanea().getPrimary(),0.54f), PorterDuff.Mode.SRC_ATOP);
+                }
+                menu.getItem(i).setIcon(drawable);
+             }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
 
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
