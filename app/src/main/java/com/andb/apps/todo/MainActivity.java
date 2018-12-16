@@ -110,6 +110,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         pagerInitialize();
         fromSettings = false;
         subTitle = findViewById(R.id.toolbar_text);
+        getWindow().setStatusBarColor(0x33333333);
         //themeSet(toolbar);
 
 
@@ -548,7 +549,7 @@ public class MainActivity extends CyaneaAppCompatActivity
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         } else if (id == R.id.nav_test) {
-            startActivity(new Intent(this, CyaneaSettingsActivity.class));
+            startActivity(new Intent(this, TestActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

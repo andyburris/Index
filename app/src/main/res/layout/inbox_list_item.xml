@@ -1,149 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/inboxCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:theme="@style/AppThemeGlobal">
+    android:elevation="0dp"
+    android:theme="@style/AppThemeGlobal"
+    android:visibility="visible">
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        <com.andb.apps.todo.views.Icon
+            android:id="@+id/sublistIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:alpha="0.54"
+            android:paddingLeft="16dp"
+            android:src="@drawable/list_dropdown_selector"
+            android:visibility="visible"
+            app:cyaneaIconBackground="background"
+            app:layout_constraintBottom_toBottomOf="@+id/taskName"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/task_top_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+    <com.andb.apps.todo.views.CyaneaTextView
+        android:id="@+id/taskName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:singleLine="true"
+        android:text="Task Name really long please work"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textSize="16sp"
+        android:visibility="visible"
+        app:cyaneaTextBackground="background"
+        app:layout_constraintEnd_toStartOf="@+id/chipGroup"
+        app:layout_constraintStart_toEndOf="@+id/sublistIcon"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <com.andb.apps.todo.views.Icon
-                android:id="@+id/sublistIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_weight="0"
-                app:srcCompat="@drawable/list_dropdown_selector"
-                app:cyaneaIconBackground="background"
-                android:alpha="0.54"/>
+    <com.andb.apps.todo.views.BetterChipGroup
+        android:id="@+id/chipGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
+        android:clipChildren="false"
+        android:paddingLeft="8dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/taskName"
+        app:layout_constraintEnd_toStartOf="@+id/moreTags"
+        app:layout_constraintTop_toTopOf="@+id/taskName"
+        app:singleLine="true"
+        custom:align="right"
+        custom:overflowChips="cut">
 
-            <com.andb.apps.todo.views.CyaneaTextView
-                android:id="@+id/taskName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_weight="0"
-                android:text="Task Name"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:textSize="16sp"
-                app:cyaneaTextBackground="background"/>
+        <include
+            android:id="@+id/chip1"
+            layout="@layout/chip_tag"
+            android:layout_width="wrap_content"
+            android:visibility="gone" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+        <include
+            android:id="@+id/chip2"
+            layout="@layout/chip_tag"
+            android:layout_width="wrap_content"
+            android:visibility="gone" />
 
-            <LinearLayout
-                android:id="@+id/tagOnTaskLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="8dp"
-                android:orientation="horizontal"
-                android:visibility="visible">
+        <include
+            android:id="@+id/chip3"
+            layout="@layout/chip_tag"
+            android:layout_width="wrap_content"
+            android:visibility="visible" />
+    </com.andb.apps.todo.views.BetterChipGroup>
+
+    <com.andb.apps.todo.views.Icon
+        android:id="@+id/moreTags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
+        android:paddingRight="8dp"
+        android:src="@drawable/ic_more_horiz_black_24dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/taskName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/taskName" />
 
 
-                <include
-                    android:id="@+id/chip1"
-                    layout="@layout/chip_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="4" />
+    <CheckBox
+        android:id="@+id/item1"
+        layout="@layout/inbox_checklist_list_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="CheckBox"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/item2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/taskName" />
 
-                <include
-                    android:id="@+id/chip2"
-                    layout="@layout/chip_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1" />
+    <CheckBox
+        android:id="@+id/item2"
+        layout="@layout/inbox_checklist_list_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="CheckBox"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/item3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item1" />
 
-                <include
-                    android:id="@+id/chip3"
-                    layout="@layout/chip_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1" />
+    <CheckBox
+        android:id="@+id/item3"
+        layout="@layout/inbox_checklist_list_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="CheckBox"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/moreTasks"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item2" />
 
-                <ImageView
-                    android:id="@+id/moreTags"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_weight="0"
-                    app:srcCompat="@drawable/ic_more_horiz_black_24dp" />
+    <com.andb.apps.todo.views.Icon
+        android:id="@+id/moreTasks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:paddingTop="8dp"
+        android:src="@drawable/ic_more_horiz_black_24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/listitempadding"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item3" />
 
-            </LinearLayout>
-        </LinearLayout>
+        <Space
+            android:id="@+id/listitempadding"
+            android:layout_width="wrap_content"
+            android:layout_height="12dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/list_divider" />
 
         <View
             android:id="@+id/list_divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?android:attr/listDivider"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/checklistEncloser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/task_top_layout">
 
-            <include
-                android:id="@+id/item1"
-                layout="@layout/inbox_checklist_list_item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="visible" />
-
-            <include
-                android:id="@+id/item2"
-                layout="@layout/inbox_checklist_list_item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="visible" />
-
-            <include
-                android:id="@+id/item3"
-                layout="@layout/inbox_checklist_list_item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/itemsMore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_more_horiz_black_24dp" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

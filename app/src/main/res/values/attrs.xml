@@ -14,4 +14,18 @@
             <enum name="accent" value="2"/>
         </attr>
     </declare-styleable>
+    <declare-styleable name="BetterChipGroup">
+        <attr name="align" format="integer">
+            <enum name="left" value="0"/>
+            <enum name="right" value="1"/>
+            <enum name="center" value="2"/>
+        </attr>
+        <attr name="overflowChips" format="integer">
+            <enum name="cut" value="0"/>
+            <enum name="clip" value="1"/>
+            <enum name="wrap" value="2"/>
+        </attr>
+    </declare-styleable>
+
+    <attr name="secondaryTextAlpha" format="float">0.7</attr>
 </resources>

@@ -64,6 +64,11 @@
             </intent-filter>
 
         </activity>
+        <activity android:name=".TestActivity"
+            android:label="Test"
+            android:theme="@style/AppThemeGlobal"
+            android:exported="true"
+            />
 
         <service android:name=".notifications.NotificationHandler" />
 

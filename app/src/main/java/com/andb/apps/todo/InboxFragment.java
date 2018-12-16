@@ -336,7 +336,7 @@ public class InboxFragment extends CyaneaFragment {
                 } else if (taskDateTime.isBefore(DateTime.now().plusWeeks(1).minusDays(1).withTime(23, 59, 59, 999))) {
                     if (thisWeek) {
                         Log.d("addDivider", "adding WEEK from " + task.getListName() + ", " + task.getDateTime().toString() + " at position " + Integer.toString(i));
-                        Tasks tasks = new Tasks("WEEK", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusDays(1)), false);
+                        Tasks tasks = new Tasks("WEEK", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().withTime(23, 59, 59, 999)), false);
 
                         FilteredLists.inboxTaskList.add(i, tasks);
 
@@ -346,7 +346,7 @@ public class InboxFragment extends CyaneaFragment {
                 } else if (taskDateTime.isBefore(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999))) {
                     if (thisMonth) {
                         Log.d("addDivider", "adding MONTH from " + task.getListName() + ", " + task.getDateTime().toString());
-                        Tasks tasks = new Tasks("MONTH", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusWeeks(1)), false);
+                        Tasks tasks = new Tasks("MONTH", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(23, 59, 59, 999)), false);
 
                         FilteredLists.inboxTaskList.add(i, tasks);
 
@@ -356,7 +356,7 @@ public class InboxFragment extends CyaneaFragment {
                 } else if (taskDateTime.isAfter(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999))) {
                     if (future) {
                         Log.d("addDivider", "adding FUTURE from " + task.getListName() + ", " + task.getDateTime().toString());
-                        Tasks tasks = new Tasks("FUTURE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusMonths(1)), false);
+                        Tasks tasks = new Tasks("FUTURE", new ArrayList(), new ArrayList(), new ArrayList(), new DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999)), false);
 
                         FilteredLists.inboxTaskList.add(i, tasks);
 

@@ -12,6 +12,7 @@ import com.andrognito.flashbar.Flashbar;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.jaredrummler.cyanea.Cyanea;
+import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -73,6 +74,16 @@ public class SettingsActivity extends PullCollapsibleActivity implements Prefere
         prefView.setAdapter(preferencesAdapter);
 
         PreferenceScreen preferenceScreen = SettingsLayout.INSTANCE.createRootScreen(this);
+        Intent themeIntent = new Intent(this, CyaneaSettingsActivity.class);
+        preferencesAdapter.setOnScreenChangeListener(new PreferencesAdapter.OnScreenChangeListener() {
+            @Override
+            public void onScreenChanged(@NotNull PreferenceScreen preferenceScreen, boolean b) {
+                if(preferenceScreen.getTitle().equals("Theme")){
+                    startActivity(themeIntent);
+                    preferencesAdapter.goBack();
+                }
+            }
+        });
 
         preferencesAdapter.setRootScreen(preferenceScreen);
 

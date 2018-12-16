@@ -15,6 +15,8 @@ import com.andb.apps.todo.objects.Tasks;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.jaredrummler.cyanea.Cyanea;
+import com.jaredrummler.cyanea.app.CyaneaFragment;
 
 import java.util.ArrayList;
 
@@ -22,11 +24,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
 
-public class TaskView extends Fragment {
+public class TaskView extends CyaneaFragment {
 
     int position;
     int inboxBrowseArchive; //true is inbox, false is archive
@@ -65,19 +69,23 @@ public class TaskView extends Fragment {
                 taskList = FilteredLists.inboxTaskList;
                 break;
         }
+
+
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.activity_task_view, (ViewGroup) container.getParent(), false);
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
+        CoordinatorLayout bg = view.findViewById(R.id.task_view_parent);
+        bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 1.2f));
         collapseAndChangeAppBar((BottomAppBar) getActivity().findViewById(R.id.toolbar), (FloatingActionButton) getActivity().findViewById(R.id.fab), (TabLayout) getActivity().findViewById(R.id.tabs));
 
 

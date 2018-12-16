@@ -6,7 +6,10 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.View
+import android.widget.CompoundButton
+import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.cardview.widget.CardView
+import com.andb.apps.todo.views.TaskListItem
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
@@ -34,7 +37,7 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
                 override fun getType(): Class<FloatingActionButton> = FloatingActionButton::class.java
                 override fun process(view: FloatingActionButton, attrs: AttributeSet?, cyanea: Cyanea) {
                     view.setBackgroundColor(Cyanea.instance.accent)
-                    view.setColorFilter(if (Utilities.lightOnBackground(Cyanea.instance.accent)) Color.WHITE else Color.BLACK)
+                    view.setColorFilter(colorAlpha(Cyanea.instance.accent, 1f, 1f))
                 }
             },
 
@@ -42,14 +45,21 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
                 override fun getType(): Class<BottomAppBar> = BottomAppBar::class.java
                 override fun process(view: BottomAppBar, attrs: AttributeSet?, cyanea: Cyanea) {
                     var drawable = view.navigationIcon?.mutate()
-                    drawable?.setColorFilter((if (Utilities.lightOnBackground(Cyanea.instance.primary)) Utilities.colorWithAlpha(Color.WHITE, 0.8f) else Utilities.colorWithAlpha(Color.BLACK, 0.54f)), PorterDuff.Mode.SRC_ATOP)
+                    drawable?.setColorFilter(colorAlpha(Cyanea.instance.primary, .8f, .54f), PorterDuff.Mode.SRC_ATOP)
                     view.navigationIcon = drawable
 
                     drawable = view.overflowIcon?.mutate()
-                    drawable?.setColorFilter((if (Utilities.lightOnBackground(Cyanea.instance.primary)) Utilities.colorWithAlpha(Color.WHITE, 0.8f) else Utilities.colorWithAlpha(Color.BLACK, 0.54f)), PorterDuff.Mode.SRC_ATOP)
+                    drawable?.setColorFilter(colorAlpha(Cyanea.instance.primary, .8f, .54f), PorterDuff.Mode.SRC_ATOP)
                     view.overflowIcon = drawable
                 }
 
+            },
+
+            object : CyaneaViewProcessor<AppCompatCheckBox>(){
+                override fun getType(): Class<AppCompatCheckBox> = AppCompatCheckBox::class.java
+                override fun process(view: AppCompatCheckBox, attrs: AttributeSet?, cyanea: Cyanea) {
+                    view.setTextColor(ColorStateList.valueOf(colorAlpha(Cyanea.instance.backgroundColor, 0.8f, 0.54f)))
+                }
             }
 
 
@@ -59,4 +69,11 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
             // Add a decorator to apply custom attributes to any view
             FontDecorator()
     )
+
+    fun colorAlpha(bg: Int, aLight: Float, aDark: Float): Int{
+        return if (Utilities.lightOnBackground(bg))
+            Utilities.colorWithAlpha(Color.WHITE, aLight)
+        else
+            Utilities.colorWithAlpha(Color.BLACK, aDark)
+    }
 }
