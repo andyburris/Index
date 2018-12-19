@@ -11,86 +11,42 @@
     android:visibility="visible">
 
 
-        <com.andb.apps.todo.views.Icon
-            android:id="@+id/sublistIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:alpha="0.54"
-            android:paddingLeft="16dp"
-            android:src="@drawable/list_dropdown_selector"
-            android:visibility="visible"
-            app:cyaneaIconBackground="background"
-            app:layout_constraintBottom_toBottomOf="@+id/taskName"
-            app:layout_constraintTop_toTopOf="parent" />
+    <com.andb.apps.todo.views.Icon
+        android:id="@+id/sublistIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:alpha="0.54"
+        android:paddingLeft="16dp"
+        android:src="@drawable/list_dropdown_selector"
+        android:visibility="visible"
+        app:cyaneaIconBackground="background"
+        app:layout_constraintBottom_toBottomOf="@+id/topLayout"
+        app:layout_constraintTop_toTopOf="@+id/topLayout" />
 
-    <com.andb.apps.todo.views.CyaneaTextView
-        android:id="@+id/taskName"
+    <com.andb.apps.todo.views.ItemViewTitleTags
+        android:id="@+id/topLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:ellipsize="end"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:singleLine="true"
-        android:text="Task Name really long please work"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:textSize="16sp"
-        android:visibility="visible"
-        app:cyaneaTextBackground="background"
-        app:layout_constraintEnd_toStartOf="@+id/chipGroup"
+        app:layout_constraintEnd_toStartOf="@+id/moreTags"
         app:layout_constraintStart_toEndOf="@+id/sublistIcon"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.andb.apps.todo.views.BetterChipGroup
-        android:id="@+id/chipGroup"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginEnd="8dp"
-        android:clipChildren="false"
-        android:paddingLeft="8dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/taskName"
-        app:layout_constraintEnd_toStartOf="@+id/moreTags"
-        app:layout_constraintTop_toTopOf="@+id/taskName"
-        app:singleLine="true"
-        custom:align="right"
-        custom:overflowChips="cut">
-
-        <include
-            android:id="@+id/chip1"
-            layout="@layout/chip_tag"
-            android:layout_width="wrap_content"
-            android:visibility="gone" />
-
-        <include
-            android:id="@+id/chip2"
-            layout="@layout/chip_tag"
-            android:layout_width="wrap_content"
-            android:visibility="gone" />
-
-        <include
-            android:id="@+id/chip3"
-            layout="@layout/chip_tag"
-            android:layout_width="wrap_content"
-            android:visibility="visible" />
-    </com.andb.apps.todo.views.BetterChipGroup>
 
     <com.andb.apps.todo.views.Icon
         android:id="@+id/moreTags"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:paddingStart="8dp"
         android:paddingRight="8dp"
         android:src="@drawable/ic_more_horiz_black_24dp"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/taskName"
+        app:layout_constraintBottom_toBottomOf="@+id/topLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/taskName" />
+        app:layout_constraintTop_toTopOf="@+id/topLayout" />
 
 
     <CheckBox
@@ -105,7 +61,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/item2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/taskName" />
+        app:layout_constraintTop_toBottomOf="@+id/topLayout" />
 
     <CheckBox
         android:id="@+id/item2"

@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.lists.ArchiveTaskList;
 import com.andb.apps.todo.objects.Tasks;
+import com.andb.apps.todo.views.CyaneaTextView;
+import com.andb.apps.todo.views.Icon;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class TaskView extends CyaneaFragment {
 
@@ -73,6 +76,11 @@ public class TaskView extends CyaneaFragment {
 
     }
 
+    @BindView(R.id.task_view_task_name) TextView task_title;
+    @BindView(R.id.taskViewTimeText) TextView time_text;
+    @BindView(R.id.taskViewTimeIcon) Icon time_icon;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -83,19 +91,30 @@ public class TaskView extends CyaneaFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ButterKnife.bind(this, view);
 
         CoordinatorLayout bg = view.findViewById(R.id.task_view_parent);
         bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 1.2f));
         collapseAndChangeAppBar((BottomAppBar) getActivity().findViewById(R.id.toolbar), (FloatingActionButton) getActivity().findViewById(R.id.fab), (TabLayout) getActivity().findViewById(R.id.tabs));
 
+        Tasks task = taskList.get(position);
 
-        Log.d("onePosUpError", taskList.get(position).getListName());
+        Log.d("onePosUpError", task.getListName());
 
 
-        TextView task_title = view.findViewById(R.id.task_view_task_name);
-        task_title.setText(taskList.get(position).getListName().toUpperCase());
+        task_title.setText(task.getListName().toUpperCase());
 
-        prepareRecyclerView(view);
+        if(!task.isListTime()){ //no time
+            time_text.setVisibility(View.GONE);
+            time_icon.setVisibility(View.GONE);
+        }else if (task.getDateTime().getSecondOfMinute() == 59){ //date only
+            time_text.setText(task.getDateTime().toString("EEEE, MMMM d"));
+            time_icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_event_black_24dp));
+        }else {
+            time_text.setText(task.getDateTime().toString("hh:mm | EEEE, MMMM d"));
+        }
+
+        prepareRecyclerView(view, task);
 
 
     }
@@ -133,7 +152,7 @@ public class TaskView extends CyaneaFragment {
     }
 
 
-    public void prepareRecyclerView(View view) {
+    public void prepareRecyclerView(View view, Tasks task) {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.taskViewRecycler);
 
         // use this setting to improve performance if you know that changes
@@ -145,7 +164,7 @@ public class TaskView extends CyaneaFragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskViewAdapter(taskList.get(position).getAllListItems(), position, taskList);
+        mAdapter = new TaskViewAdapter(task.getAllListItems(), position, taskList);
         mRecyclerView.setAdapter(mAdapter);
 
         tRecyclerView = (RecyclerView) view.findViewById(R.id.taskViewTagRecycler);
@@ -159,7 +178,7 @@ public class TaskView extends CyaneaFragment {
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)
-        tAdapter = new TaskViewTagAdapter(taskList.get(position).getAllListTags());
+        tAdapter = new TaskViewTagAdapter(task.getAllListTags());
         tRecyclerView.setAdapter(tAdapter);
     }
 

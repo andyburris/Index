@@ -381,10 +381,6 @@ public class AddTask extends CyaneaAppCompatActivity implements DatePickerCallba
                 dialog.show();
 
 
-//                DatePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
-//                        .withMinDate(Calendar.getInstance().getTimeInMillis()))
-//                        .show(getSupportFragmentManager(), "DatePickerFragmentDialog");
-
             }
         });
 

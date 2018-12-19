@@ -27,8 +27,8 @@ import java.util.*
 
 class TaskListItem : ConstraintLayout {
 
-    constructor(context: Context): super(context)
-    constructor(context: Context, attributeSet: AttributeSet): super(context, attributeSet)
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
     lateinit var task: Tasks
     private val STATE_ZERO = intArrayOf(R.attr.state_on, -R.attr.state_off)
@@ -43,9 +43,8 @@ class TaskListItem : ConstraintLayout {
     fun setup(tasks: Tasks, pos: Int, inboxBrowseArchive: Int) {
         task = tasks
         setTasks()
-        setTags()
-        //measureTitleTagBalance()
-        taskName.text = task.listName
+        topLayout.setTags(tasks)
+        topLayout.setTitle(task.listName)
         inboxCard.setOnClickListener {
             val bundle = Bundle()
             bundle.putInt("pos", pos)
@@ -70,41 +69,6 @@ class TaskListItem : ConstraintLayout {
         setCyaneaBackground(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
     }
 
-    fun measureTitleTagBalance() {
-        addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            var barrier: Int
-
-            //check if non-clipped bounds intersect
-            var nameRight: Int = taskName.right
-            var chipsLeft: Int = chipGroup.right
-
-            //if intersect, find balance point
-            if (nameRight > chipsLeft) {
-                barrier = chipsLeft + (nameRight - chipsLeft) / 2
-
-
-                var lastLeft = moreTags.left
-                //cut chips to fit balance
-                chipGroup.left = barrier
-                for (i in chipGroup.children) {
-                    if (i.left < barrier) {
-                        i.visibility = View.INVISIBLE
-                    } else if (i.left < lastLeft) { // leftmost visible for text
-                        lastLeft = i.left
-                    }
-                }
-
-                //cut text
-                taskName.width = barrier - taskName.left
-
-
-            }
-        }
-
-
-
-
-    }
 
 
     private fun setTasks() {
@@ -195,45 +159,7 @@ class TaskListItem : ConstraintLayout {
 
     }
 
-    private fun setTags() {
 
-        val chip1: Chip = chipGroup[0] as Chip
-        val chip2: Chip = chipGroup[1] as Chip
-        val chip3: Chip = chipGroup[2] as Chip
-
-
-        if (task.isListTags) {
-            Log.d("tags", "multipleTags")
-
-
-            val tagsList = ArrayList(Arrays.asList<Chip>(chip3, chip2, chip1))
-
-            for (i in tagsList.indices) {
-
-                if (i < task.allListTags.size) {
-                    val tagtemp = TagList.getItem(task.getListTags(i))
-                    val chiptemp = tagsList[i]
-
-                    chiptemp.text = tagtemp.tagName
-                    val drawable = chiptemp.chipIcon!!.mutate()
-                    drawable.setColorFilter(tagtemp.tagColor, PorterDuff.Mode.SRC_ATOP)
-                    chiptemp.chipIcon = drawable
-                    chiptemp.chipBackgroundColor = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-                    chiptemp.visibility = View.VISIBLE
-
-                } else {
-                    tagsList[i].visibility = View.INVISIBLE
-                }
-
-            }
-
-
-        } else {
-            chipGroup.visibility = View.GONE
-            moreTags.visibility = View.GONE
-        }
-
-    }
 
     fun setCyaneaBackground(color: Int) {
         var cl: ConstraintLayout = findViewById(R.id.inboxCard)
