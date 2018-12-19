@@ -95,7 +95,7 @@ public class TaskView extends CyaneaFragment {
 
         CoordinatorLayout bg = view.findViewById(R.id.task_view_parent);
         bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 1.2f));
-        collapseAndChangeAppBar((BottomAppBar) getActivity().findViewById(R.id.toolbar), (FloatingActionButton) getActivity().findViewById(R.id.fab), (TabLayout) getActivity().findViewById(R.id.tabs));
+        collapseAndChangeAppBar(getActivity().findViewById(R.id.toolbar), getActivity().findViewById(R.id.fab), getActivity().findViewById(R.id.tabs));
 
         Tasks task = taskList.get(position);
 

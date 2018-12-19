@@ -15,7 +15,7 @@
         android:visibility="visible"
         app:barrierAllowsGoneWidgets="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrierLeft"
+        app:layout_constraintEnd_toStartOf="@+id/chip2"
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
@@ -23,12 +23,11 @@
         layout="@layout/chip_tag"
         android:layout_width="0dp"
         android:layout_height="24dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrierMiddle"
+        app:layout_constraintEnd_toStartOf="@+id/chip3"
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
@@ -36,20 +35,19 @@
         layout="@layout/chip_tag"
         android:layout_width="0dp"
         android:layout_height="24dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/barrierRight"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.andb.apps.todo.views.CyaneaTextView
         android:id="@+id/taskName2"
         android:layout_width="0dp"
         android:layout_height="51dp"
+        android:alpha=".70"
         android:ellipsize="end"
         android:paddingStart="16dp"
         android:paddingTop="16dp"
@@ -62,32 +60,8 @@
         android:visibility="visible"
         app:cyaneaTextBackground="background"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="0dp" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="end"
-        app:constraint_referenced_ids="taskName2"
-        tools:layout_editor_absoluteX="411dp" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierMiddle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="end"
-        app:constraint_referenced_ids="taskName2,chip1"
-        tools:layout_editor_absoluteX="411dp"></androidx.constraintlayout.widget.Barrier>
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="end"
-        app:constraint_referenced_ids="taskName2,chip2"
-        tools:layout_editor_absoluteX="411dp" />
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

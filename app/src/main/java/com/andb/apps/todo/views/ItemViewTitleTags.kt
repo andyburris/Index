@@ -22,6 +22,8 @@ class ItemViewTitleTags : ConstraintLayout{
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
+    var chipsVisible = 3
+
     init {
         inflate(context, R.layout.view_title_tags, this)
     }
@@ -29,6 +31,27 @@ class ItemViewTitleTags : ConstraintLayout{
         taskName2.text = name
     }
     fun setOverflow(){
+        addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            var nameRight = taskName2.right
+            var c1Left = chip1.left
+            var c2Left = chip2.left
+            var c3Left = chip3.left
+
+            if(nameRight>c1Left){
+                chip1.visibility = View.GONE
+                chipsVisible = 2
+            }
+            if(nameRight>c2Left){
+                chip2.visibility = View.GONE
+                chipsVisible = 1
+            }
+            if(nameRight>c3Left){
+                chip3.visibility = View.GONE
+                chipsVisible = 0
+            }
+        }
+
+
 
     }
 
