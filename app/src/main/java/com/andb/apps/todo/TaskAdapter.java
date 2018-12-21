@@ -24,7 +24,6 @@ import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
-import com.andb.apps.todo.views.BetterChipGroup;
 import com.andb.apps.todo.views.TaskListItem;
 import com.google.android.material.chip.Chip;
 

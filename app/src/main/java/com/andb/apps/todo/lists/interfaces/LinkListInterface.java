@@ -19,9 +19,9 @@ public class LinkListInterface {
         if (TagLinkList.contains(tagParent) != null) {
 
             if (TagLinkList.contains(tagParent).contains(position)) {
-                TagSelect.tagExists(flashbarActivity).show();
+                TagSelect.Companion.tagExists(flashbarActivity).show();
             } else if (position == tagParent) {
-                TagSelect.sameTag(flashbarActivity).show();
+                TagSelect.Companion.sameTag(flashbarActivity).show();
             } else {
                 TagLinkList.contains(tagParent).addLink(position);
 

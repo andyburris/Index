@@ -67,7 +67,7 @@ public class FilteredLists {
 
                         if (!tagsToFilter.contains(tag)) {//check if tag is part of filters
                             filteredTagLinks.add(tag);
-                            if (!SettingsActivity.subFilter || !TagList.tagList.get(tag).isSubFolder())
+                            if (!SettingsActivity.Companion.getSubFilter() || !TagList.tagList.get(tag).isSubFolder())
                                 noSubLinkList.add(tag);
                         }
 
@@ -106,7 +106,7 @@ public class FilteredLists {
 
                 Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
 
-                if (SettingsActivity.folderMode) {
+                if (SettingsActivity.Companion.getFolderMode()) {
                     browseTaskList.addAll(TaskList.taskList);
                     tempList = new ArrayList<>(Collections2.filter(browseTaskList, new TagFilter(tagsToFilter, noSubLinkList) {
                     }));
@@ -135,7 +135,7 @@ public class FilteredLists {
             Log.d("noFilters", "TagList size:" + Integer.toString(filteredTagLinks.size()));
 
 
-            if (SettingsActivity.folderMode) {//if folders, add all to inbox, only those w/o tags to browse
+            if (SettingsActivity.Companion.getFolderMode()) {//if folders, add all to inbox, only those w/o tags to browse
 
                 ArrayList<Tasks> tempList = new ArrayList<>();
 

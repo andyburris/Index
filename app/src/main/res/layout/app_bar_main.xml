@@ -23,11 +23,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginBottom="48dp"
+            android:backgroundTint="@color/cyanea_primary"
             android:theme="@style/Base.Theme.MaterialComponents"
             app:fabAlignmentMode="center"
-            app:layout_anchor="@id/tabs"
             app:layout_anchorGravity="bottom"
-            android:backgroundTint="@color/cyanea_primary"
             app:navigationIcon="@drawable/ic_menu_black_24dp" />
 
         <com.andb.apps.todo.views.CyaneaTextView
@@ -49,9 +48,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/cyanea_primary"
             app:tabIndicatorColor="?colorAccent"
->
+            app:tabSelectedTextColor="@color/tabSelectedTextColor"
+            app:tabTextColor="@color/tabUnselectedTextColor">
 
 
             <com.google.android.material.tabs.TabItem

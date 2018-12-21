@@ -85,7 +85,7 @@ public class Filters {
 
     public static void tagReset(int tag) {
 
-        if(SettingsActivity.folderMode) {
+        if(SettingsActivity.Companion.getFolderMode()) {
             backTagFilters.clear();        //if folders back to home, if filter back to last multi-tag filter; right now folder behavior
         }
         homeViewAdd();

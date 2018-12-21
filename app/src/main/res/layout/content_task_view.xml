@@ -97,7 +97,7 @@
                 tools:layout_conversion_absoluteWidth="379dp" />
 
 
-            <TextView
+            <com.andb.apps.todo.views.CyaneaTextView
                 android:id="@+id/taskViewTimeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -112,7 +112,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/task_view_time_divider"
                 tools:layout_conversion_absoluteHeight="19dp"
-                tools:layout_conversion_absoluteWidth="100dp" />
+                tools:layout_conversion_absoluteWidth="100dp"
+                app:cyaneaTextBackground="background"/>
 
             <com.andb.apps.todo.views.Icon
                 android:id="@+id/taskViewTimeIcon"
@@ -128,7 +129,8 @@
                 app:layout_constraintStart_toEndOf="@+id/taskViewTimeText"
                 app:layout_constraintTop_toTopOf="@+id/task_view_time_divider"
                 tools:layout_conversion_absoluteHeight="24dp"
-                tools:layout_conversion_absoluteWidth="24dp" />
+                tools:layout_conversion_absoluteWidth="24dp"
+                app:cyaneaIconBackground="background"/>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

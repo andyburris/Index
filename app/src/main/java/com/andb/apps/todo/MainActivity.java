@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -30,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andb.apps.todo.databases.TasksDatabase;
+import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ArchiveTaskList;
@@ -44,7 +44,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
-import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -228,16 +227,16 @@ public class MainActivity extends CyaneaAppCompatActivity
 
 
 
-        SettingsActivity.folderMode = defaultSharedPrefs.getBoolean("folder_mode", false);
+        SettingsActivity.Companion.setFolderMode(defaultSharedPrefs.getBoolean("folder_mode", false));
 
         this.setTheme(R.style.AppThemeGlobal);
 
 
-        SettingsActivity.defaultSort = Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0"));
-        InboxFragment.filterMode = SettingsActivity.defaultSort;
+        SettingsActivity.Companion.setDefaultSort(Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0")));
+        InboxFragment.filterMode = SettingsActivity.Companion.getDefaultSort();
 
-        SettingsActivity.coloredToolbar = defaultSharedPrefs.getBoolean("colored_toolbar", false);
-        SettingsActivity.subFilter = defaultSharedPrefs.getBoolean("sub_Filter_pref", false);
+        SettingsActivity.Companion.setColoredToolbar(defaultSharedPrefs.getBoolean("colored_toolbar", false));
+        SettingsActivity.Companion.setSubFilter(defaultSharedPrefs.getBoolean("sub_Filter_pref", false));
 
 
         long endTime = System.nanoTime();
@@ -258,7 +257,7 @@ public class MainActivity extends CyaneaAppCompatActivity
             public void run() {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-                SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notif_only_date", 0));
+                SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notif_only_date", 0)));
             }
         });
 
@@ -285,121 +284,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
 
 
-    /*public void themeSet(Toolbar toolbar) {
 
-        long startTime = System.nanoTime();
-
-        if (SettingsActivity.coloredToolbar) {//colored toolbar theming
-            toolbar.setBackgroundTintList(ColorStateList.valueOf(SettingsActivity.themeColor));
-            //toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
-
-            DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-            drawerLayout.setFitsSystemWindows(false);
-
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-            int color = (int) Long.parseLong(Integer.toHexString(SettingsActivity.themeColor), 16);
-            int r = (color >> 16) & 0xFF;
-            int g = (color >> 8) & 0xFF;
-            int b = (color >> 0) & 0xFF;
-
-            int textColor;
-
-            if ((r * 0.299 + g * 0.587 + b * 0.114) > 186) {
-                lightText = false;
-                textColor = 0xFF000000;
-                tabLayout.setTabTextColors(0x99000000, textColor);
-                tabLayout.setSelectedTabIndicatorColor(textColor);
-
-            } else {
-                lightText = true;
-                textColor = 0xFFFFFFFF;
-                tabLayout.setTabTextColors(0x99FFFFFF, textColor);
-                tabLayout.setSelectedTabIndicatorColor(textColor);
-
-
-            }
-
-            toolbar.setTitleTextColor(textColor);
-            toolbar.getOverflowIcon().setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
-
-            tabLayout.setBackgroundColor(SettingsActivity.themeColor);
-            getWindow().getDecorView().setSystemUiVisibility(0);
-
-            toolbar.setSubtitleTextColor(textColor);
-
-            Log.d("pref_resume", Boolean.toString(fromSettings));
-            if (fromSettings) {
-                Menu menu = toolbar.getMenu();
-                if (lightText) {
-                    for (int i = 0; i < menu.size() - 1; i++) {
-                        Log.d("darkTheme", "Icon " + Integer.toString(i));
-                        menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-                    }
-                    drawerToggle.getDrawerArrowDrawable().setColor(Color.WHITE);
-
-                } else {
-                    drawerToggle.getDrawerArrowDrawable().setColor(Color.BLACK);
-                    for (int i = 0; i < menu.size() - 1; i++) {
-                        Log.d("darkTheme", "Icon " + Integer.toString(i));
-                        menu.getItem(i).getIcon().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
-                    }
-                }
-
-
-            }
-
-        } else if (SettingsActivity.darkTheme) {//dark theme setting
-
-            //toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
-
-
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-            drawerLayout.setFitsSystemWindows(false);
-
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-            tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
-
-            lightText = true;
-            toolbar.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorDarkPrimary)));
-            toolbar.setTitleTextColor(Color.WHITE);
-            toolbar.getOverflowIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-
-            tabLayout.setBackgroundColor(getResources().getColor(R.color.colorDarkPrimary));
-            tabLayout.setTabTextColors(0x99FFFFFF, Color.WHITE);
-            getWindow().getDecorView().setSystemUiVisibility(0);
-
-            toolbar.setSubtitleTextColor(Color.WHITE);
-
-            Menu menu = toolbar.getMenu();
-            for (int i = 0; i < menu.size() - 1; i++) {
-                Log.d("darkTheme", "Icon " + Integer.toString(i));
-                menu.getItem(i).getIcon().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-            }
-
-
-        } else {//general accent settings
-            tabLayout.setSelectedTabIndicatorColor(SettingsActivity.themeColor);
-            Menu menu = toolbar.getMenu();
-            for (int i = 0; i < menu.size() - 1; i++) {
-                Log.d("darkTheme", "Icon " + Integer.toString(i));
-                menu.getItem(i).getIcon().setColorFilter(getResources().getColor(R.color.slate_black), PorterDuff.Mode.SRC_ATOP);
-            }
-        }
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
-
-        Log.d("startupTime", "Theme Set: " + Long.toString(duration));
-    }*/
 
     public void settingsReturn() {
         fabInitialize();
@@ -598,7 +483,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         TagList.loadTags(this);
 
         if (TagList.tagList == null) {
-            TagList.tagList = TagSelect.blankTagList;
+            TagList.tagList = new ArrayList<>();
             TagList.saveTags(this);
             TagList.loadTags(this);
         }
@@ -680,6 +565,8 @@ public class MainActivity extends CyaneaAppCompatActivity
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+        tabLayout.getTabAt(0).setCustomView(R.layout.tab_layout);
+
         mViewPager = (ViewPager) findViewById(R.id.container);
 
         long endTime = System.nanoTime();
@@ -693,8 +580,6 @@ public class MainActivity extends CyaneaAppCompatActivity
     public void fabInitialize() {
 
         long startTime = System.nanoTime();
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

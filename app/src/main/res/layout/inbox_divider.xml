@@ -14,7 +14,7 @@
         android:paddingBottom="16dp"
         android:text="DividerName"
         android:textAppearance="@style/Base.TextAppearance.MaterialComponents.Button"
-        android:textStyle="bold"
+        android:fontFamily="@font/worksans_semibold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

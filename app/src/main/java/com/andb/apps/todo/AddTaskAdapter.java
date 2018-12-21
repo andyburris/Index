@@ -24,39 +24,35 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHolder>{
 
-    public List<String> taskList = new ArrayList<>();
-    public boolean edit;
-    public int taskPosition;
+    public List<String> itemList;
+
 
     public boolean focused;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView remove;
-        public EditText editText;
+        EditText editText;
+        RVEditTextListener rvEditTextListener;
 
 
-        public MyViewHolder(View view) {
+        public MyViewHolder(View view, RVEditTextListener rvEditTextListener) {
             super(view);
-
-            remove = (ImageView) view.findViewById(R.id.removeListItem);
-            //taskColor = (ImageView) view.findViewById(R.id.taskIcon);
-            editText = (EditText) view.findViewById(R.id.taskItemEditText);
+            remove = view.findViewById(R.id.removeListItem);
+            editText = view.findViewById(R.id.taskItemEditText);
+            this.rvEditTextListener = rvEditTextListener;
 
             remove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-
-                    android.widget.Toast.makeText(v.getContext(), position + " removed", Toast.LENGTH_SHORT).show();
-                    editText.getText().clear();
-                    taskList.remove(position);
+                    itemList.remove(position);
                     notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, taskList.size());
-                    //mRecyclerView.scrollToPosition(position);
-                    //mAdapter.notifyDataSetChanged();
+                    notifyItemRangeChanged(position, itemList.size());
                 }
             });
+
+            editText.addTextChangedListener(rvEditTextListener);
 
         }
 
@@ -64,36 +60,27 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
     }
 
 
-    public AddTaskAdapter(List<String> tasksList, boolean edit, int taskPosition) {
-        this.taskList = tasksList;
-        this.edit = edit;
-        this.taskPosition = taskPosition;
+    public AddTaskAdapter(List<String> tasksList) {
+        this.itemList = tasksList;
     }
 
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        /*//Indicates whether each item in the data set can be represented with a unique identifier
-        setHasStableIds(true);*/
 
-        Log.d("footer", Integer.toString(viewType));
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_item, parent, false);
 
-        View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.task_list_item, parent, false);
-
-        //itemView.startAnimation(AnimationUtils.loadAnimation(parent.getContext(), android.R.anim.slide_in_left));
-
-        return new MyViewHolder(itemView);
+        return new MyViewHolder(itemView, new RVEditTextListener());
     }
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
-        final int realPosition = holder.getAdapterPosition();
+        /* final int realPosition = holder.getAdapterPosition();
 
-            if(!holder.editText.getText().equals(taskList.get(realPosition))){
-                holder.editText.setText(taskList.get(realPosition));
+         if(!holder.editText.getText().equals(itemList.get(realPosition))){
+                holder.editText.setText(itemList.get(realPosition));
             }
 
             holder.editText.addTextChangedListener(new TextWatcher() {
@@ -105,9 +92,9 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     Log.d("textWatcherChanged", Integer.toString(realPosition));
-                    if(realPosition<taskList.size()) {//fixes bug with trying to update on kill
-                        taskList.set(realPosition, s.toString());
-                        Log.d("textWatcherChanged", taskList.get(realPosition));
+                    if(realPosition<itemList.size()) {//fixes bug with trying to update on kill
+                        itemList.set(realPosition, s.toString());
+                        Log.d("textWatcherChanged", itemList.get(realPosition));
                     }
                 }
 
@@ -115,79 +102,54 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
                 public void afterTextChanged(Editable s) {
 
                 }
-            });
+            });*/
 
         if (focused) {
             holder.editText.requestFocus();
             focused = false;
         }
 
-        //holder.taskColor.setColorFilter(task.getListColor());
-        //to-do: get tasks
+        holder.rvEditTextListener.setPosition(position);
+        holder.editText.setText(itemList.get(position));
+
     }
 
+    private class RVEditTextListener implements TextWatcher{
 
-    private void setInputTextLayoutColor(final int color, final EditText editText) {
+        int position = 0;
 
-        editText.getBackground().setColorFilter(0xFF757575, PorterDuff.Mode.SRC_IN);
-
-
-        try {
-            // Get the cursor resource id
-            Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
-            field.setAccessible(true);
-            int drawableResId = field.getInt(editText);
-
-            // Get the editor
-            field = TextView.class.getDeclaredField("mEditor");
-            field.setAccessible(true);
-            Object editor = field.get(editText);
-
-            // Get the drawable and set a color filter
-            Drawable drawable = ContextCompat.getDrawable(editText.getContext(), drawableResId);
-            drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-            Drawable[] drawables = {drawable, drawable};
-
-            // Set the drawables
-            field = editor.getClass().getDeclaredField("mCursorDrawable");
-            field.setAccessible(true);
-            field.set(editor, drawables);
-        } catch (Exception ignored) {
+        public void setPosition(int position) {
+            this.position = position;
         }
 
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+        }
 
-        editText.setHighlightColor(color);
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            itemList.set(position, s.toString());
+        }
 
+        @Override
+        public void afterTextChanged(Editable s) {
 
-
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus){
-                    editText.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_IN);
-                }
-                else {
-                    editText.getBackground().setColorFilter(0xFF757575, PorterDuff.Mode.SRC_IN);
-                }
-            }
-        });
-
-
-
+        }
     }
+
+
 
 
     @Override
     public int getItemViewType(final int position) {
-        //return position;
         return 0;
 
     }
 
     @Override
     public int getItemCount() {
-        return taskList.size();
+        return itemList.size();
     }
 
 }

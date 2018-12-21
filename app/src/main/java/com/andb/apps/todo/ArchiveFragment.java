@@ -9,16 +9,14 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.lists.ArchiveTaskList;
 import com.andb.apps.todo.lists.TaskList;
-import com.andb.apps.todo.lists.interfaces.TaskListInterface;
 import com.andb.apps.todo.objects.Tasks;
 
 import org.greenrobot.eventbus.EventBus;

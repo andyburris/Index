@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.andb.apps.todo.MainActivity;
-import com.andb.apps.todo.UpdateEvent;
+import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.lists.ArchiveTaskList;
 import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.objects.Tasks;

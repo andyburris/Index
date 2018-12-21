@@ -79,17 +79,6 @@ object SettingsLayout {
         subScreen {
             title = "Theme"
             iconRes = R.drawable.ic_palette_black_24dp
-
-            /*switch("dark_theme"){
-                title = "Dark Theme"
-                iconRes = R.drawable.ic_day_night_black_24dp
-            }
-            switch("colored_toolbar"){
-                title = "Colored Toolbar"
-            }
-            addPreferenceItem(ColorPicker(context as FragmentActivity).apply {
-                title = "Theme Color"
-            })*/
         }
         subScreen {
             title = "Notifications"

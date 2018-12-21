@@ -60,7 +60,7 @@ public class TaskList extends AppCompatActivity {
 
                     DateTime beforeTime = new DateTime(returnDateTime);
 
-                    returnDateTime = returnTask.getDateTime().withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
+                    returnDateTime = returnTask.getDateTime().withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
 
                     if ((returnDateTime.isBefore(beforeTime) || returnDateTime.isEqual(beforeTime)) && !returnTask.isNotified()) {
 

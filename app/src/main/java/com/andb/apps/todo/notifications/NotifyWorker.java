@@ -39,11 +39,11 @@ public class NotifyWorker extends Worker {
         TaskList.taskList = new ArrayList<>(NotificationHandler.tasksDatabase.tasksDao().getAll());
 
 
-        if (SettingsActivity.timeToNotifyForDateOnly == null) {
+        if (SettingsActivity.Companion.getTimeToNotifyForDateOnly() == null) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Gson gson = new Gson();
 
-            SettingsActivity.timeToNotifyForDateOnly = new DateTime(prefs.getLong("pref_notify_only_date", 0));
+            SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notify_only_date", 0)));
         }
 
         if (TaskList.getNextNotificationItem() != null) {
@@ -68,7 +68,7 @@ public class NotifyWorker extends Worker {
             Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), TaskList.getNextNotificationItem().getDateTime());
             if (TaskList.getNextNotificationItem().getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
                 DateTime onlyDate = TaskList.getNextNotificationItem().getDateTime();
-                onlyDate = onlyDate.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime());
+                onlyDate = onlyDate.withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
                 duration = new Duration(DateTime.now(), onlyDate);
             }
             long delay = duration.getStandardSeconds();
