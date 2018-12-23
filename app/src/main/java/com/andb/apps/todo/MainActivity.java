@@ -527,7 +527,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         ArchiveTaskList.loadTasks(this);
 
         if (ArchiveTaskList.taskList == null) {
-            ArchiveTaskList.taskList = ArchiveFragment.blankTaskList;
+            ArchiveTaskList.taskList = new ArrayList<>();
             ArchiveTaskList.saveTasks(this);
             ArchiveTaskList.loadTasks(this);
         }
@@ -562,10 +562,12 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        //mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        //tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        tabLayout.getTabAt(0).setCustomView(R.layout.tab_layout);
+        Log.d("tab not showing", Integer.toString(tabLayout.getTabCount()));
+        Log.d("tab not showing", tabLayout.getTabAt(0).getText().toString());
+        Log.d("tab not showing", tabLayout.getTabAt(1).getText().toString());
 
         mViewPager = (ViewPager) findViewById(R.id.container);
 

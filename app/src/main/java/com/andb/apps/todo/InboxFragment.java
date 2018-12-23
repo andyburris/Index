@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.andb.apps.todo.filtering.FilteredLists;
+import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ArchiveTaskList;
 import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.lists.interfaces.TaskListInterface;
@@ -32,6 +33,7 @@ import com.andb.apps.todo.objects.Tasks;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -83,7 +85,7 @@ public class InboxFragment extends CyaneaFragment {
     private static TextView taskCountText;
     private static TextView currentPathText;
 
-    //private static TextView noTasks;
+    private static TextView noTasks;
 
     public static Button tagButton;
 
@@ -118,19 +120,19 @@ public class InboxFragment extends CyaneaFragment {
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
         prepareRecyclerView(view);
 
-        //noTasks = view.findViewById(R.id.noTasks);
+        noTasks = view.findViewById(R.id.noTasks);
 
-        /*taskCountText = view.findViewById(R.id.task_count_text);
+        taskCountText = view.findViewById(R.id.task_count_text);
         currentPathText = view.findViewById(R.id.task_path_text);
 
         setPathText(Filters.subtitle);
-        setTaskCountText(TaskList.taskList.size());*/
+        setTaskCountText(TaskList.taskList.size());
 
-       /* tagButton = view.findViewById(R.id.tag_button);
-        tagButton.getBackground().setColorFilter(SettingsActivity.themeColor, PorterDuff.Mode.SRC_ATOP);
+        tagButton = view.findViewById(R.id.tag_button);
+        tagButton.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.SRC_ATOP);
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_label_black_24dp).mutate();
-        if (MainActivity.lightOnBackground(SettingsActivity.themeColor)) {
+        if (Utilities.lightOnBackground(Cyanea.getInstance().getAccent())) {
             int color = 0xFFFFFFFF;
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
             tagButton.setTextColor(color);
@@ -139,7 +141,7 @@ public class InboxFragment extends CyaneaFragment {
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
             tagButton.setTextColor(color);
         }
-        tagButton.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);*/
+        tagButton.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
 
 
         mRecyclerView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -165,7 +167,7 @@ public class InboxFragment extends CyaneaFragment {
 
 
 
-/*        tagButton.setOnClickListener(new View.OnClickListener() {
+        tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), TagSelect.class);
@@ -174,7 +176,7 @@ public class InboxFragment extends CyaneaFragment {
 
 
             }
-        });*/
+        });
 
         return view;
 
@@ -232,10 +234,12 @@ public class InboxFragment extends CyaneaFragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
+        mRecyclerView.setNested(true);
+
         final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_inbox);
         mRecyclerView.setExpandablePage(taskView);
 
-        taskView.addStateChangeCallbacks(new SimplePageStateChangeCallbacks() {
+/*        taskView.addStateChangeCallbacks(new SimplePageStateChangeCallbacks() {
             @Override
             public void onPageCollapsed() {
                 super.onPageCollapsed();
@@ -244,16 +248,16 @@ public class InboxFragment extends CyaneaFragment {
                 FloatingActionButton fab = getActivity().findViewById(R.id.fab);
                 TabLayout tabLayout = getActivity().findViewById(R.id.tabs);
 
-                toolbar.setNavigationIcon(TaskView.oldNavIcon);
+                toolbar.setNavigationIcon(TaskView.Companion.getOldNavIcon());
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) toolbar.getLayoutParams();
-                layoutParams.bottomMargin = TaskView.oldMargin;
+                layoutParams.bottomMargin = TaskView.Companion.getOldMargin();
 
                 fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_black_24dp).mutate());
                 layoutParams = (CoordinatorLayout.LayoutParams) tabLayout.getLayoutParams();
                 layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 tabLayout.setLayoutParams(layoutParams);
             }
-        });
+        });*/
 
         ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
         ith.attachToRecyclerView(mRecyclerView);

@@ -61,14 +61,14 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
                 override fun process(view: AppCompatCheckBox, attrs: AttributeSet?, cyanea: Cyanea) {
                     view.setTextColor(ColorStateList.valueOf(colorAlpha(Cyanea.instance.backgroundColor, 0.8f, 0.54f)))
                 }
-            },
+            }/*,
 
             object : CyaneaViewProcessor<TabLayout>(){
                 override fun getType(): Class<TabLayout> = TabLayout::class.java
                 override fun process(view: TabLayout, attrs: AttributeSet?, cyanea: Cyanea) {
                     view.setTabTextColors(if (Utilities.lightOnBackground(cyanea.primary)) Color.WHITE else Color.BLACK, if (Utilities.lightOnBackground(cyanea.primary)) Utilities.colorWithAlpha(Color.WHITE, .54f) else Utilities.colorWithAlpha(Color.BLACK, .54f))
                 }
-            }
+            }*/
 
 
 

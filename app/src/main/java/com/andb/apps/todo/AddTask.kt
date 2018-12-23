@@ -427,7 +427,8 @@ class AddTask : CyaneaAppCompatActivity() {
 
         }
 
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        }
 
         override fun isLongPressDragEnabled(): Boolean {
 

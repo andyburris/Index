@@ -58,12 +58,12 @@ dependencies {
     releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
     implementation 'org.greenrobot:eventbus:3.1.1' //communicate across threads
     implementation 'com.jaredrummler:cyanea:1.0.1'//theming library
-    implementation 'me.saket:inboxrecyclerview:1.0.0-rc1'//inbox-like transitions
+    //implementation 'me.saket:inboxrecyclerview:1.0.0-rc1'//inbox-like transitions
     implementation 'com.github.Maxr1998:ModernAndroidPreferences:-SNAPSHOT'//preferences
     implementation 'com.jakewharton:butterknife:9.0.0-rc2'//butterknife
     annotationProcessor 'com.jakewharton:butterknife-compiler:9.0.0-rc2'//butterknife annotations
     implementation 'com.github.rongi:klaster:0.3.4'//inline recyclerviews for simple implementations
-
+    implementation project(path: ':inboxrecyclerview')
 
 
 

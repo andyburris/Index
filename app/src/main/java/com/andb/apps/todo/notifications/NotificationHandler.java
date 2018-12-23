@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import com.andb.apps.todo.MainActivity;
 import com.andb.apps.todo.R;
-import com.andb.apps.todo.Reschedule;
 import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.eventbus.UpdateEvent;

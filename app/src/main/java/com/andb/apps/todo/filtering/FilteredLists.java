@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.andb.apps.todo.BrowseFragment;
 import com.andb.apps.todo.InboxFragment;
-import com.andb.apps.todo.TagFilter;
+import com.andb.apps.todo.objects.TagFilter;
 import com.andb.apps.todo.lists.TagLinkList;
 import com.andb.apps.todo.lists.TagList;
 import com.andb.apps.todo.lists.TaskList;

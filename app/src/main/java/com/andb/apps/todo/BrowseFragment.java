@@ -27,6 +27,7 @@ import com.andb.apps.todo.objects.TagLinks;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
+import com.github.rongi.klaster.Klaster;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.jaredrummler.cyanea.app.CyaneaFragment;
@@ -182,10 +183,6 @@ public class BrowseFragment extends CyaneaFragment {
 
         mRecyclerView = view.findViewById(R.id.browseTaskRecycler);
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        //mRecyclerView.setHasFixedSize(true);
-
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(view.getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -194,7 +191,7 @@ public class BrowseFragment extends CyaneaFragment {
         mAdapter = new TaskAdapter(FilteredLists.browseTaskList, TaskAdapter.FROM_BROWSE);
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
-
+        mRecyclerView.setNested(true);
 
         final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_browse);
         mRecyclerView.setExpandablePage(taskView);
@@ -223,7 +220,6 @@ public class BrowseFragment extends CyaneaFragment {
 
 
     }
-
 
     private static final int[] STATE_ZERO = {R.attr.state_on, -R.attr.state_off};
     private static final int[] STATE_ONE = {-R.attr.state_on, R.attr.state_off};

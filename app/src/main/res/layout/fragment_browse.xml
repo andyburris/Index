@@ -13,9 +13,10 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/browseTagCardHolder"
@@ -104,7 +105,7 @@
                 android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim"
                 app:layout_constraintTop_toBottomOf="@+id/browseTagCardHolder" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <me.saket.inboxrecyclerview.page.ExpandablePageLayout

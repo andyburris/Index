@@ -3,6 +3,7 @@ package com.andb.apps.todo.views
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
+import android.os.AsyncTask
 import android.os.Bundle
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
@@ -57,15 +58,21 @@ class TaskListItem : ConstraintLayout {
 
             val taskView = TaskView()
             taskView.arguments = bundle
-            ft.add(R.id.expandable_page_inbox, taskView)
-            ft.commit()
+
 
             when (inboxBrowseArchive) {
-                TaskAdapter.FROM_BROWSE -> BrowseFragment.mRecyclerView.expandItem(BrowseFragment.mAdapter.getItemId(pos))
+                TaskAdapter.FROM_BROWSE -> {
+                    ft.add(R.id.expandable_page_browse, taskView)
+                    ft.commit()
+                    BrowseFragment.mRecyclerView.expandItem(BrowseFragment.mAdapter.getItemId(pos))
+                }
                 TaskAdapter.FROM_ARCHIVE -> {
                 }
-                else //inbox
-                -> InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
+                else->{ //inbox
+                    ft.add(R.id.expandable_page_inbox, taskView)
+                    ft.commit()
+                    InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
+                }
             }
         }
         setCyaneaBackground(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
@@ -84,7 +91,13 @@ class TaskListItem : ConstraintLayout {
                 if (i < task.listItemsSize) {
 
                     checkBoxes[i].text = task.listItems[i]
-                    checkBoxes[i].setOnCheckedChangeListener { buttonView, isChecked -> task.editListItemsChecked(isChecked, i) }
+                    checkBoxes[i].setOnCheckedChangeListener { buttonView, isChecked ->
+                        task.editListItemsChecked(isChecked, i)
+                        AsyncTask.execute {
+                            MainActivity.tasksDatabase.tasksDao().updateTask(task)
+                        }
+
+                    }
                     checkBoxes[i].isChecked = task.getListItemsChecked(i)
                     checkBoxes[i].visibility = View.VISIBLE
 

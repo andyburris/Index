@@ -43,7 +43,7 @@
             android:label="@string/title_activity_archive"
             android:theme="@style/AppThemeLightCollapse" />
         <activity
-            android:name=".Reschedule"
+            android:name=".notifications.Reschedule"
             android:exported="true"
             android:label="@string/title_activity_reschedule"
             android:theme="@style/Theme.AppCompat.Transparent.NoActionBar"
@@ -54,16 +54,6 @@
         </activity>
 
 
-        <activity
-            android:name=".SearchResultsActivity"
-            android:label="@string/title_activity_search"
-            android:theme="@style/AppThemeGlobal">
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
-        </activity>
         <activity android:name=".TestActivity"
             android:label="Test"
             android:theme="@style/AppThemeGlobal"

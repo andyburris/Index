@@ -1,4 +1,4 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.notifications;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -10,7 +10,6 @@ import android.widget.TimePicker;
 
 import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.lists.TaskList;
-import com.andb.apps.todo.notifications.NotificationHandler;
 import com.andb.apps.todo.objects.Tasks;
 
 import org.greenrobot.eventbus.EventBus;

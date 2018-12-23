@@ -14,11 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andb.apps.todo.settings.SettingsActivity;
+import com.jaredrummler.cyanea.Cyanea;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +35,7 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
 
         public ImageView remove;
         EditText editText;
+        ConstraintLayout bg;
         RVEditTextListener rvEditTextListener;
 
 
@@ -40,7 +43,9 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
             super(view);
             remove = view.findViewById(R.id.removeListItem);
             editText = view.findViewById(R.id.taskItemEditText);
+            bg = view.findViewById(R.id.taskListItem);
             this.rvEditTextListener = rvEditTextListener;
+
 
             remove.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -111,6 +116,7 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
 
         holder.rvEditTextListener.setPosition(position);
         holder.editText.setText(itemList.get(position));
+        holder.bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 1.2f));
 
     }
 
