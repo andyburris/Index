@@ -5,6 +5,9 @@ import android.graphics.Color;
 import android.util.Log;
 
 public class Utilities {
+
+
+
     /**
      * Returns darker version of specified <code>color</code>.
      */
@@ -52,5 +55,4 @@ public class Utilities {
         return Color.argb(1, cr, cg, cb);
 
     }
-
 }

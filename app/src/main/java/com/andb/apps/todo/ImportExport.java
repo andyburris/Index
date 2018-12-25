@@ -31,6 +31,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Random;
 
 public class ImportExport {
 
@@ -75,58 +77,42 @@ public class ImportExport {
 
 
                         TaskList.taskList = gson.fromJson(taskJson, taskType);
+                        Log.i("ImportedTaskList", TaskList.taskList.toString());
+                        ArrayList<Integer> keyList = new ArrayList<>();
+                        for(Tasks task : TaskList.taskList){
+                            while (keyList.contains(task.getListKey())){
+                                task.setListKey(new Random().nextInt());
+                            }
+                            keyList.add(task.getListKey());
+                        }
+                        //keyList = new ArrayList<>(new LinkedHashSet<>(keyList));
+                        //Toast.makeText(ctxt, "Tasklist size: " + TaskList.taskList.size() + ", Keylist size: " + keyList.size(), Toast.LENGTH_LONG).show();
                         TagList.tagList = gson.fromJson(tagJson, tagType);
                         TagLinkList.linkList = gson.fromJson(linkJson, linkType);
 
 
-
-
-
-
-
-
-
-                        /*ArrayList<ArrayList<?>> exportList = gson.fromJson(json, type);
-
-                        if (exportList.get(0).clone() instanceof ArrayList) {
-                            TaskList.taskList = (ArrayList<Tasks>) exportList.get(0).clone();
-                        } else {
-                            Log.i("loadBackup", "Tasklist not arraylist");
-                        }
-                        if (exportList.get(1).clone() instanceof ArrayList) {
-                            TagList.tagList = (ArrayList<Tags>) exportList.get(1).clone();
-                        } else {
-                            Log.i("loadBackup", "Taglist not arraylist");
-                        }
-                        if (exportList.get(2).clone() instanceof ArrayList) {
-                            TagLinkList.linkList = (ArrayList<TagLinks>) exportList.get(2).clone();
-                        } else {
-                            Log.i("loadBackup", "Taglist not arraylist");
-                        }*/
-
-                        /*TaskList.taskList = gson.fromJson(json, taskType);
-                        TagList.tagList = gson.fromJson(json, tagType);
-                        TagLinkList.linkList = gson.fromJson(json, linkType);*/
-
-
-                        Toast.makeText(ctxt, "Tasks imported: " +
+/*                        Toast.makeText(ctxt, "Tasks imported: " +
                                         Integer.toString(TaskList.taskList.size()) +
                                         ", Tags imported: " +
                                         Integer.toString(TagList.tagList.size()) +
                                         "Links imported: " +
                                         Integer.toString(TagLinkList.linkList.size()),
-                                Toast.LENGTH_LONG).show();
+                                Toast.LENGTH_LONG).show();*/
 
+/*
                         for (Tasks task : TaskList.taskList) {
                             task.normalizeAfterImport();
                         }
+*/
 
                         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
 
                         AsyncTask.execute(new Runnable() {
                             @Override
                             public void run() {
-                                MainActivity.tasksDatabase.tasksDao().insertMultipleTasks(TaskList.taskList);
+                                MainActivity.tasksDatabase.clearAllTables();
+                               MainActivity.tasksDatabase.tasksDao().insertMultipleTasks(TaskList.taskList);
+                               TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
                             }
                         });
 
@@ -157,9 +143,6 @@ public class ImportExport {
     public static void exportTasks(Context ctxt) {
         if (isExternalStorageWritable()) {
             ArrayList<String> exportList = new ArrayList<>();
-            /*exportList.add(TaskList.taskList);
-            exportList.add(TagList.tagList);
-            exportList.add(TagLinkList.linkList);*/
 
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Type taskType = new TypeToken<ArrayList<Tasks>>() {

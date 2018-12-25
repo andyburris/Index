@@ -1,5 +1,8 @@
 package com.andb.apps.todo.objects;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -8,18 +11,21 @@ import androidx.room.PrimaryKey;
 @Entity
 public class Tags {
 
+    @SerializedName("tagName")
+    @Expose
     @PrimaryKey
     @NonNull
     private String tagName;
 
+    @SerializedName("tagColor")
+    @Expose
     @ColumnInfo(name = "tag_color")
     private int tagColor;
 
+    @SerializedName("subfolder")
+    @Expose
     @ColumnInfo(name = "subfolder")
     private boolean subFolder;
-
-    public Tags (){
-    }
 
     public Tags(String tagname, int tagColor, boolean subFolder) {
         this.tagName = tagname;

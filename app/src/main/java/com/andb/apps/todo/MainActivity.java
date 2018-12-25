@@ -110,7 +110,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         fromSettings = false;
         subTitle = findViewById(R.id.toolbar_text);
         getWindow().setStatusBarColor(0x33333333);
-        //themeSet(toolbar);
 
 
         EventBus.getDefault().register(this);
@@ -304,7 +303,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         BrowseFragment.mAdapter.notifyDataSetChanged();
 
 
-        //themeSet((Toolbar) findViewById(R.id.toolbar));
 
         NotificationHandler.resetNotifications(this);
 
@@ -331,20 +329,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
 
-        for (int i = 0; i<menu.size(); i++){
-            try {
-                Drawable drawable = menu.getItem(i).getIcon().mutate();
-                if (Utilities.lightOnBackground(Cyanea.getInstance().getPrimary())) {
-                    drawable.setColorFilter(Utilities.colorFromAlpha(Color.WHITE, getCyanea().getPrimary(), 0.8f), PorterDuff.Mode.SRC_ATOP);
-                } else {
-                    drawable.setColorFilter(Utilities.colorFromAlpha(Color.BLACK, getCyanea().getPrimary(),0.54f), PorterDuff.Mode.SRC_ATOP);
-                }
-                menu.getItem(i).setIcon(drawable);
-             }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
@@ -352,6 +336,17 @@ public class MainActivity extends CyaneaAppCompatActivity
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
+        for (int i = 0; i<menu.size(); i++){
+            MenuItem menuItem = menu.getItem(i);
+            try {
+                Drawable drawable = menuItem.getIcon().mutate();
+                drawable.setColorFilter(App.Companion.colorAlpha(getCyanea().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
+                menuItem.setIcon(drawable);
+            }catch (Exception e){
+                Log.d("menuIconColor", "not an icon (collapsed in overflow)");
+            }
+
+        }
 
         return true;
     }
@@ -562,8 +557,8 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        //mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        //tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         Log.d("tab not showing", Integer.toString(tabLayout.getTabCount()));
         Log.d("tab not showing", tabLayout.getTabAt(0).getText().toString());
@@ -623,6 +618,8 @@ public class MainActivity extends CyaneaAppCompatActivity
         setName(navName, true);
 
         navigationView.setItemTextAppearance(R.style.AppThemeNavDrawer);
+
+        toggle.getDrawerArrowDrawable().setColorFilter(App.Companion.colorAlpha(Cyanea.getInstance().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
 
 
         //long endTime = System.nanoTime();

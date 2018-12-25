@@ -50,7 +50,8 @@
             android:layout_gravity="bottom"
             app:tabIndicatorColor="?colorAccent"
             app:tabSelectedTextColor="@color/tabSelectedTextColor"
-            app:tabTextColor="@color/tabUnselectedTextColor">
+            app:tabTextColor="@color/tabUnselectedTextColor"
+            android:theme="@style/AppThemeTabLayout">
 
 
             <com.google.android.material.tabs.TabItem

@@ -10,32 +10,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:tabIndicatorColor="?colorAccent"
-        app:tabSelectedTextColor="@color/tabSelectedTextColor"
-        app:tabTextColor="@color/tabUnselectedTextColor">
-
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tab1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_1" />
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tab2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_2"
-
-            />
-
-
-    </com.google.android.material.tabs.TabLayout>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

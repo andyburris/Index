@@ -28,4 +28,6 @@
     </declare-styleable>
 
     <attr name="secondaryTextAlpha" format="float">0.7</attr>
+    <attr name="iconAlphaLight" format="float">.8</attr>
+    <attr name="iconAlphaDark" format="float">.54</attr>
 </resources>

@@ -2,6 +2,7 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -129,7 +130,11 @@ public class InboxFragment extends CyaneaFragment {
         setTaskCountText(TaskList.taskList.size());
 
         tagButton = view.findViewById(R.id.tag_button);
-        tagButton.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.SRC_ATOP);
+        Drawable bgdrawable = getResources().getDrawable(R.drawable.rounded_button_background).mutate();
+        bgdrawable.setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.SRC_ATOP);
+        tagButton.setBackground(bgdrawable);
+        tagButton.setBackgroundTintList(ColorStateList.valueOf(Cyanea.getInstance().getAccent()));
+
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_label_black_24dp).mutate();
         if (Utilities.lightOnBackground(Cyanea.getInstance().getAccent())) {
@@ -641,12 +646,12 @@ public class InboxFragment extends CyaneaFragment {
             toApply = " TASK";
         }
         toApply = Integer.toString(numTasks) + toApply;
-        //taskCountText.setText(toApply);
+        taskCountText.setText(toApply);
 
     }
 
     public static void setPathText(String text) {
-        //currentPathText.setText(text);
+        currentPathText.setText(text);
     }
 
 }

@@ -19,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />-->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/taskViewScrollLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -106,14 +107,14 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:text="Time and date"
+                app:cyaneaTextBackground="background"
                 app:layout_constraintEnd_toStartOf="@+id/taskViewTimeIcon"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/task_view_time_divider"
                 tools:layout_conversion_absoluteHeight="19dp"
-                tools:layout_conversion_absoluteWidth="100dp"
-                app:cyaneaTextBackground="background"/>
+                tools:layout_conversion_absoluteWidth="100dp" />
 
             <com.andb.apps.todo.views.Icon
                 android:id="@+id/taskViewTimeIcon"
@@ -124,13 +125,21 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:src="@drawable/ic_access_time_black_24dp"
+                app:cyaneaIconBackground="background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/taskViewTimeText"
                 app:layout_constraintTop_toTopOf="@+id/task_view_time_divider"
                 tools:layout_conversion_absoluteHeight="24dp"
-                tools:layout_conversion_absoluteWidth="24dp"
-                app:cyaneaIconBackground="background"/>
+                tools:layout_conversion_absoluteWidth="24dp" />
+
+            <Space
+                android:id="@+id/bottom_bar_padding"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/rv_padding_for_bottom_bar"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/taskViewTimeText"
+                app:layout_constraintVertical_bias="0" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

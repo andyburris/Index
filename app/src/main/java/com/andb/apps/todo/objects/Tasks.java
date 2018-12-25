@@ -5,6 +5,8 @@ import android.util.Log;
 import com.andb.apps.todo.typeconverters.CheckedConverter;
 import com.andb.apps.todo.typeconverters.ItemsConverter;
 import com.andb.apps.todo.typeconverters.TagConverter;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import org.joda.time.DateTime;
 
@@ -18,31 +20,43 @@ import androidx.room.TypeConverters;
 
 @Entity
 public class Tasks implements Serializable {
+    @SerializedName("key")
+    @Expose
     @PrimaryKey
     private int listKey;
 
+    @SerializedName("list_name")
+    @Expose
     @ColumnInfo(name = "list_name")
     private String listName;
 
+    @SerializedName("list_items")
+    @Expose
     @TypeConverters(ItemsConverter.class)
     @ColumnInfo(name = "list_items")
     private ArrayList<String> listItems;
 
+    @SerializedName("list_items_checked")
+    @Expose
     @TypeConverters(CheckedConverter.class)
     @ColumnInfo(name = "list_items_checked")
     private ArrayList<Boolean> listItemsChecked;
 
+    @SerializedName("list_tags")
+    @Expose
     @TypeConverters(TagConverter.class)
     @ColumnInfo(name = "list_tags")
     private ArrayList<Integer> listTags;
 
-
+    @SerializedName("list_due")
+    @Expose
     @ColumnInfo(name = "list_due")
     private long listDue;
 
+    @SerializedName("list_notified")
+    @Expose
     @ColumnInfo(name = "list_notified")
     private boolean notified;
-    //private ArrayList<Time> listDue; //to-do: add time due by
 
     public Tasks(){
     }
@@ -240,5 +254,10 @@ public class Tasks implements Serializable {
         if (listName == null) {
             listName = "";
         }
+    }
+
+    @Override
+    public String toString(){
+        return getListName();
     }
 }

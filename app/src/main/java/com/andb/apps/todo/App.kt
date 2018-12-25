@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.CompoundButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.cardview.widget.CardView
+import androidx.core.view.children
 import com.andb.apps.todo.views.TaskListItem
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -45,13 +46,11 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
             object : CyaneaViewProcessor<BottomAppBar>() {
                 override fun getType(): Class<BottomAppBar> = BottomAppBar::class.java
                 override fun process(view: BottomAppBar, attrs: AttributeSet?, cyanea: Cyanea) {
-                    var drawable = view.navigationIcon?.mutate()
-                    drawable?.setColorFilter(colorAlpha(Cyanea.instance.primary, .8f, .54f), PorterDuff.Mode.SRC_ATOP)
-                    view.navigationIcon = drawable
 
-                    drawable = view.overflowIcon?.mutate()
+                    var drawable = view.overflowIcon?.mutate()
                     drawable?.setColorFilter(colorAlpha(Cyanea.instance.primary, .8f, .54f), PorterDuff.Mode.SRC_ATOP)
                     view.overflowIcon = drawable
+
                 }
 
             },
@@ -59,16 +58,20 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
             object : CyaneaViewProcessor<AppCompatCheckBox>(){
                 override fun getType(): Class<AppCompatCheckBox> = AppCompatCheckBox::class.java
                 override fun process(view: AppCompatCheckBox, attrs: AttributeSet?, cyanea: Cyanea) {
-                    view.setTextColor(ColorStateList.valueOf(colorAlpha(Cyanea.instance.backgroundColor, 0.8f, 0.54f)))
+                    view.setTextColor(ColorStateList.valueOf(colorAlpha(Cyanea.instance.backgroundColor, .8f, .54f)))
                 }
-            }/*,
+            },
 
             object : CyaneaViewProcessor<TabLayout>(){
                 override fun getType(): Class<TabLayout> = TabLayout::class.java
                 override fun process(view: TabLayout, attrs: AttributeSet?, cyanea: Cyanea) {
-                    view.setTabTextColors(if (Utilities.lightOnBackground(cyanea.primary)) Color.WHITE else Color.BLACK, if (Utilities.lightOnBackground(cyanea.primary)) Utilities.colorWithAlpha(Color.WHITE, .54f) else Utilities.colorWithAlpha(Color.BLACK, .54f))
+                    view.setTabTextColors(if (Utilities.lightOnBackground(cyanea.primary)) Utilities.colorWithAlpha(Color.WHITE, .54f) else Utilities.colorWithAlpha(Color.BLACK, .54f), if (Utilities.lightOnBackground(cyanea.primary)) Color.WHITE else Color.BLACK)
+                    view.setBackgroundColor( cyanea.primary)
+                    view.setSelectedTabIndicatorColor(cyanea.accent)
+                    view.tabRippleColor = ColorStateList.valueOf(cyanea.accent)
                 }
-            }*/
+            }
+
 
 
 
@@ -79,10 +82,13 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
             FontDecorator()
     )
 
-    fun colorAlpha(bg: Int, aLight: Float, aDark: Float): Int{
-        return if (Utilities.lightOnBackground(bg))
-            Utilities.colorWithAlpha(Color.WHITE, aLight)
-        else
-            Utilities.colorWithAlpha(Color.BLACK, aDark)
+    companion object {
+        fun colorAlpha(bg: Int, aLight: Float, aDark: Float): Int{
+            return if (Utilities.lightOnBackground(bg))
+                Utilities.colorWithAlpha(Color.WHITE, aLight)
+            else
+                Utilities.colorWithAlpha(Color.BLACK, aDark)
+        }
     }
+
 }

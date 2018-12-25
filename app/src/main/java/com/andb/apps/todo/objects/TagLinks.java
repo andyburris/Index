@@ -1,9 +1,22 @@
 package com.andb.apps.todo.objects;
 
+import com.andb.apps.todo.typeconverters.TagConverter;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 
+import androidx.room.TypeConverters;
+
 public class TagLinks {
+
+    @SerializedName("tagPosition")
+    @Expose
     private int tagPosition;
+
+    @SerializedName("links")
+    @Expose
+    @TypeConverters(TagConverter.class)
     private ArrayList<Integer> links;
 
     public TagLinks (int parent, ArrayList<Integer> links){

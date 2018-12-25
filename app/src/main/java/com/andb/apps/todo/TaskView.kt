@@ -24,6 +24,7 @@ import com.jaredrummler.cyanea.app.CyaneaFragment
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,11 +35,15 @@ import com.andb.apps.todo.lists.TagList
 import com.andb.apps.todo.lists.TaskList
 import com.github.rongi.klaster.Klaster
 import kotlinx.android.synthetic.main.content_task_view.*
+import kotlinx.android.synthetic.main.fragment_browse.*
+import kotlinx.android.synthetic.main.fragment_inbox.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
 import kotlinx.android.synthetic.main.task_list_item.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.InterceptResult
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 
@@ -49,8 +54,7 @@ class TaskView : CyaneaFragment() {
     internal var viewPos = 0
     lateinit var task: Tasks
 
-
-
+    private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,10 +64,14 @@ class TaskView : CyaneaFragment() {
         inboxBrowseArchive = bundle.getInt("inboxBrowseArchive")
 
         when (inboxBrowseArchive) {
-            TaskAdapter.FROM_BROWSE -> task = FilteredLists.browseTaskList[position]
+            TaskAdapter.FROM_BROWSE -> {
+                task = FilteredLists.browseTaskList[position]
+            }
             TaskAdapter.FROM_ARCHIVE -> task = ArchiveTaskList.taskList[position]
             else //inbox
-            -> task = FilteredLists.inboxTaskList[position]
+            -> {
+                task = FilteredLists.inboxTaskList[position]
+            }
         }
 
 
@@ -100,7 +108,11 @@ class TaskView : CyaneaFragment() {
 
         prepareRecyclerViews(task)
 
-
+        expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
+            val directionInt = if (upwardPull) +1 else -1
+            val canScrollFurther = taskViewScrollLayout.canScrollVertically(directionInt)
+            if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
+        }
     }
 
 /*    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton, tabLayout: TabLayout) {
@@ -167,6 +179,8 @@ class TaskView : CyaneaFragment() {
         val tAdapter = tagAdapter()
         tRecyclerView.adapter = tAdapter
     }
+
+
 
 
     override fun onPause() {
