@@ -244,25 +244,7 @@ public class InboxFragment extends CyaneaFragment {
         final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_inbox);
         mRecyclerView.setExpandablePage(taskView);
 
-/*        taskView.addStateChangeCallbacks(new SimplePageStateChangeCallbacks() {
-            @Override
-            public void onPageCollapsed() {
-                super.onPageCollapsed();
-
-                BottomAppBar toolbar = getActivity().findViewById(R.id.toolbar);
-                FloatingActionButton fab = getActivity().findViewById(R.id.fab);
-                TabLayout tabLayout = getActivity().findViewById(R.id.tabs);
-
-                toolbar.setNavigationIcon(TaskView.Companion.getOldNavIcon());
-                CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) toolbar.getLayoutParams();
-                layoutParams.bottomMargin = TaskView.Companion.getOldMargin();
-
-                fab.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_black_24dp).mutate());
-                layoutParams = (CoordinatorLayout.LayoutParams) tabLayout.getLayoutParams();
-                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                tabLayout.setLayoutParams(layoutParams);
-            }
-        });*/
+        taskView.addStateChangeCallbacks(new TaskView.PageCollapseCallback(getActivity()));
 
         ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
         ith.attachToRecyclerView(mRecyclerView);

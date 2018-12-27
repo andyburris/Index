@@ -61,6 +61,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
+import de.Maxr1998.modernpreferences.Preference;
 
 
 public class MainActivity extends CyaneaAppCompatActivity
@@ -230,8 +231,16 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         this.setTheme(R.style.AppThemeGlobal);
 
-
-        SettingsActivity.Companion.setDefaultSort(Integer.parseInt(defaultSharedPrefs.getString("sort_mode_list", "0")));
+        try {
+            defaultSharedPrefs.getBoolean("sort_mode_list", true);
+        }catch (Exception e){
+            defaultSharedPrefs.edit().putBoolean("sort_mode_list", true).commit();
+        }
+        if(defaultSharedPrefs.getBoolean("sort_mode_list", true)) {
+            SettingsActivity.Companion.setDefaultSort(0);
+        }else {
+            SettingsActivity.Companion.setDefaultSort(1);
+        }
         InboxFragment.filterMode = SettingsActivity.Companion.getDefaultSort();
 
         SettingsActivity.Companion.setColoredToolbar(defaultSharedPrefs.getBoolean("colored_toolbar", false));
@@ -640,7 +649,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         if (start) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            nameFromSettings = prefs.getString("test_name", "");
+            nameFromSettings = prefs.getString("user_name", "");
             Log.d("prefLoadName", nameFromSettings);
         }
 

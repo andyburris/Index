@@ -85,25 +85,11 @@ public class ImportExport {
                             }
                             keyList.add(task.getListKey());
                         }
-                        //keyList = new ArrayList<>(new LinkedHashSet<>(keyList));
-                        //Toast.makeText(ctxt, "Tasklist size: " + TaskList.taskList.size() + ", Keylist size: " + keyList.size(), Toast.LENGTH_LONG).show();
+
                         TagList.tagList = gson.fromJson(tagJson, tagType);
                         TagLinkList.linkList = gson.fromJson(linkJson, linkType);
 
 
-/*                        Toast.makeText(ctxt, "Tasks imported: " +
-                                        Integer.toString(TaskList.taskList.size()) +
-                                        ", Tags imported: " +
-                                        Integer.toString(TagList.tagList.size()) +
-                                        "Links imported: " +
-                                        Integer.toString(TagLinkList.linkList.size()),
-                                Toast.LENGTH_LONG).show();*/
-
-/*
-                        for (Tasks task : TaskList.taskList) {
-                            task.normalizeAfterImport();
-                        }
-*/
 
                         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
 

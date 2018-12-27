@@ -40,14 +40,17 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         super.onCreate(savedInstanceState)
         this.setTheme(R.style.AppThemeLightCollapse)
         setContentView(R.layout.activity_settings)
+
         val bg: CoordinatorLayout = findViewById(R.id.settingsCoordinator)
         bg.setBackgroundColor(cyanea.backgroundColor)
         expandFromTop()
+
         val toolbar = findViewById<Toolbar>(R.id.settings_toolbar)
         var icon: Drawable = getResources().getDrawable(R.drawable.ic_clear_black_24dp)
         icon.setColorFilter(if(Utilities.lightOnBackground(cyanea.backgroundColor)) Utilities.colorWithAlpha(Color.WHITE, 1f) else Utilities.colorWithAlpha(Color.BLACK, 1f), PorterDuff.Mode.SRC_ATOP)
         toolbar.setNavigationIcon(icon)
         toolbar.inflateMenu(R.menu.toolbar_settings)
+
         val prefView = findViewById<RecyclerView>(R.id.settings_rv)
         prefView.layoutManager = LinearLayoutManager(this)
         prefView.adapter = preferencesAdapter

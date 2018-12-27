@@ -1,30 +1,27 @@
 package com.andb.apps.todo.views
 
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.PorterDuff
+import android.graphics.Paint
 import android.os.AsyncTask
 import android.os.Bundle
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
-import android.transition.TransitionSet
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.children
-import androidx.core.view.get
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.*
-import com.andb.apps.todo.lists.TagList
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
-import com.google.android.material.chip.Chip
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_list_item.view.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class TaskListItem : ConstraintLayout {
 
@@ -36,18 +33,17 @@ class TaskListItem : ConstraintLayout {
     private val STATE_ONE = intArrayOf(-R.attr.state_on, R.attr.state_off)
     private var sublistToggleState = SettingsActivity.subtaskDefaultShow
 
-
     init {
         inflate(context, R.layout.inbox_list_item, this)
     }
 
     fun setup(tasks: Tasks, pos: Int, inboxBrowseArchive: Int) {
         task = tasks
-        setTasks()
+        setTasks(pos, inboxBrowseArchive)
         topLayout.setTags(tasks)
         topLayout.setTitle(task.listName)
         topLayout.setOverflow()
-        moreTags.visibility = if (topLayout.chipsVisible>task.listTagsSize) View.GONE else View.VISIBLE
+        moreTags.visibility = if (topLayout.chipsVisible > task.listTagsSize) View.GONE else View.VISIBLE
         inboxCard.setOnClickListener {
             val bundle = Bundle()
             bundle.putInt("pos", pos)
@@ -68,7 +64,7 @@ class TaskListItem : ConstraintLayout {
                 }
                 TaskAdapter.FROM_ARCHIVE -> {
                 }
-                else->{ //inbox
+                else -> { //inbox
                     ft.add(R.id.expandable_page_inbox, taskView)
                     ft.commit()
                     InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
@@ -79,8 +75,7 @@ class TaskListItem : ConstraintLayout {
     }
 
 
-
-    private fun setTasks() {
+    private fun setTasks(pos: Int, inboxBrowseArchive: Int) {
 
         val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))
 
@@ -93,12 +88,16 @@ class TaskListItem : ConstraintLayout {
                     checkBoxes[i].text = task.listItems[i]
                     checkBoxes[i].setOnCheckedChangeListener { buttonView, isChecked ->
                         task.editListItemsChecked(isChecked, i)
+                        checkBoxes[i].paintFlags = if(!isChecked)checkBoxes[i].paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBoxes[i].paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+
                         AsyncTask.execute {
                             MainActivity.tasksDatabase.tasksDao().updateTask(task)
                         }
 
                     }
                     checkBoxes[i].isChecked = task.getListItemsChecked(i)
+                    checkBoxes[i].paintFlags = if(!checkBoxes[i].isChecked)checkBoxes[i].paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBoxes[i].paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+
                     checkBoxes[i].visibility = View.VISIBLE
 
                 } else {
@@ -111,56 +110,30 @@ class TaskListItem : ConstraintLayout {
                 moreTasks.visibility = View.GONE
             }
 
-            val constraintLayout = item1.parent as ConstraintLayout
-            val constraintSet = ConstraintSet()
-            constraintSet.clone(constraintLayout)
-
-            sublistIcon.visibility = View.VISIBLE
-            if (SettingsActivity.subtaskDefaultShow) {
-                constraintSet.constrainHeight(R.id.item1, ConstraintSet.WRAP_CONTENT)
-                constraintSet.constrainHeight(R.id.item2, ConstraintSet.WRAP_CONTENT)
-                constraintSet.constrainHeight(R.id.item3, ConstraintSet.WRAP_CONTENT)
-                constraintSet.constrainHeight(R.id.listitempadding, 16)
-                constraintSet.applyTo(constraintLayout)
-                sublistIcon.setImageState(STATE_ZERO, true)
-                sublistToggleState = true
-            } else {
-                constraintSet.constrainHeight(R.id.item1, 1)
-                constraintSet.constrainHeight(R.id.item2, 1)
-                constraintSet.constrainHeight(R.id.item3, 1)
-                constraintSet.constrainHeight(R.id.listitempadding, 0)
-                constraintSet.applyTo(constraintLayout)
-                sublistIcon.setImageState(STATE_ONE, true)
-                sublistToggleState = false
+            var expandedList: ArrayList<Boolean>
+            var taskList: ArrayList<Tasks>
+            val adapter: TaskAdapter
+            val rv: RecyclerView
+            when (inboxBrowseArchive) {
+                TaskAdapter.FROM_ARCHIVE -> rv = Archive.mRecyclerView
+                TaskAdapter.FROM_BROWSE -> rv = BrowseFragment.mRecyclerView
+                else -> rv = InboxFragment.mRecyclerView
             }
 
-            sublistIcon.setOnClickListener {
-                sublistToggleState = !sublistToggleState
+            adapter = rv.adapter as TaskAdapter
+            taskList = ArrayList(adapter.taskList)
+            adapter.expandedList = ArrayList<Boolean>()
+            expandedList = adapter.expandedList
 
-                if (sublistToggleState) {
-                    sublistIcon.setImageState(STATE_ZERO, true)
-
-                    TransitionManager.beginDelayedTransition(constraintLayout, TransitionSet().addTransition(ChangeBounds()))
-
-
-                    constraintSet.constrainHeight(R.id.item1, ConstraintSet.WRAP_CONTENT)
-                    constraintSet.constrainHeight(R.id.item2, ConstraintSet.WRAP_CONTENT)
-                    constraintSet.constrainHeight(R.id.item3, ConstraintSet.WRAP_CONTENT)
-                    constraintSet.constrainHeight(R.id.listitempadding, 16)
-                    constraintSet.applyTo(constraintLayout)
-
-                } else {
-                    sublistIcon.setImageState(STATE_ONE, true)
-
-                    TransitionManager.beginDelayedTransition(constraintLayout, TransitionSet().addTransition(ChangeBounds()))
-
-                    constraintSet.constrainHeight(R.id.item1, 1)
-                    constraintSet.constrainHeight(R.id.item2, 1)
-                    constraintSet.constrainHeight(R.id.item3, 1)
-                    constraintSet.constrainHeight(R.id.listitempadding, 0)
-                    constraintSet.applyTo(constraintLayout)
+            for (tasks in taskList) { /*init here since tasklist is null in constructor*/
+                var selected = false
+                if (SettingsActivity.subtaskDefaultShow) {
+                    selected = tasks.isListItems
                 }
+                expandedList.add(selected)
             }
+
+            setupCollapse(expandedList, pos, rv)
 
 
         } else { //no checkboxes
@@ -174,11 +147,51 @@ class TaskListItem : ConstraintLayout {
 
     }
 
+    fun setupCollapse(expandedList: ArrayList<Boolean>, pos: Int, rv: RecyclerView) {
+        if (expandedList[pos]) {
+            expandSublist()
+        } else {
+            collapseSublist()
+        }
+        sublistIcon.setOnClickListener {
+
+            expandedList[pos] = !expandedList[pos]
+            TransitionManager.beginDelayedTransition(rv, ChangeBounds())
+            if (expandedList[pos]) {
+                expandSublist()
+                expandedList[pos] = true
+            } else {
+                collapseSublist()
+                expandedList[pos] = false
+            }
+
+        }
+    }
+
+    fun expandSublist() {
+        sublistToggleState = true
+
+        item1.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        item2.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        item3.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        listitempadding.visibility = View.VISIBLE
+        sublistIcon.setImageState(STATE_ZERO, true)
+
+    }
+
+    fun collapseSublist() {
+        sublistToggleState = false
+
+        item1.layoutParams.height = 0
+        item2.layoutParams.height = 0
+        item3.layoutParams.height = 0
+        listitempadding.visibility = View.GONE
+        sublistIcon.setImageState(STATE_ONE, true)
+    }
 
 
     fun setCyaneaBackground(color: Int) {
-        var cl: ConstraintLayout = findViewById(R.id.inboxCard)
-        cl.setBackgroundColor(color)
+        inboxCard.setBackgroundColor(color)
     }
 
 

@@ -31,8 +31,8 @@ import me.saket.inboxrecyclerview.PullCollapsibleActivity;
 
 public class Archive extends PullCollapsibleActivity {
 
-    private RecyclerView mRecyclerView;
-    private static TaskAdapter mAdapter;
+    public static RecyclerView mRecyclerView;
+    public static TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     @Override

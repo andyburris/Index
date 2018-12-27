@@ -48,7 +48,7 @@
     <com.andb.apps.todo.views.CyaneaTextView
         android:id="@+id/taskName2"
         android:layout_width="0dp"
-        android:layout_height="51dp"
+        android:layout_height="wrap_content"
         android:alpha=".85"
         android:ellipsize="end"
         android:paddingStart="16dp"

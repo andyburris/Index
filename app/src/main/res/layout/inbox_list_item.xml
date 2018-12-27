@@ -8,6 +8,7 @@
     android:layout_height="wrap_content"
     android:elevation="0dp"
     android:theme="@style/AppThemeGlobal"
+    android:animateLayoutChanges="true"
     android:visibility="visible">
 
 

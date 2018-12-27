@@ -2,43 +2,21 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.lists.TaskList;
-import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.views.TaskListItem;
-import com.google.android.material.chip.Chip;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.constraintlayout.widget.Group;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,8 +25,8 @@ import me.saket.inboxrecyclerview.InboxRecyclerView;
 public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHolder> {
 
     public List<Tasks> taskList;
+    public ArrayList<Boolean> expandedList;
 
-    private Context context;
 
     public boolean isSelected = false;
 
@@ -87,22 +65,22 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
 
 
     public TaskAdapter(List<Tasks> tasksList, int inboxBrowseArchive) {
-        this.taskList = tasksList;
         this.inboxBrowseArchive = inboxBrowseArchive;
+        this.taskList = tasksList;
+
     }
 
 
     @Override
     public TaskAdapter.MyViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
 
-        context = parent.getContext();
         View itemView;
 
 
         if (viewType == 0) {
             itemView = new TaskListItem(parent.getContext());
         } else {
-            itemView = LayoutInflater.from(context).inflate(
+            itemView = LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.inbox_divider, parent, false);
         }
 
@@ -118,9 +96,6 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
         setUpByViewType(position, holder, realPosition);
 
         Log.d("onePosUpError", Integer.toString(realPosition));
-
-
-
 
 
     }
@@ -213,8 +188,6 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     public int getItemCount() {
         return taskList.size();
     }
-
-
 
 
     @Override

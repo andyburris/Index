@@ -2,10 +2,15 @@ package com.andb.apps.todo.settings
 
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.res.Resources
+import android.preference.PreferenceManager
 import android.util.AttributeSet
+import android.view.View
+import android.widget.EditText
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.andb.apps.todo.R
 import com.jaredrummler.android.colorpicker.ColorPreference
@@ -20,60 +25,38 @@ object SettingsLayout {
             iconRes = R.drawable.ic_info_black_24dp
             centerIcon = false
 
-            categoryHeader("header_plain") {
-                title = "Plain"
+            categoryHeader("info") {
+                title = "Info"
             }
-            pref("plain") {
-                title = "A plain preference…"
-            }
-            pref("with-summary") {
-                title = "…that doesn't have a widget"
-                summary = "But a summary this time!"
-            }
-            pref("with-icon") {
-                title = "There's also icon support, yay!"
-                iconRes = R.drawable.ic_access_time_black_24dp
-            }
-            categoryHeader("header_two_state") {
-                title = "Two state"
-            }
-            switch("switch") {
-                title = "A simple switch"
-            }
-            pref("dependent") {
-                title = "Toggle the switch above"
-                dependency = "switch"
+            pref("user_name") {
+                title = "Name"
+                val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+                summary =  prefs.getString("user_name", "John Doe")
+                requestRebind()
                 clickView { _, holder ->
-                    Toast.makeText(holder.itemView.context, "Preference was clicked!", Toast.LENGTH_SHORT).show()
-                    false
+                    var view = EditText(context)
+                    view.setText(getString("John Doe"))
+                    AlertDialog.Builder(context)
+                            .setView(view)
+                            .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                                commitString(view.text.toString())
+                                summary = view.text.toString()
+                                requestRebind()
+                            })
+                            .show()
+                    true
                 }
             }
-            checkBox("checkbox") {
-                title = "A checkbox"
+            categoryHeader("header_defaults") {
+                title = "Defaults"
             }
-            categoryHeader("header_advanced") {
-                title = "Advanced"
+            switch("expand_lists"){
+                title = "Expand lists to start"
+                summary = "If off, icon will display to open"
             }
-            seekBar("seekbar") {
-                title = "A seekbar"
-                min = 1
-                max = 100
-            }
-            expandText("expand-text") {
-                title = "Expandable text"
-                text = "This is an example implementation of ModernAndroidPreferences, check out " +
-                        "the source on https://github.com/Maxr1998/ModernAndroidPreferences"
-            }
-            collapse {
-                pref("collapsed_one") {
-                    title = "Collapsed by default"
-                }
-                pref("collapsed_two") {
-                    title = "Another preference"
-                }
-                pref("collapsed_three") {
-                    title = "A longer title to trigger ellipsize"
-                }
+            switch("sort_mode_list"){
+                title = "Default sort"
+                summary = "On: Date Sort, Off: Alphabetical Sort"
             }
         }
         subScreen {

@@ -1,5 +1,6 @@
 package com.andb.apps.todo
 
+import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
@@ -28,6 +29,8 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.andb.apps.todo.eventbus.UpdateEvent
@@ -44,6 +47,7 @@ import kotlinx.android.synthetic.main.task_view_tag_list_item.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
+import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 
@@ -88,7 +92,7 @@ class TaskView : CyaneaFragment() {
 
         val bg = view.findViewById<CoordinatorLayout>(R.id.task_view_parent)
         bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-        //collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab), activity!!.findViewById(R.id.tabs))
+        collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab), activity!!.findViewById(R.id.tabs))
 
 
         Log.d("onePosUpError", task.listName)
@@ -115,17 +119,16 @@ class TaskView : CyaneaFragment() {
         }
     }
 
-/*    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton, tabLayout: TabLayout) {
+    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton, tabLayout: TabLayout) {
         oldNavIcon = toolbar.navigationIcon!!.mutate()
         oldMargin = (toolbar.layoutParams as CoordinatorLayout.LayoutParams).bottomMargin
         toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp)
 
-        //TransitionManager.beginDelayedTransition(tabLayout, new ChangeBounds());
+        TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
         var layoutParams = tabLayout.layoutParams as CoordinatorLayout.LayoutParams
-        layoutParams.height = 1
+        layoutParams.height = 0
         tabLayout.layoutParams = layoutParams
 
-        //TransitionManager.beginDelayedTransition((ViewGroup) toolbar.getRootView(), new ChangeBounds());
         layoutParams = toolbar.layoutParams as CoordinatorLayout.LayoutParams
         layoutParams.bottomMargin = 0
         toolbar.layoutParams = layoutParams
@@ -133,7 +136,7 @@ class TaskView : CyaneaFragment() {
         fab.setImageDrawable(resources.getDrawable(R.drawable.ic_done_all_black_24dp).mutate())
 
 
-    }*/
+    }
 
     fun subtaskAdapter()  = Klaster.get()
             .itemCount { task.listItemsSize }
@@ -193,6 +196,26 @@ class TaskView : CyaneaFragment() {
 
         lateinit var oldNavIcon: Drawable
         var oldMargin: Int = 0
+    }
+
+    class PageCollapseCallback(val activity: Activity) : SimplePageStateChangeCallbacks(){
+        override fun onPageCollapsed() {
+            super.onPageCollapsed()
+
+            val toolbar: Toolbar = activity.findViewById(R.id.toolbar)
+            val fab: FloatingActionButton = activity.findViewById(R.id.fab)
+            val tabLayout: TabLayout = activity.findViewById(R.id.tabs)
+
+            android.transition.TransitionManager.beginDelayedTransition(toolbar.getRootView() as ViewGroup, android.transition.ChangeBounds())
+            toolbar.setNavigationIcon(TaskView.oldNavIcon)
+            var layoutParams: CoordinatorLayout.LayoutParams = toolbar.getLayoutParams() as CoordinatorLayout.LayoutParams
+            layoutParams.bottomMargin = TaskView.oldMargin
+
+            fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp).mutate())
+            layoutParams = tabLayout.getLayoutParams() as CoordinatorLayout.LayoutParams
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            tabLayout.setLayoutParams(layoutParams)
+        }
     }
 
 
