@@ -29,6 +29,11 @@
             app:layout_anchorGravity="bottom"
             app:navigationIcon="@drawable/ic_menu_black_24dp" />
 
+        <ViewStub
+            android:id="@+id/cab_stub"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize" />
+
         <com.andb.apps.todo.views.CyaneaTextView
             android:id="@+id/toolbar_text"
             android:layout_width="100dp"

@@ -51,7 +51,7 @@ public class Filters {
         } else {
             MainActivity.subTitle.setText(R.string.app_name);
         }
-        InboxFragment.setPathText(subtitle);
+        InboxFragment.Companion.setPathText(subtitle);
     }
 
 
@@ -80,7 +80,7 @@ public class Filters {
         } else {
             MainActivity.subTitle.setText(R.string.app_name);
         }
-        InboxFragment.setPathText(subtitle);
+        InboxFragment.Companion.setPathText(subtitle);
     }
 
     public static void tagReset(int tag) {
@@ -109,7 +109,7 @@ public class Filters {
         } else {
             MainActivity.subTitle.setText(R.string.app_name);
         }
-        InboxFragment.setPathText(subtitle);
+        InboxFragment.Companion.setPathText(subtitle);
     }
 
     public static int getMostRecent() {

@@ -39,6 +39,14 @@ public class Utilities {
         return  ((r * 0.299 + g * 0.587 + b * 0.114) < 186);
     }
 
+    public static int textFromBackground(int background){
+        if (lightOnBackground(background)){
+            return Color.WHITE;
+        }else {
+            return Color.BLACK;
+        }
+    }
+
     public static int colorWithAlpha(int color, float alpha){
         int r = Color.red( color );
         int g = Color.green( color );

@@ -58,7 +58,7 @@ class TaskView : CyaneaFragment() {
     internal var viewPos = 0
     lateinit var task: Tasks
 
-    private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
+    val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -196,9 +196,21 @@ class TaskView : CyaneaFragment() {
 
         lateinit var oldNavIcon: Drawable
         var oldMargin: Int = 0
+        var pageState = 0
     }
 
-    class PageCollapseCallback(val activity: Activity) : SimplePageStateChangeCallbacks(){
+
+    class TaskViewPageCallbacks(val activity: Activity) : SimplePageStateChangeCallbacks(){
+        override fun onPageAboutToExpand(expandAnimDuration: Long) {
+            super.onPageAboutToExpand(expandAnimDuration)
+            pageState = 1
+        }
+
+        override fun onPageExpanded() {
+            super.onPageExpanded()
+
+            pageState = 2
+        }
         override fun onPageCollapsed() {
             super.onPageCollapsed()
 
@@ -215,7 +227,14 @@ class TaskView : CyaneaFragment() {
             layoutParams = tabLayout.getLayoutParams() as CoordinatorLayout.LayoutParams
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             tabLayout.setLayoutParams(layoutParams)
+            pageState = 0
         }
+
+        override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+            super.onPageAboutToCollapse(collapseAnimDuration)
+            pageState = 3
+        }
+
     }
 
 

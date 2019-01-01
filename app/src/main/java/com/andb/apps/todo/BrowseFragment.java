@@ -4,7 +4,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,25 +19,12 @@ import android.widget.ImageView;
 
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
-import com.andb.apps.todo.lists.TagLinkList;
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.objects.TagLinks;
-import com.andb.apps.todo.objects.Tags;
-import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.settings.SettingsActivity;
-import com.github.rongi.klaster.Klaster;
-import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.jaredrummler.cyanea.app.CyaneaFragment;
 
 import java.util.ArrayList;
 
 import androidx.cardview.widget.CardView;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
@@ -49,7 +35,6 @@ import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
-import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks;
 
 
 /**
@@ -205,7 +190,7 @@ public class BrowseFragment extends CyaneaFragment {
 
         ViewCompat.setNestedScrollingEnabled(mRecyclerView, false);
 
-        taskView.addStateChangeCallbacks(new TaskView.PageCollapseCallback(getActivity()));
+        taskView.addStateChangeCallbacks(new TaskView.TaskViewPageCallbacks(getActivity()));
 
         tRecyclerView = (RecyclerView) view.findViewById(R.id.browseTagRecycler);
 

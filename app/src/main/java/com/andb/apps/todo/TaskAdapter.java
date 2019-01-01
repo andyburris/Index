@@ -144,7 +144,7 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
 
     @Override
     public int getItemViewType(int position) {
-        if (InboxFragment.filterMode == 0) {
+        if (InboxFragment.Companion.getFilterMode() == 0) {
             if (taskList.get(position).getListName().equals("OVERDUE")) {
                 Log.d("getItemViewType", "OVERDUE");
                 viewType = OVERDUE_DIVIDER;

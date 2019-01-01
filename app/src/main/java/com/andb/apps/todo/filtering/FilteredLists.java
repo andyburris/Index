@@ -178,10 +178,10 @@ public class FilteredLists {
             inboxTaskList.clear();
             inboxTaskList.addAll(addToInbox);
 
-            InboxFragment.setFilterMode(InboxFragment.filterMode);
+            InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
 
 
-            InboxFragment.refreshWithAnim();
+            InboxFragment.Companion.refreshWithAnim();
 
 
         }
@@ -195,9 +195,9 @@ public class FilteredLists {
         }
 
         if (Filters.getCurrentFilter().size() != 0) {
-            InboxFragment.setTaskCountText(inboxTaskList.size());
+            InboxFragment.Companion.setTaskCountText(inboxTaskList.size());
         } else {
-            InboxFragment.setTaskCountText(TaskList.taskList.size());
+            InboxFragment.Companion.setTaskCountText(TaskList.taskList.size());
         }
 
         long endTime = System.nanoTime();

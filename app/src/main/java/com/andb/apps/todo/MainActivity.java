@@ -28,6 +28,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialcab.MaterialCab;
 import com.andb.apps.todo.databases.TasksDatabase;
 import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.filtering.FilteredLists;
@@ -62,6 +63,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
 import de.Maxr1998.modernpreferences.Preference;
+import me.saket.inboxrecyclerview.InboxRecyclerView;
 
 
 public class MainActivity extends CyaneaAppCompatActivity
@@ -178,7 +180,6 @@ public class MainActivity extends CyaneaAppCompatActivity
 
                     EventBus.getDefault().post(new UpdateEvent(true));
 
-                    //InboxFragment.setFilterMode(InboxFragment.filterMode);
                 }
             });
 
@@ -241,7 +242,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         }else {
             SettingsActivity.Companion.setDefaultSort(1);
         }
-        InboxFragment.filterMode = SettingsActivity.Companion.getDefaultSort();
+        InboxFragment.Companion.setFilterMode(SettingsActivity.Companion.getDefaultSort());
 
         SettingsActivity.Companion.setColoredToolbar(defaultSharedPrefs.getBoolean("colored_toolbar", false));
         SettingsActivity.Companion.setSubFilter(defaultSharedPrefs.getBoolean("sub_Filter_pref", false));
@@ -308,7 +309,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         TextView navName = findViewById(R.id.navName);
         setName(navName, false);
 
-        InboxFragment.mAdapter.notifyDataSetChanged();
+        InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
         BrowseFragment.mAdapter.notifyDataSetChanged();
 
 
@@ -325,7 +326,15 @@ public class MainActivity extends CyaneaAppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
+
+        } else if(TaskView.Companion.getPageState() != 0){
+            InboxFragment.mRecyclerView.collapse();
+            BrowseFragment.mRecyclerView.collapse();
+        }
+        else if(MaterialCab.Companion.isActive()){
+            MaterialCab.Companion.destroy();
+        }
+        else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
             Filters.tagBack();
         } else {
             super.onBackPressed();
@@ -381,12 +390,12 @@ public class MainActivity extends CyaneaAppCompatActivity
                         Log.d("filterclicked", Integer.toString(id));
                         switch (id) {
                             case R.id.sortDate:
-                                InboxFragment.setFilterMode(0);
-                                InboxFragment.refreshWithAnim();
+                                InboxFragment.Companion.setFilterMode(0);
+                                InboxFragment.Companion.refreshWithAnim();
                                 break;
                             case R.id.sortAlpha:
-                                InboxFragment.setFilterMode(1);
-                                InboxFragment.refreshWithAnim();
+                                InboxFragment.Companion.setFilterMode(1);
+                                InboxFragment.Companion.refreshWithAnim();
                                 break;
 
                         }
@@ -460,7 +469,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return InboxFragment.newInstance();
+                    return InboxFragment.Companion.newInstance();
 
                 case 1:
                     return BrowseFragment.newInstance();
