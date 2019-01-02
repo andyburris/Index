@@ -125,7 +125,7 @@ public class BrowseFragment extends CyaneaFragment {
                 if (mAdapter.getItemViewType(position) == 1 & !selected) {
                     contextualToolbar = BrowseFragment.this.getActivity().startActionMode(setCallback(position));
                     view.setSelected(true);
-                    mAdapter.isSelected = true;
+                    mAdapter.selected = position;
                     mAdapter.notifyItemChanged(position);
                     selected = true;
                 }
@@ -401,7 +401,7 @@ public class BrowseFragment extends CyaneaFragment {
                 switch (item.getItemId()) {
                     case R.id.editTask:
                         selected = false;
-                        mAdapter.isSelected = false;
+                        mAdapter.selected = -1;
                         mAdapter.notifyItemChanged(position);
                         Intent editTask = new Intent(BrowseFragment.this.getContext(), AddTask.class);
                         editTask.putExtra("edit", true);
@@ -418,7 +418,7 @@ public class BrowseFragment extends CyaneaFragment {
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 selected = false;
-                mAdapter.isSelected = false;
+                mAdapter.selected = -1;
                 mAdapter.notifyItemChanged(position);
             }
         };

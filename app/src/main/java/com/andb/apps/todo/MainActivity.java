@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +41,7 @@ import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.notifications.NotificationHandler;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -74,7 +76,7 @@ public class MainActivity extends CyaneaAppCompatActivity
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    public static InboxRVViewPager mViewPager;
 
     private TabLayout tabLayout;
 
@@ -107,7 +109,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         appStart = true;
         loadBeforeSettings();
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         pagerInitialize();
         fromSettings = false;
@@ -346,6 +348,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+        menu.setGroupVisible(R.id.toolbar_task_view, false);
 
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -377,6 +380,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            /*MAINACTIVITY ITEMS*/
             case R.id.action_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
@@ -406,6 +410,12 @@ public class MainActivity extends CyaneaAppCompatActivity
                 MenuInflater inflater = popupMenu.getMenuInflater();
                 inflater.inflate(R.menu.filter_menu, popupMenu.getMenu());
                 popupMenu.show();
+
+            /*TASKVIEW ITEMS*/
+            case R.id.app_bar_edit:
+                TaskView.Companion.editFromToolbar(this);
+                return true;
+            //TODO: Reschedule
         }
 
 
@@ -488,7 +498,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         }
     }
 
-
     public void loadTags() {
 
         long startTime = System.nanoTime();
@@ -570,7 +579,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -581,8 +590,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         Log.d("tab not showing", Integer.toString(tabLayout.getTabCount()));
         Log.d("tab not showing", tabLayout.getTabAt(0).getText().toString());
         Log.d("tab not showing", tabLayout.getTabAt(1).getText().toString());
-
-        mViewPager = (ViewPager) findViewById(R.id.container);
 
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.

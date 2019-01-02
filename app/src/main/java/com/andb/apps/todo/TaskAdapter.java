@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.views.TaskListItem;
+import com.jaredrummler.cyanea.Cyanea;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     public ArrayList<Boolean> expandedList;
 
 
-    public boolean isSelected = false;
+    public int selected = -1;
 
     private int viewType = 0;
 
@@ -106,6 +107,10 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
         if (viewType == 0) {
             TaskListItem taskListItem = (TaskListItem) holder.itemView;
             taskListItem.setup(taskList.get(position), realPosition, inboxBrowseArchive);
+            if(position==selected) {
+                taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 0.8f), 0.7));
+                //TODO: lighten on dark theme
+            }
 
         } else { //divider logic
             Log.d("adapterPosition", Integer.toString(realPosition));

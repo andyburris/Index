@@ -1,15 +1,19 @@
 package com.andb.apps.todo
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.view.menu.MenuBuilder
 
 import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.lists.ArchiveTaskList
@@ -33,6 +37,7 @@ import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.afollestad.materialcab.MaterialCab
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.lists.TagList
 import com.andb.apps.todo.lists.TaskList
@@ -53,8 +58,7 @@ import java.util.*
 
 class TaskView : CyaneaFragment() {
 
-    internal var position: Int = 0
-    internal var inboxBrowseArchive: Int = 0 //0 is inbox, 1 is browse, 2 is archive
+
     internal var viewPos = 0
     lateinit var task: Tasks
 
@@ -135,7 +139,8 @@ class TaskView : CyaneaFragment() {
 
         fab.setImageDrawable(resources.getDrawable(R.drawable.ic_done_all_black_24dp).mutate())
 
-
+        toolbar.menu.setGroupVisible(R.id.toolbar_task_view, true)
+        toolbar.menu.setGroupVisible(R.id.toolbar_main, false)
     }
 
     fun subtaskAdapter()  = Klaster.get()
@@ -197,6 +202,33 @@ class TaskView : CyaneaFragment() {
         lateinit var oldNavIcon: Drawable
         var oldMargin: Int = 0
         var pageState = 0
+        internal var position: Int = 0
+        internal var inboxBrowseArchive: Int = 0 //0 is inbox, 1 is browse, 2 is archive
+
+        fun editFromToolbar(ctxt: Context){//TODO: reset vars and don't return if collpased
+            when (inboxBrowseArchive) {
+                TaskAdapter.FROM_BROWSE -> {
+                    val editTask = Intent(ctxt, AddTask::class.java)
+                    editTask.putExtra("edit", true)
+                    editTask.putExtra("editPos", position)
+                    editTask.putExtra("browse", true)
+                    ctxt.startActivity(editTask)
+                }
+                TaskAdapter.FROM_ARCHIVE -> {
+                }
+                else //inbox
+                -> {
+                    val editTask = Intent(ctxt, AddTask::class.java)
+                    editTask.putExtra("edit", true)
+                    editTask.putExtra("editPos", position)
+                    editTask.putExtra("browse", false)
+                    ctxt.startActivity(editTask)
+                }
+            }
+        }
+        fun taskDone(ctxt: Context){
+            //TODO: collapse, notify, archive
+        }
     }
 
 
@@ -208,11 +240,12 @@ class TaskView : CyaneaFragment() {
 
         override fun onPageExpanded() {
             super.onPageExpanded()
-
             pageState = 2
         }
         override fun onPageCollapsed() {
             super.onPageCollapsed()
+            pageState = 0
+
 
             val toolbar: Toolbar = activity.findViewById(R.id.toolbar)
             val fab: FloatingActionButton = activity.findViewById(R.id.fab)
@@ -223,14 +256,15 @@ class TaskView : CyaneaFragment() {
             var layoutParams: CoordinatorLayout.LayoutParams = toolbar.getLayoutParams() as CoordinatorLayout.LayoutParams
             layoutParams.bottomMargin = TaskView.oldMargin
 
-            fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp).mutate())
+            fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp)?.mutate())
             layoutParams = tabLayout.getLayoutParams() as CoordinatorLayout.LayoutParams
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             tabLayout.setLayoutParams(layoutParams)
-            pageState = 0
+            toolbar.menu.setGroupVisible(R.id.toolbar_task_view, false)
+            toolbar.menu.setGroupVisible(R.id.toolbar_main, true)
         }
 
-        override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+            override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
             super.onPageAboutToCollapse(collapseAnimDuration)
             pageState = 3
         }

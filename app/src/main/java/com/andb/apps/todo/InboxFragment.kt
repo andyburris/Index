@@ -56,7 +56,6 @@ import kotlinx.android.synthetic.main.fragment_inbox.view.*
 class InboxFragment : CyaneaFragment() {
 
     private val contextualToolbar: ActionMode? = null
-    var selected = false
 
 
     private var mListener: OnFragmentInteractionListener? = null
@@ -192,7 +191,7 @@ class InboxFragment : CyaneaFragment() {
             override fun onClick(view: View, position: Int) {}
 
             override fun onLongClick(view: View, position: Int) {
-                if (!isSwiping && (mAdapter.getItemViewType(position) == 0) and !selected) {
+                if (!isSwiping && (mAdapter.getItemViewType(position) == 0) && mAdapter.selected==-1) {
                     //contextualToolbar = InboxFragment.this.getActivity().startActionMode(setCallback(position));
                     MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub){
                         title = FilteredLists.inboxTaskList[position].listName
@@ -218,17 +217,16 @@ class InboxFragment : CyaneaFragment() {
                         }
                         onCreate { cab, menu ->
                             activity?.window?.statusBarColor = cyanea.accentDark
+                            mAdapter.selected = position
+                            mAdapter.notifyItemChanged(position)
                         }
                         onDestroy {
-                            selected = false
                             activity?.window?.statusBarColor = 0x33333333
+                            mAdapter.selected = -1
+                            mAdapter.notifyItemChanged(position)
                             true
                         }
                     }
-                    view.isSelected = true
-                    mAdapter.isSelected = true
-                    mAdapter.notifyItemChanged(position)
-                    selected = true
                 }
             }
         }) {

@@ -83,25 +83,29 @@ class TaskListItem : ConstraintLayout {
             Log.d("items", task.listName + ", multipleItems: " + task.listItemsSize)
 
             for (i in 0..2) {
+                val scale: Float = this.resources.displayMetrics.density
+                val checkBox: CheckBox = checkBoxes[i]
+                checkBox.setPadding(Math.round(4f * scale + 0.5f), checkBox.paddingTop, checkBox.paddingRight, checkBox.paddingBottom)
+
                 if (i < task.listItemsSize) {
 
-                    checkBoxes[i].text = task.listItems[i]
-                    checkBoxes[i].setOnCheckedChangeListener { buttonView, isChecked ->
+                    checkBox.text = task.listItems[i]
+                    checkBox.setOnCheckedChangeListener { _, isChecked ->
                         task.editListItemsChecked(isChecked, i)
-                        checkBoxes[i].paintFlags = if(!isChecked)checkBoxes[i].paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBoxes[i].paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        checkBox.paintFlags = if(!isChecked)checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
                         AsyncTask.execute {
                             MainActivity.tasksDatabase.tasksDao().updateTask(task)
                         }
 
                     }
-                    checkBoxes[i].isChecked = task.getListItemsChecked(i)
-                    checkBoxes[i].paintFlags = if(!checkBoxes[i].isChecked)checkBoxes[i].paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBoxes[i].paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    checkBox.isChecked = task.getListItemsChecked(i)
+                    checkBox.paintFlags = if(!checkBox.isChecked)checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
-                    checkBoxes[i].visibility = View.VISIBLE
+                    checkBox.visibility = View.VISIBLE
 
                 } else {
-                    checkBoxes[i].visibility = View.GONE
+                    checkBox.visibility = View.GONE
                 }
             }
             if (task.listItemsSize > 3) {

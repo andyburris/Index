@@ -63,4 +63,18 @@ public class Utilities {
         return Color.argb(1, cr, cg, cb);
 
     }
+
+    public static int desaturate(int color, double desaturateBy){
+
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+
+        double L = 0.3*r + 0.6*g + 0.1*b;
+        int new_r = (int) Math.round(r + desaturateBy * (L - r));
+        int new_g = (int) Math.round(g + desaturateBy * (L - g));
+        int new_b = (int) Math.round(b + desaturateBy * (L - b));
+
+        return Color.argb(Color.alpha(color), new_r, new_g, new_b);
+    }
 }
