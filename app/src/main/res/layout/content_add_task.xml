@@ -37,96 +37,83 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/add_task_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                    <Switch
+                        android:id="@+id/switch_task"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="horizontal"
-                        android:paddingBottom="8dp">
+                        android:backgroundTint="@color/shadow_color"
+                        android:paddingStart="16dp"
+                        android:paddingTop="24dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="16dp"
+                        android:text="List"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                        <Switch
-                            android:id="@+id/switch_task"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/itemRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@+id/switch_task">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/addButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="4dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@+id/itemRecyclerView">
+
+                        <TextView
+                            android:id="@+id/textView3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginRight="16dp"
-                            android:layout_marginBottom="8dp"
-                            android:layout_weight="1"
-                            android:text="List" />
-                    </LinearLayout>
+                            android:paddingStart="16dp"
+                            android:text="Add List Item"
+                            app:layout_constraintBottom_toBottomOf="@+id/addImageButton"
+                            app:layout_constraintLeft_toRightOf="@+id/addImageButton"
+                            app:layout_constraintTop_toTopOf="@+id/addImageButton" />
 
-                    <LinearLayout
-                        android:id="@+id/task_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="2"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:orientation="vertical"
-                        android:paddingBottom="8dp"
-                        android:visibility="gone">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/itemRecyclerView"
-                            android:layout_width="match_parent"
+                        <ImageView
+                            android:id="@+id/addImageButton"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:orientation="vertical"
-                            android:visibility="visible">
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="TODO"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/ic_add_box_black_24dp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                        </androidx.recyclerview.widget.RecyclerView>
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/addButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:paddingStart="4dp"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-
-                            <TextView
-                                android:id="@+id/textView3"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="16dp"
-                                android:text="Add List Item"
-                                app:layout_constraintBottom_toBottomOf="@+id/addImageButton"
-                                app:layout_constraintLeft_toRightOf="@+id/addImageButton"
-                                app:layout_constraintTop_toTopOf="@+id/addImageButton" />
-
-                            <ImageView
-                                android:id="@+id/addImageButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:layout_marginTop="8dp"
-                                android:background="@android:color/transparent"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:srcCompat="@drawable/ic_add_box_black_24dp"
-                                android:contentDescription="TODO" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-                    </LinearLayout>
 
                     <View
                         android:id="@+id/divider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="?android:attr/listDivider" />
+                        android:background="?android:attr/listDivider"
+                        app:layout_constraintTop_toBottomOf="@+id/addButton" />
 
                     <LinearLayout
                         android:id="@+id/tag_layout"
@@ -137,11 +124,12 @@
                         android:focusable="false"
                         android:orientation="horizontal"
                         android:paddingStart="8dp"
-                        android:visibility="visible">
+                        android:visibility="visible"
+                        app:layout_constraintTop_toBottomOf="@+id/divider">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/tagRecyclerView"
-                            android:layout_width="wrap_content"
+                            android:layout_width="355dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_weight="1"
@@ -150,22 +138,25 @@
 
                         </androidx.recyclerview.widget.RecyclerView>
 
-                        <com.andb.apps.todo.views.Icon
-                            android:id="@+id/tagAddButton"
+                        <FrameLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
-                            android:layout_weight="0"
-                            android:background="@android:color/transparent"
-                            android:src="@drawable/ic_add_tag_black_24dp"
-                            custom:cyaneaIconBackground="background" />
+                            android:layout_margin="16dp"
+                            android:layout_weight="0">
+
+                            <com.andb.apps.todo.views.Icon
+                                android:id="@+id/tagAddButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="left|center_vertical"
+                                android:background="@android:color/transparent"
+                                android:src="@drawable/ic_add_tag_black_24dp"
+                                custom:cyaneaIconBackground="background" />
+                        </FrameLayout>
 
                     </LinearLayout>
 
-                </LinearLayout>
-
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.cardview.widget.CardView>
 

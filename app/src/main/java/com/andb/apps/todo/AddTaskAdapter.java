@@ -82,33 +82,6 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
-        /* final int realPosition = holder.getAdapterPosition();
-
-         if(!holder.editText.getText().equals(itemList.get(realPosition))){
-                holder.editText.setText(itemList.get(realPosition));
-            }
-
-            holder.editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    Log.d("textWatcherChanged", Integer.toString(realPosition));
-                    if(realPosition<itemList.size()) {//fixes bug with trying to update on kill
-                        itemList.set(realPosition, s.toString());
-                        Log.d("textWatcherChanged", itemList.get(realPosition));
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-
-                }
-            });*/
-
         if (focused) {
             holder.editText.requestFocus();
             focused = false;
@@ -117,7 +90,6 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
         holder.rvEditTextListener.setPosition(position);
         holder.editText.setText(itemList.get(position));
         holder.bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 1.2f));
-
     }
 
     private class RVEditTextListener implements TextWatcher{

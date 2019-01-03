@@ -1,23 +1,20 @@
 package com.andb.apps.todo;
 
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +37,11 @@ import com.andb.apps.todo.lists.TagList;
 import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.notifications.NotificationHandler;
 import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.typeconverters.CheckedConverter;
+import com.andb.apps.todo.typeconverters.ItemsConverter;
+import com.andb.apps.todo.typeconverters.TagConverter;
 import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -51,10 +52,12 @@ import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -64,21 +67,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.room.Room;
 import androidx.viewpager.widget.ViewPager;
-import de.Maxr1998.modernpreferences.Preference;
-import me.saket.inboxrecyclerview.InboxRecyclerView;
 
 
 public class MainActivity extends CyaneaAppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     public static InboxRVViewPager mViewPager;
-
-    private TabLayout tabLayout;
 
     public static TextView subTitle;
 
@@ -166,35 +163,30 @@ public class MainActivity extends CyaneaAppCompatActivity
                     .fallbackToDestructiveMigration()
                     .build();
 
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
+            AsyncTask.execute(() -> {
+                TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
 
-                    //InboxFragment.setTaskCountText(TaskList.taskList.size());
 
-                    loadTags();
+                //InboxFragment.setTaskCountText(TaskList.taskList.size());
 
-                    loadTagLinks();
+                loadTags();
 
-                    Filters.homeViewAdd(); //add current filter to back stack
-                    Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
+                loadTagLinks();
 
-                    EventBus.getDefault().post(new UpdateEvent(true));
+                Filters.homeViewAdd(); //add current filter to back stack
+                Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
 
-                }
+                EventBus.getDefault().post(new UpdateEvent(true));
+
             });
 
 
-            AsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    loadArchiveTasks();
+            AsyncTask.execute(() -> {
+                loadArchiveTasks();
 
-                    loadAfterSettings();
+                loadAfterSettings();
 
 
-                }
             });
 
             appStart = false;
@@ -213,7 +205,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
 
         ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(label, icon, colorPrimary);
-        ((Activity) this).setTaskDescription(taskDescription);//set header color in recents
+        this.setTaskDescription(taskDescription);//set header color in recents
 
         if (fromSettings)
             settingsReturn();
@@ -228,20 +220,18 @@ public class MainActivity extends CyaneaAppCompatActivity
         SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 
-
-
         SettingsActivity.Companion.setFolderMode(defaultSharedPrefs.getBoolean("folder_mode", false));
 
         this.setTheme(R.style.AppThemeGlobal);
 
         try {
             defaultSharedPrefs.getBoolean("sort_mode_list", true);
-        }catch (Exception e){
-            defaultSharedPrefs.edit().putBoolean("sort_mode_list", true).commit();
+        } catch (Exception e) {
+            defaultSharedPrefs.edit().putBoolean("sort_mode_list", true).apply();
         }
-        if(defaultSharedPrefs.getBoolean("sort_mode_list", true)) {
+        if (defaultSharedPrefs.getBoolean("sort_mode_list", true)) {
             SettingsActivity.Companion.setDefaultSort(0);
-        }else {
+        } else {
             SettingsActivity.Companion.setDefaultSort(1);
         }
         InboxFragment.Companion.setFilterMode(SettingsActivity.Companion.getDefaultSort());
@@ -263,13 +253,10 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         long startTime = System.nanoTime();
 
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        AsyncTask.execute(() -> {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-                SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notif_only_date", 0)));
-            }
+            SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notif_only_date", 0)));
         });
 
 
@@ -284,23 +271,18 @@ public class MainActivity extends CyaneaAppCompatActivity
     public int getStatusBarHeight() {
         int result = 0;
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-            if (resourceId > 0) {
-                result = getResources().getDimensionPixelSize(resourceId);
-            }
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
         }
         return result;
     }
 
 
-
-
-
     public void settingsReturn() {
         fabInitialize();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
 
         View headerView = navigationView.getHeaderView(0);
         LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
@@ -315,7 +297,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         BrowseFragment.mAdapter.notifyDataSetChanged();
 
 
-
         NotificationHandler.resetNotifications(this);
 
         fromSettings = false;
@@ -325,18 +306,16 @@ public class MainActivity extends CyaneaAppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
 
-        } else if(TaskView.Companion.getPageState() != 0){
+        } else if (TaskView.Companion.getPageState() != 0) {
             InboxFragment.mRecyclerView.collapse();
             BrowseFragment.mRecyclerView.collapse();
-        }
-        else if(MaterialCab.Companion.isActive()){
+        } else if (MaterialCab.Companion.isActive()) {
             MaterialCab.Companion.destroy();
-        }
-        else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
+        } else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
             Filters.tagBack();
         } else {
             super.onBackPressed();
@@ -344,7 +323,7 @@ public class MainActivity extends CyaneaAppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NotNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
@@ -357,13 +336,13 @@ public class MainActivity extends CyaneaAppCompatActivity
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
-        for (int i = 0; i<menu.size(); i++){
+        for (int i = 0; i < menu.size(); i++) {
             MenuItem menuItem = menu.getItem(i);
             try {
                 Drawable drawable = menuItem.getIcon().mutate();
                 drawable.setColorFilter(App.Companion.colorAlpha(getCyanea().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
                 menuItem.setIcon(drawable);
-            }catch (Exception e){
+            } catch (Exception e) {
                 Log.d("menuIconColor", "not an icon (collapsed in overflow)");
             }
 
@@ -411,7 +390,7 @@ public class MainActivity extends CyaneaAppCompatActivity
                 inflater.inflate(R.menu.filter_menu, popupMenu.getMenu());
                 popupMenu.show();
 
-            /*TASKVIEW ITEMS*/
+                /*TASKVIEW ITEMS*/
             case R.id.app_bar_edit:
                 TaskView.Companion.editFromToolbar(this);
                 return true;
@@ -424,7 +403,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -440,19 +419,8 @@ public class MainActivity extends CyaneaAppCompatActivity
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage("Import or export tasks, tags, and links")
-                    .setNegativeButton("Export", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                            ImportExport.exportTasks(MainActivity.this);
-                        }
-                    })
-                    .setPositiveButton("Import", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            ImportExport.importTasks(MainActivity.this);
-                        }
-                    });
+                    .setNegativeButton("Export", (dialogInterface, i) -> ImportExport.exportTasks(MainActivity.this))
+                    .setPositiveButton("Import", (dialogInterface, i) -> ImportExport.importTasks(MainActivity.this));
 
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
@@ -460,7 +428,7 @@ public class MainActivity extends CyaneaAppCompatActivity
             startActivity(new Intent(this, TestActivity.class));
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -471,7 +439,7 @@ public class MainActivity extends CyaneaAppCompatActivity
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -563,11 +531,8 @@ public class MainActivity extends CyaneaAppCompatActivity
     }
 
     public void loadSearch() {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
+        AsyncTask.execute(() -> {
 
-            }
         });
     }
 
@@ -576,13 +541,13 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         long startTime = System.nanoTime();
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
@@ -604,13 +569,10 @@ public class MainActivity extends CyaneaAppCompatActivity
         long startTime = System.nanoTime();
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddTask.class);
-                intent.putExtra("edit", false);
-                startActivity(intent);
-            }
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, AddTask.class);
+            intent.putExtra("edit", false);
+            startActivity(intent);
         });
 
 
@@ -626,14 +588,14 @@ public class MainActivity extends CyaneaAppCompatActivity
 
         //long startTime = System.nanoTime();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         drawerToggle = toggle;
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
         View headerView = navigationView.getHeaderView(0);
@@ -674,8 +636,6 @@ public class MainActivity extends CyaneaAppCompatActivity
 
 
     }
-
-
 
 
     @Override

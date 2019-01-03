@@ -154,10 +154,15 @@ class AddTask : CyaneaAppCompatActivity() {
             .itemCount { tagsList.size }
             .view(R.layout.task_view_tag_list_item, layoutInflater)
             .bind { position->
-                val tag = TagList.tagList.get(tagsList[position])
+                val tag = TagList.tagList.get(tagsList[adapterPosition])
                 itemView.tagImage.setColorFilter(tag.tagColor)
                 itemView.task_view_item_tag_name.text = tag.tagName
+                itemView.setOnClickListener {
+                    tagsList.removeAt(adapterPosition)
+                    tagAdapter.notifyItemRemoved(adapterPosition)
+                }
             }
+
             .build()
 
 
@@ -198,19 +203,21 @@ class AddTask : CyaneaAppCompatActivity() {
         if(editing){
             if(editingTask.isListItems){
                 switch_task.isChecked = true
-                task_layout.visibility = View.VISIBLE
+                itemRecyclerView.visibility = View.VISIBLE
+                addButton.visibility = View.VISIBLE
             }
         }
 
         switch_task.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-                TransitionManager.beginDelayedTransition(task_layout)
-                task_layout.visibility = View.VISIBLE
+                TransitionManager.beginDelayedTransition(add_task_card)
+                itemRecyclerView.visibility = View.VISIBLE
+                addButton.visibility = View.VISIBLE
 
             } else {
-                TransitionManager.beginDelayedTransition(task_layout)
-                task_layout.visibility = View.GONE
-
+                TransitionManager.beginDelayedTransition(add_task_card)
+                itemRecyclerView.visibility = View.GONE
+                addButton.visibility = View.GONE
             }
         }
     }

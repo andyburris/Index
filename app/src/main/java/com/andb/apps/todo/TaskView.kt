@@ -59,10 +59,9 @@ import java.util.*
 class TaskView : CyaneaFragment() {
 
 
-    internal var viewPos = 0
     lateinit var task: Tasks
 
-    val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
+    private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

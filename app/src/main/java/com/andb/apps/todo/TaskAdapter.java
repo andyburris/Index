@@ -50,15 +50,13 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
 
-        @Nullable
-        @BindView(R.id.dividerName)
+
         TextView dividerName;
 
 
         public MyViewHolder(View view) {
             super(view);
-            ButterKnife.bind(this, view);
-
+            dividerName = view.findViewById(R.id.dividerName);
         }
 
 
@@ -109,11 +107,11 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
             taskListItem.setup(taskList.get(position), realPosition, inboxBrowseArchive);
             if(position==selected) {
                 taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.lighterDarker(Cyanea.getInstance().getBackgroundColor(), 0.8f), 0.7));
-                //TODO: lighten on dark theme
+                //TODO: lighter color on dark theme
             }
 
         } else { //divider logic
-            Log.d("adapterPosition", Integer.toString(realPosition));
+            Log.d("roomViewType", Boolean.toString(holder.itemView instanceof TaskListItem));
 
             if (realPosition == 0) { //resize if at top
                 final float scale = Resources.getSystem().getDisplayMetrics().density;

@@ -2,6 +2,7 @@ package com.andb.apps.todo.objects;
 
 import android.util.Log;
 
+import com.andb.apps.todo.lists.TagList;
 import com.andb.apps.todo.typeconverters.CheckedConverter;
 import com.andb.apps.todo.typeconverters.ItemsConverter;
 import com.andb.apps.todo.typeconverters.TagConverter;
@@ -258,6 +259,16 @@ public class Tasks implements Serializable {
 
     @Override
     public String toString(){
-        return getListName();
+        StringBuilder builder = new StringBuilder();
+        builder.append(getListName());
+        builder.append(", " + getDateTime().toString("MMMM DD") + "\n");
+        for (String s : getListItems()){
+             builder.append("- " + s + "\n");
+        }
+        builder.append("Tags: \n");
+        for (int i : getListTags()){
+            builder.append("- Tag" + i + "\n");
+        }
+        return builder.toString();
     }
 }

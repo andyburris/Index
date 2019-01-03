@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: "kotlin-android"
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 
 android {
@@ -21,6 +22,11 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resValue "string", "app_name", "ToDo"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -40,6 +46,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        disable 'LogNotTimber'
+    }
 }
 
 dependencies {
@@ -48,8 +57,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.1.0-alpha01'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
+    implementation 'com.google.android.material:material:1.1.0-alpha02'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation 'com.google.code.gson:gson:2.8.5' //translates arraylists into savedpreference-compatible json
     implementation 'com.jaredrummler:colorpicker:1.0.5' //color picker library
     implementation 'com.github.k0shk0sh:RetainedDateTimePickers:1.0.2' //time/date picker library
@@ -57,9 +66,11 @@ dependencies {
     implementation 'joda-time:joda-time:2.9.9' //time library
     implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0' //fix for joda-time gson saving.
     implementation "android.arch.work:work-runtime:$work_version" //work-manager
-    implementation 'androidx.room:room-runtime:2.1.0-alpha02' //sql database
-    annotationProcessor 'androidx.room:room-compiler:2.1.0-alpha02' //sql database
-    testImplementation 'androidx.room:room-testing:2.1.0-alpha02' // Test helpers
+    implementation 'androidx.room:room-runtime:2.1.0-alpha03' //sql database
+    kapt 'androidx.room:room-compiler:2.1.0-alpha03' //sql database
+    implementation 'com.github.MatrixDev.Roomigrant:RoomigrantLib:0.1.7'//room migrations
+    kapt 'com.github.MatrixDev.Roomigrant:RoomigrantCompiler:0.1.7'//room migrations
+    testImplementation 'androidx.room:room-testing:2.1.0-alpha03' // Test helpers
     debugImplementation 'com.pixiteapps.billingx:billingx:0.8.0' //donations
     releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
     implementation 'org.greenrobot:eventbus:3.1.1' //communicate across threads
