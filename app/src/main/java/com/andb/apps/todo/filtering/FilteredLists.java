@@ -47,6 +47,9 @@ public class FilteredLists {
 
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1); //for the most recent filter
 
+                    if(Current.tagList().get(tagParent).getChildren()==null){
+                        Current.tagList().get(tagParent).setChildren(new ArrayList<>());
+                    }
 
                     if (Current.tagList().get(tagParent).getChildren().contains(tag)) { //and see if they are linked by the filters
                         Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
@@ -179,13 +182,6 @@ public class FilteredLists {
 
         }
 
-        if (filteredTagLinks.isEmpty()) {
-            BrowseFragment.tagCard.setVisibility(View.GONE);
-            BrowseFragment.nestedScrollView.scrollTo(0, 0);
-        } else {
-            BrowseFragment.tagCard.setVisibility(View.VISIBLE);
-
-        }
 
         if (Filters.getCurrentFilter().size() != 0) {
             InboxFragment.Companion.setTaskCountText(inboxTaskList.size());

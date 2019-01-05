@@ -47,21 +47,13 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 public class BrowseFragment extends CyaneaFragment {
     public static InboxRecyclerView mRecyclerView;
     public static TaskAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
-    private RecyclerView tRecyclerView;
     public static BrowseTagAdapter tAdapter;
-    private RecyclerView.LayoutManager tLayoutManager;
 
-    private ActionMode contextualToolbar;
     public boolean selected = false;
 
-    public boolean tagCollapsed = false;
-    public static CardView tagCard;
+    private boolean tagCollapsed = false;
 
-    public static NestedScrollView nestedScrollView;
-
-    public static boolean removing;
+    static boolean removing;
 
 
     private BrowseFragment.OnFragmentInteractionListener mListener;
@@ -96,11 +88,11 @@ public class BrowseFragment extends CyaneaFragment {
 
         //EventBus.getDefault().post(new UpdateEvent(true));//all things needed for this to run have been loaded
 
-        tagCard = (CardView) view.findViewById(R.id.browseTagCardHolder);
+
         prepareTagCollapse(view);
         prepareTagAdd(view);
 
-        nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
+        NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
 
 
 
@@ -116,7 +108,6 @@ public class BrowseFragment extends CyaneaFragment {
             @Override
             public void onLongClick(View view, int position) {
                 if (mAdapter.getItemViewType(position) == 1 & !selected) {
-                    contextualToolbar = BrowseFragment.this.getActivity().startActionMode(setCallback(position));
                     view.setSelected(true);
                     mAdapter.selected = position;
                     mAdapter.notifyItemChanged(position);
@@ -169,7 +160,7 @@ public class BrowseFragment extends CyaneaFragment {
         mRecyclerView = view.findViewById(R.id.browseTaskRecycler);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(view.getContext());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(view.getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
@@ -185,14 +176,14 @@ public class BrowseFragment extends CyaneaFragment {
 
         taskView.addStateChangeCallbacks(new TaskView.TaskViewPageCallbacks(getActivity()));
 
-        tRecyclerView = (RecyclerView) view.findViewById(R.id.browseTagRecycler);
+        RecyclerView tRecyclerView = (RecyclerView) view.findViewById(R.id.browseTagRecycler);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         //mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
-        tLayoutManager = new LinearLayoutManager(view.getContext());
+        RecyclerView.LayoutManager tLayoutManager = new LinearLayoutManager(view.getContext());
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)

@@ -1,0 +1,70 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "6064841605a17df553a1d97adbfeda5b",
+    "entities": [
+      {
+        "tableName": "Tasks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`listKey` INTEGER NOT NULL, `list_name` TEXT, `list_items` TEXT, `list_items_checked` TEXT, `list_tags` TEXT, `list_due` INTEGER NOT NULL, `list_notified` INTEGER NOT NULL, PRIMARY KEY(`listKey`))",
+        "fields": [
+          {
+            "fieldPath": "listKey",
+            "columnName": "listKey",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "listName",
+            "columnName": "list_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "listItems",
+            "columnName": "list_items",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "listItemsChecked",
+            "columnName": "list_items_checked",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "listTags",
+            "columnName": "list_tags",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "listDue",
+            "columnName": "list_due",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notified",
+            "columnName": "list_notified",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "listKey"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"6064841605a17df553a1d97adbfeda5b\")"
+    ]
+  }
+}

@@ -20,6 +20,7 @@ import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andrognito.flashbar.Flashbar
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -333,8 +334,10 @@ class AddTask : CyaneaAppCompatActivity() {
             Current.taskList().apply {
                 set(indexOf(editingTask), Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey))
             }
+            ProjectsUtils.update()
         } else {
             Current.taskList().add(Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, false))
+            ProjectsUtils.update()
         }
 
     }

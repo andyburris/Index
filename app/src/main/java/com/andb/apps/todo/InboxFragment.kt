@@ -50,12 +50,6 @@ import java.util.*
 
 class InboxFragment : CyaneaFragment() {
 
-    private val contextualToolbar: ActionMode? = null
-
-
-    private var mListener: OnFragmentInteractionListener? = null
-
-
     internal var isSwiping = false
     // Extend the Callback class
     private val _ithCallback = object : ItemTouchHelper.Callback() {
@@ -215,7 +209,7 @@ class InboxFragment : CyaneaFragment() {
                             }
 
                         }
-                        onCreate { cab, menu ->
+                        onCreate { _, _ ->
                             activity?.window?.statusBarColor = cyanea.accentDark
                             mAdapter.selected = position
                             mAdapter.notifyItemChanged(position)
@@ -247,27 +241,11 @@ class InboxFragment : CyaneaFragment() {
     }
 
 
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
 
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
-     */
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
-    }
 
 
-    fun prepareRecyclerView(view: View) {
+    private fun prepareRecyclerView(view: View) {
 
 
         mRecyclerView = view.findViewById<View>(R.id.inboxRecycler) as InboxRecyclerView
@@ -520,7 +498,7 @@ class InboxFragment : CyaneaFragment() {
                 Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
 
 
-                Collections.sort(FilteredLists.inboxTaskList) { o1, o2 ->
+                FilteredLists.inboxTaskList.sortWith(Comparator { o1, o2 ->
                     if (o1.dateTime == null) {
                         o1.dateTime = DateTime(1970, 1, 1, 0, 0, 0)
                     }
@@ -529,13 +507,13 @@ class InboxFragment : CyaneaFragment() {
                     }
 
                     o1.dateTime.compareTo(o2.dateTime)
-                }
+                })
 
 
             } else if (mode == 1) {
 
 
-                Collections.sort(FilteredLists.inboxTaskList) { o1, o2 -> o1.listName.compareTo(o2.listName) }
+                FilteredLists.inboxTaskList.sortWith(Comparator { o1, o2 -> o1.listName.compareTo(o2.listName) })
 
 
             }

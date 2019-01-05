@@ -10,6 +10,12 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
+    <!--Project Editing-->
+    <string name="add_project">Add Project</string>
+    <string name="edit_project">Edit Name</string>
+    <string name="delete_project">Delete Project</string>
+
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
@@ -120,6 +126,7 @@
     <string name="no_remaining_tasks">No Tasks Left!</string>
 
     <string name="search_hint">Search tasks and tags</string>
+    <string name="project_header_title">Project</string>
 
 
 </resources>
