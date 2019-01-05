@@ -6,12 +6,10 @@ import android.view.View;
 import com.andb.apps.todo.BrowseFragment;
 import com.andb.apps.todo.InboxFragment;
 import com.andb.apps.todo.objects.TagFilter;
-import com.andb.apps.todo.lists.TagLinkList;
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.lists.TaskList;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.utilities.Current;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
@@ -42,32 +40,27 @@ public class FilteredLists {
         if (!tagsToFilter.isEmpty()) {
 
 
-            if (!TagList.tagList.isEmpty()) {
-                for (int tag = 0; tag < TagList.tagList.size(); tag++) { //check all the tags
+            if (!Current.project().getTagList().isEmpty()) {
+                for (int tag = 0; tag < Current.project().getTagList().size(); tag++) { //check all the tags
 
                     boolean contains = false;
 
                     int tagParent = Filters.getCurrentFilter().get(Filters.getCurrentFilter().size() - 1); //for the most recent filter
-                    if (TagLinkList.contains(tagParent) != null) { //Catch error
 
 
-                        if (TagLinkList.contains(tagParent).contains(tag)) { //and see if they are linked by the filters
-                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
-
-                            contains = true;
-                        } else {
-                            Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
-                        }
-
+                    if (Current.tagList().get(tagParent).getChildren().contains(tag)) { //and see if they are linked by the filters
+                        Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
+                        contains = true;
                     } else {
-                        Log.d("tagAdding", "Tag " + Integer.toString(tag) + " is not there.");
+                        Log.d("tagAdding", "Tag " + Integer.toString(tag) + " in.");
                     }
+
 
                     if (contains) { //and if so, add them
 
                         if (!tagsToFilter.contains(tag)) {//check if tag is part of filters
                             filteredTagLinks.add(tag);
-                            if (!SettingsActivity.Companion.getSubFilter() || !TagList.tagList.get(tag).isSubFolder())
+                            if (!SettingsActivity.Companion.getSubFilter() || !Current.project().getTagList().get(tag).isSubFolder())
                                 noSubLinkList.add(tag);
                         }
 
@@ -87,13 +80,13 @@ public class FilteredLists {
             startTime = System.nanoTime();
 
 
-            if (!TaskList.taskList.isEmpty()) {
+            if (!Current.project().getTaskList().isEmpty()) {
 
                 Log.d("tagPredicate", "filtering");
 
                 ArrayList<Tasks> tempList = new ArrayList<>();
 
-                addToInbox.addAll(TaskList.taskList);
+                addToInbox.addAll(Current.project().getTaskList());
                 Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
                 tempList = new ArrayList<>(Collections2.filter(addToInbox, new TagFilter(tagsToFilter) {
                 }));
@@ -107,7 +100,7 @@ public class FilteredLists {
                 Log.d("tagPredicate", "Size: " + Integer.toString(addToInbox.size()));
 
                 if (SettingsActivity.Companion.getFolderMode()) {
-                    browseTaskList.addAll(TaskList.taskList);
+                    browseTaskList.addAll(Current.project().getTaskList());
                     tempList = new ArrayList<>(Collections2.filter(browseTaskList, new TagFilter(tagsToFilter, noSubLinkList) {
                     }));
 
@@ -127,9 +120,9 @@ public class FilteredLists {
 
 
             Log.d("noFilters", "no filters");
-            for (Tags tag : TagList.tagList) {//if there are no filters, return all tags except subfolders
+            for (Tags tag : Current.project().getTagList()) {//if there are no filters, return all tags except subfolders
                 if (!tag.isSubFolder()) {
-                    filteredTagLinks.add(TagList.tagList.indexOf(tag));
+                    filteredTagLinks.add(Current.project().getTagList().indexOf(tag));
                 }
             }
             Log.d("noFilters", "TagList size:" + Integer.toString(filteredTagLinks.size()));
@@ -139,7 +132,7 @@ public class FilteredLists {
 
                 ArrayList<Tasks> tempList = new ArrayList<>();
 
-                browseTaskList.addAll(TaskList.taskList);
+                browseTaskList.addAll(Current.project().getTaskList());
 
                 tempList = new ArrayList<>(Collections2.filter(browseTaskList, new Predicate<Tasks>() {
                     @Override
@@ -155,11 +148,11 @@ public class FilteredLists {
                 browseTaskList.clear();
                 browseTaskList.addAll(tempList);
 
-                addToInbox.addAll(TaskList.taskList);
+                addToInbox.addAll(Current.project().getTaskList());
 
 
             } else {//if not, add all to browse& inbox
-                browseTaskList.addAll(TaskList.taskList);
+                browseTaskList.addAll(Current.project().getTaskList());
                 addToInbox.addAll(browseTaskList);
             }
 
@@ -197,7 +190,7 @@ public class FilteredLists {
         if (Filters.getCurrentFilter().size() != 0) {
             InboxFragment.Companion.setTaskCountText(inboxTaskList.size());
         } else {
-            InboxFragment.Companion.setTaskCountText(TaskList.taskList.size());
+            InboxFragment.Companion.setTaskCountText(Current.project().getTaskList().size());
         }
 
         long endTime = System.nanoTime();

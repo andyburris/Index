@@ -8,17 +8,15 @@ import android.util.Log
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.andb.apps.todo.R
-import com.andb.apps.todo.Utilities
-import com.andb.apps.todo.lists.TagList
 import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.Utilities
 import com.google.android.material.chip.Chip
 import com.jaredrummler.cyanea.Cyanea
-import kotlinx.android.synthetic.main.inbox_list_item.view.*
-
 import kotlinx.android.synthetic.main.view_title_tags.view.*
 import java.util.*
 
-class ItemViewTitleTags : ConstraintLayout{
+class ItemViewTitleTags : ConstraintLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
@@ -27,30 +25,31 @@ class ItemViewTitleTags : ConstraintLayout{
     init {
         inflate(context, R.layout.view_title_tags, this)
     }
-    fun setTitle (name: String){
+
+    fun setTitle(name: String) {
         taskName2.text = name
     }
-    fun setOverflow(){
+
+    fun setOverflow() {
         addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             var nameRight = taskName2.right
             var c1Left = chip1.left
             var c2Left = chip2.left
             var c3Left = chip3.left
 
-            if(nameRight>c1Left){
+            if (nameRight > c1Left) {
                 chip1.visibility = View.GONE
                 chipsVisible = 2
             }
-            if(nameRight>c2Left){
+            if (nameRight > c2Left) {
                 chip2.visibility = View.GONE
                 chipsVisible = 1
             }
-            if(nameRight>c3Left){
+            if (nameRight > c3Left) {
                 chip3.visibility = View.GONE
                 chipsVisible = 0
             }
         }
-
 
 
     }
@@ -71,7 +70,7 @@ class ItemViewTitleTags : ConstraintLayout{
             for (i in tagsList.indices) {
 
                 if (i < task.allListTags.size) {
-                    val tagtemp = TagList.getItem(task.getListTags(i))
+                    val tagtemp = Current.tagList().get(task.getListTags(i))
                     val chiptemp = tagsList[i]
 
                     chiptemp.text = tagtemp.tagName
@@ -86,8 +85,6 @@ class ItemViewTitleTags : ConstraintLayout{
                 }
 
             }
-
-
 
 
         } else {

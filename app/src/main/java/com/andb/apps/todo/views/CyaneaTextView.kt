@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.TextView
 import com.andb.apps.todo.R
-import com.andb.apps.todo.Utilities
+import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 
 class CyaneaTextView(context: Context, attributeSet: AttributeSet) : TextView(context, attributeSet){

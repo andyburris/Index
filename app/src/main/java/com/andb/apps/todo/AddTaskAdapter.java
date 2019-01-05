@@ -1,27 +1,19 @@
 package com.andb.apps.todo;
 
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.utilities.Utilities;
 import com.jaredrummler.cyanea.Cyanea;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHolder>{

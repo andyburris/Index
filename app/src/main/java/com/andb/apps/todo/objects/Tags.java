@@ -3,6 +3,8 @@ package com.andb.apps.todo.objects;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -26,6 +28,11 @@ public class Tags {
     @Expose
     @ColumnInfo(name = "subfolder")
     private boolean subFolder;
+
+    @SerializedName("tag_Links")
+    @Expose
+    @ColumnInfo(name = "tag_children")
+    private ArrayList<Integer> children = new ArrayList<>();
 
     public Tags(String tagname, int tagColor, boolean subFolder) {
         this.tagName = tagname;
@@ -56,4 +63,13 @@ public class Tags {
     public void setSubFolder(boolean subFolder) {
         this.subFolder = subFolder;
     }
+
+    public void setChildren(ArrayList<Integer> children) {
+        this.children = children;
+    }
+
+    public ArrayList<Integer> getChildren() {
+        return children;
+    }
+
 }

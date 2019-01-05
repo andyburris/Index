@@ -6,11 +6,9 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.View
-import android.widget.CompoundButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.cardview.widget.CardView
-import androidx.core.view.children
-import com.andb.apps.todo.views.TaskListItem
+import com.andb.apps.todo.utilities.Utilities
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout

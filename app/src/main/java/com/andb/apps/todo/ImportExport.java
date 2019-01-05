@@ -3,23 +3,28 @@ package com.andb.apps.todo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.andb.apps.todo.databases.TagLinks;
+import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
-import com.andb.apps.todo.lists.TagLinkList;
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.lists.TaskList;
-import com.andb.apps.todo.objects.TagLinks;
+import com.andb.apps.todo.lists.ProjectList;
+import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
+import com.andb.apps.todo.utilities.Current;
+import com.andb.apps.todo.utilities.ProjectsUtils;
+import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
 import java.io.BufferedReader;
@@ -31,8 +36,10 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Random;
+
+import kotlin.collections.CollectionsKt;
 
 public class ImportExport {
 
@@ -56,55 +63,77 @@ public class ImportExport {
                         Log.i("loadedJson", json);
                         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-                        Type taskType = new TypeToken<ArrayList<Tasks>>() {
-                        }.getType();
-                        Type tagType = new TypeToken<ArrayList<Tags>>() {
-                        }.getType();
-                        Type linkType = new TypeToken<ArrayList<TagLinks>>() {
-                        }.getType();
-                        Type arrayListType = new TypeToken<ArrayList<String>>() {
-                        }.getType();
+                        Type arrayListType = new TypeToken<ArrayList<String>>() {}.getType();
+                        Type taskType = new TypeToken<ArrayList<Tasks>>() {}.getType();
+                        Type tagType = new TypeToken<ArrayList<Tags>>() {}.getType();
+                        Type stringType = new TypeToken<String>(){}.getType();
+                        Type linkType = new TypeToken<ArrayList<TagLinks>>() {}.getType();
+                        Type objectType = new TypeToken<Object>(){}.getType();
+
+
+                        //todo: export w/o taglinks, ignore linkjson if possible
 
                         ArrayList<String> importList;
                         importList = gson.fromJson(json, arrayListType);
 
                         String taskJson = importList.get(0);
                         String tagJson = importList.get(1);
-                        String linkJson = importList.get(2);
+                        String nameJson = importList.get(2);
 
 
                         Log.i("ImportedTaskList", taskJson);
 
 
-                        TaskList.taskList = gson.fromJson(taskJson, taskType);
-                        Log.i("ImportedTaskList", TaskList.taskList.toString());
+
+                        ArrayList<Tasks> taskList = gson.fromJson(taskJson, taskType);
+
+                        ArrayList<Tasks> archiveList = new ArrayList<>();//MAYBEDO: backup/import archive tasks
+
                         ArrayList<Integer> keyList = new ArrayList<>();
-                        for(Tasks task : TaskList.taskList){
-                            while (keyList.contains(task.getListKey())){
+                        for (Tasks task : taskList) {
+                            while (keyList.contains(task.getListKey())) {
                                 task.setListKey(new Random().nextInt());
                             }
                             keyList.add(task.getListKey());
                         }
 
-                        TagList.tagList = gson.fromJson(tagJson, tagType);
-                        TagLinkList.linkList = gson.fromJson(linkJson, linkType);
+                        ArrayList<Tags> tagList = gson.fromJson(tagJson, tagType);
+
+                        String projectName = "Tasks";
+
+                        if(gson.fromJson(nameJson, objectType) instanceof ArrayList){//old taglinks
+                            ArrayList<TagLinks> linkList = gson.fromJson(nameJson, linkType);
+
+                            for(int j = 0; j<tagList.size(); j++){
+                                Tags tags = tagList.get(j);
+                                for (TagLinks tagLinks : linkList){
+                                    if(tagLinks.tagParent()==j){
+                                        tags.setChildren(tagLinks.getAllTagLinks());
+                                    }
+                                }
+                            }
+                        }else{//name
+                            projectName = gson.fromJson(nameJson, stringType);
+                        }
+
+                        int projectKey = ProjectsUtils.keyGenerator();
+                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList);
+                        Current.allProjects().add(newProject);
+                        ProjectList.INSTANCE.setViewing(Current.allProjects().size()-1);
 
 
 
                         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
+                        EventBus.getDefault().post(new UpdateEvent(false));
 
                         AsyncTask.execute(new Runnable() {
                             @Override
                             public void run() {
-                                MainActivity.tasksDatabase.clearAllTables();
-                               MainActivity.tasksDatabase.tasksDao().insertMultipleTasks(TaskList.taskList);
-                               TaskList.taskList = new ArrayList<>(MainActivity.tasksDatabase.tasksDao().getAll());
+                                ProjectsUtils.update();
                             }
                         });
 
-
-                        TagLinkList.saveTags(ctxt);
-                        TagList.saveTags(ctxt);
+                        Log.i("ImportedTaskList", Current.project().getTaskList().toString());
 
 
                     } catch (Exception e) {
@@ -140,16 +169,14 @@ public class ImportExport {
             Type arrayListType = new TypeToken<ArrayList<String>>() {
             }.getType();
 
-            String taskJson = gson.toJson(TaskList.taskList, taskType);
-            String tagJson = gson.toJson(TagList.tagList, tagType);
-            String linkJson = gson.toJson(TagLinkList.linkList, linkType);
+            String taskJson = gson.toJson(Current.taskList(), taskType);
+            String tagJson = gson.toJson(Current.tagList(), tagType);
 
             Log.i("ExportedTaskList", taskJson);
 
 
             exportList.add(taskJson);
             exportList.add(tagJson);
-            exportList.add(linkJson);
 
             String finalJson = gson.toJson(exportList, arrayListType);
 

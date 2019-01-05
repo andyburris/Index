@@ -2,14 +2,10 @@ package com.andb.apps.todo.views
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.ColorFilter
-import android.graphics.PorterDuff
 import android.util.AttributeSet
-import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import com.andb.apps.todo.R
-import com.andb.apps.todo.Utilities
+import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 
 class Icon(context: Context, attributeSet: AttributeSet) : AppCompatImageView(context, attributeSet){

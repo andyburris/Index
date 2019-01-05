@@ -7,7 +7,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -24,24 +23,21 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialcab.MaterialCab;
-import com.andb.apps.todo.databases.TasksDatabase;
+import com.andb.apps.todo.databases.GetDatabase;
+import com.andb.apps.todo.databases.MigrationHelper;
+import com.andb.apps.todo.databases.MigrationRules;
+import com.andb.apps.todo.databases.ProjectsDatabase;
+import com.andb.apps.todo.databases.ProjectsDatabase_Migrations;
+import com.andb.apps.todo.eventbus.MigrateEvent;
 import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
-import com.andb.apps.todo.lists.ArchiveTaskList;
-import com.andb.apps.todo.lists.TagLinkList;
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.notifications.NotificationHandler;
-import com.andb.apps.todo.objects.Tags;
-import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
-import com.andb.apps.todo.typeconverters.CheckedConverter;
-import com.andb.apps.todo.typeconverters.ItemsConverter;
-import com.andb.apps.todo.typeconverters.TagConverter;
+import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -54,8 +50,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
-
-import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -91,61 +85,32 @@ public class MainActivity extends CyaneaAppCompatActivity
 
     private boolean appStart;
 
-    public static final String DATABASE_NAME = "Tasks_db";
-    public static TasksDatabase tasksDatabase;
+    public static ProjectsDatabase projectsDatabase;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //Debug.startMethodTracing("startup");
-
-        //long startTime = System.nanoTime();
-
 
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
+
         appStart = true;
-        loadBeforeSettings();
+        fromSettings = false;
+
+        loadSettings();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         pagerInitialize();
-        fromSettings = false;
         subTitle = findViewById(R.id.toolbar_text);
         getWindow().setStatusBarColor(0x33333333);
 
-
-        EventBus.getDefault().register(this);
-
-
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            if (bundle.containsKey("posFromNotif")) {
-                notifKey = bundle.getInt("posFromNotif", 0);
-                Log.d("notificationKey", Integer.toString(notifKey));
-                int index = TaskList.keyList.indexOf(notifKey);
-                if (index != -1) {
-                    Log.d("alreadyNotifiedNotif", Boolean.toString(TaskList.getItem(index).isNotified()));
-                } else {
-                    Toast.makeText(this, "Couldn't find that task", Toast.LENGTH_SHORT).show();
-                    notifKey = 0;//don't scroll to in InboxFragment
-
-                }
-            }
-            Log.d("notificationBundle", Integer.toString(TaskList.keyList.indexOf(notifKey)));
-        }
-
         fabInitialize();
-
 
         drawerInitialize(toolbar);
 
-        //reportFullyDrawn();
 
-
-        //long endTime = System.nanoTime();
-        //long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
-        //Log.d("startupTime", "OnCreate: " + Long.toString(duration));
 
 
     }
@@ -158,20 +123,12 @@ public class MainActivity extends CyaneaAppCompatActivity
         if (appStart) {
             //loadTasks();
 
-            tasksDatabase = Room.databaseBuilder(getApplicationContext(),
-                    TasksDatabase.class, DATABASE_NAME)
-                    .fallbackToDestructiveMigration()
-                    .build();
+            projectsDatabase = GetDatabase.getDatabase(getApplicationContext());
+
+
 
             AsyncTask.execute(() -> {
-                TaskList.taskList = new ArrayList<>(tasksDatabase.tasksDao().getAll());
-
-
-                //InboxFragment.setTaskCountText(TaskList.taskList.size());
-
-                loadTags();
-
-                loadTagLinks();
+                ProjectList.INSTANCE.appStart(this, projectsDatabase);
 
                 Filters.homeViewAdd(); //add current filter to back stack
                 Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
@@ -181,13 +138,6 @@ public class MainActivity extends CyaneaAppCompatActivity
             });
 
 
-            AsyncTask.execute(() -> {
-                loadArchiveTasks();
-
-                loadAfterSettings();
-
-
-            });
 
             appStart = false;
         }
@@ -211,61 +161,38 @@ public class MainActivity extends CyaneaAppCompatActivity
             settingsReturn();
 
     }
+    public void loadSettings(){
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-    public void loadBeforeSettings() {
-
-        long startTime = System.nanoTime();
-
-        SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-
-        SettingsActivity.Companion.setFolderMode(defaultSharedPrefs.getBoolean("folder_mode", false));
+        SettingsActivity.Companion.setFolderMode(prefs.getBoolean("folder_mode", false));
 
         this.setTheme(R.style.AppThemeGlobal);
 
         try {
-            defaultSharedPrefs.getBoolean("sort_mode_list", true);
+            prefs.getBoolean("sort_mode_list", true);
         } catch (Exception e) {
-            defaultSharedPrefs.edit().putBoolean("sort_mode_list", true).apply();
+            prefs.edit().putBoolean("sort_mode_list", true).apply();
         }
-        if (defaultSharedPrefs.getBoolean("sort_mode_list", true)) {
+        if (prefs.getBoolean("sort_mode_list", true)) {
             SettingsActivity.Companion.setDefaultSort(0);
         } else {
             SettingsActivity.Companion.setDefaultSort(1);
         }
         InboxFragment.Companion.setFilterMode(SettingsActivity.Companion.getDefaultSort());
 
-        SettingsActivity.Companion.setColoredToolbar(defaultSharedPrefs.getBoolean("colored_toolbar", false));
-        SettingsActivity.Companion.setSubFilter(defaultSharedPrefs.getBoolean("sub_Filter_pref", false));
-
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration;//to seconds
-
-        Log.d("startupTime", "Load Before Settings: " + Long.toString(duration));
-
-
-    }
-
-    public void loadAfterSettings() {
-
-        long startTime = System.nanoTime();
+        SettingsActivity.Companion.setColoredToolbar(prefs.getBoolean("colored_toolbar", false));
+        SettingsActivity.Companion.setSubFilter(prefs.getBoolean("sub_Filter_pref", false));
 
         AsyncTask.execute(() -> {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
             SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notif_only_date", 0)));
         });
-
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration;//to seconds
-
-        Log.d("startupTime", "Load After Settings: " + Long.toString(duration));
     }
+
+
+
+
+
 
 
     public int getStatusBarHeight() {
@@ -466,76 +393,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         }
     }
 
-    public void loadTags() {
-
-        long startTime = System.nanoTime();
-
-        TagList.loadTags(this);
-
-        if (TagList.tagList == null) {
-            TagList.tagList = new ArrayList<>();
-            TagList.saveTags(this);
-            TagList.loadTags(this);
-        }
-
-        for (Tags tags : TagList.tagList) {
-            TagList.keyList.add(tags.getTagName());
-        }
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
-
-        Log.d("startupTime", "Load tags: " + Long.toString(duration));
-    }
-
-    public void loadTagLinks() {
-
-        long startTime = System.nanoTime();
-
-        TagLinkList.loadTags(this);
-
-        if (TagLinkList.linkList == null) {
-            TagLinkList.linkList = BrowseFragment.blankTagLinkList;
-            TagList.saveTags(this);
-            TagList.loadTags(this);
-        }
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
-
-        Log.d("startupTime", "Load tag links: " + Long.toString(duration));
-
-    }
-
-
-    public void loadArchiveTasks() {
-
-        long startTime = System.nanoTime();
-
-        ArchiveTaskList.loadTasks(this);
-
-        if (ArchiveTaskList.taskList == null) {
-            ArchiveTaskList.taskList = new ArrayList<>();
-            ArchiveTaskList.saveTasks(this);
-            ArchiveTaskList.loadTasks(this);
-        }
-
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
-        //duration = duration/1000;//to seconds
-
-        Log.d("startupTime", "Load archived tasks: " + Long.toString(duration));
-
-    }
-
-    public void loadSearch() {
-        AsyncTask.execute(() -> {
-
-        });
-    }
-
 
     public void pagerInitialize() {
 
@@ -641,8 +498,7 @@ public class MainActivity extends CyaneaAppCompatActivity
     @Override
     public void onPause() {
         super.onPause();
-        // TaskList.saveTasks(this);
-        ArchiveTaskList.saveTasks(this);
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("project_viewing", Current.viewing()).apply();
     }
 
 
@@ -687,6 +543,11 @@ public class MainActivity extends CyaneaAppCompatActivity
 
 
         NotificationHandler.resetNotifications(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMigrateEvent(MigrateEvent event) {
+        MigrationHelper.migrate_1_2_with_context(this, event.projectsDatabase, event.taskList);
     }
 
 

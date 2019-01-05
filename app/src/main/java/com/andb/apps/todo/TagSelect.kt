@@ -3,7 +3,6 @@ package com.andb.apps.todo
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -11,22 +10,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
 import com.andb.apps.todo.filtering.Filters
-import com.andb.apps.todo.lists.TagLinkList
-import com.andb.apps.todo.lists.TagList
-import com.andb.apps.todo.lists.interfaces.LinkListInterface
-import com.andb.apps.todo.lists.interfaces.TagListInterface
+import com.andb.apps.todo.utilities.Current
 import com.andrognito.flashbar.Flashbar
 import com.github.rongi.klaster.Klaster
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
 import kotlinx.android.synthetic.main.content_tag_select.*
-import kotlinx.android.synthetic.main.tag_list_item.*
 import kotlinx.android.synthetic.main.tag_list_item.view.*
 import org.greenrobot.eventbus.EventBus
 
 
 class TagSelect : CyaneaAppCompatActivity() {
-
 
 
     private var isTaskCreate = false
@@ -54,7 +48,7 @@ class TagSelect : CyaneaAppCompatActivity() {
 
         }
 
-        var tagRecycler = tagrecycler
+        val tagRecycler = tagrecycler
         tagRecycler.layoutManager = LinearLayoutManager(this)
 
 
@@ -65,7 +59,7 @@ class TagSelect : CyaneaAppCompatActivity() {
 
         tagRecycler.addOnItemTouchListener(RecyclerTouchListener(applicationContext, tagRecycler, object : RecyclerTouchListener.ClickListener {
             override fun onClick(view: View, position: Int) {
-                val tags = TagList.getItem(position)
+                val tags = Current.tagList()[position]
                 Toast.makeText(applicationContext, tags.tagName + " is selected!", Toast.LENGTH_SHORT).show()
 
 
@@ -74,9 +68,14 @@ class TagSelect : CyaneaAppCompatActivity() {
                     EventBus.getDefault().post(AddTaskAddTagEvent(position))
                     finish()
                 } else if (isTagLink && Filters.getCurrentFilter().size > 0) {
-                    val finish = LinkListInterface.addLinkToCurrentDirectory(position, this@TagSelect)
-                    if (finish) {
-                        finish()
+                    Current.tagList()[Filters.getMostRecent()].children.apply {
+                        when(contains(position)){
+                            false-> {
+                                add(position)
+                                finish()
+                            }
+                            true-> tagExists(this@TagSelect).show()
+                        }
                     }
                 } else {
                     Filters.tagForward(position)
@@ -98,10 +97,10 @@ class TagSelect : CyaneaAppCompatActivity() {
     }
 
     private fun tagAdapter() = Klaster.get()
-            .itemCount { TagList.tagList.size }
+            .itemCount { Current.tagList().size }
             .view(R.layout.tag_list_item, layoutInflater)
             .bind { position ->
-                val tag = TagList.tagList[position]
+                val tag = Current.tagList()[position]
                 itemView.tagname.text = tag.tagName
                 itemView.tagIcon.setColorFilter(tag.tagColor)
             }
@@ -151,7 +150,7 @@ class TagSelect : CyaneaAppCompatActivity() {
                         return true
                     }
                     R.id.deleteTag -> {
-                        TagListInterface.deleteTag(position, applicationContext)
+                        Current.tagList().removeAt(position)
                         mAdapter.notifyItemRemoved(position)
                         mode.finish()
                     }
@@ -168,9 +167,6 @@ class TagSelect : CyaneaAppCompatActivity() {
 
     public override fun onPause() {
         super.onPause()
-        if (isTagLink) {
-            TagLinkList.saveTags(this)
-        }
     }
 
 

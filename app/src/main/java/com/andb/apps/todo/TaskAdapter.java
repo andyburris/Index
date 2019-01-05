@@ -1,6 +1,5 @@
 package com.andb.apps.todo;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,18 +8,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.utilities.Utilities;
 import com.andb.apps.todo.views.TaskListItem;
 import com.jaredrummler.cyanea.Cyanea;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
 
 public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHolder> {

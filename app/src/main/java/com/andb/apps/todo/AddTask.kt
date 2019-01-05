@@ -1,39 +1,31 @@
 package com.andb.apps.todo
 
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
 import android.text.TextUtils
-import android.text.TextWatcher
 import android.transition.TransitionManager
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import android.widget.*
+import android.widget.EditText
+import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
-import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.filtering.Filters
-import com.andb.apps.todo.lists.TagList
-import com.andb.apps.todo.lists.TaskList
-import com.andb.apps.todo.lists.interfaces.TaskListInterface
-import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.utilities.Current
 import com.andrognito.flashbar.Flashbar
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
 import kotlinx.android.synthetic.main.content_add_task.*
-import kotlinx.android.synthetic.main.task_list_item.view.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -88,7 +80,6 @@ class AddTask : CyaneaAppCompatActivity() {
             prepareForEditing(bundle)
 
 
-
         } else {
             taskDateTime = DateTime(3000, 1, 1, 0, 0)
             if (!Filters.getCurrentFilter().isEmpty()) {
@@ -113,10 +104,7 @@ class AddTask : CyaneaAppCompatActivity() {
     }
 
 
-
-
     fun prepareForEditing(bundle: Bundle) {
-
 
 
         val browse = bundle.getBoolean("browse")
@@ -153,8 +141,8 @@ class AddTask : CyaneaAppCompatActivity() {
     private fun tagAdapter() = Klaster.get()
             .itemCount { tagsList.size }
             .view(R.layout.task_view_tag_list_item, layoutInflater)
-            .bind { position->
-                val tag = TagList.tagList.get(tagsList[adapterPosition])
+            .bind { position ->
+                val tag = Current.tagList().get(tagsList[adapterPosition])
                 itemView.tagImage.setColorFilter(tag.tagColor)
                 itemView.task_view_item_tag_name.text = tag.tagName
                 itemView.setOnClickListener {
@@ -164,7 +152,6 @@ class AddTask : CyaneaAppCompatActivity() {
             }
 
             .build()
-
 
 
     fun prepareItemsRecyclerView() {
@@ -200,8 +187,8 @@ class AddTask : CyaneaAppCompatActivity() {
 
     fun switchList(editing: Boolean) {
 
-        if(editing){
-            if(editingTask.isListItems){
+        if (editing) {
+            if (editingTask.isListItems) {
                 switch_task.isChecked = true
                 itemRecyclerView.visibility = View.VISIBLE
                 addButton.visibility = View.VISIBLE
@@ -229,7 +216,7 @@ class AddTask : CyaneaAppCompatActivity() {
             itemsList.add("")
             mAdapter!!.focused = true
             mAdapter!!.notifyItemInserted(itemsList.size - 1)
-            taskRecycler!!.smoothScrollToPosition(itemsList.size-1)
+            taskRecycler!!.smoothScrollToPosition(itemsList.size - 1)
         }
     }
 
@@ -343,9 +330,11 @@ class AddTask : CyaneaAppCompatActivity() {
 
 
         if (editing) {
-            TaskListInterface.replaceTask(taskName.text.toString(), items, checked, tags, taskDateTime, notified, TaskList.taskList.indexOf(editingTask), editingTask.listKey, applicationContext)
+            Current.taskList().apply {
+                set(indexOf(editingTask), Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey))
+            }
         } else {
-            TaskListInterface.addTask(taskName.text.toString(), items, checked, tags, taskDateTime)
+            Current.taskList().add(Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, false))
         }
 
     }
@@ -455,9 +444,9 @@ class AddTask : CyaneaAppCompatActivity() {
 
 
     fun addTag(tagPosition: Int) { //return from tagSelect
-        if(tagsList.contains(tagPosition)){
+        if (tagsList.contains(tagPosition)) {
             tagExists().show()
-        }else {
+        } else {
             tagsList.add(tagPosition)
             Log.d("addingValue", "adding #$tagPosition")
             tagAdapter.notifyDataSetChanged()
@@ -469,12 +458,10 @@ class AddTask : CyaneaAppCompatActivity() {
     }
 
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onAddTaskAddTagEvent(event: AddTaskAddTagEvent){
+    fun onAddTaskAddTagEvent(event: AddTaskAddTagEvent) {
         addTag(event.tag)
     }
-
 
 
 }

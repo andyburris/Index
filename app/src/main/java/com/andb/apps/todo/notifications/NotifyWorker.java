@@ -4,8 +4,10 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.andb.apps.todo.lists.ProjectList;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
-import com.andb.apps.todo.lists.TaskList;
+import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.google.gson.Gson;
 
 import org.joda.time.DateTime;
@@ -36,7 +38,7 @@ public class NotifyWorker extends Worker {
 
 
         NotificationHandler.initializeDatabase(getApplicationContext());
-        TaskList.taskList = new ArrayList<>(NotificationHandler.tasksDatabase.tasksDao().getAll());
+        ProjectList.INSTANCE.setProjectList(new ArrayList<>(NotificationHandler.projectsDatabase.projectsDao().getAll()));
 
 
         if (SettingsActivity.Companion.getTimeToNotifyForDateOnly() == null) {
@@ -46,9 +48,10 @@ public class NotifyWorker extends Worker {
             SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notify_only_date", 0)));
         }
 
-        if (TaskList.getNextNotificationItem() != null) {
+        if ((int)ProjectsUtils.nextNotificationAll().get(1)>0) {
             Log.d("workManager", "Next isn't null");
-            NotificationHandler.createNotification(TaskList.getNextNotificationItem(NotificationHandler.tasksDatabase), getApplicationContext());
+            ArrayList<Object> nextNotif = ProjectsUtils.nextNotificationAll(NotificationHandler.projectsDatabase);
+            NotificationHandler.createNotification((Tasks) nextNotif.get(0), (int)nextNotif.get(1), getApplicationContext());
         }
 
         return Worker.Result.SUCCESS;
@@ -60,14 +63,14 @@ public class NotifyWorker extends Worker {
 
         //Here we set the request for the next notification
 
-        if (TaskList.getNextNotificationItem() != null) {//if there are any left, restart the service
+        if ((int)ProjectsUtils.nextNotificationAll().get(1) > 0) {//if there are any left, restart the service
 
             Log.d("serviceRestart", "Service Restarting");
 
 
-            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), TaskList.getNextNotificationItem().getDateTime());
-            if (TaskList.getNextNotificationItem().getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
-                DateTime onlyDate = TaskList.getNextNotificationItem().getDateTime();
+            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), ((Tasks)ProjectsUtils.nextNotificationAll().get(0)).getDateTime());
+            if (((Tasks)ProjectsUtils.nextNotificationAll().get(0)).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {
+                DateTime onlyDate = ((Tasks)ProjectsUtils.nextNotificationAll().get(0)).getDateTime();
                 onlyDate = onlyDate.withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
                 duration = new Duration(DateTime.now(), onlyDate);
             }

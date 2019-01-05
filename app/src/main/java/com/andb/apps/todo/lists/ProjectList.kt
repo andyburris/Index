@@ -1,14 +1,22 @@
 package com.andb.apps.todo.lists
 
+import android.content.Context
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
+import com.andb.apps.todo.MainActivity
+import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.objects.Project
 
 import java.util.ArrayList
 
-class ProjectList {
+object ProjectList {
     var projectList = ArrayList<Project>()
-    var currentProject = Project()
+    var viewing: Int = 0
 
-    fun appStart(){
-
+    fun appStart(context: Context, db: ProjectsDatabase){
+        val viewing = PreferenceManager.getDefaultSharedPreferences(context).getInt("project_viewing", 0)
+        projectList = ArrayList(db.projectsDao().all)
     }
+
+    //TODO: sharedprefs for current viewing project
 }

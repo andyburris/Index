@@ -19,7 +19,6 @@ import android.widget.ImageView;
 
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
-import com.andb.apps.todo.objects.TagLinks;
 import com.jaredrummler.cyanea.app.CyaneaFragment;
 
 import java.util.ArrayList;
@@ -46,12 +45,6 @@ import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
  * create an instance of this fragment.
  */
 public class BrowseFragment extends CyaneaFragment {
-    public static ArrayList<TagLinks> blankTagLinkList = new ArrayList<>();
-
-
-
-
-
     public static InboxRecyclerView mRecyclerView;
     public static TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;

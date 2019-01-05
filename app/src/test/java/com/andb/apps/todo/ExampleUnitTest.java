@@ -1,6 +1,6 @@
 package com.andb.apps.todo;
 
-import com.jaredrummler.cyanea.Cyanea;
+import com.andb.apps.todo.utilities.Utilities;
 
 import org.junit.Test;
 

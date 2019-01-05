@@ -18,29 +18,23 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-
-import com.afollestad.materialcab.MaterialCab
-import com.andb.apps.todo.filtering.FilteredLists
-import com.andb.apps.todo.filtering.Filters
-import com.andb.apps.todo.lists.TaskList
-import com.andb.apps.todo.lists.interfaces.TaskListInterface
-import com.andb.apps.todo.objects.Tasks
-import com.jaredrummler.cyanea.Cyanea
-import com.jaredrummler.cyanea.app.CyaneaFragment
-
-import org.joda.time.DateTime
-
-import java.util.ArrayList
-import java.util.Collections
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import me.saket.inboxrecyclerview.InboxRecyclerView
-
-import kotlinx.android.synthetic.main.fragment_inbox.*
+import com.afollestad.materialcab.MaterialCab
+import com.andb.apps.todo.filtering.FilteredLists
+import com.andb.apps.todo.filtering.Filters
+import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.Utilities
+import com.jaredrummler.cyanea.Cyanea
+import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
+import me.saket.inboxrecyclerview.InboxRecyclerView
+import org.joda.time.DateTime
+import java.util.*
 
 
 /**
@@ -59,7 +53,6 @@ class InboxFragment : CyaneaFragment() {
 
 
     private var mListener: OnFragmentInteractionListener? = null
-
 
 
     internal var isSwiping = false
@@ -163,7 +156,7 @@ class InboxFragment : CyaneaFragment() {
         currentPathText = view.findViewById(R.id.task_path_text)
 
         setPathText(Filters.subtitle)
-        setTaskCountText(TaskList.taskList.size)
+        setTaskCountText(Current.project().taskList.size)
 
         val tagButton = view.findViewById<Button>(R.id.tag_button)
         val bgdrawable = resources.getDrawable(R.drawable.rounded_button_background).mutate()
@@ -191,9 +184,9 @@ class InboxFragment : CyaneaFragment() {
             override fun onClick(view: View, position: Int) {}
 
             override fun onLongClick(view: View, position: Int) {
-                if (!isSwiping && (mAdapter.getItemViewType(position) == 0) && mAdapter.selected==-1) {
+                if (!isSwiping && (mAdapter.getItemViewType(position) == 0) && mAdapter.selected == -1) {
                     //contextualToolbar = InboxFragment.this.getActivity().startActionMode(setCallback(position));
-                    MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub){
+                    MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub) {
                         title = FilteredLists.inboxTaskList[position].listName
                         backgroundColor = cyanea.accent
                         titleColor = Utilities.textFromBackground(cyanea.accent)
@@ -202,8 +195,8 @@ class InboxFragment : CyaneaFragment() {
 
                         slideDown()
                         onSelection {
-                            when (it.itemId){
-                                R.id.editTask ->{
+                            when (it.itemId) {
+                                R.id.editTask -> {
                                     val editTask = Intent(context, AddTask::class.java)
                                     editTask.putExtra("edit", true)
                                     editTask.putExtra("editPos", position)
@@ -211,7 +204,8 @@ class InboxFragment : CyaneaFragment() {
                                     startActivity(editTask)
                                     MaterialCab.destroy()
                                     true
-                                }else -> false
+                                }
+                                else -> false
                             }
 
                         }
@@ -245,7 +239,6 @@ class InboxFragment : CyaneaFragment() {
 
 
     }
-
 
 
     override fun onDetach() {
@@ -371,7 +364,7 @@ class InboxFragment : CyaneaFragment() {
 
         val tasks = FilteredLists.inboxTaskList[position]
 
-        TaskListInterface.removeTask(tasks)
+        Current.taskList().remove(tasks)
 
         FilteredLists.inboxTaskList.removeAt(position)
 
@@ -411,9 +404,10 @@ class InboxFragment : CyaneaFragment() {
         }
 
 
-        fun getFilterMode(): Int{
+        fun getFilterMode(): Int {
             return filterMode
         }
+
         fun setFilterMode(mode: Int) {
 
             filterMode = mode

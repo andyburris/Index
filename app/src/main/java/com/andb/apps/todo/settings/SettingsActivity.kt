@@ -2,22 +2,16 @@ package com.andb.apps.todo.settings
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
-import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.preference.PreferenceActivity
 import android.preference.PreferenceManager
-import android.view.View
 import android.widget.ImageView
 
 import com.andb.apps.todo.R
 import com.andrognito.flashbar.Flashbar
-import com.jaredrummler.android.colorpicker.ColorPanelView
-import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.BaseCyaneaActivity
 import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity
@@ -26,7 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.andb.apps.todo.Utilities
+import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.CyaneaResources
 import com.jaredrummler.cyanea.delegate.CyaneaDelegate
 import de.Maxr1998.modernpreferences.PreferenceScreen

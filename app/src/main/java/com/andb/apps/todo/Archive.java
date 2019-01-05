@@ -1,29 +1,25 @@
 package com.andb.apps.todo;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
 import com.andb.apps.todo.eventbus.UpdateEvent;
-import com.andb.apps.todo.lists.ArchiveTaskList;
-import com.andb.apps.todo.lists.TaskList;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.objects.Project;
+import com.andb.apps.todo.utilities.Current;
+import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.jaredrummler.cyanea.Cyanea;
 
 import org.greenrobot.eventbus.EventBus;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,7 +48,7 @@ public class Archive extends PullCollapsibleActivity {
     }
 
 
-    public void prepareRecyclerView(){
+    public void prepareRecyclerView() {
         Log.d("recycler", "preparing archive rView");
         mRecyclerView = (RecyclerView) findViewById(R.id.archiveRecycler);
 
@@ -65,7 +61,7 @@ public class Archive extends PullCollapsibleActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(ArchiveTaskList.taskList, TaskAdapter.FROM_ARCHIVE);
+        mAdapter = new TaskAdapter(Current.archiveTaskList(), TaskAdapter.FROM_ARCHIVE);
         mRecyclerView.setAdapter(mAdapter);
 
         ItemTouchHelper ith = new ItemTouchHelper(_ithCallback);
@@ -84,14 +80,16 @@ public class Archive extends PullCollapsibleActivity {
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             Log.d("swipeAction", "swiped");
 
-            if(direction == ItemTouchHelper.RIGHT){//restore
-                TaskList.addTaskList(ArchiveTaskList.taskList.get(viewHolder.getAdapterPosition()));
-                ArchiveTaskList.taskList.remove(viewHolder.getAdapterPosition());
+            if (direction == ItemTouchHelper.RIGHT) {//restore
+                Current.taskList().add(Current.project().getArchiveList().get(viewHolder.getAdapterPosition()));
+                Current.project().getArchiveList().remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
                 EventBus.getDefault().post(new UpdateEvent(true));
-            }else if (direction == ItemTouchHelper.LEFT){//delete permanently
-                ArchiveTaskList.taskList.remove(viewHolder.getAdapterPosition());
+                ProjectsUtils.update();
+            } else if (direction == ItemTouchHelper.LEFT) {//delete permanently
+                Current.project().getArchiveList().remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                ProjectsUtils.update();
             }
         }
 
@@ -99,7 +97,7 @@ public class Archive extends PullCollapsibleActivity {
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 
 
-            if(dX>0) { //restore
+            if (dX > 0) { //restore
                 Drawable deleteIcon = getDrawable(R.drawable.ic_move_to_inbox_black_24dp).mutate();
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
                 int intrinsicWidth = deleteIcon.getIntrinsicWidth();
@@ -140,7 +138,7 @@ public class Archive extends PullCollapsibleActivity {
                 }
 
                 super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive);
-            }else { //delete
+            } else { //delete
                 Drawable deleteIcon = getDrawable(R.drawable.ic_delete_black_24dp).mutate();
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
                 int intrinsicWidth = deleteIcon.getIntrinsicWidth();
@@ -196,12 +194,6 @@ public class Archive extends PullCollapsibleActivity {
                     ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         }
     };
-
-    public void onPause(){
-        super.onPause();
-        ArchiveTaskList.saveTasks(this);
-        Log.d("save", "saving TaskList");
-    }
 
 
 

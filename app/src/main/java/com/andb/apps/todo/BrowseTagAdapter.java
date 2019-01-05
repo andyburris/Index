@@ -1,7 +1,6 @@
 package com.andb.apps.todo;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -13,10 +12,8 @@ import android.widget.TextView;
 
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
-import com.andb.apps.todo.lists.TagLinkList;
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.objects.TagLinks;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.utilities.Current;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,11 +129,9 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             holder.removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    TagLinks toRemove = TagLinkList.contains(Filters.getMostRecent());
+                    Tags toRemoveFrom = Current.tagList().get(Filters.getMostRecent());
                     Log.d("removeLinks", "Size: " + tagLinks.size() + ", position:" + realPosition);
-                    Log.d("removeLinks", "TagLink Size: " + toRemove.getAllTagLinks().size() + ", tag parent:" + TagList.getItem(toRemove.tagParent()).getTagName());
-                    toRemove.removeTagLink(tagLinks.get(realPosition));
-                    Log.d("removeLinks", "TagLink Size: " + toRemove.getAllTagLinks().size() + ", tag parent:" + TagList.getItem(toRemove.tagParent()).getTagName());
+                    toRemoveFrom.getChildren().remove(tagLinks.get(realPosition));
                     tagLinks.remove(realPosition);
                     notifyItemRemoved(realPosition);
                     notifyItemRangeChanged(0, tagLinks.size());
@@ -146,8 +141,8 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             holder.removeButton.setVisibility(View.GONE);
         }
 
-        holder.tagName.setText(TagList.getItem(tagLinks.get(position)).getTagName());
-        holder.browseTagImage.setColorFilter(TagList.getItem(tagLinks.get(position)).getTagColor());
+        holder.tagName.setText(Current.tagList().get(tagLinks.get(position)).getTagName());
+        holder.browseTagImage.setColorFilter(Current.tagList().get(tagLinks.get(position)).getTagColor());
         holder.browseLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,7 +173,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
         holder.browseLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!TagList.getItem(tagLinks.get(realPosition)).isSubFolder()) {
+                if (!Current.tagList().get(tagLinks.get(realPosition)).isSubFolder()) {
                     Filters.tagReset(FilteredLists.filteredTagLinks.get(position));
                 }
                 return true;

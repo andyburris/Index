@@ -1,22 +1,20 @@
 package com.andb.apps.todo;
 
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.andb.apps.todo.lists.TagList;
-import com.andb.apps.todo.lists.interfaces.TagListInterface;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.utilities.Current;
+import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.andrognito.flashbar.Flashbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
@@ -76,12 +74,12 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
 
             tagPosition = bundle.getInt("editPos");
             Log.d("taskPosition", Integer.toString(tagPosition));
-            tagNameEdit.setText(TagList.getItem(tagPosition).getTagName());
-            tagColor = TagList.getItem(tagPosition).getTagColor();
+            tagNameEdit.setText(Current.tagList().get(tagPosition).getTagName());
+            tagColor = Current.tagList().get(tagPosition).getTagColor();
             ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.tagColorPreview);
             colorPanelView.setColor(tagColor);
 
-            subFolderSwitch.setChecked(TagList.getItem(tagPosition).isSubFolder());
+            subFolderSwitch.setChecked(Current.tagList().get(tagPosition).isSubFolder());
         }
 
         ConstraintLayout colorPreview = (ConstraintLayout) findViewById(R.id.colorPreviewLayout);
@@ -113,10 +111,7 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         });
 
 
-
     }
-
-
 
 
     private void setInputTextLayoutColor(final int color, final EditText editText) {
@@ -179,18 +174,27 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         String tagName = tagNameEdit.getText().toString();
         subFolder = subFolderSwitch.isChecked();
 
+        boolean nameTaken = false;
+        for (Tags tags : Current.tagList()) {
+            if (tags.getTagName().equals(tagNameEdit.getText().toString())) {
+                nameTaken = true;
+            }
+        }
+
         if (TextUtils.isEmpty(tagNameEdit.getText())) {
             flashbar.show();
-        } else if (TagList.keyList.contains(tagNameEdit.getText().toString())) {
+        } else if (nameTaken) {
             usedFlashbar.show();
         } else {
 
             if (editing) {
-                TagListInterface.replaceTag(tagName, tagColor, tagPosition, subFolder);
+                Current.tagList().set(tagPosition, new Tags(tagName, tagColor, subFolder));
                 TagSelect.mAdapter.notifyItemChanged(tagPosition);
+                ProjectsUtils.update();
             } else {
-                TagListInterface.addTag(tagName, tagColor, subFolder);
+                Current.tagList().add(new Tags(tagName, tagColor, subFolder));
                 TagSelect.mAdapter.notifyDataSetChanged();
+                ProjectsUtils.update();
             }
             finish();
 
@@ -248,12 +252,6 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
     @Override
     public void onDialogDismissed(int dialogId) {
 
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        TagList.saveTags(this);
     }
 }
 

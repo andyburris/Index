@@ -3,58 +3,33 @@ package com.andb.apps.todo
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.appcompat.view.menu.MenuBuilder
-
+import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import com.andb.apps.todo.filtering.FilteredLists
-import com.andb.apps.todo.lists.ArchiveTaskList
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.views.CyaneaTextView
-import com.andb.apps.todo.views.Icon
-import com.google.android.material.bottomappbar.BottomAppBar
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.Utilities
+import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
-
-import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.graphics.ColorUtils
-import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
-import butterknife.BindView
-import butterknife.ButterKnife
-import com.afollestad.materialcab.MaterialCab
-import com.andb.apps.todo.eventbus.UpdateEvent
-import com.andb.apps.todo.lists.TagList
-import com.andb.apps.todo.lists.TaskList
-import com.github.rongi.klaster.Klaster
 import kotlinx.android.synthetic.main.content_task_view.*
-import kotlinx.android.synthetic.main.fragment_browse.*
-import kotlinx.android.synthetic.main.fragment_inbox.*
-import kotlinx.android.synthetic.main.inbox_checklist_list_item.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
-import kotlinx.android.synthetic.main.task_list_item.*
-import kotlinx.android.synthetic.main.task_view_tag_list_item.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import org.greenrobot.eventbus.EventBus
-import java.util.*
 
 class TaskView : CyaneaFragment() {
 
@@ -74,7 +49,7 @@ class TaskView : CyaneaFragment() {
             TaskAdapter.FROM_BROWSE -> {
                 task = FilteredLists.browseTaskList[position]
             }
-            TaskAdapter.FROM_ARCHIVE -> task = ArchiveTaskList.taskList[position]
+            TaskAdapter.FROM_ARCHIVE -> task = Current.project().archiveList[position]
             else //inbox
             -> {
                 task = FilteredLists.inboxTaskList[position]
@@ -142,16 +117,16 @@ class TaskView : CyaneaFragment() {
         toolbar.menu.setGroupVisible(R.id.toolbar_main, false)
     }
 
-    fun subtaskAdapter()  = Klaster.get()
+    fun subtaskAdapter() = Klaster.get()
             .itemCount { task.listItemsSize }
             .view(R.layout.inbox_checklist_list_item, layoutInflater)
             .bind { pos ->
                 itemView.listTextView.text = task.getListItems(pos)
                 itemView.listTextView.isChecked = task.getListItemsChecked(pos)
-                itemView.listTextView.setOnCheckedChangeListener { buttonView, isChecked ->
+                itemView.listTextView.setOnCheckedChangeListener { _, isChecked ->
                     task.editListItemsChecked(isChecked, pos)
                     AsyncTask.execute {
-                        MainActivity.tasksDatabase.tasksDao().updateTask(task)
+                        MainActivity.projectsDatabase.projectsDao().updateProject(Current.project())
                     }
                 }
             }
@@ -160,8 +135,8 @@ class TaskView : CyaneaFragment() {
     fun tagAdapter() = Klaster.get()
             .itemCount { task.listTagsSize }
             .view(R.layout.task_view_tag_list_item, layoutInflater)
-            .bind {pos ->
-                val tag = TagList.getItem(task.getListTags(pos))
+            .bind { pos ->
+                val tag = Current.project().tagList[task.getListTags(pos)]
                 itemView.tagImage.setColorFilter(tag.tagColor)
                 itemView.task_view_item_tag_name.text = tag.tagName
             }
@@ -188,8 +163,6 @@ class TaskView : CyaneaFragment() {
     }
 
 
-
-
     override fun onPause() {
         super.onPause()
         InboxFragment.mAdapter.notifyDataSetChanged()
@@ -204,7 +177,7 @@ class TaskView : CyaneaFragment() {
         internal var position: Int = 0
         internal var inboxBrowseArchive: Int = 0 //0 is inbox, 1 is browse, 2 is archive
 
-        fun editFromToolbar(ctxt: Context){//TODO: reset vars and don't return if collpased
+        fun editFromToolbar(ctxt: Context) {//TODO: reset vars and don't return if collpased
             when (inboxBrowseArchive) {
                 TaskAdapter.FROM_BROWSE -> {
                     val editTask = Intent(ctxt, AddTask::class.java)
@@ -225,13 +198,14 @@ class TaskView : CyaneaFragment() {
                 }
             }
         }
-        fun taskDone(ctxt: Context){
+
+        fun taskDone(ctxt: Context) {
             //TODO: collapse, notify, archive
         }
     }
 
 
-    class TaskViewPageCallbacks(val activity: Activity) : SimplePageStateChangeCallbacks(){
+    class TaskViewPageCallbacks(val activity: Activity) : SimplePageStateChangeCallbacks() {
         override fun onPageAboutToExpand(expandAnimDuration: Long) {
             super.onPageAboutToExpand(expandAnimDuration)
             pageState = 1
@@ -241,6 +215,7 @@ class TaskView : CyaneaFragment() {
             super.onPageExpanded()
             pageState = 2
         }
+
         override fun onPageCollapsed() {
             super.onPageCollapsed()
             pageState = 0
@@ -263,7 +238,7 @@ class TaskView : CyaneaFragment() {
             toolbar.menu.setGroupVisible(R.id.toolbar_main, true)
         }
 
-            override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+        override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
             super.onPageAboutToCollapse(collapseAnimDuration)
             pageState = 3
         }

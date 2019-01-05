@@ -12,12 +12,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.*
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
+import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_list_item.view.*
 import java.util.*
@@ -93,9 +95,8 @@ class TaskListItem : ConstraintLayout {
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         task.editListItemsChecked(isChecked, i)
                         checkBox.paintFlags = if(!isChecked)checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-
                         AsyncTask.execute {
-                            MainActivity.tasksDatabase.tasksDao().updateTask(task)
+                            ProjectsUtils.update()
                         }
 
                     }

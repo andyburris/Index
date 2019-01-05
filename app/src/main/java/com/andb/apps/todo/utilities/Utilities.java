@@ -1,4 +1,4 @@
-package com.andb.apps.todo;
+package com.andb.apps.todo.utilities;
 
 import android.content.Intent;
 import android.graphics.Color;
