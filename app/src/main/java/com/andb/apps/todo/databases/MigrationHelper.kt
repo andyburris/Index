@@ -5,6 +5,8 @@ import android.os.AsyncTask
 import android.preference.PreferenceManager
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
@@ -14,6 +16,7 @@ import com.google.gson.Gson
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import org.greenrobot.eventbus.EventBus
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -54,6 +57,8 @@ object MigrationHelper{
             AsyncTask.execute {
                 db.projectsDao().insertOnlySingleProject(project)
                 ProjectList.projectList = ArrayList(db.projectsDao().all)
+
+                EventBus.getDefault().post(UpdateEvent(true))
             }
         }
 

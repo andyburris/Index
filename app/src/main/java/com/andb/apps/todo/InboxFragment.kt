@@ -34,6 +34,7 @@ import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import org.joda.time.DateTime
+import java.lang.Exception
 import java.util.*
 
 
@@ -156,7 +157,12 @@ class InboxFragment : CyaneaFragment() {
         currentPathText = view.findViewById(R.id.task_path_text)
 
         setPathText(Filters.subtitle)
-        setTaskCountText(Current.project().taskList.size)
+
+        try {
+            setTaskCountText(Current.project().taskList.size)
+        }catch (e: Exception){
+            Log.d("notMigrated", "data not migrated yet")
+        }
 
         val tagButton = view.findViewById<Button>(R.id.tag_button)
         val bgdrawable = resources.getDrawable(R.drawable.rounded_button_background).mutate()

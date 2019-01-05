@@ -547,7 +547,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMigrateEvent(MigrateEvent event) {
-        MigrationHelper.migrate_1_2_with_context(this, event.projectsDatabase, event.taskList);
+        MigrationHelper.migrate_1_2_with_context(this, projectsDatabase, event.taskList);
     }
 
 
