@@ -1,6 +1,5 @@
 package com.andb.apps.todo
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -11,9 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.utilities.Current
-import com.andrognito.flashbar.Flashbar
 import com.github.rongi.klaster.Klaster
-import com.jaredrummler.cyanea.Cyanea
+import com.google.android.material.snackbar.Snackbar
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
 import kotlinx.android.synthetic.main.content_tag_select.*
 import kotlinx.android.synthetic.main.tag_list_item.view.*
@@ -69,12 +67,16 @@ class TagSelect : CyaneaAppCompatActivity() {
                     finish()
                 } else if (isTagLink && Filters.getCurrentFilter().size > 0) {
                     Current.tagList()[Filters.getMostRecent()].children.apply {
-                        when(contains(position)){
-                            false-> {
-                                add(position)
-                                finish()
+                        when (contains(position)) {
+                            false -> {
+                                if (position != Filters.getMostRecent()) {
+                                    add(position)
+                                    finish()
+                                } else {
+                                    Snackbar.make(toolbar.rootView, "The tag you selected is the current tag. Why would you do that?", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                                }
                             }
-                            true-> tagExists(this@TagSelect).show()
+                            true -> Snackbar.make(toolbar.rootView, "The tag you selected has already been linked", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                         }
                     }
                 } else {
@@ -172,28 +174,6 @@ class TagSelect : CyaneaAppCompatActivity() {
 
     companion object {
         lateinit var mAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-
-        fun tagExists(activity: Activity): Flashbar {
-            return Flashbar.Builder(activity)
-                    .gravity(Flashbar.Gravity.BOTTOM)
-                    .title("Tag Exists")
-                    .message("The tag you selected has already been linked")
-                    .dismissOnTapOutside()
-                    .backgroundColor(Cyanea.instance.accent)
-                    .build()
-
-        }
-
-        fun sameTag(activity: Activity): Flashbar {
-            return Flashbar.Builder(activity)
-                    .gravity(Flashbar.Gravity.BOTTOM)
-                    .title("Same Tag")
-                    .message("The tag you selected is the current tag. Why would you do that?")
-                    .dismissOnTapOutside()
-                    .backgroundColor(Cyanea.instance.accent)
-                    .build()
-
-        }
     }
 
 

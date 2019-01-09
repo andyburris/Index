@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_sheet_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="136dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/app_bar_coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/archive_icon">
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="48dp"
+            android:backgroundTint="@color/cyanea_primary"
+            android:theme="@style/Base.Theme.MaterialComponents"
+            app:fabAlignmentMode="center"
+            app:layout_anchorGravity="bottom"
+            app:navigationIcon="@drawable/ic_menu_black_24dp" />
+
+        <ViewStub
+            android:id="@+id/cab_stub"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize" />
+
+        <com.andb.apps.todo.views.CyaneaTextView
+            android:id="@+id/toolbar_text"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="56dp"
+            android:alpha="54"
+            android:text="@string/app_name"
+            android:textColor="?menuIconColor"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_anchor="@id/toolbar"
+            app:layout_anchorGravity="center_vertical"
+            custom:cyaneaTextBackground="primary" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:theme="@style/AppThemeTabLayout"
+            app:tabIndicatorColor="?colorAccent"
+            app:tabSelectedTextColor="@color/tabSelectedTextColor"
+            app:tabTextColor="@color/tabUnselectedTextColor">
+
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_1" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabItem2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_2"
+
+                />
+
+
+        </com.google.android.material.tabs.TabLayout>
+
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_black_24dp"
+            app:backgroundTint="?colorAccent"
+            app:fabSize="normal"
+            app:layout_anchor="@+id/toolbar"
+            app:layout_anchorGravity="top|center" />
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <FrameLayout
+        android:id="@+id/archive_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_coordinator">
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/import_export_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_sheet_menu_divider"
+        app:layout_constraintTop_toBottomOf="@+id/archive_icon">
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/settings_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@+id/project_switcher_frame"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_menu_divider">
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/archive_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/import_export_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_archive_black_24dp" />
+
+    <TextView
+        android:id="@+id/archive_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/title_activity_archive"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
+        app:layout_constraintStart_toEndOf="@+id/archive_icon"
+        app:layout_constraintTop_toTopOf="@+id/archive_icon" />
+
+    <ImageView
+        android:id="@+id/import_export_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_sheet_menu_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_import_export_black_24dp" />
+
+    <TextView
+        android:id="@+id/import_export_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/import_export_menu"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/import_export_icon"
+        app:layout_constraintStart_toEndOf="@+id/import_export_icon"
+        app:layout_constraintTop_toTopOf="@+id/import_export_icon" />
+
+    <View
+        android:id="@+id/bottom_sheet_menu_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/settings_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/settings_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="53dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/project_switcher_frame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_settings_black_24dp" />
+
+    <TextView
+        android:id="@+id/settings_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/action_settings"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/settings_icon"
+        app:layout_constraintStart_toEndOf="@+id/settings_icon"
+        app:layout_constraintTop_toTopOf="@+id/settings_icon" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/project_switcher_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/project_switcher_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/project_switcher_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="Projects"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/project_switcher_recycler"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/project_switcher_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/project_switcher_header" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

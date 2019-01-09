@@ -16,6 +16,7 @@ import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.inflator.CyaneaViewProcessor
 import com.jaredrummler.cyanea.inflator.decor.CyaneaDecorator
 import com.jaredrummler.cyanea.inflator.decor.FontDecorator
+import de.Maxr1998.modernpreferences.Preference
 
 class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provider {
     override fun onCreate() {

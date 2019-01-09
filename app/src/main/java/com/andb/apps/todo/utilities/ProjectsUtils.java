@@ -38,59 +38,7 @@ public class ProjectsUtils{
                 return p;
             }
         }
-
         return null;
-    }
-
-
-    public static Tasks nextNotificationInProject(Project project){
-        Tasks toReturn = null;
-        for (Tasks tasks : project.getTaskList()){
-            if(toReturn != null){
-                if(tasks.getDateTime().isBefore(toReturn.getDateTime())){
-                    toReturn = tasks;
-                }
-            }else {
-                if (!tasks.getDateTime().equals(new DateTime(3000, 1, 1, 0, 0))){
-                    toReturn = tasks;
-                }
-            }
-        }
-        return toReturn;
-    }
-
-    public static ArrayList<Object> nextNotificationAll(){
-        ArrayList<Object> toReturn = new ArrayList<>();
-        int project = -1;
-
-        Tasks tasks = null;
-        for (Project p : ProjectList.INSTANCE.getProjectList()){
-            if (tasks!=null) {
-                if (nextNotificationInProject(p).getDateTime().isBefore(tasks.getDateTime())) {
-                    tasks = nextNotificationInProject(p);
-                    project = ProjectList.INSTANCE.getProjectList().indexOf(p);
-                }
-            }else {
-                if (nextNotificationInProject(p)!=null){
-                    tasks = nextNotificationInProject(p);
-                    project = ProjectList.INSTANCE.getProjectList().indexOf(p);
-                }
-            }
-        }
-
-        toReturn.add(tasks);
-        toReturn.add(project);
-
-        return toReturn;
-
-    }
-    public static ArrayList<Object> nextNotificationAll(ProjectsDatabase projectsDatabase){
-        ArrayList<Object> toReturn = nextNotificationAll();
-
-        Project project = ProjectList.INSTANCE.getProjectList().get((int) toReturn.get(1));
-        project.getTaskList().get(project.getTaskList().indexOf((Tasks) toReturn.get(0))).setNotified(true);
-        AsyncTask.execute(()-> projectsDatabase.projectsDao().updateProject(project));
-        return toReturn;
     }
 
     private static Random random = new Random();

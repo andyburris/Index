@@ -52,10 +52,11 @@ android {
 }
 
 dependencies {
-    def work_version = "1.0.0-alpha04"
+    def work_version = "1.0.0-beta01"
     def room_version = "2.1.0-alpha03"
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.1.0-alpha02'
@@ -66,7 +67,7 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.5' //translates arraylists into savedpreference-compatible json
     implementation 'com.jaredrummler:colorpicker:1.0.5' //color picker library
-    implementation 'com.andrognito.flashbar:flashbar:1.0.2' //alert library
+    //implementation 'com.andrognito.flashbar:flashbar:1.0.2' //alert library
     implementation 'joda-time:joda-time:2.9.9' //time library
     implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0' //fix for joda-time gson saving.
     implementation "android.arch.work:work-runtime:$work_version" //work-manager
@@ -75,14 +76,11 @@ dependencies {
     implementation 'com.github.MatrixDev.Roomigrant:RoomigrantLib:0.1.7'//room migrations
     kapt 'com.github.MatrixDev.Roomigrant:RoomigrantCompiler:0.1.7'//room migrations
     testImplementation "androidx.room:room-testing:$room_version" // Test helpers
-    debugImplementation 'com.pixiteapps.billingx:billingx:0.8.0' //donations
-    releaseImplementation 'com.android.billingclient:billing:1.0' //donations release
+
     implementation 'org.greenrobot:eventbus:3.1.1' //communicate across threads
     implementation 'com.jaredrummler:cyanea:1.0.1' //theming library
     //implementation 'me.saket:inboxrecyclerview:1.0.0-rc1'//inbox-like transitions
     implementation 'com.github.Maxr1998:ModernAndroidPreferences:-SNAPSHOT' //preferences
-    implementation 'com.jakewharton:butterknife:9.0.0-rc2' //butterknife
-    annotationProcessor 'com.jakewharton:butterknife-compiler:9.0.0-rc2' //butterknife annotations
     implementation 'com.github.rongi:klaster:0.3.4' //inline recyclerviews for simple implementations
     implementation 'com.afollestad:material-cab:1.3.1' //contextual action bar library
     implementation project(path: ':inboxrecyclerview')
@@ -90,7 +88,10 @@ dependencies {
     api 'com.google.guava:guava:25.1-android'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
+}
+
+configurations {
+    all*.exclude group: 'com.google.guava', module: 'listenablefuture'
 }
 

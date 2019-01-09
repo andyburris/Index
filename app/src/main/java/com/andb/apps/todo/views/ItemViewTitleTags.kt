@@ -30,12 +30,13 @@ class ItemViewTitleTags : ConstraintLayout {
         taskName2.text = name
     }
 
-    fun setOverflow() {
-        addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            var nameRight = taskName2.right
-            var c1Left = chip1.left
-            var c2Left = chip2.left
-            var c3Left = chip3.left
+    fun setOverflow(view: View) {
+        view.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+
+            val nameRight = taskName2.right
+            val c1Left = chip1.left
+            val c2Left = chip2.left
+            val c3Left = chip3.left
 
             if (nameRight > c1Left) {
                 chip1.visibility = View.GONE
@@ -49,6 +50,8 @@ class ItemViewTitleTags : ConstraintLayout {
                 chip3.visibility = View.GONE
                 chipsVisible = 0
             }
+
+            //Log.d("clipping chips", "$chipsVisible visible")
         }
 
 

@@ -15,22 +15,22 @@ import android.widget.Toast;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
-import com.andrognito.flashbar.Flashbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.jaredrummler.cyanea.Cyanea;
+import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 
 import java.lang.reflect.Field;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 
-public class CreateTag extends AppCompatActivity implements ColorPickerDialogListener {
+public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDialogListener {
 
     public EditText tagNameEdit;
     public Switch subFolderSwitch;
@@ -44,8 +44,6 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
 
     private static final int DIALOG_ID = 0;
 
-    Flashbar flashbar;
-    Flashbar usedFlashbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +52,6 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         setContentView(R.layout.activity_create_tag);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        flashbar = blankText();
-        usedFlashbar = keyUsed();
 
 
         Bundle bundle = getIntent().getExtras();
@@ -182,9 +176,9 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
         }
 
         if (TextUtils.isEmpty(tagNameEdit.getText())) {
-            flashbar.show();
+            Snackbar.make(tagNameEdit.getRootView().getRootView(), "Please fill in the tag name", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
         } else if (nameTaken) {
-            usedFlashbar.show();
+            Snackbar.make(tagNameEdit.getRootView().getRootView(), "A tag with this name already exists, please choose another one", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
         } else {
 
             if (editing) {
@@ -200,28 +194,6 @@ public class CreateTag extends AppCompatActivity implements ColorPickerDialogLis
 
         }
 
-
-    }
-
-    private Flashbar blankText() {
-        return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
-                .title("Blank")
-                .message("Please fill in the tag name")
-                .dismissOnTapOutside()
-                .backgroundColor(Cyanea.getInstance().getAccent())
-                .build();
-
-    }
-
-    private Flashbar keyUsed() {
-        return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
-                .title("Tag Exists")
-                .message("A tag with this name already exists, please choose another one")
-                .dismissOnTapOutside()
-                .backgroundColor(Cyanea.getInstance().getAccent())
-                .build();
 
     }
 

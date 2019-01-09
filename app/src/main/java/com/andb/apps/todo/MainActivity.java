@@ -40,7 +40,6 @@ import com.andb.apps.todo.notifications.NotificationHandler;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.views.InboxRVViewPager;
-import com.github.rongi.klaster.Klaster;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -65,11 +64,9 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
-import kotlin.jvm.functions.Function1;
 
 
-public class MainActivity extends CyaneaAppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends CyaneaAppCompatActivity{
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -320,16 +317,15 @@ public class MainActivity extends CyaneaAppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+/*    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            // Handle the camera action
         } else if (id == R.id.nav_archive) {
-            startActivity(new Intent(this, Archive.class));
+
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
@@ -350,7 +346,7 @@ public class MainActivity extends CyaneaAppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
+    }*/
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -443,7 +439,6 @@ public class MainActivity extends CyaneaAppCompatActivity
         ConstraintLayout headerColor = headerView.findViewById(R.id.headerImage);
 
 
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -451,12 +446,11 @@ public class MainActivity extends CyaneaAppCompatActivity
         drawerToggle = toggle;
 
 
-        navigationView.setNavigationItemSelectedListener(this);
+        //navigationView.setNavigationItemSelectedListener(this);
         navigationView.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
 
 
         headerColor.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.OVERLAY);
-
 
 
         navigationView.setItemTextAppearance(R.style.AppThemeNavDrawer);
@@ -466,7 +460,9 @@ public class MainActivity extends CyaneaAppCompatActivity
     }
 
     public static RecyclerView.Adapter<RecyclerView.ViewHolder> projectAdapter;
-    public void setupProjectSelector(){
+
+    public void setupProjectSelector() {
+/*        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         LinearLayout headerView = (LinearLayout) navigationView.getHeaderView(0);
         ImageView collapseButton = headerView.findViewById(R.id.projectCollapse);
@@ -477,7 +473,7 @@ public class MainActivity extends CyaneaAppCompatActivity
 
 
         projectRecycler.setLayoutManager(new LinearLayoutManager(this));
-        projectAdapter = Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), headerView, this);
+        projectAdapter = Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), headerView, this, drawer);
         projectRecycler.setAdapter(projectAdapter);
         Log.d("projectrv", "setupProjectSelector: size = " + Current.allProjects().size());
 
@@ -499,7 +495,12 @@ public class MainActivity extends CyaneaAppCompatActivity
                 projectRecycler.setLayoutParams(layoutParams);
             }
 
-        });
+        });*/
+        Drawer.INSTANCE.setupMenu(this, this, findViewById(R.id.bottom_sheet_layout));
+        RecyclerView projectSwitcher = findViewById(R.id.project_switcher_recycler);
+        projectSwitcher.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        projectSwitcher.setAdapter(Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), findViewById(R.id.bottom_sheet_layout), this));
+
     }
 
     public void drawerResume() {
@@ -516,7 +517,7 @@ public class MainActivity extends CyaneaAppCompatActivity
             Log.d("prefLoadName", nameFromSettings);
         }*/
 
-        if(Current.allProjects().size()>0) {
+        if (Current.allProjects().size() > 0) {
             navName.setText(Current.project().getName());
         }
 

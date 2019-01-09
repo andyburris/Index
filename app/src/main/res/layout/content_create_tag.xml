@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -16,19 +16,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/createTagName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-
-            <EditText
-                android:id="@+id/createTagName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="Tag Name" />
-        </LinearLayout>
+            android:layout_margin="16dp"
+            android:hint="Tag Name" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/colorPreviewLayout"
@@ -64,4 +57,4 @@
             android:padding="16dp"
             android:text="@string/subfoler_create_text" />
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

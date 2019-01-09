@@ -5,9 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:visibility="visible">
 
-    <com.andb.apps.todo.views.TaskListItem
-        android:id="@+id/testListItem"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <include layout="@layout/bottom_sheet_layout" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

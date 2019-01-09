@@ -5,27 +5,25 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.widget.ImageView
-
-import com.andb.apps.todo.R
-import com.andrognito.flashbar.Flashbar
-import com.jaredrummler.cyanea.Cyanea
-import com.jaredrummler.cyanea.app.BaseCyaneaActivity
-import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity
-import org.joda.time.DateTime
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.andb.apps.todo.R
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.CyaneaResources
+import com.jaredrummler.cyanea.app.BaseCyaneaActivity
 import com.jaredrummler.cyanea.delegate.CyaneaDelegate
+import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import me.saket.inboxrecyclerview.PullCollapsibleActivity
+import org.joda.time.DateTime
 
 
 class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenChangeListener, BaseCyaneaActivity {
@@ -37,11 +35,21 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
 
         val bg: CoordinatorLayout = findViewById(R.id.settingsCoordinator)
         bg.setBackgroundColor(cyanea.backgroundColor)
-        expandFromTop()
+
+        if(intent.hasExtra("expandRect")){
+            val expandRect: Rect? = Rect.unflattenFromString(intent.extras.getString("expandRect"))
+            if(expandRect != null) {
+                expandFrom(expandRect)
+            }else{
+                expandFromTop()
+            }
+        }else {
+            expandFromTop()
+        }
 
         val toolbar = findViewById<Toolbar>(R.id.settings_toolbar)
         var icon: Drawable = getResources().getDrawable(R.drawable.ic_clear_black_24dp)
-        icon.setColorFilter(if(Utilities.lightOnBackground(cyanea.backgroundColor)) Utilities.colorWithAlpha(Color.WHITE, 1f) else Utilities.colorWithAlpha(Color.BLACK, 1f), PorterDuff.Mode.SRC_ATOP)
+        icon.setColorFilter(if (Utilities.lightOnBackground(cyanea.backgroundColor)) Utilities.colorWithAlpha(Color.WHITE, 1f) else Utilities.colorWithAlpha(Color.BLACK, 1f), PorterDuff.Mode.SRC_ATOP)
         toolbar.setNavigationIcon(icon)
         toolbar.inflateMenu(R.menu.toolbar_settings)
 
@@ -62,41 +70,11 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
 
         preferencesAdapter.setRootScreen(preferenceScreen)
 
-
-        restartAppFlashbar = restartApp()
-        restartAppFlashbar2 = restartApp()
     }
 
     override fun onScreenChanged(preferenceScreen: PreferenceScreen, b: Boolean) {
 
     }
-
-    private fun restartApp(): Flashbar {
-        return Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
-                .title("Restart App")
-                .message("Restart the app for these changes to take place")
-                .negativeActionText("Restart later".toUpperCase())
-                .positiveActionText("Restart Now".toUpperCase())
-                .negativeActionTapListener(object : Flashbar.OnActionTapListener {
-                    override fun onActionTapped(flashbar: Flashbar) {
-                        flashbar.dismiss()
-                    }
-                })
-                .positiveActionTapListener(object : Flashbar.OnActionTapListener {
-                    override fun onActionTapped(flashbar: Flashbar) {
-                        val i = baseContext.packageManager
-                                .getLaunchIntentForPackage(baseContext.packageName)
-                        i!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(i)
-                    }
-                })
-                .dismissOnTapOutside()
-                .backgroundColor(Cyanea.instance.accent)
-                .build()
-
-    }
-
 
 
     override fun onBackPressed() {
@@ -120,10 +98,10 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         var subFilter: Boolean = false
         var subtaskDefaultShow = true
         var defaultSort: Int = 0
+
+        @JvmStatic
         var timeToNotifyForDateOnly: DateTime = DateTime().withTime(8, 0, 0, 0)
 
-        private var restartAppFlashbar: Flashbar? = null
-        private var restartAppFlashbar2: Flashbar? = null
 
         private val iconForeground: ImageView? = null
 

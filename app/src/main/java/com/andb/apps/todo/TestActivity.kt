@@ -31,11 +31,11 @@ class TestActivity : CyaneaAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val task = Tasks("Test Task", ArrayList(0), ArrayList(0), ArrayList(Arrays.asList(0, 3)), DateTime(1970, 1, 1, 1, 1), true)
+        //val task = Tasks("Test Task", ArrayList(0), ArrayList(0), ArrayList(Arrays.asList(0, 3)), DateTime(1970, 1, 1, 1, 1), true)
         setContentView(R.layout.test_layout)
 
 
-        testListItem.setup(task, 0, 2)
+        //testListItem.setup(task, 0, 2)
 
     }
 

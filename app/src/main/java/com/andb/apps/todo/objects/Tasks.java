@@ -264,7 +264,7 @@ public class Tasks implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getListName());
-        builder.append(", " + getDateTime().toString("MMMM DD") + "\n");
+        builder.append(", " + getDateTime().toString("MMMM D, h:mm") + "\n");
         for (String s : getListItems()) {
             builder.append("- " + s + "\n");
         }

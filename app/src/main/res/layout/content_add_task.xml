@@ -1,220 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/add_task_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:paddingTop="56dp"
     tools:context=".AddTask"
     tools:showIn="@layout/activity_add_task">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="62dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:boxStrokeColor="@color/cyanea_accent_reference">
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:boxStrokeColor="@color/cyanea_accent_reference">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/taskName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Name" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/add_task_card"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/taskName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp">
+                android:hint="Name" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <Switch
-                        android:id="@+id/switch_task"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:backgroundTint="@color/shadow_color"
-                        android:paddingStart="16dp"
-                        android:paddingTop="24dp"
-                        android:paddingEnd="8dp"
-                        android:paddingBottom="16dp"
-                        android:text="List"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/itemRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:orientation="vertical"
-                        android:visibility="gone"
-                        app:layout_constraintTop_toBottomOf="@+id/switch_task">
-
-                    </androidx.recyclerview.widget.RecyclerView>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/addButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingStart="4dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp"
-                        android:visibility="gone"
-                        app:layout_constraintTop_toBottomOf="@+id/itemRecyclerView">
-
-                        <TextView
-                            android:id="@+id/textView3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="16dp"
-                            android:text="Add List Item"
-                            app:layout_constraintBottom_toBottomOf="@+id/addImageButton"
-                            app:layout_constraintLeft_toRightOf="@+id/addImageButton"
-                            app:layout_constraintTop_toTopOf="@+id/addImageButton" />
-
-                        <ImageView
-                            android:id="@+id/addImageButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@android:color/transparent"
-                            android:contentDescription="TODO"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_add_box_black_24dp" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-                    <View
-                        android:id="@+id/divider"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?android:attr/listDivider"
-                        app:layout_constraintTop_toBottomOf="@+id/addButton" />
-
-                    <LinearLayout
-                        android:id="@+id/tag_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:orientation="horizontal"
-                        android:paddingStart="8dp"
-                        android:visibility="visible"
-                        app:layout_constraintTop_toBottomOf="@+id/divider">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/tagRecyclerView"
-                            android:layout_width="355dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="1"
-                            android:orientation="horizontal"
-                            android:visibility="visible">
-
-                        </androidx.recyclerview.widget.RecyclerView>
-
-                        <FrameLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="16dp"
-                            android:layout_weight="0">
-
-                            <com.andb.apps.todo.views.Icon
-                                android:id="@+id/tagAddButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="left|center_vertical"
-                                android:background="@android:color/transparent"
-                                android:src="@drawable/ic_add_tag_black_24dp"
-                                custom:cyaneaIconBackground="background" />
-                        </FrameLayout>
-
-                    </LinearLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/add_task_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/dateTimeText"
-                    android:layout_width="wrap_content"
+                <Switch
+                    android:id="@+id/switch_task"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:text="@string/add_time_text"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_weight="1"
+                    android:paddingStart="16dp"
+                    android:paddingTop="24dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="16dp"
+                    android:text="List"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.andb.apps.todo.views.Icon
-                    android:id="@+id/resetTimeButton"
-                    android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/itemRecyclerView"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
+                    android:layout_weight="2"
+                    android:orientation="vertical"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
-                    app:layout_constraintRight_toLeftOf="@+id/timeButton"
-                    app:layout_constraintTop_toTopOf="@+id/dateTimeText"
-                    app:srcCompat="@drawable/ic_refresh_black_24dp"
-                    custom:cyaneaIconBackground="background" />
+                    app:layout_constraintTop_toBottomOf="@+id/switch_task">
 
-                <com.andb.apps.todo.views.Icon
-                    android:id="@+id/timeButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:alpha=".54"
-                    android:padding="16dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
-                    app:layout_constraintRight_toLeftOf="@+id/dateButton"
-                    app:layout_constraintTop_toTopOf="@+id/dateTimeText"
-                    app:srcCompat="@drawable/ic_access_time_black_24dp"
-                    custom:cyaneaIconBackground="background" />
+                </androidx.recyclerview.widget.RecyclerView>
 
-                <com.andb.apps.todo.views.Icon
-                    android:id="@+id/dateButton"
-                    android:layout_width="wrap_content"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/addButton"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:alpha=".54"
-                    android:padding="16dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/dateTimeText"
-                    app:srcCompat="@drawable/ic_event_black_24dp"
-                    custom:cyaneaIconBackground="background" />
+                    android:layout_weight="1"
+                    android:paddingStart="4dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/itemRecyclerView">
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="16dp"
+                        android:text="Add List Item"
+                        app:layout_constraintBottom_toBottomOf="@+id/addImageButton"
+                        app:layout_constraintLeft_toRightOf="@+id/addImageButton"
+                        app:layout_constraintTop_toTopOf="@+id/addImageButton" />
+
+                    <ImageView
+                        android:id="@+id/addImageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="TODO"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_add_box_black_24dp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintTop_toBottomOf="@+id/addButton" />
+
+                <LinearLayout
+                    android:id="@+id/tag_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:visibility="visible"
+                    app:layout_constraintTop_toBottomOf="@+id/divider">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/tagRecyclerView"
+                        android:layout_width="355dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:layout_weight="0">
+
+                        <com.andb.apps.todo.views.Icon
+                            android:id="@+id/tagAddButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left|center_vertical"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_add_tag_black_24dp"
+                            custom:cyaneaIconBackground="background" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+        </androidx.cardview.widget.CardView>
 
-        </LinearLayout>
-    </ScrollView>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/dateTimeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="@string/add_time_text"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.andb.apps.todo.views.Icon
+                android:id="@+id/resetTimeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
+                app:layout_constraintRight_toLeftOf="@+id/timeButton"
+                app:layout_constraintTop_toTopOf="@+id/dateTimeText"
+                app:srcCompat="@drawable/ic_refresh_black_24dp"
+                custom:cyaneaIconBackground="background" />
+
+            <com.andb.apps.todo.views.Icon
+                android:id="@+id/timeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha=".54"
+                android:padding="16dp"
+                app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
+                app:layout_constraintRight_toLeftOf="@+id/dateButton"
+                app:layout_constraintTop_toTopOf="@+id/dateTimeText"
+                app:srcCompat="@drawable/ic_access_time_black_24dp"
+                custom:cyaneaIconBackground="background" />
+
+            <com.andb.apps.todo.views.Icon
+                android:id="@+id/dateButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha=".54"
+                android:padding="16dp"
+                app:layout_constraintBottom_toBottomOf="@+id/dateTimeText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/dateTimeText"
+                app:srcCompat="@drawable/ic_event_black_24dp"
+                custom:cyaneaIconBackground="background" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
+</ScrollView>

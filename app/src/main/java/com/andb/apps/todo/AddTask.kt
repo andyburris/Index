@@ -21,11 +21,10 @@ import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andrognito.flashbar.Flashbar
 import com.github.rongi.klaster.Klaster
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.jaredrummler.cyanea.Cyanea
+import com.google.android.material.snackbar.Snackbar
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
+import kotlinx.android.synthetic.main.activity_add_task.*
 import kotlinx.android.synthetic.main.content_add_task.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import org.greenrobot.eventbus.EventBus
@@ -303,14 +302,12 @@ class AddTask : CyaneaAppCompatActivity() {
 
 
     fun fabAddList() {
-        val fab = findViewById<View>(R.id.fab) as FloatingActionButton
         fab.setOnClickListener {
             if (checkFull()) {
                 saveTask()
                 finish()
             } else {
-                val flashbar = blankText()
-                flashbar.show()
+                Snackbar.make(findViewById(R.id.add_task_scroll_view), "Please fill in or remove any blank fields", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
             }
         }
     }
@@ -321,7 +318,6 @@ class AddTask : CyaneaAppCompatActivity() {
         var items = ArrayList<String>()
         val checked = ArrayList<Boolean>()
         val tags = tagsList
-        val switch_task = findViewById<View>(R.id.switch_task) as Switch
         if (switch_task.isChecked) {
             Log.d("Adding Items", "Adding Items")
             items = ArrayList(itemsList)
@@ -368,27 +364,6 @@ class AddTask : CyaneaAppCompatActivity() {
         return full
     }
 
-    private fun blankText(): Flashbar {
-        return Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
-                .title("Blank field")
-                .message("Please fill in or remove any blank fields")
-                .dismissOnTapOutside()
-                .backgroundColor(Cyanea.instance.accent)
-                .build()
-
-    }
-
-    private fun tagExists(): Flashbar {
-        return Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
-                .title("Tag Exists")
-                .message("The tag you selected has already been added to this task")
-                .dismissOnTapOutside()
-                .backgroundColor(Cyanea.instance.accent)
-                .build()
-
-    }
 
     // Extend the Callback class
     internal var _ithCallback: ItemTouchHelper.Callback = object : ItemTouchHelper.Callback() {
@@ -448,7 +423,7 @@ class AddTask : CyaneaAppCompatActivity() {
 
     fun addTag(tagPosition: Int) { //return from tagSelect
         if (tagsList.contains(tagPosition)) {
-            tagExists().show()
+            Snackbar.make(findViewById(R.id.add_task_scroll_view), "The tag you selected has already been added to this task", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
         } else {
             tagsList.add(tagPosition)
             Log.d("addingValue", "adding #$tagPosition")

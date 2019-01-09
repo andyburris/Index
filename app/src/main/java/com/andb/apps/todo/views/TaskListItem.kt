@@ -44,7 +44,7 @@ class TaskListItem : ConstraintLayout {
         setTasks(pos, inboxBrowseArchive)
         topLayout.setTags(tasks)
         topLayout.setTitle(task.listName)
-        topLayout.setOverflow()
+        topLayout.setOverflow(this)
         moreTags.visibility = if (topLayout.chipsVisible > task.listTagsSize) View.GONE else View.VISIBLE
         inboxCard.setOnClickListener {
             val bundle = Bundle()

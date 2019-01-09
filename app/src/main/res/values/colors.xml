@@ -27,4 +27,8 @@
     <color name="windowBackgroundLight">#f5f5f5</color>
     <color name="windowBackgroundDark">@color/slate_black</color>
 
+
+    <color name="slate_black">#333333</color>
+    <color name="white">#FFFFFF</color>
+
 </resources>

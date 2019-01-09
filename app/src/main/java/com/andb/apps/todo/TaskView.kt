@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.ChangeBounds
@@ -20,6 +21,7 @@ import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
 import com.github.rongi.klaster.Klaster
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.cyanea.Cyanea
@@ -70,7 +72,7 @@ class TaskView : CyaneaFragment() {
 
         val bg = view.findViewById<CoordinatorLayout>(R.id.task_view_parent)
         bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-        collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab), activity!!.findViewById(R.id.tabs))
+        collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab), BottomSheetBehavior.from(activity!!.findViewById(R.id.bottom_sheet_layout) as ConstraintLayout))
 
 
         Log.d("onePosUpError", task.listName)
@@ -97,19 +99,21 @@ class TaskView : CyaneaFragment() {
         }
     }
 
-    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton, tabLayout: TabLayout) {
+    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton, bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>) {
         oldNavIcon = toolbar.navigationIcon!!.mutate()
-        oldMargin = (toolbar.layoutParams as CoordinatorLayout.LayoutParams).bottomMargin
         toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp)
 
         TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
-        var layoutParams = tabLayout.layoutParams as CoordinatorLayout.LayoutParams
-        layoutParams.height = 0
-        tabLayout.layoutParams = layoutParams
 
-        layoutParams = toolbar.layoutParams as CoordinatorLayout.LayoutParams
-        layoutParams.bottomMargin = 0
-        toolbar.layoutParams = layoutParams
+        bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136-48)
+        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        })
 
         fab.setImageDrawable(resources.getDrawable(R.drawable.ic_done_all_black_24dp).mutate())
 
@@ -223,17 +227,20 @@ class TaskView : CyaneaFragment() {
 
             val toolbar: Toolbar = activity.findViewById(R.id.toolbar)
             val fab: FloatingActionButton = activity.findViewById(R.id.fab)
-            val tabLayout: TabLayout = activity.findViewById(R.id.tabs)
+            val bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout> = BottomSheetBehavior.from(activity.findViewById(R.id.bottom_sheet_layout))
+            bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                }
+            })
 
             android.transition.TransitionManager.beginDelayedTransition(toolbar.getRootView() as ViewGroup, android.transition.ChangeBounds())
-            toolbar.setNavigationIcon(TaskView.oldNavIcon)
-            var layoutParams: CoordinatorLayout.LayoutParams = toolbar.getLayoutParams() as CoordinatorLayout.LayoutParams
-            layoutParams.bottomMargin = TaskView.oldMargin
+            bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136)
+            toolbar.navigationIcon = TaskView.oldNavIcon
 
             fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp)?.mutate())
-            layoutParams = tabLayout.getLayoutParams() as CoordinatorLayout.LayoutParams
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            tabLayout.setLayoutParams(layoutParams)
             toolbar.menu.setGroupVisible(R.id.toolbar_task_view, false)
             toolbar.menu.setGroupVisible(R.id.toolbar_main, true)
         }

@@ -17,74 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <com.google.android.material.bottomappbar.BottomAppBar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="48dp"
-            android:backgroundTint="@color/cyanea_primary"
-            android:theme="@style/Base.Theme.MaterialComponents"
-            app:fabAlignmentMode="center"
-            app:layout_anchorGravity="bottom"
-            app:navigationIcon="@drawable/ic_menu_black_24dp" />
-
-        <ViewStub
-            android:id="@+id/cab_stub"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize" />
-
-        <com.andb.apps.todo.views.CyaneaTextView
-            android:id="@+id/toolbar_text"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="56dp"
-            android:alpha="54"
-            android:text="@string/app_name"
-            android:textColor="?menuIconColor"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_anchor="@id/toolbar"
-            app:layout_anchorGravity="center_vertical"
-            custom:cyaneaTextBackground="primary" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            app:tabIndicatorColor="?colorAccent"
-            app:tabSelectedTextColor="@color/tabSelectedTextColor"
-            app:tabTextColor="@color/tabUnselectedTextColor"
-            android:theme="@style/AppThemeTabLayout">
-
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_1" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_2"
-
-                />
-
-
-        </com.google.android.material.tabs.TabLayout>
-
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_black_24dp"
-            app:fabSize="normal"
-            app:backgroundTint="?colorAccent"
-            app:layout_anchor="@id/toolbar" />
+        <include layout="@layout/bottom_sheet_layout" />
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

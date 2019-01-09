@@ -17,12 +17,10 @@ import android.widget.Toast;
 import com.andb.apps.todo.MainActivity;
 import com.andb.apps.todo.R;
 import com.andb.apps.todo.databases.GetDatabase;
-import com.andb.apps.todo.databases.ProjectsDatabase_Migrations;
-import com.andb.apps.todo.lists.ProjectList;
-import com.andb.apps.todo.objects.Project;
-import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.databases.ProjectsDatabase;
+import com.andb.apps.todo.eventbus.UpdateEvent;
+import com.andb.apps.todo.lists.ProjectList;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.jaredrummler.cyanea.Cyanea;
 
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.room.Room;
 import androidx.work.WorkManager;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -42,7 +39,6 @@ public class NotificationHandler extends Service {
 
 
     private final static String todo_notification_channel = "Task Reminders";
-
     public static final String workTag = "notifications";
 
     public static ProjectsDatabase projectsDatabase;
@@ -56,6 +52,7 @@ public class NotificationHandler extends Service {
 
 
     public static void createNotification(Tasks task, int projectKey, Context ctxt) {
+
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -82,13 +79,12 @@ public class NotificationHandler extends Service {
         }
 
         int key = task.getListKey();
-
         Intent bodyClickIntent = new Intent(ctxt, NotificationHandler.class);
         bodyClickIntent.putExtra("posFromNotif", key);
 
         //put together the PendingIntent
         PendingIntent pendingClickIntent =
-                PendingIntent.getActivity(ctxt, task.getListKey(), bodyClickIntent, FLAG_UPDATE_CURRENT);
+                PendingIntent.getActivity(ctxt, key, bodyClickIntent, FLAG_UPDATE_CURRENT);
 
 
         Intent doneClickIntent = new Intent(ctxt, NotificationHandler.class);
@@ -150,7 +146,7 @@ public class NotificationHandler extends Service {
 
     public static void resetNotifications(Context ctxt) {
         WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        if ((int)ProjectsUtils.nextNotificationAll().get(1) >=0) {
+        if (NotificationUtils.isNextNotification()) {
             Log.d("workManager", "Next isn't null");
             NotifyWorker.nextWork();
         }
@@ -212,8 +208,8 @@ public class NotificationHandler extends Service {
 
         AsyncTask.execute(() -> {
             ProjectList.INSTANCE.setProjectList(new ArrayList<>(projectsDatabase.projectsDao().getAll()));
-            for(Tasks tasks : ProjectList.INSTANCE.getProjectList().get(projectKey).getTaskList()){
-                if(tasks.getListKey()==key){
+            for (Tasks tasks : ProjectsUtils.projectFromKey(projectKey).getTaskList()) {
+                if (tasks.getListKey() == key) {
                     ProjectList.INSTANCE.getProjectList().get(projectKey).getTaskList().remove(tasks);
                     break;
                 }
@@ -244,7 +240,7 @@ public class NotificationHandler extends Service {
         boolean reschedule = false;
 
         if (bundle != null) {
-            if (bundle.containsKey("projectKey")){
+            if (bundle.containsKey("projectKey")) {
                 projectKey = bundle.getInt("projectKey");
             }
             if (bundle.containsKey("posFromNotifClear")) {
@@ -269,3 +265,5 @@ public class NotificationHandler extends Service {
         return START_NOT_STICKY;
     }
 }
+
+

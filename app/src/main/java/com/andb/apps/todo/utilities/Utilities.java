@@ -1,6 +1,7 @@
 package com.andb.apps.todo.utilities;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -76,5 +77,10 @@ public class Utilities {
         int new_b = (int) Math.round(b + desaturateBy * (L - b));
 
         return Color.argb(Color.alpha(color), new_r, new_g, new_b);
+    }
+
+    public static int pxFromDp(int dp){
+        final float scale = Resources.getSystem().getDisplayMetrics().density;
+        return Math.round(dp*scale);
     }
 }

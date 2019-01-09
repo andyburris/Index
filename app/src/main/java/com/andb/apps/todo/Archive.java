@@ -3,6 +3,7 @@ package com.andb.apps.todo;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
@@ -38,7 +39,17 @@ public class Archive extends PullCollapsibleActivity {
         this.setTheme(R.style.AppThemeLightCollapse);
 
         setContentView(R.layout.activity_archive);
-        expandFromTop();
+        if(getIntent().hasExtra("expandRect")){
+            Rect expandRect = Rect.unflattenFromString(getIntent().getExtras().getString("expandRect"));
+            if(expandRect != null) {
+                expandFrom(expandRect);
+            }else{
+                expandFromTop();
+            }
+        }else {
+            expandFromTop();
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp);
         setSupportActionBar(toolbar);
