@@ -14,8 +14,8 @@
         android:id="@+id/app_bar_coordinator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/archive_icon">
+        android:elevation="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/tabs">
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/toolbar"
@@ -23,17 +23,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginTop="32dp"
-            android:layout_marginBottom="48dp"
             android:backgroundTint="@color/cyanea_primary"
             android:theme="@style/Base.Theme.MaterialComponents"
             app:fabAlignmentMode="center"
-            app:layout_anchorGravity="bottom"
-            app:navigationIcon="@drawable/ic_menu_black_24dp" />
-
-        <ViewStub
-            android:id="@+id/cab_stub"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize" />
+            app:navigationIcon="@drawable/ic_bottom_drawer_toggle_24dp" />
 
         <com.andb.apps.todo.views.CyaneaTextView
             android:id="@+id/toolbar_text"
@@ -49,34 +42,6 @@
             app:layout_anchorGravity="center_vertical"
             custom:cyaneaTextBackground="primary" />
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:theme="@style/AppThemeTabLayout"
-            app:tabIndicatorColor="?colorAccent"
-            app:tabSelectedTextColor="@color/tabSelectedTextColor"
-            app:tabTextColor="@color/tabUnselectedTextColor">
-
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_1" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_2"
-
-                />
-
-
-        </com.google.android.material.tabs.TabLayout>
-
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -91,13 +56,43 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="2dp"
+        android:theme="@style/AppThemeTabLayout"
+        app:layout_constraintBottom_toTopOf="@+id/archive_icon"
+        app:tabIndicatorColor="?colorAccent"
+        app:tabSelectedTextColor="@color/tabSelectedTextColor"
+        app:tabTextColor="@color/tabUnselectedTextColor">
+
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_1" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabItem2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_2"
+
+            />
+
+
+    </com.google.android.material.tabs.TabLayout>
+
     <FrameLayout
         android:id="@+id/archive_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@android:color/white"
         app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar_coordinator">
+        app:layout_constraintTop_toBottomOf="@+id/tabs">
 
     </FrameLayout>
 
@@ -121,7 +116,7 @@
 
     </FrameLayout>
 
-    <ImageView
+    <com.andb.apps.todo.views.Icon
         android:id="@+id/archive_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -132,7 +127,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_archive_black_24dp" />
 
-    <TextView
+    <com.andb.apps.todo.views.CyaneaTextView
         android:id="@+id/archive_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -144,7 +139,7 @@
         app:layout_constraintStart_toEndOf="@+id/archive_icon"
         app:layout_constraintTop_toTopOf="@+id/archive_icon" />
 
-    <ImageView
+    <com.andb.apps.todo.views.Icon
         android:id="@+id/import_export_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -155,7 +150,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_import_export_black_24dp" />
 
-    <TextView
+    <com.andb.apps.todo.views.CyaneaTextView
         android:id="@+id/import_export_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -177,18 +172,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+    <com.andb.apps.todo.views.Icon
         android:id="@+id/settings_icon"
         android:layout_width="wrap_content"
         android:layout_height="53dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/project_switcher_frame"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_sheet_project_divider"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_settings_black_24dp" />
 
-    <TextView
+    <View
+        android:id="@+id/bottom_sheet_project_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/project_switcher_frame"
+        custom:layout_constraintEnd_toEndOf="parent"
+        custom:layout_constraintStart_toStartOf="parent" />
+
+    <com.andb.apps.todo.views.CyaneaTextView
         android:id="@+id/settings_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -204,12 +208,11 @@
         android:id="@+id/project_switcher_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/project_switcher_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
+        <com.andb.apps.todo.views.CyaneaTextView
             android:id="@+id/project_switcher_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

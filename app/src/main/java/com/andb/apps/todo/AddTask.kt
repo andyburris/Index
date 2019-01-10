@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
+import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
@@ -331,9 +332,11 @@ class AddTask : CyaneaAppCompatActivity() {
                 set(indexOf(editingTask), Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey))
             }
             ProjectsUtils.update()
+            EventBus.getDefault().post(UpdateEvent(true))
         } else {
             Current.taskList().add(Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, false))
             ProjectsUtils.update()
+            EventBus.getDefault().post(UpdateEvent(true))
         }
 
     }

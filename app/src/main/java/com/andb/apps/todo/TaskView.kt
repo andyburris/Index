@@ -72,7 +72,7 @@ class TaskView : CyaneaFragment() {
 
         val bg = view.findViewById<CoordinatorLayout>(R.id.task_view_parent)
         bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-        collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab), BottomSheetBehavior.from(activity!!.findViewById(R.id.bottom_sheet_layout) as ConstraintLayout))
+        collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab))
 
 
         Log.d("onePosUpError", task.listName)
@@ -99,21 +99,14 @@ class TaskView : CyaneaFragment() {
         }
     }
 
-    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton, bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>) {
+    fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton) {
         oldNavIcon = toolbar.navigationIcon!!.mutate()
         toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp)
 
         TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
 
-        bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136-48)
-        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            }
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-        })
+        Drawer.bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136-48)
+        Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.collapsedSheetCallback)
 
         fab.setImageDrawable(resources.getDrawable(R.drawable.ic_done_all_black_24dp).mutate())
 
@@ -227,17 +220,10 @@ class TaskView : CyaneaFragment() {
 
             val toolbar: Toolbar = activity.findViewById(R.id.toolbar)
             val fab: FloatingActionButton = activity.findViewById(R.id.fab)
-            val bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout> = BottomSheetBehavior.from(activity.findViewById(R.id.bottom_sheet_layout))
-            bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                }
-
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                }
-            })
+            Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.normalSheetCallback)
 
             android.transition.TransitionManager.beginDelayedTransition(toolbar.getRootView() as ViewGroup, android.transition.ChangeBounds())
-            bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136)
+            Drawer.bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136)
             toolbar.navigationIcon = TaskView.oldNavIcon
 
             fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp)?.mutate())

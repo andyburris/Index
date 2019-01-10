@@ -1,8 +1,8 @@
 package com.andb.apps.todo;
 
 
+import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -40,6 +39,7 @@ import com.andb.apps.todo.notifications.NotificationHandler;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.views.InboxRVViewPager;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -52,7 +52,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -66,7 +65,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 
-public class MainActivity extends CyaneaAppCompatActivity{
+public class MainActivity extends CyaneaAppCompatActivity {
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -80,7 +79,6 @@ public class MainActivity extends CyaneaAppCompatActivity{
     public static boolean fromSettings; //check if from settings
 
     public static boolean lightText;
-    public static ActionBarDrawerToggle drawerToggle;
 
     public static int notifKey = 0;
 
@@ -108,8 +106,6 @@ public class MainActivity extends CyaneaAppCompatActivity{
         getWindow().setStatusBarColor(0x33333333);
 
         fabInitialize();
-
-        drawerInitialize(toolbar);
 
 
     }
@@ -140,9 +136,6 @@ public class MainActivity extends CyaneaAppCompatActivity{
 
             appStart = false;
         }
-
-
-        drawerResume();
 
         String label = getResources().getString(R.string.app_name);
         Bitmap icon = BitmapFactory.decodeResource(getResources(),
@@ -204,11 +197,7 @@ public class MainActivity extends CyaneaAppCompatActivity{
     public void settingsReturn() {
         fabInitialize();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
 
-        View headerView = navigationView.getHeaderView(0);
-        LinearLayout headerColor = headerView.findViewById(R.id.headerImage);
-        headerColor.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.OVERLAY);
 
         Log.d("pref_resume", Boolean.toString(fromSettings));
 
@@ -225,10 +214,9 @@ public class MainActivity extends CyaneaAppCompatActivity{
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-
+        BottomSheetBehavior<ConstraintLayout> drawer = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_layout));
+        if (drawer.getState()==BottomSheetBehavior.STATE_EXPANDED) {
+            drawer.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else if (TaskView.Companion.getPageState() != 0) {
             InboxFragment.mRecyclerView.collapse();
             BrowseFragment.mRecyclerView.collapse();
@@ -305,6 +293,8 @@ public class MainActivity extends CyaneaAppCompatActivity{
                 MenuInflater inflater = popupMenu.getMenuInflater();
                 inflater.inflate(R.menu.filter_menu, popupMenu.getMenu());
                 popupMenu.show();
+
+                break;
 
                 /*TASKVIEW ITEMS*/
             case R.id.app_bar_edit:
@@ -397,10 +387,6 @@ public class MainActivity extends CyaneaAppCompatActivity{
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        Log.d("tab not showing", Integer.toString(tabLayout.getTabCount()));
-        Log.d("tab not showing", tabLayout.getTabAt(0).getText().toString());
-        Log.d("tab not showing", tabLayout.getTabAt(1).getText().toString());
-
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000;  //divide by 1000000 to get milliseconds.
         //duration = duration/1000;//to seconds
@@ -429,38 +415,9 @@ public class MainActivity extends CyaneaAppCompatActivity{
     }
 
 
-    boolean expanded = false;
-
-    public void drawerInitialize(Toolbar toolbar) {
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        LinearLayout headerView = (LinearLayout) navigationView.getHeaderView(0);
-        ConstraintLayout headerColor = headerView.findViewById(R.id.headerImage);
-
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        drawerToggle = toggle;
-
-
-        //navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
-
-
-        headerColor.getBackground().setColorFilter(Cyanea.getInstance().getAccent(), PorterDuff.Mode.OVERLAY);
-
-
-        navigationView.setItemTextAppearance(R.style.AppThemeNavDrawer);
-
-        toggle.getDrawerArrowDrawable().setColorFilter(App.Companion.colorAlpha(Cyanea.getInstance().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
-
-    }
+    static boolean expanded = false;
 
     public static RecyclerView.Adapter<RecyclerView.ViewHolder> projectAdapter;
-
     public void setupProjectSelector() {
 /*        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -496,21 +453,63 @@ public class MainActivity extends CyaneaAppCompatActivity{
             }
 
         });*/
-        Drawer.INSTANCE.setupMenu(this, this, findViewById(R.id.bottom_sheet_layout));
+        ConstraintLayout bottomSheet = findViewById(R.id.bottom_sheet_layout);
+        Drawer.INSTANCE.setupMenu(this, this, bottomSheet);
         RecyclerView projectSwitcher = findViewById(R.id.project_switcher_recycler);
         projectSwitcher.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        projectSwitcher.setAdapter(Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), findViewById(R.id.bottom_sheet_layout), this));
+        projectSwitcher.setAdapter(Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), bottomSheet, this));
+        ConstraintLayout recyclerFrame = findViewById(R.id.project_switcher_frame);
+        recyclerFrame.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
 
+        Drawer.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.getNormalSheetCallback());
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        Drawable navIcon = toolbar.getNavigationIcon().mutate();
+        navIcon.setColorFilter(App.Companion.colorAlpha(Cyanea.getInstance().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
+        toolbar.setNavigationIcon(navIcon);
+        toolbar.setNavigationOnClickListener(v -> {
+            expanded = !expanded;
+            Log.d("expanded", Boolean.toString(expanded));
+            if(expanded){
+                Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }else {
+                Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
+
+/*        TabLayout tabLayout = bottomSheet.findViewById(R.id.tabs);
+        ConstraintLayout.LayoutParams tabLayoutParams = (ConstraintLayout.LayoutParams) tabLayout.getLayoutParams();
+        Drawer.setTabHeight(tabLayoutParams.height);
+
+        BottomSheetBehavior<ConstraintLayout> bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback(){
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                //slideOffset 0.0 at bottom, 1.0 at top
+                if(slideOffset>1.0 || bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED){
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    slideOffset = 1.0f;
+                }
+                Log.d("slideOffset", "onSlide: " + slideOffset);
+                float newHeightTab = Drawer.getTabHeight()-(Drawer.getTabHeight()*slideOffset);
+                Log.d("newHeight", Float.toString(newHeightTab));
+                tabLayoutParams.height = Math.round(newHeightTab);
+                tabLayout.setLayoutParams(tabLayoutParams);
+
+            }
+        });*/
     }
 
-    public void drawerResume() {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.getMenu().getItem(0).setChecked(true);
 
-    }
 
     public void setName(TextView navName) {
-
 /*        if (start) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             nameFromSettings = prefs.getString("user_name", "");
@@ -520,8 +519,6 @@ public class MainActivity extends CyaneaAppCompatActivity{
         if (Current.allProjects().size() > 0) {
             navName.setText(Current.project().getName());
         }
-
-
     }
 
 

@@ -322,7 +322,6 @@ class InboxFragment : CyaneaFragment() {
                 removeTask(position, true)
             }
 
-
         } else {
             removeTask(position, false)
         }
@@ -348,6 +347,7 @@ class InboxFragment : CyaneaFragment() {
 
         val tasks = FilteredLists.inboxTaskList[position]
 
+        Current.archiveTaskList().add(tasks)
         Current.taskList().remove(tasks)
 
         FilteredLists.inboxTaskList.removeAt(position)

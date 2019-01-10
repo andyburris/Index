@@ -61,7 +61,7 @@ public class Utilities {
         int cg = Math.round(Color.green(fgColor) * fgAlpha + Color.green(bgColor) * (1-fgAlpha));
         int cb = Math.round(Color.blue(fgColor) * fgAlpha + Color.blue(bgColor) * (1-fgAlpha));
 
-        return Color.argb(1, cr, cg, cb);
+        return Color.rgb(cr, cg, cb);
 
     }
 

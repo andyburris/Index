@@ -9,11 +9,11 @@
 
     <View
         android:id="@+id/project_add_divider"
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toTopOf="@+id/project_circle"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
-    <TextView
+    <com.andb.apps.todo.views.CyaneaTextView
         android:id="@+id/project_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,5 +56,6 @@
         android:textAppearance="@style/TextAppearance.AppCompat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/project_circle"
-        app:layout_constraintStart_toStartOf="@+id/project_circle" />
+        app:layout_constraintStart_toStartOf="@+id/project_circle"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

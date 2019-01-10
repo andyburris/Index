@@ -82,11 +82,11 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
     )
 
     companion object {
-        fun colorAlpha(bg: Int, aLight: Float, aDark: Float): Int{
+        fun colorAlpha(bg: Int, alpha: Float, alphaDark: Float = alpha): Int{
             return if (Utilities.lightOnBackground(bg))
-                Utilities.colorWithAlpha(Color.WHITE, aLight)
+                Utilities.colorWithAlpha(Color.WHITE, alpha)
             else
-                Utilities.colorWithAlpha(Color.BLACK, aDark)
+                Utilities.colorWithAlpha(Color.BLACK, alphaDark)
         }
     }
 
