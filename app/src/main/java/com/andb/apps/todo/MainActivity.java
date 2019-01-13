@@ -173,6 +173,7 @@ public class MainActivity extends CyaneaAppCompatActivity {
 
         SettingsActivity.Companion.setColoredToolbar(prefs.getBoolean("colored_toolbar", false));
         SettingsActivity.Companion.setSubFilter(prefs.getBoolean("sub_Filter_pref", false));
+        SettingsActivity.Companion.setSubtaskDefaultShow(prefs.getBoolean("expand_lists", true));
 
         AsyncTask.execute(() -> {
             SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(prefs.getLong("pref_notif_only_date", 0)));

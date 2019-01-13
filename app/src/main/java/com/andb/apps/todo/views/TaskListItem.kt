@@ -33,7 +33,6 @@ class TaskListItem : ConstraintLayout {
     lateinit var task: Tasks
     private val STATE_ZERO = intArrayOf(R.attr.state_on, -R.attr.state_off)
     private val STATE_ONE = intArrayOf(-R.attr.state_on, R.attr.state_off)
-    private var sublistToggleState = SettingsActivity.subtaskDefaultShow
 
     init {
         inflate(context, R.layout.inbox_list_item, this)
@@ -178,25 +177,41 @@ class TaskListItem : ConstraintLayout {
     }
 
     fun expandSublist() {
-        sublistToggleState = true
+        Log.d("expandSublist", "expanding")
+        val layoutParams1: ConstraintLayout.LayoutParams = item1.layoutParams as LayoutParams
+        val layoutParams2: ConstraintLayout.LayoutParams = item2.layoutParams as LayoutParams
+        val layoutParams3: ConstraintLayout.LayoutParams = item3.layoutParams as LayoutParams
+        layoutParams1.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        layoutParams2.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        layoutParams3.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        item1.layoutParams = layoutParams1
 
-        item1.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        item2.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        item3.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+
+        (moreTasks.layoutParams as ConstraintLayout.LayoutParams).height = ViewGroup.LayoutParams.WRAP_CONTENT
+
+
         listitempadding.visibility = View.VISIBLE
         sublistIcon.setImageState(STATE_ZERO, true)
 
     }
 
     fun collapseSublist() {
-        sublistToggleState = false
+        Log.d("collapseSublist", "collapsing")
+        val layoutParams1: ConstraintLayout.LayoutParams = item1.layoutParams as LayoutParams
+        val layoutParams2: ConstraintLayout.LayoutParams = item2.layoutParams as LayoutParams
+        val layoutParams3: ConstraintLayout.LayoutParams = item3.layoutParams as LayoutParams
+        layoutParams1.height = 0
+        layoutParams2.height = 0
+        layoutParams3.height = 0
+        item1.layoutParams = layoutParams1
+        moreTasks.layoutParams.height = 0
 
-        item1.layoutParams.height = 1
-        item2.layoutParams.height = 1
-        item3.layoutParams.height = 1
+
         listitempadding.visibility = View.GONE
         sublistIcon.setImageState(STATE_ONE, true)
     }
+
+
 
 
     fun setCyaneaBackground(color: Int) {
