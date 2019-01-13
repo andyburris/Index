@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -28,11 +29,12 @@ import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.views.CyaneaDialog
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.cyanea.Cyanea
-import kotlinx.android.synthetic.main.app_bar_main.view.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
@@ -55,13 +57,14 @@ object Drawer {
         view.import_export_bg.apply {
             setBackgroundColor(Cyanea.instance.backgroundColor)
             setOnClickListener {
-                val builder = AlertDialog.Builder(context)
+                val builder = CyaneaDialog.Builder(context)
                 builder.setMessage("Import or export tasks, tags, and links")
                         .setNegativeButton("Export") { _, _ -> ImportExport.exportTasks(context) }
                         .setPositiveButton("Import") { _, _ -> ImportExport.importTasks(context) }
 
                 val alertDialog = builder.create()
                 alertDialog.show()
+
             }
         }
         view.settings_bg.apply {
@@ -89,11 +92,11 @@ object Drawer {
                             text = Current.allProjects()[position].name
                         }
                         project_add_divider.visibility = View.GONE
-                        project_circle.
                         project_frame.apply {
                             setOnClickListener {
                                 ProjectList.viewing = position
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                view.toolbar_project_name.text = Current.project().name
                                 EventBus.getDefault().post(UpdateEvent(true))
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("project_viewing", Current.viewing()).apply()
                             }
@@ -133,12 +136,12 @@ object Drawer {
         editText.apply {
             hint = "Name"
             val density = resources.displayMetrics.density
-            setPadding(Math.round(16 * density), Math.round(8 * density), Math.round(16 * density), Math.round(8 * density))
+            //setPadding((16 * density).toInt(), (8 * density).toInt(), (16 * density).toInt(), (8 * density).toInt())
         }
         editText
     }
 
-    fun addAlertDialog(context: Context, view: View, nameInput: EditText) = AlertDialog.Builder(context)
+    fun addAlertDialog(context: Context, view: View, nameInput: EditText) = CyaneaDialog.Builder(context)
             .setTitle(context.resources.getString(R.string.add_project))
             .setView(nameInput)
             .setPositiveButton("OK") { dialog, which ->
@@ -154,7 +157,7 @@ object Drawer {
             }
 
 
-    fun editAlertDialog(context: Context, view: View, nameInput: EditText, position: Int) = AlertDialog.Builder(context)
+    fun editAlertDialog(context: Context, view: View, nameInput: EditText, position: Int) = CyaneaDialog.Builder(context)
             .setTitle(context.resources.getString(R.string.edit_project))
             .setView(nameInput)
             .setPositiveButton("OK") { _, _ ->
@@ -165,7 +168,7 @@ object Drawer {
             }
 
 
-    fun deleteAlertDialog(context: Context, view: View, position: Int) = AlertDialog.Builder(context)
+    fun deleteAlertDialog(context: Context, view: View, position: Int) = CyaneaDialog.Builder(context)
             .setTitle(context.resources.getString(R.string.delete_project))
             .setNegativeButton("Cancel") { _, _ ->
             }
@@ -223,10 +226,9 @@ object Drawer {
             (bottomSheet.toolbar as ViewGroup).getChildAt(0).apply {
                 this.rotation = 180*slideOffset
                 val tabIndicatorColor: Int = Utilities.colorFromAlpha(Cyanea.instance.accent, Cyanea.instance.primary, 1-slideOffset)
-                //Log.d("tabColorFade", Integer.toHexString(tabIndicatorColor))
                 bottomSheet.tabs.setSelectedTabIndicatorColor(tabIndicatorColor)
-                val alphaSelected: Float = 1f-(.7f*slideOffset)
-                val alphaDeselected: Float = .54f-(.24f*slideOffset)
+                val alphaSelected: Float = 1f-(1f*slideOffset)
+                val alphaDeselected: Float = .54f-(.54f*slideOffset)
                 bottomSheet.tabs.setTabTextColors(App.colorAlpha(Cyanea.instance.primary, alphaDeselected), App.colorAlpha(Cyanea.instance.primary, alphaSelected))
             }
 

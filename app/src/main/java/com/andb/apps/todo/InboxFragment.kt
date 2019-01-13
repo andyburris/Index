@@ -6,12 +6,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
-import android.net.Uri
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.util.Log
-import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,13 +28,15 @@ import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.Values.swipeThreshold
+import com.andb.apps.todo.utilities.Vibes
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import org.joda.time.DateTime
-import java.lang.Exception
 import java.util.*
 
 
@@ -53,6 +55,10 @@ class InboxFragment : CyaneaFragment() {
     internal var isSwiping = false
     // Extend the Callback class
     private val _ithCallback = object : ItemTouchHelper.Callback() {
+
+        var vibedOnSwipe: Boolean = false
+
+
         //and in your implementation of
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
             return false
@@ -81,7 +87,9 @@ class InboxFragment : CyaneaFragment() {
             val intrinsicWidth = deleteIcon.intrinsicWidth
             val intrinsicHeight = deleteIcon.intrinsicHeight
             val background = GradientDrawable()
-            val backgroundColor = Color.parseColor("#1B7D1B")
+            val newDx = dX * 6 / 10
+            val alpha: Float = if(newDx>swipeThreshold) 1f else newDx/swipeThreshold
+            val backgroundColor = Color.argb((alpha*255).toInt(), 27, 125, 27)
 
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -111,9 +119,12 @@ class InboxFragment : CyaneaFragment() {
             deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
             deleteIcon.draw(c)
 
-            var newDx = dX * 9 / 10
-            if (newDx >= 300f) {
-                newDx = 300f
+            if (newDx >= swipeThreshold && !vibedOnSwipe) {
+                Vibes.vibrate()
+                vibedOnSwipe=true
+            }
+            if(newDx <= swipeThreshold && vibedOnSwipe){
+                vibedOnSwipe = false
             }
 
             super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive)
@@ -123,8 +134,12 @@ class InboxFragment : CyaneaFragment() {
             }
         }
 
+        override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+            return swipeThreshold
+        }
+
         override fun isItemViewSwipeEnabled(): Boolean {
-            return true
+            return mAdapter.selected==-1
         }
 
         //defines the enabled move directions in each state (idle, swiping, dragging).
@@ -154,7 +169,7 @@ class InboxFragment : CyaneaFragment() {
 
         try {
             setTaskCountText(Current.project().taskList.size)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("notMigrated", "data not migrated yet")
         }
 
@@ -185,7 +200,7 @@ class InboxFragment : CyaneaFragment() {
 
             override fun onLongClick(view: View, position: Int) {
                 if (!isSwiping && (mAdapter.getItemViewType(position) == 0) && mAdapter.selected == -1) {
-                    //contextualToolbar = InboxFragment.this.getActivity().startActionMode(setCallback(position));
+                    Vibes.vibrate()
                     MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub) {
                         title = FilteredLists.inboxTaskList[position].listName
                         backgroundColor = cyanea.accent
@@ -241,10 +256,6 @@ class InboxFragment : CyaneaFragment() {
     }
 
 
-
-
-
-
     private fun prepareRecyclerView(view: View) {
 
 
@@ -282,46 +293,16 @@ class InboxFragment : CyaneaFragment() {
 
     private fun removeWithDivider(position: Int) {
 
-        val startTime = System.nanoTime()
-
-
         val dividerPosition = position - 1
         val belowDividerPosition = position + 1
-        Log.d("removing", "Above: " + FilteredLists.inboxTaskList[dividerPosition].listName + "\n")
-        Log.d("removing", "Clicked: " + FilteredLists.inboxTaskList[position].listName + "\n")
-        //Log.d("removing", "Below: " + FilteredLists.inboxTaskList.get(belowDividerPosition).getListName() + "\n");
 
         val tasks = FilteredLists.inboxTaskList[position]
         val dividerTask = FilteredLists.inboxTaskList[dividerPosition]
+        val belowDividerTask: Tasks? = if (belowDividerPosition < FilteredLists.inboxTaskList.size) FilteredLists.inboxTaskList[belowDividerPosition] else null
 
 
-        if ((dividerTask.listName == "OVERDUE")
-                or (dividerTask.listName == "TODAY")
-                or (dividerTask.listName == "WEEK")
-                or (dividerTask.listName == "MONTH")
-                or (dividerTask.listName == "FUTURE")) {
-
-            if (belowDividerPosition < FilteredLists.inboxTaskList.size) {
-                Log.d("size", Integer.toString(FilteredLists.inboxTaskList.size) + ", " + belowDividerPosition)
-                val belowDividerTask = FilteredLists.inboxTaskList[belowDividerPosition]
-                if ((belowDividerTask.listName == "OVERDUE")
-                        or (belowDividerTask.listName == "TODAY")
-                        or (belowDividerTask.listName == "WEEK")
-                        or (belowDividerTask.listName == "MONTH")
-                        or (belowDividerTask.listName == "FUTURE")) {
-
-                    removeTask(position, true) //sandwiched by dividers, remove top one
-                    if (dividerPosition == 0) {
-                        mAdapter.notifyItemChanged(0) //updates top divider if necessary to redo padding
-                    }
-
-                } else { //more tasks below this
-                    removeTask(position, false)
-                }
-            } else { //last in list w/ divider above this
-                removeTask(position, true)
-            }
-
+        if (isDivider(dividerTask) and isDivider(belowDividerTask)) {
+            removeTask(position, true)
         } else {
             removeTask(position, false)
         }
@@ -332,18 +313,9 @@ class InboxFragment : CyaneaFragment() {
 
         BrowseFragment.mAdapter.notifyDataSetChanged()
 
-        val endTime = System.nanoTime()
-        val duration = (endTime - startTime) / 1000000  //divide by 1000000 to get milliseconds.
-
-        Log.d("removeTaskTime", java.lang.Long.toString(duration) + " milliseconds")
-
-
     }
 
     private fun removeTask(position: Int, above: Boolean) {
-
-        Log.d("removeTask", "removing task")
-
 
         val tasks = FilteredLists.inboxTaskList[position]
 
@@ -351,22 +323,32 @@ class InboxFragment : CyaneaFragment() {
         Current.taskList().remove(tasks)
 
         FilteredLists.inboxTaskList.removeAt(position)
-
         mAdapter.notifyItemRemoved(position)
 
-        val dividerPosition = position - 1
+
 
         if (above) {
-
-
+            val dividerPosition = position - 1
             FilteredLists.inboxTaskList.removeAt(dividerPosition)
-
             mAdapter.notifyItemRemoved(dividerPosition)
         }
 
-        mAdapter.notifyItemRangeChanged(dividerPosition, mAdapter.itemCount)
+        //mAdapter.notifyItemRangeChanged(dividerPosition, mAdapter.itemCount)
+        setTaskCountText(FilteredLists.inboxTaskList.size)
 
+        ProjectsUtils.update()
 
+    }
+
+    private fun isDivider(tasks: Tasks?): Boolean {
+        if (tasks == null) {
+            return true //return true if no bottom
+        }
+        return ((tasks.listName == "OVERDUE")
+                or (tasks.listName == "TODAY")
+                or (tasks.listName == "WEEK")
+                or (tasks.listName == "MONTH")
+                or (tasks.listName == "FUTURE"))
     }
 
     companion object {
@@ -431,9 +413,7 @@ class InboxFragment : CyaneaFragment() {
 
                 Log.d("loopStart", "Size: " + Integer.toString(FilteredLists.inboxTaskList.size))
 
-                var i = 0
-
-                for (task in tempList) {
+                for ((i, task) in tempList.withIndex()) {
 
 
                     Log.d("loopStart", "loop through " + Integer.toString(i))
@@ -492,7 +472,6 @@ class InboxFragment : CyaneaFragment() {
 
                     }
 
-                    i++
                 }
 
                 Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
@@ -512,7 +491,6 @@ class InboxFragment : CyaneaFragment() {
 
             } else if (mode == 1) {
 
-
                 FilteredLists.inboxTaskList.sortWith(Comparator { o1, o2 -> o1.listName.compareTo(o2.listName) })
 
 
@@ -527,11 +505,10 @@ class InboxFragment : CyaneaFragment() {
         }
 
         fun setTaskCountText(numTasks: Int) {
-            var toApply: String
-            if (numTasks != 1) {
-                toApply = " TASKS"
+            var toApply: String = if (numTasks != 1) {
+                " TASKS"
             } else {
-                toApply = " TASK"
+                " TASK"
             }
             toApply = Integer.toString(numTasks) + toApply
             taskCountText!!.text = toApply

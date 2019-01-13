@@ -31,7 +31,7 @@ class ItemViewTitleTags : ConstraintLayout {
     }
 
     fun setOverflow(view: View) {
-        view.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
 
             val nameRight = taskName2.right
             val c1Left = chip1.left
@@ -52,6 +52,25 @@ class ItemViewTitleTags : ConstraintLayout {
             }
 
             //Log.d("clipping chips", "$chipsVisible visible")
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener {
+            val nameRight = taskName2.right
+            val c1Left = chip1.left
+            val c2Left = chip2.left
+            val c3Left = chip3.left
+
+            if (nameRight > c1Left) {
+                chip1.visibility = View.GONE
+                chipsVisible = 2
+            }
+            if (nameRight > c2Left) {
+                chip2.visibility = View.GONE
+                chipsVisible = 1
+            }
+            if (nameRight > c3Left) {
+                chip3.visibility = View.GONE
+                chipsVisible = 0
+            }
         }
 
 

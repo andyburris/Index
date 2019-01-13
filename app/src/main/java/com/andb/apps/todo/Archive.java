@@ -15,6 +15,8 @@ import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
+import com.andb.apps.todo.utilities.Values;
+import com.andb.apps.todo.utilities.Vibes;
 import com.jaredrummler.cyanea.Cyanea;
 
 import org.greenrobot.eventbus.EventBus;
@@ -25,6 +27,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import me.saket.inboxrecyclerview.PullCollapsibleActivity;
+
+import static com.andb.apps.todo.utilities.Values.swipeThreshold;
 
 public class Archive extends PullCollapsibleActivity {
 
@@ -82,6 +86,9 @@ public class Archive extends PullCollapsibleActivity {
 
     // Extend the Callback class
     private ItemTouchHelper.Callback _ithCallback = new ItemTouchHelper.Callback() {
+
+        Boolean vibedOnSwipe = false;
+
         //and in your implementation of
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             return false;
@@ -95,7 +102,7 @@ public class Archive extends PullCollapsibleActivity {
                 Current.taskList().add(Current.project().getArchiveList().get(viewHolder.getAdapterPosition()));
                 Current.project().getArchiveList().remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                EventBus.getDefault().post(new UpdateEvent(true));
+                EventBus.getDefault().post(new UpdateEvent(false));
                 ProjectsUtils.update();
             } else if (direction == ItemTouchHelper.LEFT) {//delete permanently
                 Current.project().getArchiveList().remove(viewHolder.getAdapterPosition());
@@ -114,7 +121,13 @@ public class Archive extends PullCollapsibleActivity {
                 int intrinsicWidth = deleteIcon.getIntrinsicWidth();
                 int intrinsicHeight = deleteIcon.getIntrinsicHeight();
                 GradientDrawable background = new GradientDrawable();
-                int backgroundColor = Color.parseColor("#1B7D1B");
+                float newDx = dX * 6 / 10;
+                float alpha;
+                if(newDx>swipeThreshold)
+                    alpha = 1f;
+                else
+                    alpha = newDx/swipeThreshold;
+                int backgroundColor = Color.argb(Math.round(alpha*255), 27, 125, 27);
 
 
                 View itemView = viewHolder.itemView;
@@ -143,9 +156,12 @@ public class Archive extends PullCollapsibleActivity {
                 deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
                 deleteIcon.draw(c);
 
-                float newDx = (dX * 9) / 10;
-                if (newDx >= 300f) {
-                    newDx = 300f;
+                if (newDx >= swipeThreshold && !vibedOnSwipe) {
+                    Vibes.vibrate();
+                    vibedOnSwipe=true;
+                }
+                if(newDx <= swipeThreshold && vibedOnSwipe){
+                    vibedOnSwipe = false;
                 }
 
                 super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive);
@@ -155,7 +171,15 @@ public class Archive extends PullCollapsibleActivity {
                 int intrinsicWidth = deleteIcon.getIntrinsicWidth();
                 int intrinsicHeight = deleteIcon.getIntrinsicHeight();
                 GradientDrawable background = new GradientDrawable();
-                int backgroundColor = Color.parseColor("#D93025");
+
+                float newDx = dX * 6 / 10;
+                /*float swipeThreshold = viewHolder.itemView.getWidth() - Values.swipeThreshold;*/
+                float alpha;
+                if(-newDx>swipeThreshold)
+                    alpha = 1f;
+                else
+                    alpha = -newDx/swipeThreshold;
+                int backgroundColor = Color.argb(Math.round(alpha*255), 217, 48, 37);
 
 
                 View itemView = viewHolder.itemView;
@@ -184,9 +208,12 @@ public class Archive extends PullCollapsibleActivity {
                 deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
                 deleteIcon.draw(c);
 
-                float newDx = (dX * 9) / 10;
-                if (newDx >= 300f) {
-                    newDx = 300f;
+                if (-newDx >= swipeThreshold && !vibedOnSwipe) {
+                    Vibes.vibrate();
+                    vibedOnSwipe=true;
+                }
+                if(-newDx <= swipeThreshold && vibedOnSwipe){
+                    vibedOnSwipe = false;
                 }
 
                 super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive);

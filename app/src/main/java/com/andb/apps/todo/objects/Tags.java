@@ -1,5 +1,8 @@
 package com.andb.apps.todo.objects;
 
+import android.util.Log;
+
+import com.andb.apps.todo.utilities.Current;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -72,4 +75,21 @@ public class Tags {
         return children;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(tagName).append(": \n");
+        if(children!=null) {
+            for (int c : children) {
+                sb.append("- ").append(Current.tagList().get(c).tagName).append("\n");
+            }
+        }else {
+            Log.d("getMostRecentTag", "null children");
+        }
+
+
+        return sb.toString();
+    }
 }

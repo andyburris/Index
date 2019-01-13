@@ -10,7 +10,8 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <include
             layout="@layout/content_main"
@@ -23,7 +24,8 @@
             android:layout_height="match_parent"
             android:alpha="0.0"
             android:background="@color/bottomsheetdim"
-            android:elevation="0dp" />
+            android:elevation="0dp"
+            android:fitsSystemWindows="true"/>
 
         <include layout="@layout/bottom_sheet_layout" />
 

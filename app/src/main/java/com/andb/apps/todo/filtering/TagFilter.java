@@ -1,4 +1,4 @@
-package com.andb.apps.todo.objects;
+package com.andb.apps.todo.filtering;
 
 import android.util.Log;
 

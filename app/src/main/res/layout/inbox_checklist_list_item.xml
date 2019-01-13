@@ -7,6 +7,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
 
-    android:padding="8dp"
+    android:paddingStart="8dp"
     android:text="Item"
     tools:layout_editor_absoluteY="0dp" />

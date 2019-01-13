@@ -60,16 +60,20 @@ class TaskListItem : ConstraintLayout {
 
             when (inboxBrowseArchive) {
                 TaskAdapter.FROM_BROWSE -> {
-                    ft.add(R.id.expandable_page_browse, taskView)
-                    ft.commit()
-                    BrowseFragment.mRecyclerView.expandItem(BrowseFragment.mAdapter.getItemId(pos))
+                    if(BrowseFragment.mAdapter.selected==-1) {
+                        ft.add(R.id.expandable_page_browse, taskView)
+                        ft.commit()
+                        BrowseFragment.mRecyclerView.expandItem(BrowseFragment.mAdapter.getItemId(pos))
+                    }
                 }
                 TaskAdapter.FROM_ARCHIVE -> {
                 }
                 else -> { //inbox
-                    ft.add(R.id.expandable_page_inbox, taskView)
-                    ft.commit()
-                    InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
+                    if(InboxFragment.mAdapter.selected==-1) {
+                        ft.add(R.id.expandable_page_inbox, taskView)
+                        ft.commit()
+                        InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
+                    }
                 }
             }
         }
@@ -187,9 +191,9 @@ class TaskListItem : ConstraintLayout {
     fun collapseSublist() {
         sublistToggleState = false
 
-        item1.layoutParams.height = 0
-        item2.layoutParams.height = 0
-        item3.layoutParams.height = 0
+        item1.layoutParams.height = 1
+        item2.layoutParams.height = 1
+        item3.layoutParams.height = 1
         listitempadding.visibility = View.GONE
         sublistIcon.setImageState(STATE_ONE, true)
     }

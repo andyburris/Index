@@ -24,6 +24,12 @@ public class Filters {
         return backTagFilters.get(backTagFilters.size() - 1);
     }
 
+    public static int getMostRecentTag(){
+        //Log.d("getMostRecentTag", Current.tagList().get(getCurrentFilter().get(getCurrentFilter().size()-1)).toString());
+        return getCurrentFilter().get(getCurrentFilter().size()-1);
+
+    }
+
     public static void homeViewAdd() {
         backTagFilters.add(new ArrayList<Integer>());
     }

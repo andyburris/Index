@@ -33,15 +33,29 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="56dp"
+            android:layout_marginTop="38dp"
             android:alpha="54"
+            android:singleLine="true"
             android:text="@string/app_name"
             android:textColor="?menuIconColor"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_anchor="@id/toolbar"
-            app:layout_anchorGravity="center_vertical"
+            app:layout_anchorGravity="top|start|top|start"
             custom:cyaneaTextBackground="primary" />
 
+
+        <com.andb.apps.todo.views.CyaneaTextView
+            android:id="@+id/toolbar_project_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="56dp"
+            android:layout_marginTop="58dp"
+            android:text="Project Name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="18sp"
+            app:layout_anchor="@id/toolbar"
+            app:layout_anchorGravity="top|start|top|start" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"

@@ -19,6 +19,7 @@ import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
+import com.andb.apps.todo.views.CyaneaDialog;
 import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -51,7 +52,7 @@ public class ImportExport {
             final ArrayList<File> fileList = new ArrayList<>(Arrays.asList(path.listFiles()));
 
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+            CyaneaDialog.Builder builder = new CyaneaDialog.Builder(ctxt);
             builder.setItems(path.list(), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -149,7 +150,7 @@ public class ImportExport {
             alertDialog.show();
 
         } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+            CyaneaDialog.Builder builder = new CyaneaDialog.Builder(ctxt);
             builder.setMessage("Storage is not availible to read, try again")
                     .show();
         }
@@ -209,7 +210,7 @@ public class ImportExport {
 
 
         } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+            CyaneaDialog.Builder builder = new CyaneaDialog.Builder(ctxt);
             builder.setMessage("External storage is not availible to write, try again")
                     .show();
         }

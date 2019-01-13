@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.andb.apps.todo.R
+import com.andb.apps.todo.views.CyaneaDialog
 import com.jaredrummler.android.colorpicker.ColorPreference
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.*
@@ -36,13 +37,13 @@ object SettingsLayout {
                 clickView { _, holder ->
                     var view = EditText(context)
                     view.setText(getString("John Doe"))
-                    AlertDialog.Builder(context)
+                    CyaneaDialog.Builder(context)
                             .setView(view)
-                            .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                            .setPositiveButton("OK") { _, _ ->
                                 commitString(view.text.toString())
                                 summary = view.text.toString()
                                 requestRebind()
-                            })
+                            }
                             .show()
                     true
                 }

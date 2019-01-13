@@ -124,12 +124,9 @@ public class MainActivity extends CyaneaAppCompatActivity {
             AsyncTask.execute(() -> {
                 ProjectList.INSTANCE.appStart(this, projectsDatabase);
 
-                setupProjectSelector();
-
                 Filters.homeViewAdd(); //add current filter to back stack
-                Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(Filters.backTagFilters.size() - 1).size()) + ", " + Filters.backTagFilters.size());
 
-                EventBus.getDefault().post(new UpdateEvent(true));
+                EventBus.getDefault().post(new UpdateEvent(true, true));
 
             });
 
@@ -307,37 +304,6 @@ public class MainActivity extends CyaneaAppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-/*    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-        } else if (id == R.id.nav_archive) {
-
-        } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-
-        } else if (id == R.id.nav_import_export) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("Import or export tasks, tags, and links")
-                    .setNegativeButton("Export", (dialogInterface, i) -> ImportExport.exportTasks(MainActivity.this))
-                    .setPositiveButton("Import", (dialogInterface, i) -> ImportExport.importTasks(MainActivity.this));
-
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-        } else if (id == R.id.nav_test) {
-            startActivity(new Intent(this, TestActivity.class));
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }*/
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -479,42 +445,11 @@ public class MainActivity extends CyaneaAppCompatActivity {
             }
         });
 
-/*        TabLayout tabLayout = bottomSheet.findViewById(R.id.tabs);
-        ConstraintLayout.LayoutParams tabLayoutParams = (ConstraintLayout.LayoutParams) tabLayout.getLayoutParams();
-        Drawer.setTabHeight(tabLayoutParams.height);
-
-        BottomSheetBehavior<ConstraintLayout> bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback(){
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                //slideOffset 0.0 at bottom, 1.0 at top
-                if(slideOffset>1.0 || bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED){
-                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    slideOffset = 1.0f;
-                }
-                Log.d("slideOffset", "onSlide: " + slideOffset);
-                float newHeightTab = Drawer.getTabHeight()-(Drawer.getTabHeight()*slideOffset);
-                Log.d("newHeight", Float.toString(newHeightTab));
-                tabLayoutParams.height = Math.round(newHeightTab);
-                tabLayout.setLayoutParams(tabLayoutParams);
-
-            }
-        });*/
     }
 
 
 
     public void setName(TextView navName) {
-/*        if (start) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            nameFromSettings = prefs.getString("user_name", "");
-            Log.d("prefLoadName", nameFromSettings);
-        }*/
 
         if (Current.allProjects().size() > 0) {
             navName.setText(Current.project().getName());
@@ -567,6 +502,10 @@ public class MainActivity extends CyaneaAppCompatActivity {
 
         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
         NotificationHandler.resetNotifications(this);
+
+        if(event.setupProject){
+            setupProjectSelector();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
