@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.*
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
-import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
@@ -44,7 +43,7 @@ class TaskListItem : ConstraintLayout {
         topLayout.setTags(tasks)
         topLayout.setTitle(task.listName)
         topLayout.setOverflow(this)
-        moreTags.visibility = if (topLayout.chipsVisible > task.listTagsSize) View.GONE else View.VISIBLE
+        //updateOverflow(topLayout)
         inboxCard.setOnClickListener {
             val bundle = Bundle()
             bundle.putInt("pos", pos)
@@ -59,7 +58,7 @@ class TaskListItem : ConstraintLayout {
 
             when (inboxBrowseArchive) {
                 TaskAdapter.FROM_BROWSE -> {
-                    if(BrowseFragment.mAdapter.selected==-1) {
+                    if (BrowseFragment.mAdapter.selected == -1) {
                         ft.add(R.id.expandable_page_browse, taskView)
                         ft.commit()
                         BrowseFragment.mRecyclerView.expandItem(BrowseFragment.mAdapter.getItemId(pos))
@@ -68,7 +67,7 @@ class TaskListItem : ConstraintLayout {
                 TaskAdapter.FROM_ARCHIVE -> {
                 }
                 else -> { //inbox
-                    if(InboxFragment.mAdapter.selected==-1) {
+                    if (InboxFragment.mAdapter.selected == -1) {
                         ft.add(R.id.expandable_page_inbox, taskView)
                         ft.commit()
                         InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
@@ -77,6 +76,29 @@ class TaskListItem : ConstraintLayout {
             }
         }
         setCyaneaBackground(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
+    }
+
+    fun updateOverflow(topLayout: ItemViewTitleTags) {
+        moreTags.apply {
+            if (topLayout.chipsVisible >= task.listTagsSize) {
+/*                layoutParams.apply {
+                    height = 0
+                    width = 0
+                }*/
+                visibility = View.GONE
+                Log.d("updateOverflow", "Task: ${task.listName}, Overflow Visible: ${when (moreTags.visibility) {View.GONE -> "GONE" else -> "VISIBLE" }}")
+                /*Visible chips: ${topLayout.chipsVisible}, List Size: ${task.listTagsSize},*/
+            } else {
+/*                layoutParams.apply {
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    width = ViewGroup.LayoutParams.WRAP_CONTENT
+                }*/
+                visibility = View.VISIBLE
+                Log.d("updateOverflow", "Task: ${task.listName}, Overflow Visible: ${when (moreTags.visibility) {View.GONE -> "GONE" else -> "VISIBLE" }}")
+
+            }
+        }
+
     }
 
 
@@ -97,14 +119,14 @@ class TaskListItem : ConstraintLayout {
                     checkBox.text = task.listItems[i]
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         task.editListItemsChecked(isChecked, i)
-                        checkBox.paintFlags = if(!isChecked)checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        checkBox.paintFlags = if (!isChecked) checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                         AsyncTask.execute {
                             ProjectsUtils.update()
                         }
 
                     }
                     checkBox.isChecked = task.getListItemsChecked(i)
-                    checkBox.paintFlags = if(!checkBox.isChecked)checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else  checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    checkBox.paintFlags = if (!checkBox.isChecked) checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
                     checkBox.visibility = View.VISIBLE
 
@@ -132,6 +154,7 @@ class TaskListItem : ConstraintLayout {
             taskList = ArrayList(adapter.taskList)
             adapter.expandedList = ArrayList<Boolean>()
             expandedList = adapter.expandedList
+            sublistIcon.visibility = View.VISIBLE
 
             for (tasks in taskList) { /*init here since tasklist is null in constructor*/
                 var selected = false
@@ -210,8 +233,6 @@ class TaskListItem : ConstraintLayout {
         listitempadding.visibility = View.GONE
         sublistIcon.setImageState(STATE_ONE, true)
     }
-
-
 
 
     fun setCyaneaBackground(color: Int) {

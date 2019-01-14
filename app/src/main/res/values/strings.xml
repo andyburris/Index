@@ -128,6 +128,8 @@
     <string name="search_hint">Search tasks and tags</string>
     <string name="project_header_title">Project</string>
     <string name="import_export_menu">Import/Export</string>
+    <string name="project_name_hint">Project Name</string>
+    <string name="project_color_text">Project Color</string>
 
 
 </resources>

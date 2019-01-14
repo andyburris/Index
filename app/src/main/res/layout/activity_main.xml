@@ -27,7 +27,9 @@
             android:elevation="0dp"
             android:fitsSystemWindows="true"/>
 
-        <include layout="@layout/bottom_sheet_layout" />
+
+
+        <include layout="@layout/bottom_sheet_container" />
 
         <ViewStub
             android:id="@+id/cab_stub"

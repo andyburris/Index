@@ -7,6 +7,7 @@ import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.typeconverters.CheckedConverter
 import com.andb.apps.todo.typeconverters.ItemsConverter
 import com.andb.apps.todo.typeconverters.TagConverter
+import dev.matrix.roomigrant.rules.FieldMigrationRule
 import dev.matrix.roomigrant.rules.OnMigrationEndRule
 import dev.matrix.roomigrant.rules.OnMigrationStartRule
 import org.greenrobot.eventbus.EventBus
@@ -39,6 +40,11 @@ class MigrationRules {
     @OnMigrationEndRule(version1 = 1, version2 = 2)
     fun migrate_1_2_after(db: SupportSQLiteDatabase, version1: Int, version2: Int) {
         EventBus.getDefault().post(MigrateEvent(db, MigrationHelper.oldList))
+    }
+
+    @FieldMigrationRule(version1 = 2, version2 = 3, table = "ProjectsDatabase", field = "project_color")
+    fun migrate_2_3(): Int{
+        return 0x00000000
     }
 
 }

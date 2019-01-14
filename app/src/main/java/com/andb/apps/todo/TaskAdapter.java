@@ -94,7 +94,7 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
 
     }
 
-    public void setUpByViewType(final int position, final TaskAdapter.MyViewHolder holder, final int realPosition) {
+    private void setUpByViewType(final int position, final TaskAdapter.MyViewHolder holder, final int realPosition) {
 
 
         if (viewType == 0) {
@@ -144,38 +144,31 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
     public int getItemViewType(int position) {
         if (InboxFragment.Companion.getFilterMode() == 0) {
             if (taskList.get(position).getListName().equals("OVERDUE")) {
-                Log.d("getItemViewType", "OVERDUE");
                 viewType = OVERDUE_DIVIDER;
                 return OVERDUE_DIVIDER;
             }
             if (taskList.get(position).getListName().equals("TODAY")) {
-                Log.d("getItemViewType", "TODAY");
                 viewType = TODAY_DIVIDER;
                 return TODAY_DIVIDER;
             }
             if (taskList.get(position).getListName().equals("WEEK")) {
-                Log.d("getItemViewType", "WEEK");
                 viewType = THIS_WEEK_DIVIDER;
                 return THIS_WEEK_DIVIDER;
             }
             if (taskList.get(position).getListName().equals("MONTH")) {
-                Log.d("getItemViewType", "MONTH");
                 viewType = THIS_MONTH_DIVIDER;
                 return THIS_MONTH_DIVIDER;
             }
             if (taskList.get(position).getListName().equals("FUTURE")) {
-                Log.d("getItemViewType", "FUTURE");
                 viewType = FUTURE_DIVIDER;
                 return FUTURE_DIVIDER;
             } else {
-                Log.d("getItemViewType", "TASK");
                 viewType = TASK_VIEW_ITEM;
                 return TASK_VIEW_ITEM;
             }
 
 
         } else {
-            Log.d("getItemViewType", "ALPHA");
 
             viewType = TASK_VIEW_ITEM;
             return TASK_VIEW_ITEM;

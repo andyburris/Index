@@ -4,8 +4,6 @@ import android.util.Log;
 
 import com.andb.apps.todo.BrowseFragment;
 import com.andb.apps.todo.InboxFragment;
-import com.andb.apps.todo.MainActivity;
-import com.andb.apps.todo.R;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
 
@@ -24,11 +22,6 @@ public class Filters {
         return backTagFilters.get(backTagFilters.size() - 1);
     }
 
-    public static int getMostRecentTag(){
-        //Log.d("getMostRecentTag", Current.tagList().get(getCurrentFilter().get(getCurrentFilter().size()-1)).toString());
-        return getCurrentFilter().get(getCurrentFilter().size()-1);
-
-    }
 
     public static void homeViewAdd() {
         backTagFilters.add(new ArrayList<Integer>());
@@ -81,11 +74,6 @@ public class Filters {
             subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
         }
 
-/*        if (getCurrentFilter().size() > 0) {
-            MainActivity.toolbarTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
-        } else {
-            MainActivity.toolbarTitle.setText(R.string.app_name);
-        }*/
         InboxFragment.Companion.setPathText(subtitle);
     }
 
@@ -110,15 +98,14 @@ public class Filters {
             subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
         }
 
-/*        if (getCurrentFilter().size() > 0) {
-            MainActivity.toolbarTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
-        } else {
-            MainActivity.toolbarTitle.setText(R.string.app_name);
-        }*/
         InboxFragment.Companion.setPathText(subtitle);
     }
 
     public static int getMostRecent() {
-        return getCurrentFilter().get(getCurrentFilter().size() - 1);
+        if (!getCurrentFilter().isEmpty()) {
+            return getCurrentFilter().get(getCurrentFilter().size() - 1);
+        } else {
+            return -1;
+        }
     }
 }

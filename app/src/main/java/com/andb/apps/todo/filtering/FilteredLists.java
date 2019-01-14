@@ -12,6 +12,8 @@ import com.andb.apps.todo.utilities.Current;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.annotation.Nullable;
+
 public class FilteredLists {
     public static ArrayList<Tasks> inboxTaskList = new ArrayList<>();
     public static ArrayList<Tasks> browseTaskList = new ArrayList<>();
@@ -22,18 +24,27 @@ public class FilteredLists {
 
         Log.d("noFilters", Integer.toString(tagsToFilter.size()));
 
+        /*need to maintain object reference for recyclerview*/
+        inboxTaskList.clear();
+        browseTaskList.clear();
+        filteredTagLinks.clear();
 
-        Tags tagParent = Current.tagList().get(Filters.getMostRecent());
+        int parentIndex = Filters.getMostRecent();
+        if (parentIndex > -1) {
+            Tags tagParent = Current.tagList().get(parentIndex);
 
-        if (tagParent.getChildren() == null) {
-            tagParent.setChildren(new ArrayList<>());
+            if (tagParent.getChildren() == null) {
+                tagParent.setChildren(new ArrayList<>());
+            }
+            filteredTagLinks.addAll(filterChildren(Current.tagList(), tagParent, Filters.getCurrentFilter()));
+        }else {
+            filteredTagLinks.addAll(filterChildren(Current.tagList(), null, Filters.getCurrentFilter()));
         }
 
-        filteredTagLinks = filterChildren(Current.tagList(), tagParent, Filters.getCurrentFilter());
 
 
-        inboxTaskList = filterInbox(Current.taskList(), Filters.getCurrentFilter());
-        browseTaskList = filterBrowse(inboxTaskList, Filters.getCurrentFilter(), filteredTagLinks, Current.tagList(), SettingsActivity.getSubFilter());
+        inboxTaskList.addAll(filterInbox(Current.taskList(), Filters.getCurrentFilter()));
+        browseTaskList.addAll(filterBrowse(inboxTaskList, Filters.getCurrentFilter(), filteredTagLinks, Current.tagList(), SettingsActivity.getSubFilter()));
 
         InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
 
@@ -43,10 +54,16 @@ public class FilteredLists {
         BrowseFragment.tAdapter.notifyDataSetChanged();
 
 
-        if (viewing) {
-            InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
-            InboxFragment.Companion.refreshWithAnim();
+        //if (viewing) {
+        InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
+        //InboxFragment.Companion.refreshWithAnim();
+        InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
+
+        Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size() + ", InboxFragment.mAdapter.taskList: " + InboxFragment.Companion.getMAdapter().taskList.size());
+        for (Tasks t : InboxFragment.Companion.getMAdapter().taskList) {
+            Log.d("inboxTaskList", t.toString());
         }
+        //}
 
         if (Filters.getCurrentFilter().size() != 0) {
             InboxFragment.Companion.setTaskCountText(inboxTaskList.size());
@@ -57,22 +74,29 @@ public class FilteredLists {
 
     }
 
-    public static ArrayList<Integer> filterChildren(ArrayList<Tags> tags, Tags parent, ArrayList<Integer> previousFilters) {
+    public static ArrayList<Integer> filterChildren(ArrayList<Tags> tags, @Nullable Tags parent, ArrayList<Integer> previousFilters) {
 
         ArrayList<Integer> filteredList = new ArrayList<>();
 
-        for (int tag : parent.getChildren()) { //check all the tags
+        if(parent!=null) {
+            for (int tag : parent.getChildren()) { //check all the tags
 
-            if (!previousFilters.contains(tag)) {//check if tag is part of filters
+                if (!previousFilters.contains(tag)) {//check if tag is part of filters
 
-                if (!previousFilters.isEmpty()) {
-                    filteredList.add(tag);
-                } else if (!tags.get(tag).isSubFolder()) {//show all but subfolders in /All
-                    filteredList.add(tag);
+                    if (!previousFilters.isEmpty()) {
+                        filteredList.add(tag);
+                    }
                 }
+
             }
-
-
+        }else {
+            int i = 0;
+            for(Tags t : tags) {
+                if (!t.isSubFolder()) {//show all but subfolders in /All
+                    filteredList.add(i);
+                }
+                i++;
+            }
         }
 
         return filteredList;

@@ -1,5 +1,6 @@
 package com.andb.apps.todo.objects
 
+import android.graphics.Color
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -12,12 +13,13 @@ import java.util.*
 @Entity
 open class Project {
 
-    constructor(key: Int, name: String, taskList: ArrayList<Tasks>, archiveList: ArrayList<Tasks>, tagList: ArrayList<Tags>) {
+    constructor(key: Int, name: String, taskList: ArrayList<Tasks>, archiveList: ArrayList<Tasks>, tagList: ArrayList<Tags>, color: Int) {
         this.key = key
         this.name = name
         this.taskList = taskList
         this.archiveList = archiveList
         this.tagList = tagList
+        this.color = color
         for (t: Tasks in taskList) {
             this.keyList.add(t.listKey)
         }
@@ -44,5 +46,9 @@ open class Project {
     @ColumnInfo(name = "tag_list")
     @TypeConverters(TagListConverter::class)
     var tagList: ArrayList<Tags> = ArrayList()
+
+    @ColumnInfo(name = "project_color")
+    var color: Int = 0x00000000//black
+
 
 }

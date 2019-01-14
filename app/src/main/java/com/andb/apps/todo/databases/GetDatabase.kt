@@ -10,7 +10,7 @@ object GetDatabase{
     fun getDatabase(ctxt: Context): ProjectsDatabase{
         return Room.databaseBuilder(ctxt,
                 ProjectsDatabase::class.java, DATABASE_NAME)
-                .addMigrations(*ProjectsDatabase_Migrations.build())
+                .addMigrations(*ProjectsDatabase_Migrations.build(), MIGRATION_2_3)
                 .build()
     }
 }

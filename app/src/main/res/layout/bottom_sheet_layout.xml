@@ -6,9 +6,7 @@
     android:id="@+id/bottom_sheet_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:behavior_hideable="false"
-    app:behavior_peekHeight="136dp"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/app_bar_coordinator"

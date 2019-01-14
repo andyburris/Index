@@ -13,6 +13,7 @@ import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
 import com.google.android.material.chip.Chip
 import com.jaredrummler.cyanea.Cyanea
+import kotlinx.android.synthetic.main.inbox_list_item.view.*
 import kotlinx.android.synthetic.main.view_title_tags.view.*
 import java.util.*
 
@@ -30,50 +31,37 @@ class ItemViewTitleTags : ConstraintLayout {
         taskName2.text = name
     }
 
-    fun setOverflow(view: View) {
+    fun setOverflow(view: TaskListItem) {
         view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
 
-            val nameRight = taskName2.right
-            val c1Left = chip1.left
-            val c2Left = chip2.left
-            val c3Left = chip3.left
+            //hide and show to prevent overflow taking up space that would have been enough to fit last chip
+            checkOverflow(view.moreTags.width)
+            Log.d("updateOverflow", "updating ${view.task.listName}")
+            view.updateOverflow(this)
+            checkOverflow()
 
-            if (nameRight > c1Left) {
-                chip1.visibility = View.GONE
-                chipsVisible = 2
-            }
-            if (nameRight > c2Left) {
-                chip2.visibility = View.GONE
-                chipsVisible = 1
-            }
-            if (nameRight > c3Left) {
-                chip3.visibility = View.GONE
-                chipsVisible = 0
-            }
-
-            //Log.d("clipping chips", "$chipsVisible visible")
-        }
-        view.viewTreeObserver.addOnGlobalLayoutListener {
-            val nameRight = taskName2.right
-            val c1Left = chip1.left
-            val c2Left = chip2.left
-            val c3Left = chip3.left
-
-            if (nameRight > c1Left) {
-                chip1.visibility = View.GONE
-                chipsVisible = 2
-            }
-            if (nameRight > c2Left) {
-                chip2.visibility = View.GONE
-                chipsVisible = 1
-            }
-            if (nameRight > c3Left) {
-                chip3.visibility = View.GONE
-                chipsVisible = 0
-            }
         }
 
+    }
 
+    fun checkOverflow(noOverflowIcon: Int = 0){
+        val nameRight = taskName2.right
+        val c1Left = chip1.left
+        val c2Left = chip2.left
+        val c3Left = chip3.left
+
+        if (nameRight-noOverflowIcon > c1Left) {
+            chip1.visibility = View.GONE
+            chipsVisible = 2
+        }
+        if (nameRight-noOverflowIcon > c2Left) {
+            chip2.visibility = View.GONE
+            chipsVisible = 1
+        }
+        if (nameRight-noOverflowIcon > c3Left) {
+            chip3.visibility = View.GONE
+            chipsVisible = 0
+        }
     }
 
     fun setTags(task: Tasks) {
@@ -92,7 +80,7 @@ class ItemViewTitleTags : ConstraintLayout {
             for (i in tagsList.indices) {
 
                 if (i < task.allListTags.size) {
-                    val tagtemp = Current.tagList().get(task.getListTags(i))
+                    val tagtemp = Current.tagList()[task.getListTags(i)]
                     val chiptemp = tagsList[i]
 
                     chiptemp.text = tagtemp.tagName

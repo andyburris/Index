@@ -271,6 +271,7 @@ class InboxFragment : CyaneaFragment() {
 
         // specify an adapter (see also next example)
 
+        Log.d("inboxTaskList", "adapter set")
         mAdapter = TaskAdapter(FilteredLists.inboxTaskList, TaskAdapter.FROM_INBOX)
 
         mAdapter.setHasStableIds(true)

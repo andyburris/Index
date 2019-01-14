@@ -118,7 +118,7 @@ public class ImportExport {
                         }
 
                         int projectKey = ProjectsUtils.keyGenerator();
-                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList);
+                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, 0x000000);
                         Current.allProjects().add(newProject);
                         ProjectList.INSTANCE.setViewing(Current.allProjects().size()-1);
 

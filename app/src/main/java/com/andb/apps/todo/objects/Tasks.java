@@ -160,8 +160,6 @@ public class Tasks implements Serializable {
 
     public boolean getListItemsChecked(int pos) {
 
-        Log.d("browseCheckCheckingItem", Integer.toString(pos));
-
         if (listItemsChecked == null) {
             listItemsChecked = new ArrayList<>();
             for (int i = 1; i <= listItems.size(); i++) {
@@ -270,7 +268,7 @@ public class Tasks implements Serializable {
         }
         builder.append("Tags: \n");
         for (int i : getListTags()) {
-            builder.append("- Tag" + i + "\n");
+            builder.append("- Tag " + i + "\n");
         }
         return builder.toString();
     }

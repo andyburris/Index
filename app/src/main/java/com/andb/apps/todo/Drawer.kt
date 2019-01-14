@@ -1,27 +1,27 @@
 package com.andb.apps.todo
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
+import android.os.Bundle
 import android.preference.PreferenceManager
-import android.transition.TransitionManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
@@ -33,16 +33,34 @@ import com.andb.apps.todo.views.CyaneaDialog
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayout
+import com.jaredrummler.android.colorpicker.ColorPickerDialog
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.android.synthetic.main.bottom_sheet_container.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
-import kotlinx.android.synthetic.main.nav_header_main.view.*
+import kotlinx.android.synthetic.main.project_create_edit_layout.*
+import kotlinx.android.synthetic.main.project_create_edit_layout.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
 import org.greenrobot.eventbus.EventBus
 
-object Drawer {
+class Drawer : Fragment(){
 
-    fun setupMenu(context: Context, activity: AppCompatActivity, view: View) {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
+        setupMenu(context!!, view)
+        projectAdapter = drawerRecycler(inflater, view, context!!)
+        view.project_switcher_recycler.apply {
+            adapter = projectAdapter
+            layoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
+        }
+        view.project_switcher_frame.setBackgroundColor(Cyanea.instance.backgroundColor)
+
+
+        return view
+    }
+
+    fun setupMenu(context: Context, view: View) {
         view.archive_bg.apply {
             setBackgroundColor(Cyanea.instance.backgroundColor)
             setOnClickListener {
@@ -86,6 +104,15 @@ object Drawer {
             .bind { position ->
                 if (position < Current.allProjects().size) {//project
                     itemView.apply {
+                        val imageShape = GradientDrawable()
+                        imageShape.color = ColorStateList.valueOf(Current.allProjects()[position].color)
+                        imageShape.cornerRadius = if (Current.viewing() == position) 16f else 92f
+                        project_circle.apply {
+                            setImageDrawable(imageShape)
+                            elevation = if (Current.viewing() == position) 4f else 0f
+                            background = imageShape//for shadow drawing
+                        }
+
                         project_add_icon.visibility = View.GONE
                         project_text.apply {
                             visibility = View.VISIBLE
@@ -97,8 +124,9 @@ object Drawer {
                                 ProjectList.viewing = position
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 view.toolbar_project_name.text = Current.project().name
-                                EventBus.getDefault().post(UpdateEvent(true))
+                                EventBus.getDefault().post(UpdateEvent(false))
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("project_viewing", Current.viewing()).apply()
+                                projectAdapter.notifyDataSetChanged()
                             }
                             setOnLongClickListener {
                                 PopupMenu(context, itemView).apply {
@@ -106,7 +134,7 @@ object Drawer {
                                     setOnMenuItemClickListener { menuItem ->
                                         when (menuItem.itemId) {
                                             R.id.editProject -> {
-                                                editAlertDialog(context, view, nameInput(context), position).show()
+                                                editAlertDialog(context, view,  position).show()
                                             }
                                             R.id.deleteProject -> {
                                                 deleteAlertDialog(context, view, position).show()
@@ -117,14 +145,21 @@ object Drawer {
                                 }.show()
                                 true
                             }
+
+                        }
+                        project_task_count.apply {
+                            visibility = View.VISIBLE
+                            text = Current.allProjects()[position].taskList.size.toString()
+                            elevation = if (Current.viewing() == position) 4f else 0f
                         }
                     }
                 } else {//add project
                     itemView.apply {
                         project_text.visibility = View.INVISIBLE
+                        project_task_count.visibility = View.INVISIBLE
                         project_add_icon.visibility = View.VISIBLE
                         project_frame.setOnClickListener {
-                            addAlertDialog(context, this, nameInput(context)).show()
+                            addAlertDialog(context, this)
                         }
                         project_add_divider.visibility = View.VISIBLE
                     }
@@ -132,40 +167,75 @@ object Drawer {
 
             }.build()
 
-    fun nameInput(context: Context) = EditText(context).let { editText ->
-        editText.apply {
-            hint = "Name"
-            val density = resources.displayMetrics.density
-            //setPadding((16 * density).toInt(), (8 * density).toInt(), (16 * density).toInt(), (8 * density).toInt())
+
+
+
+    fun addAlertDialog(context: Context, view: View): android.app.AlertDialog.Builder {
+
+        val inflater = LayoutInflater.from(context)
+        val addLayout: View = inflater.inflate(R.layout.project_create_edit_layout, view as ViewGroup, false)
+        addLayout.apply {
+            projectColorPreview.color = selectedColor
+            projectColorPreview.setOnClickListener {
+                ColorPickerDialog.newBuilder()
+                        .setColor(selectedColor)
+                        .setAllowCustom(true)
+                        .setShowAlphaSlider(true)
+                        .setDialogId(DIALOG_ID)
+                        .show(activity)
+            }
         }
-        editText
+
+        val dialog = CyaneaDialog.Builder(context)
+                .setTitle(context.resources.getString(R.string.add_project))
+                .setView(R.layout.project_create_edit_layout)
+                .setPositiveButton("OK") { dialog, which ->
+                    val project = Project(ProjectsUtils.keyGenerator(), projectEditText.text.toString(), ArrayList(), ArrayList(), ArrayList(), selectedColor)
+                    ProjectList.projectList.add(project)
+                    ProjectList.viewing = ProjectList.projectList.indexOf(project)
+                    projectAdapter.notifyDataSetChanged()
+                    EventBus.getDefault().post(UpdateEvent(false))
+                    AsyncTask.execute {
+                        MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(Current.project())
+                    }
+                }
+        return dialog
     }
 
-    fun addAlertDialog(context: Context, view: View, nameInput: EditText) = CyaneaDialog.Builder(context)
-            .setTitle(context.resources.getString(R.string.add_project))
-            .setView(nameInput)
-            .setPositiveButton("OK") { dialog, which ->
-                val project = Project(ProjectsUtils.keyGenerator(), nameInput.text.toString(), ArrayList(), ArrayList(), ArrayList())
-                ProjectList.projectList.add(project)
-                ProjectList.viewing = ProjectList.projectList.indexOf(project)
-                view.projectNameNav.text = Current.project().name
-                MainActivity.projectAdapter.notifyDataSetChanged()
-                EventBus.getDefault().post(UpdateEvent(false))
-                AsyncTask.execute {
-                    MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(Current.project())
+
+    fun editAlertDialog(context: Context, view: View,  position: Int): android.app.AlertDialog.Builder {
+
+        val inflater = LayoutInflater.from(context)
+        val editLayout: View = inflater.inflate(R.layout.project_create_edit_layout, view as ViewGroup, false)
+
+        selectedColor = Current.allProjects()[position].color
+        editLayout.apply {
+            projectEditText.setText(Current.allProjects()[position].name)
+            projectColorPreview.color = selectedColor
+            projectColorPreview.setOnClickListener {
+                ColorPickerDialog.newBuilder()
+                        .setColor(selectedColor)
+                        .setAllowCustom(true)
+                        .setShowAlphaSlider(true)
+                        .setDialogId(DIALOG_ID)
+                        .show(activity)
+            }
+        }
+
+        val dialog = CyaneaDialog.Builder(context)
+                .setTitle(context.resources.getString(R.string.edit_project))
+                .setView(editLayout)
+                .setPositiveButton("OK") { dialog, which ->
+                    ProjectList.projectList[position].apply {
+                        name = editLayout.projectEditText.text.toString()
+                        color = selectedColor
+                    }
+                    projectAdapter.notifyDataSetChanged()
+                    ProjectsUtils.update(Current.allProjects()[position])
                 }
-            }
 
-
-    fun editAlertDialog(context: Context, view: View, nameInput: EditText, position: Int) = CyaneaDialog.Builder(context)
-            .setTitle(context.resources.getString(R.string.edit_project))
-            .setView(nameInput)
-            .setPositiveButton("OK") { _, _ ->
-                ProjectList.projectList[position].name = nameInput.text.toString()
-                view.projectNameNav.text = Current.project().name
-                MainActivity.projectAdapter.notifyDataSetChanged()
-                ProjectsUtils.update()
-            }
+        return dialog
+    }
 
 
     fun deleteAlertDialog(context: Context, view: View, position: Int) = CyaneaDialog.Builder(context)
@@ -181,8 +251,7 @@ object Drawer {
                     if (Current.viewing() == position) {
                         ProjectList.viewing = position - 1
                     }
-                    view.projectNameNav.text = Current.project().name
-                    MainActivity.projectAdapter.notifyDataSetChanged()
+                    projectAdapter.notifyDataSetChanged()
                     EventBus.getDefault().post(UpdateEvent(false))
 
                 } else {
@@ -191,56 +260,69 @@ object Drawer {
 
             }
 
-    lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
-    var selectedTab: Int = 0
 
-    @JvmStatic
-    val normalSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-        @SuppressLint("SwitchIntDef")
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            when (newState) {
-                BottomSheetBehavior.STATE_EXPANDED -> {
-                    MainActivity.expanded = true
-                    (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = true
-                    bottomSheet.tabs.apply {//disable selection
-                        clearOnTabSelectedListeners()
-                        tabRippleColor = ColorStateList.valueOf( Cyanea.instance.primary)
-                        selectedTab = selectedTabPosition
+
+    companion object {
+        lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
+        var selectedTab: Int = 0
+
+        const val DIALOG_ID = 1
+        @JvmStatic
+        var selectedColor: Int = Cyanea.instance.accent
+
+        lateinit var projectAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+
+        @JvmStatic
+        val normalSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            @SuppressLint("SwitchIntDef")
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        MainActivity.expanded = true
+                        (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = true
+                        bottomSheet.tabs.apply {
+                            //disable selection
+                            clearOnTabSelectedListeners()
+                            tabRippleColor = ColorStateList.valueOf(Cyanea.instance.primary)
+                            selectedTab = selectedTabPosition
+                        }
                     }
-                }
-                BottomSheetBehavior.STATE_COLLAPSED -> {
-                    MainActivity.expanded = false
-                    (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = false
-                    bottomSheet.tabs.apply {//reenable selection
-                        addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(MainActivity.mViewPager))
-                        tabRippleColor = ColorStateList.valueOf(Cyanea.instance.accent)
-                        getTabAt(selectedTab)?.select()
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        MainActivity.expanded = false
+                        (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = false
+                        bottomSheet.tabs.apply {
+                            //reenable selection
+                            addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(MainActivity.mViewPager))
+                            tabRippleColor = ColorStateList.valueOf(Cyanea.instance.accent)
+                            getTabAt(selectedTab)?.select()
+                        }
                     }
                 }
             }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                //slideOffset 0.0 at bottom, 1.0 at top
+                (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.alpha = slideOffset
+                (bottomSheet.toolbar as ViewGroup).getChildAt(0).apply {
+                    this.rotation = 180 * slideOffset
+                    val tabIndicatorColor: Int = Utilities.colorFromAlpha(Cyanea.instance.accent, Cyanea.instance.primary, 1 - slideOffset)
+                    bottomSheet.tabs.setSelectedTabIndicatorColor(tabIndicatorColor)
+                    val alphaSelected: Float = 1f - (1f * slideOffset)
+                    val alphaDeselected: Float = .54f - (.54f * slideOffset)
+                    bottomSheet.tabs.setTabTextColors(App.colorAlpha(Cyanea.instance.primary, alphaDeselected), App.colorAlpha(Cyanea.instance.primary, alphaSelected))
+                }
+
+            }
         }
 
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            //slideOffset 0.0 at bottom, 1.0 at top
-            (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.alpha = slideOffset
-            (bottomSheet.toolbar as ViewGroup).getChildAt(0).apply {
-                this.rotation = 180*slideOffset
-                val tabIndicatorColor: Int = Utilities.colorFromAlpha(Cyanea.instance.accent, Cyanea.instance.primary, 1-slideOffset)
-                bottomSheet.tabs.setSelectedTabIndicatorColor(tabIndicatorColor)
-                val alphaSelected: Float = 1f-(1f*slideOffset)
-                val alphaDeselected: Float = .54f-(.54f*slideOffset)
-                bottomSheet.tabs.setTabTextColors(App.colorAlpha(Cyanea.instance.primary, alphaDeselected), App.colorAlpha(Cyanea.instance.primary, alphaSelected))
+        @JvmStatic
+        val collapsedSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
             }
 
-        }
-    }
-
-    @JvmStatic
-    val collapsedSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback(){
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-        }
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
         }
     }
 }

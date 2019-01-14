@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 
@@ -56,7 +58,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 
-public class MainActivity extends CyaneaAppCompatActivity {
+public class MainActivity extends CyaneaAppCompatActivity implements ColorPickerDialogListener {
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -90,8 +92,13 @@ public class MainActivity extends CyaneaAppCompatActivity {
         loadSettings();
 
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Drawable navIcon = toolbar.getNavigationIcon().mutate();
+        navIcon.setColorFilter(App.Companion.colorAlpha(Cyanea.getInstance().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
+        toolbar.setNavigationIcon(navIcon);
+
         pagerInitialize();
         getWindow().setStatusBarColor(0x33333333);
 
@@ -116,7 +123,8 @@ public class MainActivity extends CyaneaAppCompatActivity {
 
                 Filters.homeViewAdd(); //add current filter to back stack
 
-                EventBus.getDefault().post(new UpdateEvent(true, true));
+                Log.d("eventBusTrace", "onResume/appstart");
+                EventBus.getDefault().post(new UpdateEvent(false, true));
 
             });
 
@@ -202,7 +210,7 @@ public class MainActivity extends CyaneaAppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        BottomSheetBehavior<ConstraintLayout> drawer = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_layout));
+        BottomSheetBehavior<FrameLayout> drawer = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_container));
         if (drawer.getState()==BottomSheetBehavior.STATE_EXPANDED) {
             drawer.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else if (TaskView.Companion.getPageState() != 0) {
@@ -374,29 +382,17 @@ public class MainActivity extends CyaneaAppCompatActivity {
 
     static boolean expanded = false;
 
-    public static RecyclerView.Adapter<RecyclerView.ViewHolder> projectAdapter;
     public void setupProjectSelector() {
 
-        ConstraintLayout bottomSheet = findViewById(R.id.bottom_sheet_layout);
-        Drawer.INSTANCE.setupMenu(this, this, bottomSheet);
-        RecyclerView projectSwitcher = findViewById(R.id.project_switcher_recycler);
-        projectSwitcher.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        projectSwitcher.setAdapter(Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), bottomSheet, this));
-        ConstraintLayout recyclerFrame = findViewById(R.id.project_switcher_frame);
-        recyclerFrame.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
+        FrameLayout bottomSheet = findViewById(R.id.bottom_sheet_container);
 
         TextView toolbarSubtitle = findViewById(R.id.toolbar_project_name);
         toolbarSubtitle.setText(Current.project().getName());
 
-
         Drawer.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.getNormalSheetCallback());
 
-
         Toolbar toolbar = findViewById(R.id.toolbar);
-        Drawable navIcon = toolbar.getNavigationIcon().mutate();
-        navIcon.setColorFilter(App.Companion.colorAlpha(Cyanea.getInstance().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
-        toolbar.setNavigationIcon(navIcon);
         toolbar.setNavigationOnClickListener(v -> {
             expanded = !expanded;
             Log.d("expanded", Boolean.toString(expanded));
@@ -473,6 +469,19 @@ public class MainActivity extends CyaneaAppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMigrateEvent(MigrateEvent event) {
         MigrationHelper.migrate_1_2_with_context(this, projectsDatabase, event.taskList);
+    }
+
+    @Override
+    public void onColorSelected(int dialogId, int color) {
+        switch (dialogId) {
+            case Drawer.DIALOG_ID: {
+                Drawer.setSelectedColor(color);
+            }
+        }
+    }
+
+    @Override
+    public void onDialogDismissed(int dialogId) {
     }
 
 
