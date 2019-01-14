@@ -52,11 +52,11 @@ public class Filters {
             subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
         }
 
-        if (getCurrentFilter().size() > 0) {
-            MainActivity.subTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
+/*        if (getCurrentFilter().size() > 0) {
+            MainActivity.toolbarTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
         } else {
-            MainActivity.subTitle.setText(R.string.app_name);
-        }
+            MainActivity.toolbarTitle.setText(R.string.app_name);
+        }*/
         InboxFragment.Companion.setPathText(subtitle);
     }
 
@@ -81,11 +81,11 @@ public class Filters {
             subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
         }
 
-        if (getCurrentFilter().size() > 0) {
-            MainActivity.subTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
+/*        if (getCurrentFilter().size() > 0) {
+            MainActivity.toolbarTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
         } else {
-            MainActivity.subTitle.setText(R.string.app_name);
-        }
+            MainActivity.toolbarTitle.setText(R.string.app_name);
+        }*/
         InboxFragment.Companion.setPathText(subtitle);
     }
 
@@ -110,11 +110,11 @@ public class Filters {
             subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
         }
 
-        if (getCurrentFilter().size() > 0) {
-            MainActivity.subTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
+/*        if (getCurrentFilter().size() > 0) {
+            MainActivity.toolbarTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
         } else {
-            MainActivity.subTitle.setText(R.string.app_name);
-        }
+            MainActivity.toolbarTitle.setText(R.string.app_name);
+        }*/
         InboxFragment.Companion.setPathText(subtitle);
     }
 

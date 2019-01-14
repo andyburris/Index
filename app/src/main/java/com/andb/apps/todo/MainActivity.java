@@ -1,7 +1,6 @@
 package com.andb.apps.todo;
 
 
-import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
 import android.app.SearchManager;
 import android.content.Context;
@@ -14,14 +13,10 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -41,7 +36,6 @@ import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
@@ -52,11 +46,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -72,7 +63,7 @@ public class MainActivity extends CyaneaAppCompatActivity {
      */
     public static InboxRVViewPager mViewPager;
 
-    public static TextView subTitle;
+
 
     public static boolean fabOpen; //for InboxFragment to tell if fabs are visible
 
@@ -102,7 +93,6 @@ public class MainActivity extends CyaneaAppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         pagerInitialize();
-        subTitle = findViewById(R.id.toolbar_text);
         getWindow().setStatusBarColor(0x33333333);
 
         fabInitialize();
@@ -386,40 +376,7 @@ public class MainActivity extends CyaneaAppCompatActivity {
 
     public static RecyclerView.Adapter<RecyclerView.ViewHolder> projectAdapter;
     public void setupProjectSelector() {
-/*        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        LinearLayout headerView = (LinearLayout) navigationView.getHeaderView(0);
-        ImageView collapseButton = headerView.findViewById(R.id.projectCollapse);
-        RecyclerView projectRecycler = headerView.findViewById(R.id.projectRV);
-        TextView projectName = headerView.findViewById(R.id.projectNameNav);
 
-        setName(projectName);
-
-
-        projectRecycler.setLayoutManager(new LinearLayoutManager(this));
-        projectAdapter = Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), headerView, this, drawer);
-        projectRecycler.setAdapter(projectAdapter);
-        Log.d("projectrv", "setupProjectSelector: size = " + Current.allProjects().size());
-
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) projectRecycler.getLayoutParams();
-        layoutParams.height = 0;
-        projectRecycler.setLayoutParams(layoutParams);
-
-        collapseButton.setOnClickListener(v -> {
-            expanded = !expanded;
-
-            TransitionManager.beginDelayedTransition(headerView, new ChangeBounds());
-            if (expanded) {
-                collapseButton.animate().rotation(180);
-                layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                projectRecycler.setLayoutParams(layoutParams);
-            } else {
-                collapseButton.animate().rotation(0);
-                layoutParams.height = 0;
-                projectRecycler.setLayoutParams(layoutParams);
-            }
-
-        });*/
         ConstraintLayout bottomSheet = findViewById(R.id.bottom_sheet_layout);
         Drawer.INSTANCE.setupMenu(this, this, bottomSheet);
         RecyclerView projectSwitcher = findViewById(R.id.project_switcher_recycler);
@@ -427,6 +384,10 @@ public class MainActivity extends CyaneaAppCompatActivity {
         projectSwitcher.setAdapter(Drawer.INSTANCE.drawerRecycler(getLayoutInflater(), bottomSheet, this));
         ConstraintLayout recyclerFrame = findViewById(R.id.project_switcher_frame);
         recyclerFrame.setBackgroundColor(Cyanea.getInstance().getBackgroundColor());
+
+        TextView toolbarSubtitle = findViewById(R.id.toolbar_project_name);
+        toolbarSubtitle.setText(Current.project().getName());
+
 
         Drawer.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.getNormalSheetCallback());

@@ -93,10 +93,15 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
          */
 
 
+        @JvmStatic
         var coloredToolbar: Boolean = false
+        @JvmStatic
         var folderMode: Boolean = false
+        @JvmStatic
         var subFilter: Boolean = false
+        @JvmStatic
         var subtaskDefaultShow = true
+        @JvmStatic
         var defaultSort: Int = 0
 
         @JvmStatic

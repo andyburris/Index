@@ -16,4 +16,5 @@ public class ExampleUnitTest {
     public void addition_isCorrect() {
         assertEquals(0xEEEEEE, Utilities.lighterDarker(0xEAEAEA, 1.2f));
     }
+
 }
