@@ -1,6 +1,7 @@
 package com.andb.apps.todo.views
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Paint
 import android.os.AsyncTask
 import android.os.Bundle
@@ -11,16 +12,19 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import androidx.annotation.IntegerRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.*
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
+import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_list_item.view.*
+import java.lang.StringBuilder
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -44,6 +48,7 @@ class TaskListItem : ConstraintLayout {
         topLayout.setTitle(task.listName)
         topLayout.setOverflow(this)
         //updateOverflow(topLayout)
+        //extraTagsLine.setColors(Color.RED, Color.GREEN, Color.BLUE)
         inboxCard.setOnClickListener {
             val bundle = Bundle()
             bundle.putInt("pos", pos)
@@ -79,26 +84,51 @@ class TaskListItem : ConstraintLayout {
     }
 
     fun updateOverflow(topLayout: ItemViewTitleTags) {
-        moreTags.apply {
+/*        moreTags.apply {
             if (topLayout.chipsVisible >= task.listTagsSize) {
-/*                layoutParams.apply {
+                layoutParams.apply {
                     height = 0
                     width = 0
-                }*/
+                }
                 visibility = View.GONE
                 Log.d("updateOverflow", "Task: ${task.listName}, Overflow Visible: ${when (moreTags.visibility) {View.GONE -> "GONE" else -> "VISIBLE" }}")
-                /*Visible chips: ${topLayout.chipsVisible}, List Size: ${task.listTagsSize},*/
+                Visible chips: ${topLayout.chipsVisible}, List Size: ${task.listTagsSize},
             } else {
-/*                layoutParams.apply {
+                layoutParams.apply {
                     height = ViewGroup.LayoutParams.WRAP_CONTENT
                     width = ViewGroup.LayoutParams.WRAP_CONTENT
-                }*/
+                }*//*
                 visibility = View.VISIBLE
                 Log.d("updateOverflow", "Task: ${task.listName}, Overflow Visible: ${when (moreTags.visibility) {View.GONE -> "GONE" else -> "VISIBLE" }}")
 
             }
-        }
+        }*/
 
+        if (Current.taskList().contains(task)) {//safeguard against update after list has switched but task reference is kept
+            if (topLayout.chipsVisible < task.listTagsSize) {
+                val colors = ArrayList<Int>()
+                for (i in topLayout.chipsVisible until topLayout.chipsVisible + 3) {
+                    val reversedPos = task.listTags.size - (i + 1)//to show most nested tags first
+                    //if(task.listTags.size>reversedPos) {
+                    if (reversedPos > -1) {
+                        val tagPos = task.listTags[reversedPos]
+                        colors.add(Current.tagList()[tagPos].tagColor)
+                    }
+                }
+                val colorString = StringBuilder()
+                for (c in colors) {
+                    colorString.append("#")
+                    colorString.append(Integer.toHexString(c))
+                    colorString.append(", ")
+                }
+                Log.d("extraLines", "Task: ${task.listName}, Extra colors: $colorString")
+                extraTagsLine.setColors(*colors.toIntArray())
+            } else {
+                extraTagsLine.setColors()
+            }
+
+
+        }
     }
 
 

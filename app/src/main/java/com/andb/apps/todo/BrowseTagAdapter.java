@@ -153,13 +153,8 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
                         Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(0).size())
                                 + ", "
                                 + Filters.backTagFilters.size());
-                        int tagClicked;
-                        if (Filters.backTagFilters.size() > 1) {
-                            tagClicked = FilteredLists.filteredTagLinks.get(position);
+                        int tagClicked = FilteredLists.filteredTagLinks.get(position);
 
-                        } else {
-                            tagClicked = position;
-                        }
 
                         Filters.tagForward(tagClicked);
                         Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(0).size()) + ", " + Filters.backTagFilters.size());

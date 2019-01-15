@@ -20,6 +20,7 @@ import com.andb.apps.todo.databases.GetDatabase;
 import com.andb.apps.todo.databases.ProjectsDatabase;
 import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.lists.ProjectList;
+import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.jaredrummler.cyanea.Cyanea;
@@ -208,14 +209,16 @@ public class NotificationHandler extends Service {
 
         AsyncTask.execute(() -> {
             ProjectList.INSTANCE.setProjectList(new ArrayList<>(projectsDatabase.projectsDao().getAll()));
-            for (Tasks tasks : ProjectsUtils.projectFromKey(projectKey).getTaskList()) {
+            Project project = ProjectsUtils.projectFromKey(projectKey);
+            for (Tasks tasks : project.getTaskList()) {
                 if (tasks.getListKey() == key) {
-                    ProjectList.INSTANCE.getProjectList().get(projectKey).getTaskList().remove(tasks);
+                    project.getArchiveList().add(tasks);
+                    project.getTaskList().remove(tasks);
                     break;
                 }
             }
 
-            projectsDatabase.projectsDao().updateProject(ProjectList.INSTANCE.getProjectList().get(projectKey));
+            projectsDatabase.projectsDao().updateProject(project);
             if (checkActive(ctxt)) {
                 EventBus.getDefault().post(new UpdateEvent(true));
             }

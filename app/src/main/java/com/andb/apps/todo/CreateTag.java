@@ -177,10 +177,9 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
 
         if (TextUtils.isEmpty(tagNameEdit.getText())) {
             Snackbar.make(tagNameEdit.getRootView().getRootView(), "Please fill in the tag name", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
-        } else if (nameTaken) {
+        } else if (nameTaken&&!editing) {
             Snackbar.make(tagNameEdit.getRootView().getRootView(), "A tag with this name already exists, please choose another one", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
         } else {
-
             if (editing) {
                 Current.tagList().set(tagPosition, new Tags(tagName, tagColor, subFolder));
                 TagSelect.mAdapter.notifyItemChanged(tagPosition);

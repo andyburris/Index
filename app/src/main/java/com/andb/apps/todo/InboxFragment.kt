@@ -7,8 +7,6 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.util.Log
@@ -88,8 +86,8 @@ class InboxFragment : CyaneaFragment() {
             val intrinsicHeight = deleteIcon.intrinsicHeight
             val background = GradientDrawable()
             val newDx = dX * 6 / 10
-            val alpha: Float = if(newDx>swipeThreshold) 1f else newDx/swipeThreshold
-            val backgroundColor = Color.argb((alpha*255).toInt(), 27, 125, 27)
+            val alpha: Float = if (newDx > swipeThreshold) 1f else newDx / swipeThreshold
+            val backgroundColor = Color.argb((alpha * 255).toInt(), 27, 125, 27)
 
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -121,9 +119,9 @@ class InboxFragment : CyaneaFragment() {
 
             if (newDx >= swipeThreshold && !vibedOnSwipe) {
                 Vibes.vibrate()
-                vibedOnSwipe=true
+                vibedOnSwipe = true
             }
-            if(newDx <= swipeThreshold && vibedOnSwipe){
+            if (newDx <= swipeThreshold && vibedOnSwipe) {
                 vibedOnSwipe = false
             }
 
@@ -139,7 +137,7 @@ class InboxFragment : CyaneaFragment() {
         }
 
         override fun isItemViewSwipeEnabled(): Boolean {
-            return mAdapter.selected==-1
+            return mAdapter.selected == -1
         }
 
         //defines the enabled move directions in each state (idle, swiping, dragging).
@@ -331,6 +329,7 @@ class InboxFragment : CyaneaFragment() {
         if (above) {
             val dividerPosition = position - 1
             FilteredLists.inboxTaskList.removeAt(dividerPosition)
+            dividersForTaskCount--
             mAdapter.notifyItemRemoved(dividerPosition)
         }
 
@@ -356,7 +355,7 @@ class InboxFragment : CyaneaFragment() {
 
 
         private var filterMode = 0 //0=date, 1=alphabetical, more to come
-
+        public var dividersForTaskCount = 0;
 
         lateinit var mRecyclerView: InboxRecyclerView
         lateinit var mAdapter: TaskAdapter
@@ -395,7 +394,10 @@ class InboxFragment : CyaneaFragment() {
                     }
                     i++
                 }
+
             }
+
+            dividersForTaskCount = 0
 
             tempList = ArrayList(FilteredLists.inboxTaskList)
 
@@ -425,7 +427,7 @@ class InboxFragment : CyaneaFragment() {
                             val tasks = Tasks("OVERDUE", ArrayList(), ArrayList(), ArrayList(), DateTime(1970, 1, 1, 0, 0), false)
 
                             FilteredLists.inboxTaskList.add(i, tasks)
-
+                            dividersForTaskCount++
 
                             overdue = false
                         }
@@ -436,7 +438,7 @@ class InboxFragment : CyaneaFragment() {
                             val tasks = Tasks("TODAY", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now()), false)//drop one category to show at top
 
                             FilteredLists.inboxTaskList.add(i, tasks)
-
+                            dividersForTaskCount++
 
                             today = false
                         }
@@ -446,7 +448,7 @@ class InboxFragment : CyaneaFragment() {
                             val tasks = Tasks("WEEK", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now().withTime(23, 59, 59, 999)), false)
 
                             FilteredLists.inboxTaskList.add(i, tasks)
-
+                            dividersForTaskCount++
 
                             thisWeek = false
                         }
@@ -456,7 +458,7 @@ class InboxFragment : CyaneaFragment() {
                             val tasks = Tasks("MONTH", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(23, 59, 59, 999)), false)
 
                             FilteredLists.inboxTaskList.add(i, tasks)
-
+                            dividersForTaskCount++
                             thisMonth = false
                         }
 
@@ -466,7 +468,7 @@ class InboxFragment : CyaneaFragment() {
                             val tasks = Tasks("FUTURE", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999)), false)
 
                             FilteredLists.inboxTaskList.add(i, tasks)
-
+                            dividersForTaskCount++
 
                             future = false
                         }
@@ -505,7 +507,9 @@ class InboxFragment : CyaneaFragment() {
             mRecyclerView.scheduleLayoutAnimation()
         }
 
-        fun setTaskCountText(numTasks: Int) {
+        fun setTaskCountText(numTaskWithDivider: Int) {
+            val numTasks = numTaskWithDivider - dividersForTaskCount
+
             var toApply: String = if (numTasks != 1) {
                 " TASKS"
             } else {

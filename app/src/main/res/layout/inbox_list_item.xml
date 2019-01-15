@@ -29,6 +29,7 @@
         android:id="@+id/topLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
         app:layout_constraintEnd_toStartOf="@+id/moreTags"
         app:layout_constraintStart_toEndOf="@+id/sublistIcon"
         app:layout_constraintTop_toTopOf="parent" />
@@ -41,10 +42,21 @@
         android:alpha=".54"
         android:paddingRight="16dp"
         android:src="@drawable/ic_more_horiz_black_24dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/topLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/topLayout" />
+
+    <com.andb.apps.todo.views.SectionedLine
+        android:id="@+id/extraTagsLine"
+        android:layout_width="3dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/list_divider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 
     <androidx.appcompat.widget.AppCompatCheckBox

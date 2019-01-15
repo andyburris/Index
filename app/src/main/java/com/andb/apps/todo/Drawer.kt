@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
@@ -161,6 +162,7 @@ class Drawer : Fragment(){
                         project_frame.setOnClickListener {
                             addAlertDialog(context, this)
                         }
+                        project_circle.setColorFilter(Color.DKGRAY)
                         project_add_divider.visibility = View.VISIBLE
                     }
                 }

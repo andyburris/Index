@@ -35,11 +35,20 @@ class ItemViewTitleTags : ConstraintLayout {
         view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
 
             //hide and show to prevent overflow taking up space that would have been enough to fit last chip
-            checkOverflow(view.moreTags.width)
+            //checkOverflow(view.moreTags.width)
             Log.d("updateOverflow", "updating ${view.task.listName}")
-            view.updateOverflow(this)
             checkOverflow()
+            view.updateOverflow(this)
 
+
+        }
+
+        view.viewTreeObserver.addOnGlobalLayoutListener {
+            //hide and show to prevent overflow taking up space that would have been enough to fit last chip
+            //checkOverflow(view.moreTags.width)
+            Log.d("updateOverflow", "updating ${view.task.listName}")
+            checkOverflow()
+            view.updateOverflow(this)
         }
 
     }
@@ -80,7 +89,8 @@ class ItemViewTitleTags : ConstraintLayout {
             for (i in tagsList.indices) {
 
                 if (i < task.allListTags.size) {
-                    val tagtemp = Current.tagList()[task.getListTags(i)]
+                    val reversedPos = task.listTags.size-(i+1)//to show most nested tags first TODO: Most nested first as option
+                    val tagtemp = Current.tagList()[task.listTags[reversedPos]]
                     val chiptemp = tagsList[i]
 
                     chiptemp.text = tagtemp.tagName

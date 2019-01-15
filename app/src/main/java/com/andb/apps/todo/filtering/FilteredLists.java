@@ -37,10 +37,9 @@ public class FilteredLists {
                 tagParent.setChildren(new ArrayList<>());
             }
             filteredTagLinks.addAll(filterChildren(Current.tagList(), tagParent, Filters.getCurrentFilter()));
-        }else {
+        } else {
             filteredTagLinks.addAll(filterChildren(Current.tagList(), null, Filters.getCurrentFilter()));
         }
-
 
 
         inboxTaskList.addAll(filterInbox(Current.taskList(), Filters.getCurrentFilter()));
@@ -65,11 +64,8 @@ public class FilteredLists {
         }
         //}
 
-        if (Filters.getCurrentFilter().size() != 0) {
-            InboxFragment.Companion.setTaskCountText(inboxTaskList.size());
-        } else {
-            InboxFragment.Companion.setTaskCountText(Current.project().getTaskList().size());
-        }
+
+        InboxFragment.Companion.setTaskCountText(inboxTaskList.size());
 
 
     }
@@ -78,7 +74,7 @@ public class FilteredLists {
 
         ArrayList<Integer> filteredList = new ArrayList<>();
 
-        if(parent!=null) {
+        if (parent != null) {
             for (int tag : parent.getChildren()) { //check all the tags
 
                 if (!previousFilters.contains(tag)) {//check if tag is part of filters
@@ -89,9 +85,9 @@ public class FilteredLists {
                 }
 
             }
-        }else {
+        } else {
             int i = 0;
-            for(Tags t : tags) {
+            for (Tags t : tags) {
                 if (!t.isSubFolder()) {//show all but subfolders in /All
                     filteredList.add(i);
                 }
