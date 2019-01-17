@@ -12,7 +12,7 @@
     android:visibility="visible">
 
 
-    <com.andb.apps.todo.views.Icon
+    <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/sublistIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
         app:layout_constraintStart_toEndOf="@+id/sublistIcon"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.andb.apps.todo.views.Icon
+    <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/moreTags"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item2" />
 
-    <com.andb.apps.todo.views.Icon
+    <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/moreTasks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

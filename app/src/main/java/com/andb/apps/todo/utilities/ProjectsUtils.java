@@ -45,7 +45,9 @@ public class ProjectsUtils{
     public static int keyGenerator(){
         int key = random.nextInt();
         ArrayList<Integer> keys = new ArrayList<>();
-        keys.addAll(Current.keyList());
+        if(!Current.allProjects().isEmpty()) {
+            keys.addAll(Current.keyList());
+        }
         for (Project project : Current.allProjects()){
             keys.add(project.getKey());
         }

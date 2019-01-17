@@ -13,13 +13,14 @@ import java.util.*
 @Entity
 open class Project {
 
-    constructor(key: Int, name: String, taskList: ArrayList<Tasks>, archiveList: ArrayList<Tasks>, tagList: ArrayList<Tags>, color: Int) {
+    constructor(key: Int, name: String, taskList: ArrayList<Tasks>, archiveList: ArrayList<Tasks>, tagList: ArrayList<Tags>, color: Int, index: Int) {
         this.key = key
         this.name = name
         this.taskList = taskList
         this.archiveList = archiveList
         this.tagList = tagList
         this.color = color
+        this.index = index
         for (t: Tasks in taskList) {
             this.keyList.add(t.listKey)
         }
@@ -49,6 +50,9 @@ open class Project {
 
     @ColumnInfo(name = "project_color")
     var color: Int = 0x00000000//black
+
+    @ColumnInfo(name = "project_index")
+    var index: Int = -1
 
 
 }

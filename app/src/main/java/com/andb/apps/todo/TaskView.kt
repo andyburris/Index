@@ -3,6 +3,7 @@ package com.andb.apps.todo
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.os.Bundle
@@ -21,7 +22,6 @@ import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
 import com.github.rongi.klaster.Klaster
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.cyanea.Cyanea
@@ -36,7 +36,6 @@ import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 class TaskView : CyaneaFragment() {
 
 
-    lateinit var task: Tasks
 
     private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
 
@@ -101,7 +100,10 @@ class TaskView : CyaneaFragment() {
 
     fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton) {
         oldNavIcon = toolbar.navigationIcon!!.mutate()
-        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp)
+
+        val newIcon = resources.getDrawable(R.drawable.ic_clear_black_24dp)
+        newIcon.setColorFilter(Utilities.textFromBackground(cyanea.primary), PorterDuff.Mode.SRC_ATOP)
+        toolbar.navigationIcon = newIcon
 
         TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
 
@@ -173,6 +175,8 @@ class TaskView : CyaneaFragment() {
         var pageState = 0
         internal var position: Int = 0
         internal var inboxBrowseArchive: Int = 0 //0 is inbox, 1 is browse, 2 is archive
+        lateinit var task: Tasks
+
 
         fun editFromToolbar(ctxt: Context) {//TODO: reset vars and don't return if collpased
             when (inboxBrowseArchive) {
@@ -196,9 +200,26 @@ class TaskView : CyaneaFragment() {
             }
         }
 
-        fun taskDone(ctxt: Context) {
+        fun taskDone() {
+            Current.archiveTaskList().add(task)
+            when (inboxBrowseArchive) {
+                TaskAdapter.FROM_BROWSE -> {
+                    Current.taskList().apply {
+                        removeAt(indexOf(task))
+                    }
+                }
+                TaskAdapter.FROM_ARCHIVE -> {
+                }
+                else //inbox
+                -> {
+                    InboxFragment.removeWithDivider(position)
+                }
+            }
+            InboxFragment.mRecyclerView.collapse()
+            BrowseFragment.mRecyclerView.collapse()
             //TODO: collapse, notify, archive
         }
+
     }
 
 

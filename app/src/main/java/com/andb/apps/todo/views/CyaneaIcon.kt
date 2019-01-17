@@ -8,12 +8,12 @@ import com.andb.apps.todo.R
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 
-class Icon(context: Context, attributeSet: AttributeSet) : AppCompatImageView(context, attributeSet){
+class CyaneaIcon(context: Context, attributeSet: AttributeSet) : AppCompatImageView(context, attributeSet){
 
     init {
         context.theme.obtainStyledAttributes(attributeSet, R.styleable.Icon, 0, 0).apply {
             try {
-                setCyaneaBackground(getInteger(R.styleable.Icon_cyaneaIconBackground, 0), this@Icon.alpha)
+                setCyaneaBackground(getInteger(R.styleable.Icon_cyaneaIconBackground, 0), this@CyaneaIcon.alpha)
             }finally {
                 recycle()
             }

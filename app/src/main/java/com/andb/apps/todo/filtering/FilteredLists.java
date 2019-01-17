@@ -55,8 +55,8 @@ public class FilteredLists {
 
         //if (viewing) {
         InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
-        //InboxFragment.Companion.refreshWithAnim();
-        InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
+        InboxFragment.Companion.refreshWithAnim();
+        //InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
 
         Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size() + ", InboxFragment.mAdapter.taskList: " + InboxFragment.Companion.getMAdapter().taskList.size());
         for (Tasks t : InboxFragment.Companion.getMAdapter().taskList) {

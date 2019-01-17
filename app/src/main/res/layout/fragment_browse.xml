@@ -49,7 +49,7 @@
                         android:layout_height="wrap_content"
                         android:background="?android:attr/selectableItemBackground">
 
-                        <com.andb.apps.todo.views.Icon
+                        <com.andb.apps.todo.views.CyaneaIcon
                             android:id="@+id/browseHeaderIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                             android:alpha=".54"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <com.andb.apps.todo.views.Icon
+                        <com.andb.apps.todo.views.CyaneaIcon
                             android:id="@+id/tagCollapseButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <com.andb.apps.todo.views.Icon
+                        <com.andb.apps.todo.views.CyaneaIcon
                             android:id="@+id/tagAddButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

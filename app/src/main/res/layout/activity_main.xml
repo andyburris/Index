@@ -39,4 +39,10 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <me.saket.inboxrecyclerview.page.ExpandablePageLayout
+        android:id="@+id/expandable_page_archive"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="72dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -290,7 +290,9 @@ class InboxFragment : CyaneaFragment() {
 
     }
 
-    private fun removeWithDivider(position: Int) {
+    companion object {
+
+    fun removeWithDivider(position: Int) {
 
         val dividerPosition = position - 1
         val belowDividerPosition = position + 1
@@ -351,7 +353,7 @@ class InboxFragment : CyaneaFragment() {
                 or (tasks.listName == "FUTURE"))
     }
 
-    companion object {
+
 
 
         private var filterMode = 0 //0=date, 1=alphabetical, more to come

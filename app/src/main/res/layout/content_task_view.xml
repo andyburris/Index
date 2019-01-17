@@ -116,7 +116,7 @@
                 tools:layout_conversion_absoluteHeight="19dp"
                 tools:layout_conversion_absoluteWidth="100dp" />
 
-            <com.andb.apps.todo.views.Icon
+            <com.andb.apps.todo.views.CyaneaIcon
                 android:id="@+id/taskViewTimeIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

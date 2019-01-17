@@ -5,14 +5,7 @@ apply plugin: 'kotlin-kapt'
 
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'todo'
-            keyPassword 'XMcmUsSAX9Z6hAG'
-            storeFile file('C:/Users/andb3003/andbappskeystore.jks')
-            storePassword '8P7gpUIcm26v'
-        }
-    }
+
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.andb.apps.todo"
@@ -32,7 +25,6 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix '.debug'

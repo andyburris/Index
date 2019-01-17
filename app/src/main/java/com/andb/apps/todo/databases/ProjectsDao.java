@@ -12,23 +12,6 @@ import androidx.room.Update;
 
 @Dao
 public interface ProjectsDao {
-/*    @Insert
-    void insertOnlySingleTask(Tasks tasks);
-
-    @Insert
-    void insertMultipleTasks(List<Tasks> taskList);
-
-    @Update
-    void updateTask(Tasks tasks);
-
-    @Delete
-    void deleteTask(Tasks tasks);
-
-    @Query("SELECT * FROM Tasks WHERE listKey = :listKey")
-    Tasks findTaskById(int listKey);
-
-    @Query("SELECT * FROM TASKS")
-    List<Tasks> getAll();*/
 
     @Insert
     void insertOnlySingleProject(Project project);

@@ -140,7 +140,7 @@
                         android:layout_margin="16dp"
                         android:layout_weight="0">
 
-                        <com.andb.apps.todo.views.Icon
+                        <com.andb.apps.todo.views.CyaneaIcon
                             android:id="@+id/tagAddButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -172,7 +172,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.andb.apps.todo.views.Icon
+            <com.andb.apps.todo.views.CyaneaIcon
                 android:id="@+id/resetTimeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -184,7 +184,7 @@
                 app:srcCompat="@drawable/ic_refresh_black_24dp"
                 custom:cyaneaIconBackground="background" />
 
-            <com.andb.apps.todo.views.Icon
+            <com.andb.apps.todo.views.CyaneaIcon
                 android:id="@+id/timeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -196,7 +196,7 @@
                 app:srcCompat="@drawable/ic_access_time_black_24dp"
                 custom:cyaneaIconBackground="background" />
 
-            <com.andb.apps.todo.views.Icon
+            <com.andb.apps.todo.views.CyaneaIcon
                 android:id="@+id/dateButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

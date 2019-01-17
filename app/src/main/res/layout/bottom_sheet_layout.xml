@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/tabs">
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/toolbar"
@@ -72,10 +72,11 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_marginTop="88dp"
         android:layout_marginBottom="8dp"
-        android:elevation="2dp"
         android:theme="@style/AppThemeTabLayout"
         app:layout_constraintBottom_toTopOf="@+id/archive_icon"
+        app:layout_constraintTop_toTopOf="parent"
         app:tabIndicatorColor="?colorAccent"
         app:tabSelectedTextColor="@color/tabSelectedTextColor"
         app:tabTextColor="@color/tabUnselectedTextColor">
@@ -128,7 +129,7 @@
 
     </FrameLayout>
 
-    <com.andb.apps.todo.views.Icon
+    <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/archive_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -151,7 +152,7 @@
         app:layout_constraintStart_toEndOf="@+id/archive_icon"
         app:layout_constraintTop_toTopOf="@+id/archive_icon" />
 
-    <com.andb.apps.todo.views.Icon
+    <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/import_export_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -184,7 +185,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.andb.apps.todo.views.Icon
+    <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/settings_icon"
         android:layout_width="wrap_content"
         android:layout_height="53dp"

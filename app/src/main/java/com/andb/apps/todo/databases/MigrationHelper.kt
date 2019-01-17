@@ -52,7 +52,7 @@ object MigrationHelper{
                 t.children = tagLink?.allTagLinks
             }
 
-            val project = Project(Random().nextInt(), "Tasks", taskList, archiveList, tagList, 0x000000)
+            val project = Project(Random().nextInt(), "Tasks", taskList, archiveList, tagList, 0x000000, 0)
 
             AsyncTask.execute {
                 db.projectsDao().insertOnlySingleProject(project)

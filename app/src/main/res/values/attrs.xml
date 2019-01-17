@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="Icon">
+    <declare-styleable name="CyaneaIcon">
         <attr name="cyaneaIconBackground" format="integer">
             <enum name="background" value="0"/>
             <enum name="primary" value="1"/>

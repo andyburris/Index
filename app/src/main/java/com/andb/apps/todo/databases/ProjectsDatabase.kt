@@ -9,7 +9,7 @@ import androidx.room.migration.Migration
 
 
 
-@Database(entities = arrayOf(Project::class), version = 3)
+@Database(entities = arrayOf(Project::class), version = 4)
 @GenerateRoomMigrations(MigrationRules::class)
 abstract class ProjectsDatabase : RoomDatabase() {
     abstract fun projectsDao(): ProjectsDao
@@ -18,5 +18,11 @@ abstract class ProjectsDatabase : RoomDatabase() {
 val MIGRATION_2_3: Migration = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("ALTER TABLE PROJECT " + " ADD COLUMN project_color INTEGER DEFAULT 0x000000 NOT NULL")
+    }
+}
+
+val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE PROJECT " + " ADD COLUMN project_index INTEGER DEFAULT -1 NOT NULL")
     }
 }

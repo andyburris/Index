@@ -72,7 +72,6 @@ public class ImportExport {
                         Type objectType = new TypeToken<Object>(){}.getType();
 
 
-                        //todo: export w/o taglinks, ignore linkjson if possible
 
                         ArrayList<String> importList;
                         importList = gson.fromJson(json, arrayListType);
@@ -118,7 +117,7 @@ public class ImportExport {
                         }
 
                         int projectKey = ProjectsUtils.keyGenerator();
-                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, 0x000000);
+                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, 0x000000, Current.allProjects().size());
                         Current.allProjects().add(newProject);
                         ProjectList.INSTANCE.setViewing(Current.allProjects().size()-1);
 
@@ -130,7 +129,7 @@ public class ImportExport {
                         AsyncTask.execute(new Runnable() {
                             @Override
                             public void run() {
-                                ProjectsUtils.update();
+                                MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(newProject);
                             }
                         });
 
@@ -165,8 +164,6 @@ public class ImportExport {
             }.getType();
             Type tagType = new TypeToken<ArrayList<Tags>>() {
             }.getType();
-            Type linkType = new TypeToken<ArrayList<TagLinks>>() {
-            }.getType();
             Type arrayListType = new TypeToken<ArrayList<String>>() {
             }.getType();
 
@@ -178,6 +175,7 @@ public class ImportExport {
 
             exportList.add(taskJson);
             exportList.add(tagJson);
+            exportList.add(Current.project().getName());
 
             String finalJson = gson.toJson(exportList, arrayListType);
 
@@ -186,7 +184,7 @@ public class ImportExport {
                 path.mkdirs();
             }
 
-            String filename = "Backup-" + DateTime.now().toString("yyyy-MM-dd-hh-mm");
+            String filename = Current.project().getName() + "-" + DateTime.now().toString("yyyy-MM-dd-hh-mm");
 
             Log.d("fileSave", filename);
 

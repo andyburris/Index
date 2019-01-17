@@ -43,7 +43,7 @@ class ItemViewTitleTags : ConstraintLayout {
 
         }
 
-        view.viewTreeObserver.addOnGlobalLayoutListener {
+        view.viewTreeObserver.addOnGlobalLayoutListener {//needed for return from different activity(i.e tagselect)
             //hide and show to prevent overflow taking up space that would have been enough to fit last chip
             //checkOverflow(view.moreTags.width)
             Log.d("updateOverflow", "updating ${view.task.listName}")

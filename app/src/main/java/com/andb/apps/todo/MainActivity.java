@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -38,6 +39,7 @@ import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
@@ -179,17 +181,6 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     }
 
 
-    public int getStatusBarHeight() {
-        int result = 0;
-
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
-    }
-
-
     public void settingsReturn() {
         fabInitialize();
 
@@ -210,9 +201,9 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
     @Override
     public void onBackPressed() {
-        BottomSheetBehavior<FrameLayout> drawer = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_container));
-        if (drawer.getState()==BottomSheetBehavior.STATE_EXPANDED) {
-            drawer.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        if (Drawer.bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED) {
+            Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else if (TaskView.Companion.getPageState() != 0) {
             InboxFragment.mRecyclerView.collapse();
             BrowseFragment.mRecyclerView.collapse();
@@ -366,9 +357,13 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, AddTask.class);
-            intent.putExtra("edit", false);
-            startActivity(intent);
+            if(TaskView.Companion.getPageState()==0) {
+                Intent intent = new Intent(MainActivity.this, AddTask.class);
+                intent.putExtra("edit", false);
+                startActivity(intent);
+            }else {
+                TaskView.Companion.taskDone();
+            }
         });
 
 
@@ -389,17 +384,22 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         TextView toolbarSubtitle = findViewById(R.id.toolbar_project_name);
         toolbarSubtitle.setText(Current.project().getName());
 
-        Drawer.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        Drawer.bottomSheetBehavior = (BottomSheetBehavior.from(bottomSheet));
         Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.getNormalSheetCallback());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> {
-            expanded = !expanded;
-            Log.d("expanded", Boolean.toString(expanded));
-            if(expanded){
-                Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            if(TaskView.Companion.getPageState()==0) {
+                expanded = !expanded;
+                Log.d("expanded", Boolean.toString(expanded));
+                if (expanded) {
+                    Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                } else {
+                    Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
             }else {
-                Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                InboxFragment.mRecyclerView.collapse();
+                BrowseFragment.mRecyclerView.collapse();
             }
         });
 
@@ -475,6 +475,10 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     public void onColorSelected(int dialogId, int color) {
         switch (dialogId) {
             case Drawer.DIALOG_ID: {
+                ColorPanelView colorPanelView = findViewById(R.id.projectColorPreview);
+                if(colorPanelView!=null){
+                    colorPanelView.setColor(color);
+                }
                 Drawer.setSelectedColor(color);
             }
         }

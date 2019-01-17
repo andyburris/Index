@@ -84,7 +84,7 @@ class AddTask : CyaneaAppCompatActivity() {
         } else {
             taskDateTime = DateTime(3000, 1, 1, 0, 0)
             if (!Filters.getCurrentFilter().isEmpty()) {
-                tagsList = Filters.getCurrentFilter()
+                tagsList = ArrayList(Filters.getCurrentFilter())
             }
 
         }

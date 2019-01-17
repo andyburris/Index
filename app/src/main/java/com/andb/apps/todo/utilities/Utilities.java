@@ -83,4 +83,10 @@ public class Utilities {
         final float scale = Resources.getSystem().getDisplayMetrics().density;
         return Math.round(dp*scale);
     }
+
+    public static float transposeRange(float oldMin, float oldMax, float newMin, float newMax, float oldValue){
+        float oldRange = (oldMax - oldMin);
+        float newRange = (newMax - newMin);
+        return (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+    }
 }
