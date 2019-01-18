@@ -3,6 +3,7 @@ package com.andb.apps.todo.lists
 import android.content.Context
 import android.os.AsyncTask
 import android.preference.PreferenceManager
+import com.andb.apps.todo.utilities.OnceHolder
 import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.objects.Project
 import java.util.ArrayList
@@ -15,6 +16,8 @@ object ProjectList {
     fun appStart(context: Context, db: ProjectsDatabase) {
         var viewing = PreferenceManager.getDefaultSharedPreferences(context).getInt("project_viewing", 0)
         projectList = ArrayList(db.projectsDao().all)
+        OnceHolder.checkAppSetup()
+
         if(viewing>= projectList.size){
             viewing = 0
         }
@@ -30,6 +33,5 @@ object ProjectList {
 
         }
         projectList.sortWith(Comparator { o1, o2 -> o1.index.compareTo(o2.index) })
-        //TODO: sharedprefs for current viewing project
     }
 }

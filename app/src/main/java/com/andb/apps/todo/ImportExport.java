@@ -24,6 +24,7 @@ import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.jaredrummler.cyanea.Cyanea;
 
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
@@ -117,7 +118,7 @@ public class ImportExport {
                         }
 
                         int projectKey = ProjectsUtils.keyGenerator();
-                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, 0x000000, Current.allProjects().size());
+                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, Cyanea.getInstance().getAccent(), Current.allProjects().size());
                         Current.allProjects().add(newProject);
                         ProjectList.INSTANCE.setViewing(Current.allProjects().size()-1);
 
@@ -126,12 +127,7 @@ public class ImportExport {
                         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
                         EventBus.getDefault().post(new UpdateEvent(false));
 
-                        AsyncTask.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(newProject);
-                            }
-                        });
+                        AsyncTask.execute(() -> MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(newProject));
 
                         Log.i("ImportedTaskList", Current.project().getTaskList().toString());
 

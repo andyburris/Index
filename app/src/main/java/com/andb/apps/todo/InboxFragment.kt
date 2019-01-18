@@ -163,7 +163,7 @@ class InboxFragment : CyaneaFragment() {
         taskCountText = view.findViewById(R.id.task_count_text)
         currentPathText = view.findViewById(R.id.task_path_text)
 
-        setPathText(Filters.subtitle)
+        Filters.setPath()
 
         try {
             setTaskCountText(Current.project().taskList.size)
@@ -366,6 +366,7 @@ class InboxFragment : CyaneaFragment() {
         private var currentPathText: TextView? = null
 
         private var noTasks: TextView? = null
+
 
         fun newInstance(): InboxFragment {
             return InboxFragment()

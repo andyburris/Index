@@ -11,9 +11,9 @@ import com.jaredrummler.cyanea.Cyanea
 class CyaneaIcon(context: Context, attributeSet: AttributeSet) : AppCompatImageView(context, attributeSet){
 
     init {
-        context.theme.obtainStyledAttributes(attributeSet, R.styleable.Icon, 0, 0).apply {
+        context.theme.obtainStyledAttributes(attributeSet, R.styleable.CyaneaIcon, 0, 0).apply {
             try {
-                setCyaneaBackground(getInteger(R.styleable.Icon_cyaneaIconBackground, 0), this@CyaneaIcon.alpha)
+                setCyaneaBackground(getInteger(R.styleable.CyaneaIcon_cyaneaIconBackground, 0), this@CyaneaIcon.alpha)
             }finally {
                 recycle()
             }

@@ -44,7 +44,8 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:layout_marginBottom="@dimen/rv_padding_for_bottom_bar"
-                android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim">
+                android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim"
+                android:windowSoftInputMode="adjustNothing">
 
 
             </me.saket.inboxrecyclerview.InboxRecyclerView>

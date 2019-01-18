@@ -11,20 +11,25 @@ import java.util.ArrayList;
 
 public class Filters {
 
-    public static String subtitle = "All";
 
     public static ArrayList<ArrayList<Integer>> backTagFilters = new ArrayList<>();
 
 
     public static ArrayList<Integer> getCurrentFilter() {
-        Log.d("backStack", "Size: " + Integer.toString(backTagFilters.get(backTagFilters.size() - 1).size()));
+        //Log.d("backStack", "Size: " + Integer.toString(backTagFilters.get(backTagFilters.size() - 1).size()));
 
         return backTagFilters.get(backTagFilters.size() - 1);
     }
 
 
     public static void homeViewAdd() {
+        homeViewAdd(true);
+    }
+    public static void homeViewAdd(boolean updatePath){
         backTagFilters.add(new ArrayList<Integer>());
+        if (updatePath) {
+            setPath();
+        }
     }
 
 
@@ -36,21 +41,14 @@ public class Filters {
 
         FilteredLists.createFilteredTaskList(getCurrentFilter(), true);
 
-        subtitle = "All";
+        setPath();
 
-
-        Log.d("subtitle", subtitle);
-
-        for (int i = 0; i < getCurrentFilter().size(); i++) {
-            subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
-        }
 
 /*        if (getCurrentFilter().size() > 0) {
             MainActivity.toolbarTitle.setText(Current.tagList().get(getMostRecent()).getTagName());
         } else {
             MainActivity.toolbarTitle.setText(R.string.app_name);
         }*/
-        InboxFragment.Companion.setPathText(subtitle);
     }
 
 
@@ -64,17 +62,7 @@ public class Filters {
         FilteredLists.createFilteredTaskList(getCurrentFilter(), true);//filters tasklist with new filter
         BrowseFragment.mAdapter.notifyDataSetChanged();//updates recyclerviews
 
-
-        subtitle = "All";
-
-        Log.d("subtitle", subtitle);
-
-
-        for (int i = 0; i < getCurrentFilter().size(); i++) {
-            subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
-        }
-
-        InboxFragment.Companion.setPathText(subtitle);
+        setPath();
     }
 
     public static void tagReset(int tag) {
@@ -89,16 +77,9 @@ public class Filters {
         FilteredLists.createFilteredTaskList(getCurrentFilter(), true);
         BrowseFragment.mAdapter.notifyDataSetChanged();
 
-        subtitle = "All";
+        setPath();
 
 
-        Log.d("subtitle", subtitle);
-
-        for (int i = 0; i < getCurrentFilter().size(); i++) {
-            subtitle += "/" + Current.tagList().get(getCurrentFilter().get(i)).getTagName();
-        }
-
-        InboxFragment.Companion.setPathText(subtitle);
     }
 
     public static int getMostRecent() {
@@ -107,5 +88,18 @@ public class Filters {
         } else {
             return -1;
         }
+    }
+
+    public static void setPath(){
+
+        StringBuilder subtitle = new StringBuilder("All");
+
+        if(backTagFilters.size()>0) {
+            for (int i = 0; i < getCurrentFilter().size(); i++) {
+                subtitle.append("/").append(Current.tagList().get(getCurrentFilter().get(i)).getTagName());
+            }
+        }
+
+        InboxFragment.Companion.setPathText(subtitle.toString());
     }
 }

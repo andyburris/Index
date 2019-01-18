@@ -133,7 +133,7 @@ class AddTask : CyaneaAppCompatActivity() {
         }
 
         if (editingTask.isListTags) {
-            tagsList = editingTask.listTags
+            tagsList = ArrayList(editingTask.listTags)
         }
 
 

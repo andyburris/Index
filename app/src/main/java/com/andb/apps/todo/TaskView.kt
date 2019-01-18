@@ -86,7 +86,7 @@ class TaskView : CyaneaFragment() {
             taskViewTimeText!!.text = task.dateTime.toString("EEEE, MMMM d")
             taskViewTimeIcon!!.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
         } else {
-            taskViewTimeText!!.text = task.dateTime.toString("hh:mm | EEEE, MMMM d")
+            taskViewTimeText!!.text = task.dateTime.toString("hh:mm a| EEEE, MMMM d")
         }
 
         prepareRecyclerViews(task)
@@ -178,7 +178,7 @@ class TaskView : CyaneaFragment() {
         lateinit var task: Tasks
 
 
-        fun editFromToolbar(ctxt: Context) {//TODO: reset vars and don't return if collpased
+        fun editFromToolbar(ctxt: Context) {
             when (inboxBrowseArchive) {
                 TaskAdapter.FROM_BROWSE -> {
                     val editTask = Intent(ctxt, AddTask::class.java)
@@ -217,7 +217,6 @@ class TaskView : CyaneaFragment() {
             }
             InboxFragment.mRecyclerView.collapse()
             BrowseFragment.mRecyclerView.collapse()
-            //TODO: collapse, notify, archive
         }
 
     }

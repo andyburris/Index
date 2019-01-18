@@ -122,8 +122,8 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
             AsyncTask.execute(() -> {
                 ProjectList.INSTANCE.appStart(this, projectsDatabase);
+                Filters.homeViewAdd(false); //add current filter to back stack
 
-                Filters.homeViewAdd(); //add current filter to back stack
 
                 Log.d("eventBusTrace", "onResume/appstart");
                 EventBus.getDefault().post(new UpdateEvent(false, true));

@@ -70,7 +70,7 @@ object SettingsLayout {
 
             addPreferenceItem(TimePreference(context).apply {
                 title = "Default Notification Time"
-                summary = SettingsActivity.timeToNotifyForDateOnly.toString("h:mm")
+                summary = SettingsActivity.timeToNotifyForDateOnly.toString("h:mm a")
                 iconRes = R.drawable.ic_access_time_black_24dp
             })
         }

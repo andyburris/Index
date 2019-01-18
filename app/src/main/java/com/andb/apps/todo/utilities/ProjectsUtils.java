@@ -6,6 +6,7 @@ import com.andb.apps.todo.MainActivity;
 import com.andb.apps.todo.databases.ProjectsDatabase;
 import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.objects.Project;
+import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
 
 import org.joda.time.DateTime;
@@ -39,6 +40,12 @@ public class ProjectsUtils{
             }
         }
         return null;
+    }
+
+    public static Project addProject(String name, int color){
+        Project project = new Project(keyGenerator(), name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), color, Current.allProjects().size());
+        ProjectList.INSTANCE.getProjectList().add(project);
+        return project;
     }
 
     private static Random random = new Random();

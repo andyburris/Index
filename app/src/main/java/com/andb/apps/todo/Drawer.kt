@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.UpdateEvent
+import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.settings.SettingsActivity
@@ -123,6 +124,8 @@ class Drawer : Fragment() {
                                 ProjectList.viewing = adapterPosition
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 view.toolbar_project_name.text = Current.project().name
+                                Filters.backTagFilters.clear()
+                                Filters.homeViewAdd()
                                 EventBus.getDefault().post(UpdateEvent(false))
                                 PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("project_viewing", Current.viewing()).apply()
                                 projectAdapter.notifyDataSetChanged()
@@ -190,10 +193,9 @@ class Drawer : Fragment() {
                 .setTitle(context.resources.getString(R.string.add_project))
                 .setView(addLayout)
                 .setPositiveButton("OK") { dialog, which ->
-                    val projectKey = if(!Current.allProjects().isEmpty()) ProjectsUtils.keyGenerator() else Random.nextInt()
-                    val project = Project(projectKey, addLayout.projectEditText.text.toString(), ArrayList(), ArrayList(), ArrayList(), selectedColor, Current.allProjects().size)
 
-                    ProjectList.projectList.add(project)
+
+                    val project = ProjectsUtils.addProject(addLayout.projectEditText.text.toString(), selectedColor)
                     ProjectList.viewing = ProjectList.projectList.indexOf(project)
                     projectAdapter.notifyDataSetChanged()
                     EventBus.getDefault().post(UpdateEvent(false))

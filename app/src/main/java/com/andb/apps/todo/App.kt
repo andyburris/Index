@@ -19,12 +19,14 @@ import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.inflator.CyaneaViewProcessor
 import com.jaredrummler.cyanea.inflator.decor.CyaneaDecorator
 import com.jaredrummler.cyanea.inflator.decor.FontDecorator
+import jonathanfinerty.once.Once
 
 class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provider {
     override fun onCreate() {
         super.onCreate()
         Cyanea.init(this, resources)
         Vibes.init(this)
+        Once.initialise(this)
     }
 
     override fun getViewProcessors(): Array<CyaneaViewProcessor<out View>> = arrayOf(
