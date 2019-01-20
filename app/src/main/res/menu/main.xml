@@ -18,6 +18,12 @@
             android:orderInCategory="100"
             android:title="@string/action_settings"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/action_test"
+            android:orderInCategory="99"
+            android:title="Test"
+            android:visible="@bool/DEBUG"
+            app:showAsAction="never" />
     </group>
     <group android:id="@+id/toolbar_task_view">
         <item

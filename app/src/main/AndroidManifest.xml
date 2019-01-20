@@ -54,6 +54,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Onboarding"
+            android:label="@string/title_activity_onboarding"
+            android:theme="@style/AppThemeGlobal"/>
 
 
         <activity android:name=".TestActivity"

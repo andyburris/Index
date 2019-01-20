@@ -1,1 +1,1 @@
-include ':app', ':inboxrecyclerview'
+include ':app', ':inboxrecyclerview', ':onboarder'

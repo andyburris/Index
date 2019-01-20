@@ -6,6 +6,8 @@
 
     <!-- Accent colors -->
     <color name="cyanea_accent_reference">#00897b</color>
+    <color name="cyanea_accent_dark">#00665c</color>
+    <color name="cyanea_accent_darker">#00443d</color>
     <!-- Primary colors -->
     <color name="cyanea_primary_reference">#f5f5f5</color>
     <!-- Background colors -->

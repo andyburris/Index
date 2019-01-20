@@ -1,10 +1,6 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <!-- <string name="app_name">ToDo</string> -->
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Jonathan Doe</string>
-    <string name="nav_header_subtitle">john.doe@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
     <string name="tab_1">Inbox</string>
     <string name="tab_2">Browse</string>
     <string name="action_settings">Settings</string>
@@ -82,17 +78,6 @@
     <!-- Example settings for Notifications -->
     <string name="pref_header_theme">Theme</string>
 
-    <string name="pref_title_dark_theme">Dark Theme</string>
-
-
-
-    <!-- Tab Example strings-->
-    <string name="title_activity_tab_example">TabExample</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
-    <string name="tab_text_3">Tab 3</string>
-    <string name="section_format">Hello World from section: %1$d</string>
-
 
     <!--Inbox/Browse Fragment tests-->
     <string name="inboxtest">Inbox</string>
@@ -106,6 +91,7 @@
     <string name="title_activity_search">Search</string>
     <string name="title_activity_archive">Archive</string>
     <string name="title_activity_reschedule">Reschedule</string>
+    <string name="title_activity_onboarding">Onboarding</string>
 
     <!--Color picker text-->
     <string name="color_default_summary">Pick a Color</string>
@@ -130,6 +116,14 @@
     <string name="import_export_menu">Import/Export</string>
     <string name="project_name_hint">Project Name</string>
     <string name="project_color_text">Project Color</string>
+
+    <!--Onboarding-->
+    <string name="onboarding_task_screen_title">Tasks</string>
+    <string name="onboarding_task_screen_description">Tasks are the basic building block of your todo list. They can have lists and timed notifications within them too! Swipe them away to mark them done and move them to the archive.</string>
+    <string name="onboarding_tag_screen_title">Tags</string>
+    <string name="onboarding_tag_screen_description">Tags are the way to sort your tasks. You can apply them to tasks, but you can also make them children of other tags, to make for folder-like navigation. More on that later.</string>
+    <string name="onboarding_project_screen_title">Projects</string>
+    <string name="onboarding_project_screen_description">Projects are the highest level of sorting in the app. Each has a separate set of tasks and tags. You could make one for simple reminders, and one for long-term projects, for example.</string>
 
 
 </resources>

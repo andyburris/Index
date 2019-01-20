@@ -25,10 +25,14 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "bool", "DEBUG", "false"
+
         }
         debug {
             applicationIdSuffix '.debug'
             resValue "string", "app_name", "ToDo Beta"
+            resValue "bool", "DEBUG", "true"
+
         }
     }
     packagingOptions {
@@ -75,8 +79,11 @@ dependencies {
     implementation 'com.github.Maxr1998:ModernAndroidPreferences:-SNAPSHOT' //preferences
     implementation 'com.github.rongi:klaster:0.3.4' //inline recyclerviews for simple implementations
     implementation 'com.afollestad:material-cab:1.3.1' //contextual action bar library
-    implementation 'com.jonathanfinerty.once:once:1.2.2'
+    implementation 'com.jonathanfinerty.once:once:1.2.2'//one-off operations
+    //implementation 'com.cuneytayyildiz:onboarder:1.0.3'//onboarding library
     implementation project(path: ':inboxrecyclerview')
+    implementation project(path: ':onboarder')
+
 
     api 'com.google.guava:guava:25.1-android'
     testImplementation 'junit:junit:4.12'

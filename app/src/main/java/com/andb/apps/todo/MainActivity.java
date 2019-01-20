@@ -282,6 +282,10 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
                 popupMenu.show();
 
                 break;
+            case R.id.action_test:
+                Intent intent = new Intent(this, Onboarding.class);
+                startActivity(intent);
+                return true;
 
                 /*TASKVIEW ITEMS*/
             case R.id.app_bar_edit:
