@@ -1,21 +1,10 @@
 package com.andb.apps.todo.settings
 
-import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
-import android.content.res.Resources
 import android.preference.PreferenceManager
-import android.util.AttributeSet
-import android.view.View
 import android.widget.EditText
-import android.widget.TimePicker
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.FragmentActivity
 import com.andb.apps.todo.R
 import com.andb.apps.todo.views.CyaneaDialog
-import com.jaredrummler.android.colorpicker.ColorPreference
-import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.*
 
 object SettingsLayout {
@@ -32,10 +21,10 @@ object SettingsLayout {
             pref("user_name") {
                 title = "Name"
                 val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-                summary =  prefs.getString("user_name", "John Doe")
+                summary = prefs.getString("user_name", "John Doe")
                 requestRebind()
                 clickView { _, holder ->
-                    var view = EditText(context)
+                    val view = EditText(context)
                     view.setText(getString("John Doe"))
                     CyaneaDialog.Builder(context)
                             .setView(view)
@@ -51,11 +40,11 @@ object SettingsLayout {
             categoryHeader("header_defaults") {
                 title = "Defaults"
             }
-            switch("expand_lists"){
+            switch("expand_lists") {
                 title = "Expand lists to start"
-                summary = "If off, icon will display to open"
+                summary = "If off, you can still expand by clicking the icon"
             }
-            switch("sort_mode_list"){
+            switch("sort_mode_list") {
                 title = "Default sort"
                 summary = "On: Date Sort, Off: Alphabetical Sort"
             }
@@ -79,12 +68,12 @@ object SettingsLayout {
             summary = "Change how the folder hierarchy behaves"
             iconRes = R.drawable.ic_folder_black_24dp
 
-            switch("folder_mode"){
+            switch("folder_mode") {
                 title = "Folder Mode"
                 summaryRes = R.string.pref_description_filter_folder
                 iconRes = R.drawable.ic_filter_list_black_24dp
             }
-            checkBox(context.resources.getString(R.string.pref_sub_folder_filter_key)){
+            checkBox(context.resources.getString(R.string.pref_sub_folder_filter_key)) {
                 titleRes = R.string.subfolder_filter_check_title
                 iconRes = R.drawable.ic_subfolder_black_24dp
             }

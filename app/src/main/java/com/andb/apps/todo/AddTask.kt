@@ -302,7 +302,7 @@ class AddTask : CyaneaAppCompatActivity() {
     }
 
 
-    fun fabAddList() {
+    private fun fabAddList() {
         fab.setOnClickListener {
             if (checkFull()) {
                 saveTask()
@@ -314,7 +314,7 @@ class AddTask : CyaneaAppCompatActivity() {
     }
 
 
-    fun saveTask() {
+    private fun saveTask() {
         val taskName = findViewById<View>(R.id.taskName) as EditText
         var items = ArrayList<String>()
         val checked = ArrayList<Boolean>()
@@ -328,21 +328,23 @@ class AddTask : CyaneaAppCompatActivity() {
 
 
         if (editing) {
+            val task = Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey, editingTask.projectId, false)
             Current.taskList().apply {
-                set(indexOf(editingTask), Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey, editingTask.projectId, false))
+                set(indexOf(editingTask), task)
             }
-            ProjectsUtils.update()
+            ProjectsUtils.update(task)
             EventBus.getDefault().post(UpdateEvent(true))
         } else {
-            Current.taskList().add(Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, false))
-            ProjectsUtils.update()
+            val task = Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, false)
+            Current.taskList().add(task)
+            MainActivity.projectsDatabase.tasksDao().insertOnlySingleTask(task)
             EventBus.getDefault().post(UpdateEvent(true))
         }
 
     }
 
 
-    fun checkFull(): Boolean {
+    private fun checkFull(): Boolean {
         Log.d("taskName", "gets here")
 
         var full = true
@@ -369,7 +371,7 @@ class AddTask : CyaneaAppCompatActivity() {
 
 
     // Extend the Callback class
-    internal var _ithCallback: ItemTouchHelper.Callback = object : ItemTouchHelper.Callback() {
+    private var _ithCallback: ItemTouchHelper.Callback = object : ItemTouchHelper.Callback() {
         //and in your implementation of
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
 
@@ -395,7 +397,7 @@ class AddTask : CyaneaAppCompatActivity() {
             }
             Log.d("dragDropStart", itemsList[fromPosition])
             Log.d("dragDropStart", itemsList[toPosition])
-            mAdapter!!.notifyItemMoved(fromPosition, toPosition)
+            mAdapter.notifyItemMoved(fromPosition, toPosition)
             Log.d("dragDropEnd", itemsList[fromPosition])
             Log.d("dragDropEnd", itemsList[toPosition])
 

@@ -11,33 +11,43 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.get
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
 import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.views.TaskListItem
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.content_task_view.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
+import kotlinx.android.synthetic.main.inbox_list_item.*
+import kotlinx.android.synthetic.main.inbox_list_item.view.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
+import java.lang.ClassCastException
+import java.lang.Exception
+import java.util.*
 
 class TaskView : CyaneaFragment() {
 
 
-
     private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
+    val mAdapter by lazy { subtaskAdapter() }
+    lateinit var expandedItem: TaskListItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,17 +59,29 @@ class TaskView : CyaneaFragment() {
         when (inboxBrowseArchive) {
             TaskAdapter.FROM_BROWSE -> {
                 task = FilteredLists.browseTaskList[position]
+                expandedItem = BrowseFragment.mRecyclerView[position] as TaskListItem
             }
             TaskAdapter.FROM_ARCHIVE -> task = Current.project().archiveList[position]
             else //inbox
             -> {
                 task = FilteredLists.inboxTaskList[position]
+                expandedItem = InboxFragment.mRecyclerView[position] as TaskListItem
             }
         }
 
 
     }
 
+
+    fun onItemsChanged(){
+        expandedItem.apply {
+            val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))
+            for ((i, c) in checkBoxes.withIndex()){
+                c.text = task.listItems[i]
+                c.isChecked = task.listItemsChecked[i]
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.activity_task_view, container!!.parent as ViewGroup, false)
@@ -107,7 +129,7 @@ class TaskView : CyaneaFragment() {
 
         TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
 
-        Drawer.bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136-48)
+        Drawer.bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136 - 48)
         Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.collapsedSheetCallback)
 
         fab.setImageDrawable(resources.getDrawable(R.drawable.ic_done_all_black_24dp).mutate())
@@ -124,8 +146,9 @@ class TaskView : CyaneaFragment() {
                 itemView.listTextView.isChecked = task.getListItemsChecked(pos)
                 itemView.listTextView.setOnCheckedChangeListener { _, isChecked ->
                     task.editListItemsChecked(isChecked, pos)
+                    onItemsChanged()
                     AsyncTask.execute {
-                        MainActivity.projectsDatabase.projectsDao().updateProject(Current.project())
+                        ProjectsUtils.update(task)
                     }
                 }
             }
@@ -148,8 +171,8 @@ class TaskView : CyaneaFragment() {
         mRecyclerView.layoutManager = LinearLayoutManager(context)
 
         // specify an adapter (see also next example)
-        val mAdapter = subtaskAdapter()
         mRecyclerView.adapter = mAdapter
+        ItemTouchHelper(_ithDragCallback).attachToRecyclerView(mRecyclerView)
 
 
         val tRecyclerView = taskViewTagRecycler
@@ -159,6 +182,45 @@ class TaskView : CyaneaFragment() {
         // specify an adapter (see also next example)
         val tAdapter = tagAdapter()
         tRecyclerView.adapter = tAdapter
+    }
+
+    private var _ithDragCallback = object : ItemTouchHelper.Callback() {
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            val fromPosition = viewHolder.adapterPosition
+            val toPosition = target.adapterPosition
+
+
+            if (fromPosition < toPosition) {
+                for (i in fromPosition until toPosition) {
+                    Collections.swap(task.listItems, i, i + 1)
+                    Collections.swap(task.listItemsChecked, i, i + 1)
+                }
+            } else {
+                for (i in fromPosition downTo toPosition + 1) {
+                    Collections.swap(task.listItems, i, i - 1)
+                    Collections.swap(task.listItemsChecked, i, i - 1)
+                }
+            }
+            mAdapter.notifyItemMoved(fromPosition, toPosition)
+            onItemsChanged()
+            ProjectsUtils.update(task)
+            return false
+
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        }
+        override fun isLongPressDragEnabled(): Boolean {
+            return true
+        }
+        override fun isItemViewSwipeEnabled(): Boolean {
+            return false
+        }
+        //defines the enabled move directions in each state (idle, swiping, dragging).
+        override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+            return ItemTouchHelper.Callback.makeFlag(ItemTouchHelper.ACTION_STATE_DRAG,
+                    ItemTouchHelper.DOWN or ItemTouchHelper.UP)
+        }
     }
 
 

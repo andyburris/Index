@@ -27,6 +27,7 @@ object ProjectsUtils {
         }
     }
 
+    @JvmOverloads
     @JvmStatic
     fun update(tag: Tags, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase){
         AsyncTask.execute {
@@ -34,6 +35,7 @@ object ProjectsUtils {
         }
     }
 
+    @JvmOverloads
     @JvmStatic
     fun update(task: Tasks, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase){
         AsyncTask.execute {

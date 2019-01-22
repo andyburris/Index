@@ -79,30 +79,13 @@ class TaskListItem : ConstraintLayout {
                     }
                 }
             }
+
+
         }
         setCyaneaBackground(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
     }
 
     fun updateOverflow(topLayout: ItemViewTitleTags) {
-/*        moreTags.apply {
-            if (topLayout.chipsVisible >= task.listTagsSize) {
-                layoutParams.apply {
-                    height = 0
-                    width = 0
-                }
-                visibility = View.GONE
-                Log.d("updateOverflow", "Task: ${task.listName}, Overflow Visible: ${when (moreTags.visibility) {View.GONE -> "GONE" else -> "VISIBLE" }}")
-                Visible chips: ${topLayout.chipsVisible}, List Size: ${task.listTagsSize},
-            } else {
-                layoutParams.apply {
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
-                    width = ViewGroup.LayoutParams.WRAP_CONTENT
-                }*//*
-                visibility = View.VISIBLE
-                Log.d("updateOverflow", "Task: ${task.listName}, Overflow Visible: ${when (moreTags.visibility) {View.GONE -> "GONE" else -> "VISIBLE" }}")
-
-            }
-        }*/
 
         if (Current.taskList().contains(task)) {//safeguard against update after list has switched but task reference is kept
             if (topLayout.chipsVisible < task.listTagsSize) {
@@ -268,6 +251,7 @@ class TaskListItem : ConstraintLayout {
     fun setCyaneaBackground(color: Int) {
         inboxCard.setBackgroundColor(color)
     }
+
 
 
 }
