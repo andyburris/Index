@@ -1,5 +1,6 @@
 package com.andb.apps.todo.databases;
 
+import com.andb.apps.todo.objects.BaseProject;
 import com.andb.apps.todo.objects.Project;
 
 import java.util.List;
@@ -14,22 +15,22 @@ import androidx.room.Update;
 public interface ProjectsDao {
 
     @Insert
-    void insertOnlySingleProject(Project project);
+    void insertOnlySingleProject(BaseProject project);
 
     @Insert
-    void insertMultipleProjects(List<Project> projectList);
+    void insertMultipleProjects(List<BaseProject> projectList);
 
     @Update
-    void updateProject(Project project);
+    void updateProject(BaseProject project);
 
     @Delete
-    void deleteProject(Project project);
+    void deleteProject(BaseProject project);
 
-    @Query("SELECT * FROM Project WHERE `key` = :key")
-    Project findProjectById(int key);
+    @Query("SELECT * FROM BaseProject WHERE `key` = :key")
+    BaseProject findProjectById(int key);
 
-    @Query("SELECT * FROM PROJECT")
-    List<Project> getAll();
+    @Query("SELECT * FROM BaseProject")
+    List<BaseProject> getAll();
 
 
 }

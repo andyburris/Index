@@ -18,11 +18,13 @@ import java.util.Random;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
-@Entity
-public class Tasks implements Serializable {
+@Entity(foreignKeys = @ForeignKey(entity =  BaseProject.class, parentColumns = "key", childColumns = "project_id", onDelete = ForeignKey.CASCADE))
+public class Tasks {
     @SerializedName("key")
     @Expose
     @PrimaryKey
@@ -61,9 +63,17 @@ public class Tasks implements Serializable {
     @ColumnInfo(name = "list_notified")
     private boolean notified;
 
-    public Tasks() {
-    }
+    @SerializedName("project_id")
+    @Expose
+    @ColumnInfo(name = "project_id")
+    private int projectId;
 
+    @SerializedName("archived")
+    @Expose
+    @ColumnInfo(name = "archived")
+    private boolean archived;
+
+    @Ignore
     public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified) {
         this.listName = listName;
         this.listItems = listItems;
@@ -74,7 +84,8 @@ public class Tasks implements Serializable {
         this.listKey = ProjectsUtils.keyGenerator();
     }
 
-    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int listKey) {
+    @Ignore
+    public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified, int listKey, int projectId, boolean archived) {
         this.listName = listName;
         this.listItems = listItems;
         this.listItemsChecked = listItemsChecked;
@@ -82,6 +93,20 @@ public class Tasks implements Serializable {
         this.listDue = time.getMillis();
         this.notified = notified;
         this.listKey = listKey;
+        this.projectId = projectId;
+        this.archived = archived;
+    }
+
+    public Tasks(int listKey, String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, long listDue, boolean notified, int projectId, boolean archived) {
+        this.listKey = listKey;
+        this.listName = listName;
+        this.listItems = listItems;
+        this.listItemsChecked = listItemsChecked;
+        this.listTags = listTags;
+        this.listDue = listDue;
+        this.notified = notified;
+        this.projectId = projectId;
+        this.archived = archived;
     }
 
 
@@ -271,5 +296,21 @@ public class Tasks implements Serializable {
             builder.append("- Tag " + i + "\n");
         }
         return builder.toString();
+    }
+
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 }

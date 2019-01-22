@@ -39,7 +39,7 @@ public class NotifyWorker extends Worker {
 
 
         NotificationHandler.initializeDatabase(getApplicationContext());
-        ProjectList.INSTANCE.setProjectList(new ArrayList<>(NotificationHandler.projectsDatabase.projectsDao().getAll()));
+        ProjectsUtils.setupProjectList(NotificationHandler.projectsDatabase);
 
 
         if (NotificationUtils.isNextNotification()) {

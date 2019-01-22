@@ -6,13 +6,16 @@ import com.andb.apps.todo.objects.Project
 import dev.matrix.roomigrant.GenerateRoomMigrations
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.migration.Migration
+import com.andb.apps.todo.objects.BaseProject
+import com.andb.apps.todo.objects.Tags
+import com.andb.apps.todo.objects.Tasks
 
-
-
-@Database(entities = arrayOf(Project::class), version = 4)
+@Database(entities = arrayOf(BaseProject::class, Tasks::class, Tags::class), version = 5)
 @GenerateRoomMigrations(MigrationRules::class)
 abstract class ProjectsDatabase : RoomDatabase() {
     abstract fun projectsDao(): ProjectsDao
+    abstract fun tasksDao(): TasksDao
+    abstract fun tagsDao(): TagsDao
 }
 
 val MIGRATION_2_3: Migration = object : Migration(2, 3) {

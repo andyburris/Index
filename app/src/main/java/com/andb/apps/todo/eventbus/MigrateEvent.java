@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 public class MigrateEvent {
-    public SupportSQLiteDatabase projectsDatabase;
-    public ArrayList<Tasks> taskList;
+    public int startVersion;
+    public int endVersion;
 
-    public MigrateEvent(SupportSQLiteDatabase db, ArrayList<Tasks> taskList) {
-        this.projectsDatabase = db;
-        this.taskList = taskList;
+    public MigrateEvent(int startVersion, int endVersion) {
+        this.startVersion = startVersion;
+        this.endVersion = endVersion;
     }
 }

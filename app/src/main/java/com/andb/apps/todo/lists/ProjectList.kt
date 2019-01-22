@@ -6,6 +6,8 @@ import android.preference.PreferenceManager
 import com.andb.apps.todo.utilities.OnceHolder
 import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.objects.Project
+import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.utilities.ProjectsUtils
 import java.util.ArrayList
 import kotlin.Comparator
 
@@ -15,7 +17,9 @@ object ProjectList {
 
     fun appStart(context: Context, db: ProjectsDatabase) {
         var viewing = PreferenceManager.getDefaultSharedPreferences(context).getInt("project_viewing", 0)
-        projectList = ArrayList(db.projectsDao().all)
+
+        ProjectsUtils.setupProjectList(db)
+
         OnceHolder.checkAppSetup()
 
         if(viewing>= projectList.size){

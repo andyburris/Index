@@ -5,9 +5,9 @@ import android.os.AsyncTask
 import android.preference.PreferenceManager
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.lists.ProjectList
+import com.andb.apps.todo.objects.BaseProject
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
@@ -20,47 +20,81 @@ import org.greenrobot.eventbus.EventBus
 import java.util.*
 import kotlin.collections.ArrayList
 
-object MigrationHelper{
+object MigrationHelper {
 
-    val oldList: ArrayList<Tasks> = ArrayList()
+    val oldList_1_2: ArrayList<Tasks> = ArrayList()
+    val oldList_4_5 = ArrayList<Project>()
 
 
     @JvmStatic
-        fun migrate_1_2_with_context(ctxt: Context, db: ProjectsDatabase, taskList: ArrayList<Tasks>) {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(ctxt)
+    fun migrate_1_2_with_context(ctxt: Context, db: ProjectsDatabase) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(ctxt)
 
-            val gson = Gson()
-            val taskjson = prefs.getString("archiveTaskList", null)
-            val tagjson = prefs.getString("tagList", null)
-            val linkjson = prefs.getString("linkList", null)
-            val taskType = object : TypeToken<ArrayList<Tasks>>() {
+        val gson = Gson()
+        val taskjson = prefs.getString("archiveTaskList", null)
+        val tagjson = prefs.getString("tagList", null)
+        val linkjson = prefs.getString("linkList", null)
+        val taskType = object : TypeToken<ArrayList<Tasks>>(){}.type
+        val tagType = object : TypeToken<ArrayList<Tags>>(){}.type
+        val linkType = object : TypeToken<ArrayList<TagLinks>>(){}.type
 
-            }.type
-            val tagType = object : TypeToken<ArrayList<Tags>>() {
+        val archiveList = gson.fromJson<ArrayList<Tasks>>(taskjson, taskType)
+        val tagList = gson.fromJson<ArrayList<Tags>>(tagjson, tagType)
+        val tagLinks = gson.fromJson<ArrayList<TagLinks>>(linkjson, linkType)
 
-            }.type
-            val linkType = object : TypeToken<ArrayList<TagLinks>>() {
+        for ((index: Int, t: Tags) in tagList.withIndex()) {//convert taglinks to inside of tag
+            val tagLink: TagLinks? = tagLinks.find { it.tagParent() == index }
+            t.children = tagLink?.allTagLinks
+        }
 
-            }.type
+        val project = Project(Random().nextInt(), "Tasks", oldList_1_2, archiveList, tagList, 0x000000, 0)
 
-            val archiveList = gson.fromJson<ArrayList<Tasks>>(taskjson, taskType)
-            val tagList = gson.fromJson<ArrayList<Tags>>(tagjson, tagType)
-            val tagLinks = gson.fromJson<ArrayList<TagLinks>>(linkjson, linkType)
+        AsyncTask.execute {
+            db.projectsDao().insertOnlySingleProject(project)
+            //ProjectList.projectList = ArrayList(db.projectsDao().all) TODO: Migrate to
 
-            for ((index: Int, t: Tags) in tagList.withIndex()){//convert taglinks to inside of tag
-                val tagLink: TagLinks? = tagLinks.find { it.tagParent()==index }
-                t.children = tagLink?.allTagLinks
-            }
+            EventBus.getDefault().post(UpdateEvent(true))
+        }
+    }
 
-            val project = Project(Random().nextInt(), "Tasks", taskList, archiveList, tagList, 0x000000, 0)
+    @JvmStatic
+    fun migrate_4_5_with_context(ctxt: Context, db: ProjectsDatabase){
+        val newTaskList = ArrayList<Tasks>()
+        val newTagList = ArrayList<Tags>()
+        val projectList = ArrayList<BaseProject>()
 
-            AsyncTask.execute {
-                db.projectsDao().insertOnlySingleProject(project)
-                ProjectList.projectList = ArrayList(db.projectsDao().all)
-
-                EventBus.getDefault().post(UpdateEvent(true))
+        for(p in oldList_4_5){
+            p.apply {
+                projectList.add(this as BaseProject)
+                for((i, t) in tagList.withIndex()){
+                    t.projectId = key
+                    t.index = i
+                    newTagList.add(t)
+                }
+                for(t in taskList){
+                    t.isArchived = false
+                    t.projectId = key
+                    newTaskList.add(t)
+                }
+                for(t in archiveList){
+                    t.isArchived = true
+                    t.projectId = key
+                    newTaskList.add(t)
+                }
             }
         }
+
+        AsyncTask.execute {
+            db.projectsDao().insertMultipleProjects(projectList)
+            db.tasksDao().insertMultipleTasks(newTaskList)
+            db.tagsDao().insertMultipleTags(newTagList)
+
+            ProjectList.appStart(ctxt, db)
+        }
+
+
+
+    }
 
 }
 

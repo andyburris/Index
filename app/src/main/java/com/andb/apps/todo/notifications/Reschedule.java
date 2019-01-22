@@ -9,10 +9,8 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 import com.andb.apps.todo.eventbus.UpdateEvent;
-import com.andb.apps.todo.lists.ProjectList;
-import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.utilities.ProjectsUtils;
+import com.andb.apps.todo.utilities.Current;
 
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
@@ -58,26 +56,19 @@ public class Reschedule extends AppCompatActivity {
                         AsyncTask.execute(new Runnable() {
                             @Override
                             public void run() {
-                                ProjectList.INSTANCE.setProjectList(new ArrayList<>(projectsDatabase.projectsDao().getAll()));
-                                Project project = ProjectsUtils.projectFromKey(projectKey);
-                                Tasks tasks = null;
-                                for (Tasks t : project.getTaskList()) {
-                                    if (t.getListKey() == key) {
-                                        tasks = t;
-                                    }
-                                }
-                                if (tasks != null) {
-                                    tasks.setDateTime(finalDateTime);
-                                    tasks.setNotified(false);
-                                    project.getTaskList().set(project.getTaskList().indexOf(tasks), tasks);
-                                    projectsDatabase.projectsDao().updateProject(project);
-                                    if (NotificationHandler.checkActive(Reschedule.this)) {
-                                        ProjectList.INSTANCE.setProjectList(new ArrayList<>(projectsDatabase.projectsDao().getAll()));
-                                        EventBus.getDefault().post(new UpdateEvent(true));
-                                    }
+                                Tasks tasks = projectsDatabase.tasksDao().findTasksById(key);
+                                tasks.setDateTime(finalDateTime);
+                                tasks.setNotified(false);
+                                projectsDatabase.tasksDao().updateTask(tasks);
+
+                                if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == projectKey) {
+                                    Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(projectKey)));
+                                    EventBus.getDefault().post(new UpdateEvent(true));
                                 }
                                 finish();
                             }
+
+
                         });
                     }
                 }, DateTime.now().getHourOfDay(), DateTime.now().getMinuteOfHour(), false);

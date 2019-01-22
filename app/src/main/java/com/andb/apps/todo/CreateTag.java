@@ -181,11 +181,11 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
             Snackbar.make(tagNameEdit.getRootView().getRootView(), "A tag with this name already exists, please choose another one", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
         } else {
             if (editing) {
-                Current.tagList().set(tagPosition, new Tags(tagName, tagColor, subFolder));
+                Current.tagList().set(tagPosition, new Tags(tagName, tagColor, subFolder, tagPosition));
                 TagSelect.mAdapter.notifyItemChanged(tagPosition);
                 ProjectsUtils.update();
             } else {
-                Current.tagList().add(new Tags(tagName, tagColor, subFolder));
+                Current.tagList().add(new Tags(tagName, tagColor, subFolder, Current.tagList().size()));
                 TagSelect.mAdapter.notifyDataSetChanged();
                 ProjectsUtils.update();
             }

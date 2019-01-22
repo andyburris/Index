@@ -329,7 +329,7 @@ class AddTask : CyaneaAppCompatActivity() {
 
         if (editing) {
             Current.taskList().apply {
-                set(indexOf(editingTask), Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey))
+                set(indexOf(editingTask), Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, notified, editingTask.listKey, editingTask.projectId, false))
             }
             ProjectsUtils.update()
             EventBus.getDefault().post(UpdateEvent(true))

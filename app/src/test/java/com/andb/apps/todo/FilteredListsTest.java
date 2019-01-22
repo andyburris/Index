@@ -53,37 +53,37 @@ public class FilteredListsTest {
     }
 
     private void setupTagLists() {
-        Tags groceries = new Tags("groceries", randomColor(), true);
+        Tags groceries = new Tags("groceries", randomColor(), true, 0);
         groceries.setChildren(new ArrayList<>(Arrays.asList(1, 2)));
 
-        Tags produce = new Tags("produce", randomColor(), false);
+        Tags produce = new Tags("produce", randomColor(), false, 1);
         produce.setChildren(new ArrayList<>(Arrays.asList(7, 8)));
 
-        Tags meats = new Tags("meats", randomColor(), true);
+        Tags meats = new Tags("meats", randomColor(), true, 2);
 
-        Tags reminders = new Tags("reminders", randomColor(), false);
+        Tags reminders = new Tags("reminders", randomColor(), false, 3);
 
-        Tags computer = new Tags("computer", randomColor(), false);
+        Tags computer = new Tags("computer", randomColor(), false, 4);
         computer.setChildren(new ArrayList<>(Arrays.asList(7)));
 
-        Tags lists = new Tags("lists", randomColor(), false);
+        Tags lists = new Tags("lists", randomColor(), false, 5);
         lists.setChildren(new ArrayList<>(Arrays.asList(0)));
 
-        Tags arduino = new Tags("arduino", randomColor(), true);
+        Tags arduino = new Tags("arduino", randomColor(), true, 6);
 
-        Tags fruits = new Tags("fruits", randomColor(), true);
+        Tags fruits = new Tags("fruits", randomColor(), true, 7);
 
-        Tags vegetables = new Tags("vegetables", randomColor(), true);
+        Tags vegetables = new Tags("vegetables", randomColor(), true, 8);
 
         initialTagList.addAll(Arrays.asList(groceries, produce, meats, reminders, computer, lists, arduino, fruits, vegetables));
 
     }
 
     private void setupTaskList() {
-        Tasks serial = new Tasks("serial", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(4, 7)), DateTime.now(), false, 1);
-        Tasks salmon = new Tasks("salmon", new ArrayList<String>(Arrays.asList("1 lb", "boneless")), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 2)), DateTime.now(), false, 2);
-        Tasks cauliflower = new Tasks("cauliflower", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 1, 8)), DateTime.now(), false, 3);
-        Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), DateTime.now(), false, 4);
+        Tasks serial = new Tasks("serial", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(4, 7)), DateTime.now(), false, 1, -1, false);
+        Tasks salmon = new Tasks("salmon", new ArrayList<String>(Arrays.asList("1 lb", "boneless")), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 2)), DateTime.now(), false, 2, -1, false);
+        Tasks cauliflower = new Tasks("cauliflower", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 1, 8)), DateTime.now(), false, 3, -1, false);
+        Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), DateTime.now(), false, 4, -1, false);
 
         initialTaskList.addAll(Arrays.asList(serial, salmon, cauliflower, parts));
         expectedBrowseList.addAll(Arrays.asList(salmon));
