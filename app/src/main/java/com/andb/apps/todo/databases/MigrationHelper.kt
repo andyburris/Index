@@ -51,7 +51,7 @@ object MigrationHelper {
 
         AsyncTask.execute {
             db.projectsDao().insertOnlySingleProject(project)
-            //ProjectList.projectList = ArrayList(db.projectsDao().all) TODO: Migrate to
+            //ProjectList.projectList = ArrayList(db.projectsDao().all) TODO: Migrate to v5
 
             EventBus.getDefault().post(UpdateEvent(true))
         }
@@ -90,6 +90,8 @@ object MigrationHelper {
             db.tagsDao().insertMultipleTags(newTagList)
 
             ProjectList.appStart(ctxt, db)
+
+            EventBus.getDefault().post(UpdateEvent())
         }
 
 

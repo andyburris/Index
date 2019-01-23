@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 public class FilteredListsTest {
@@ -53,27 +54,27 @@ public class FilteredListsTest {
     }
 
     private void setupTagLists() {
-        Tags groceries = new Tags("groceries", randomColor(), true, 0);
+        Tags groceries = new Tags(0, "groceries", randomColor(), true, new ArrayList<>(), 0, 0);
         groceries.setChildren(new ArrayList<>(Arrays.asList(1, 2)));
 
-        Tags produce = new Tags("produce", randomColor(), false, 1);
+        Tags produce = new Tags(1, "produce", randomColor(), false, new ArrayList<>(), 0, 1);
         produce.setChildren(new ArrayList<>(Arrays.asList(7, 8)));
 
-        Tags meats = new Tags("meats", randomColor(), true, 2);
+        Tags meats = new Tags(2, "meats", randomColor(), true, new ArrayList<>(), 0, 2);
 
-        Tags reminders = new Tags("reminders", randomColor(), false, 3);
+        Tags reminders = new Tags(3, "reminders", randomColor(), false, new ArrayList<>(), 0, 3);
 
-        Tags computer = new Tags("computer", randomColor(), false, 4);
-        computer.setChildren(new ArrayList<>(Arrays.asList(7)));
+        Tags computer = new Tags(4, "computer", randomColor(), false, new ArrayList<>(), 0, 4);
+        computer.setChildren(new ArrayList<>(Collections.singletonList(7)));
 
-        Tags lists = new Tags("lists", randomColor(), false, 5);
-        lists.setChildren(new ArrayList<>(Arrays.asList(0)));
+        Tags lists = new Tags(5, "lists", randomColor(), false, new ArrayList<>(), 0, 5);
+        lists.setChildren(new ArrayList<>(Collections.singletonList(0)));
 
-        Tags arduino = new Tags("arduino", randomColor(), true, 6);
+        Tags arduino = new Tags(6, "arduino", randomColor(), true, new ArrayList<>(), 0, 6);
 
-        Tags fruits = new Tags("fruits", randomColor(), true, 7);
+        Tags fruits = new Tags(7, "fruits", randomColor(), true, new ArrayList<>(), 0, 7);
 
-        Tags vegetables = new Tags("vegetables", randomColor(), true, 8);
+        Tags vegetables = new Tags(8, "vegetables", randomColor(), true, new ArrayList<>(), 0, 8);
 
         initialTagList.addAll(Arrays.asList(groceries, produce, meats, reminders, computer, lists, arduino, fruits, vegetables));
 
@@ -86,7 +87,7 @@ public class FilteredListsTest {
         Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), DateTime.now(), false, 4, -1, false);
 
         initialTaskList.addAll(Arrays.asList(serial, salmon, cauliflower, parts));
-        expectedBrowseList.addAll(Arrays.asList(salmon));
+        expectedBrowseList.addAll(Collections.singletonList(salmon));
         expectedInboxList.addAll(Arrays.asList(salmon, cauliflower));
     }
 

@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.lists.ProjectList
-import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
@@ -42,7 +41,6 @@ import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
 import kotlinx.android.synthetic.main.project_create_edit_layout.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
 import org.greenrobot.eventbus.EventBus
-import kotlin.random.Random
 
 class Drawer : Fragment() {
 
@@ -56,6 +54,7 @@ class Drawer : Fragment() {
         }
         view.project_switcher_frame.setBackgroundColor(Cyanea.instance.backgroundColor)
 
+        addEditLayout = inflater.inflate(R.layout.project_create_edit_layout, view as ViewGroup, false)
 
         return view
     }
@@ -136,7 +135,7 @@ class Drawer : Fragment() {
                                     setOnMenuItemClickListener { menuItem ->
                                         when (menuItem.itemId) {
                                             R.id.editProject -> {
-                                                editAlertDialog(context, view, adapterPosition).show()
+                                                editAlertDialog(context, adapterPosition).show()
                                             }
                                             R.id.deleteProject -> {
                                                 deleteAlertDialog(context, view, adapterPosition).show()
@@ -173,9 +172,8 @@ class Drawer : Fragment() {
 
     fun addAlertDialog(context: Context, view: View): android.app.AlertDialog.Builder {
 
-        val inflater = LayoutInflater.from(context)
-        val addLayout: View = inflater.inflate(R.layout.project_create_edit_layout, view as ViewGroup, false)
-        addLayout.apply {
+
+        addEditLayout.apply {
             projectColorPreview.color = selectedColor
             //TODO: Set color to preview on select
             projectColorPreview.setOnClickListener {
@@ -191,34 +189,28 @@ class Drawer : Fragment() {
 
         val dialog = CyaneaDialog.Builder(context)
                 .setTitle(context.resources.getString(R.string.add_project))
-                .setView(addLayout)
+                .setView(addEditLayout)
                 .setPositiveButton("OK") { dialog, which ->
 
 
-                    val project = ProjectsUtils.addProject(addLayout.projectEditText.text.toString(), selectedColor)
+                    val project = ProjectsUtils.addProject(addEditLayout.projectEditText.text.toString(), selectedColor)
                     ProjectList.viewing = ProjectList.projectList.indexOf(project)
                     projectAdapter.notifyDataSetChanged()
                     EventBus.getDefault().post(UpdateEvent(false))
 
                     AsyncTask.execute {
                         MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(project)
-/*                        ProjectList.projectList = ArrayList(MainActivity.projectsDatabase.projectsDao().all)
-                        for ((i, p) in ProjectList.projectList.withIndex()){
-                            Log.d("addProject", "Index: $i, Project: ${p.name}")
-                        }*/
                     }
                 }
         return dialog
     }
 
 
-    fun editAlertDialog(context: Context, view: View, position: Int): android.app.AlertDialog.Builder {
+    fun editAlertDialog(context: Context, position: Int): android.app.AlertDialog.Builder {
 
-        val inflater = LayoutInflater.from(context)
-        val editLayout: View = inflater.inflate(R.layout.project_create_edit_layout, view as ViewGroup, false)
 
         selectedColor = Current.allProjects()[position].color
-        editLayout.apply {
+        addEditLayout.apply {
             projectEditText.setText(Current.allProjects()[position].name)
             projectColorPreview.color = selectedColor
             projectColorPreview.setOnClickListener {
@@ -233,10 +225,10 @@ class Drawer : Fragment() {
 
         val dialog = CyaneaDialog.Builder(context)
                 .setTitle(context.resources.getString(R.string.edit_project))
-                .setView(editLayout)
+                .setView(addEditLayout)
                 .setPositiveButton("OK") { dialog, which ->
                     ProjectList.projectList[position].apply {
-                        name = editLayout.projectEditText.text.toString()
+                        name = addEditLayout.projectEditText.text.toString()
                         color = selectedColor
                     }
                     projectAdapter.notifyDataSetChanged()
@@ -287,6 +279,8 @@ class Drawer : Fragment() {
         const val DIALOG_ID = 1
         @JvmStatic
         var selectedColor: Int = Cyanea.instance.accent
+
+        lateinit var addEditLayout: View
 
         lateinit var projectAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
 

@@ -406,7 +406,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
     public void setName(TextView navName) {
 
-        if (Current.allProjects().size() > 0) {
+        if (Current.hasProjects()) {
             navName.setText(Current.project().getName());
         }
     }
@@ -457,6 +457,12 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
         NotificationHandler.resetNotifications(this);
+        Drawer.projectAdapter.notifyDataSetChanged();
+
+        if(Current.hasProjects()) {
+            TextView project_name = findViewById(R.id.toolbar_project_name);
+            project_name.setText(Current.project().getName());
+        }
 
         if (event.setupProject) {
             setupProjectSelector();
@@ -477,7 +483,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     public void onColorSelected(int dialogId, int color) {
         switch (dialogId) {
             case Drawer.DIALOG_ID: {
-                ColorPanelView colorPanelView = findViewById(R.id.projectColorPreview);
+                ColorPanelView colorPanelView = Drawer.addEditLayout.findViewById(R.id.projectColorPreview);
                 if (colorPanelView != null) {
                     colorPanelView.setColor(color);
                 }

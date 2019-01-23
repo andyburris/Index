@@ -3,7 +3,6 @@ package com.andb.apps.todo;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -20,7 +19,6 @@ import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.andb.apps.todo.views.CyaneaDialog;
-import com.google.common.collect.Collections2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -38,10 +36,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
-
-import kotlin.collections.CollectionsKt;
 
 public class ImportExport {
 
@@ -65,13 +60,18 @@ public class ImportExport {
                         Log.i("loadedJson", json);
                         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-                        Type arrayListType = new TypeToken<ArrayList<String>>() {}.getType();
-                        Type taskType = new TypeToken<ArrayList<Tasks>>() {}.getType();
-                        Type tagType = new TypeToken<ArrayList<Tags>>() {}.getType();
-                        Type stringType = new TypeToken<String>(){}.getType();
-                        Type linkType = new TypeToken<ArrayList<TagLinks>>() {}.getType();
-                        Type objectType = new TypeToken<Object>(){}.getType();
-
+                        Type arrayListType = new TypeToken<ArrayList<String>>() {
+                        }.getType();
+                        Type taskType = new TypeToken<ArrayList<Tasks>>() {
+                        }.getType();
+                        Type tagType = new TypeToken<ArrayList<Tags>>() {
+                        }.getType();
+                        Type stringType = new TypeToken<String>() {
+                        }.getType();
+                        Type linkType = new TypeToken<ArrayList<TagLinks>>() {
+                        }.getType();
+                        Type objectType = new TypeToken<Object>() {
+                        }.getType();
 
 
                         ArrayList<String> importList;
@@ -83,7 +83,6 @@ public class ImportExport {
 
 
                         Log.i("ImportedTaskList", taskJson);
-
 
 
                         ArrayList<Tasks> taskList = gson.fromJson(taskJson, taskType);
@@ -102,32 +101,37 @@ public class ImportExport {
 
                         String projectName = "Tasks";
 
-                        if(gson.fromJson(nameJson, objectType) instanceof ArrayList){//old taglinks
+                        if (gson.fromJson(nameJson, objectType) instanceof ArrayList) {//old taglinks
                             ArrayList<TagLinks> linkList = gson.fromJson(nameJson, linkType);
 
-                            for(int j = 0; j<tagList.size(); j++){
+                            for (int j = 0; j < tagList.size(); j++) {
                                 Tags tags = tagList.get(j);
-                                for (TagLinks tagLinks : linkList){
-                                    if(tagLinks.tagParent()==j){
+                                for (TagLinks tagLinks : linkList) {
+                                    if (tagLinks.tagParent() == j) {
                                         tags.setChildren(tagLinks.getAllTagLinks());
                                     }
                                 }
                             }
-                        }else{//name
+                        } else {//name
                             projectName = gson.fromJson(nameJson, stringType);
                         }
 
                         int projectKey = ProjectsUtils.keyGenerator();
                         Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, Cyanea.getInstance().getAccent(), Current.allProjects().size());
                         Current.allProjects().add(newProject);
-                        ProjectList.INSTANCE.setViewing(Current.allProjects().size()-1);
-
+                        ProjectList.INSTANCE.setViewing(Current.allProjects().size() - 1);
 
 
                         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
                         EventBus.getDefault().post(new UpdateEvent(false));
 
-                        AsyncTask.execute(() -> MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(newProject));
+
+                        AsyncTask.execute(() -> {
+                                    MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(newProject);
+                                    MainActivity.projectsDatabase.tasksDao().insertMultipleTasks(taskList);
+                                    MainActivity.projectsDatabase.tagsDao().insertMultipleTags(tagList);
+                                }
+                        );
 
                         Log.i("ImportedTaskList", Current.project().getTaskList().toString());
 

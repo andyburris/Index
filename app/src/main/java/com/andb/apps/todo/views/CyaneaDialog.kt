@@ -15,25 +15,24 @@ class CyaneaDialog(context: Context) : AlertDialog(context) {
         override fun create(): AlertDialog {
             val dialog: AlertDialog = super.create()
             dialog.setOnShowListener {
-                dialog.getButton(DialogInterface.BUTTON_NEGATIVE).apply {
-                    setBackgroundColor(Cyanea.instance.backgroundColor)
-                    setTextColor(Cyanea.instance.accent)
-                    setTypeface(typeface, Typeface.BOLD)
-                }
-                dialog.getButton(DialogInterface.BUTTON_NEUTRAL).apply {
-                    setBackgroundColor(Cyanea.instance.backgroundColor)
-                    setTextColor(Cyanea.instance.accent)
-                    setTypeface(typeface, Typeface.BOLD)
-                }
-                dialog.getButton(DialogInterface.BUTTON_POSITIVE).apply {
-                    setBackgroundColor(Cyanea.instance.backgroundColor)
-                    setTextColor(Cyanea.instance.accent)
-                    setTypeface(typeface, Typeface.BOLD)
-                }
+                setButtonStyle(dialog, DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_NEUTRAL, DialogInterface.BUTTON_POSITIVE)
             }
             return dialog
         }
 
+    }
 
+    companion object {
+        fun setButtonStyle(alertDialog: AlertDialog, vararg which: Int){
+            alertDialog.apply {
+                for (b in which){
+                    getButton(b).apply {
+                        setBackgroundColor(Cyanea.instance.backgroundColor)
+                        setTextColor(Cyanea.instance.accent)
+                        setTypeface(typeface, Typeface.BOLD)
+                    }
+                }
+            }
+        }
     }
 }

@@ -78,12 +78,16 @@
     <string name="project_color_text">Project Color</string>
 
     <!--Onboarding-->
+    <string name="onboarding_intro_screen_title">Hi</string>
+    <string name="onboarding_intro_screen_description">Welcome to your new todo list. This tutorial will show you the basics of getting organized with ToDo. If you already know your way around, you can skip it.</string>
     <string name="onboarding_task_screen_title">Tasks</string>
-    <string name="onboarding_task_screen_description">Tasks are the basic building block of your todo list. They can have lists and timed notifications within them too! Swipe them away to mark them done and move them to the archive.</string>
+    <string name="onboarding_task_screen_description">Tasks are the basic building block of your todo list. They can have lists and timed notifications in them too! Swipe them away to mark them done and move them to the archive.</string>
     <string name="onboarding_tag_screen_title">Tags</string>
     <string name="onboarding_tag_screen_description">Tags are the way to sort your tasks. You can apply them to tasks, but you can also make them children of other tags, to make for folder-like navigation. More on that later.</string>
+    <string name="onboarding_folders_screen_title">Folders and Filters</string>
+    <string name="onboarding_folders_screen_description">To get around the app, you can select the tags you want to see, and only look at those tasks. The Inbox view lets you see all the tasks containing the tags you\'ve picked. The Browse view lets you pick tags to filter down, and only shows exact matches.</string>
     <string name="onboarding_project_screen_title">Projects</string>
-    <string name="onboarding_project_screen_description">Projects are the highest level of sorting in the app. Each has a separate set of tasks and tags. You could make one for simple reminders, and one for long-term projects, for example.</string>
+    <string name="onboarding_project_screen_description">Projects are the highest level of sorting in the app. Each has a separate set of tasks and tags. You could make one for simple reminders, and one for long-term projects, for example. \n \n That\'s it! Go add some tasks!</string>
 
 
 </resources>

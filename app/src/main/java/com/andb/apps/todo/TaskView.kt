@@ -3,6 +3,8 @@ package com.andb.apps.todo
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
@@ -30,6 +32,7 @@ import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
+import kotlinx.android.synthetic.main.activity_task_view.*
 import kotlinx.android.synthetic.main.content_task_view.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
 import kotlinx.android.synthetic.main.inbox_list_item.*
@@ -91,8 +94,8 @@ class TaskView : CyaneaFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val bg = view.findViewById<CoordinatorLayout>(R.id.task_view_parent)
-        bg.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
+
+        task_view_parent.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
         collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab))
 
 
@@ -142,15 +145,21 @@ class TaskView : CyaneaFragment() {
             .itemCount { task.listItemsSize }
             .view(R.layout.inbox_checklist_list_item, layoutInflater)
             .bind { pos ->
-                itemView.listTextView.text = task.getListItems(pos)
-                itemView.listTextView.isChecked = task.getListItemsChecked(pos)
-                itemView.listTextView.setOnCheckedChangeListener { _, isChecked ->
-                    task.editListItemsChecked(isChecked, pos)
-                    onItemsChanged()
-                    AsyncTask.execute {
-                        ProjectsUtils.update(task)
+                itemView.listTextView.apply {
+                    backgroundTintList = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
+                    text = task.getListItems(pos)
+                    isChecked = task.getListItemsChecked(pos)
+                    paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    setOnCheckedChangeListener { _, isChecked ->
+                        task.editListItemsChecked(isChecked, pos)
+                        paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        onItemsChanged()
+                        AsyncTask.execute {
+                            ProjectsUtils.update(task)
+                        }
                     }
                 }
+
             }
             .build()
 

@@ -42,5 +42,9 @@ public class Current {
         return project().getKeyList();
     }
 
+    public static boolean hasProjects(){
+        return !allProjects().isEmpty();
+    }
+
 
 }

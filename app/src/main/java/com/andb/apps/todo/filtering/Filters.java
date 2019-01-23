@@ -94,9 +94,9 @@ public class Filters {
 
         StringBuilder subtitle = new StringBuilder("All");
 
-        if(backTagFilters.size()>0) {
-            for (int i = 0; i < getCurrentFilter().size(); i++) {
-                subtitle.append("/").append(Current.tagList().get(getCurrentFilter().get(i)).getTagName());
+        if(backTagFilters.size()>0 && Current.hasProjects()) {
+            for (int f : getCurrentFilter()) {
+                subtitle.append("/").append(Current.tagList().get(f).getTagName());
             }
         }
 

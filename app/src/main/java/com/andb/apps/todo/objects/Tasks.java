@@ -82,6 +82,8 @@ public class Tasks {
         this.listDue = time.getMillis();
         this.notified = notified;
         this.listKey = ProjectsUtils.keyGenerator();
+        this.archived = false;
+        this.projectId = Current.project().getKey();
     }
 
     @Ignore

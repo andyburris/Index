@@ -47,9 +47,11 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/taskViewRecycler"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:paddingStart="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/task_view_task_name"
                 tools:layout_conversion_absoluteHeight="186dp"
@@ -137,7 +139,9 @@
                 android:id="@+id/bottom_bar_padding"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/rv_padding_for_bottom_bar"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/taskViewTimeText"
                 app:layout_constraintVertical_bias="0" />
 

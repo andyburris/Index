@@ -3,6 +3,7 @@ package com.andb.apps.todo
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.os.AsyncTask
 import android.os.Bundle
 import android.text.TextUtils
 import android.transition.TransitionManager
@@ -22,8 +23,10 @@ import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
+import com.andb.apps.todo.views.CyaneaDialog
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.snackbar.Snackbar
+import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
 import kotlinx.android.synthetic.main.activity_add_task.*
 import kotlinx.android.synthetic.main.content_add_task.*
@@ -256,6 +259,8 @@ class AddTask : CyaneaAppCompatActivity() {
                 resetTimeButton.visibility = View.VISIBLE
             }, DateTime.now().year, DateTime.now().monthOfYear - 1, DateTime.now().dayOfMonth)
             dialog.show()
+            CyaneaDialog.setButtonStyle(dialog, DatePickerDialog.BUTTON_NEGATIVE, DatePickerDialog.BUTTON_POSITIVE)
+
         }
 
         timeButton.setOnClickListener {
@@ -288,6 +293,8 @@ class AddTask : CyaneaAppCompatActivity() {
                 resetTimeButton.visibility = View.VISIBLE
             }, DateTime.now().hourOfDay, DateTime.now().minuteOfHour, false)
             timePickerDialog.show()
+            CyaneaDialog.setButtonStyle(timePickerDialog, TimePickerDialog.BUTTON_NEGATIVE, TimePickerDialog.BUTTON_POSITIVE)
+
 
             /*                TimePickerFragmentDialog.newInstance(DateTimeBuilder.newInstance()
                         .withMinDate(timeMin))
@@ -337,7 +344,9 @@ class AddTask : CyaneaAppCompatActivity() {
         } else {
             val task = Tasks(taskName.text.toString(), items, checked, tags, taskDateTime, false)
             Current.taskList().add(task)
-            MainActivity.projectsDatabase.tasksDao().insertOnlySingleTask(task)
+            AsyncTask.execute{
+                MainActivity.projectsDatabase.tasksDao().insertOnlySingleTask(task)
+            }
             EventBus.getDefault().post(UpdateEvent(true))
         }
 

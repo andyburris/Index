@@ -20,7 +20,7 @@ object ProjectList {
 
         ProjectsUtils.setupProjectList(db)
 
-        OnceHolder.checkAppSetup()
+        OnceHolder.checkAppSetup(context)
 
         if(viewing>= projectList.size){
             viewing = 0

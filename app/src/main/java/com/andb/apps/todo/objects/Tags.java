@@ -38,6 +38,7 @@ public class Tags {
         this.tagColor = tagColor;
         this.subFolder = subFolder;
         this.index = index;
+        this.projectId = Current.project().getKey();
     }
 
     @PrimaryKey

@@ -2,12 +2,8 @@ package com.andb.apps.todo
 
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.graphics.drawable.ScaleDrawable
 import android.os.Bundle
-import android.transition.Visibility
-import android.view.Gravity
-import android.view.View
-import androidx.viewpager.widget.ViewPager
+import com.andb.apps.todo.utilities.Utilities
 import com.cuneytayyildiz.onboarder.OnboarderActivity
 import com.cuneytayyildiz.onboarder.OnboarderPage
 import com.cuneytayyildiz.onboarder.utils.OnboarderPageChangeListener
@@ -20,12 +16,22 @@ class Onboarding : OnboarderActivity(), OnboarderPageChangeListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val introImageTinted = getDrawable(R.drawable.ic_face_black_24dp).mutate().also { it.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP) }
         val taskImageTinted = getDrawable(R.drawable.ic_done_white_24dp).mutate()
         val tagImageTinted = getDrawable(R.drawable.ic_label_black_24dp).mutate().also { it.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP) }
-        val projectImageTinted = getDrawable(R.drawable.ic_folder_black_24dp).mutate().also { it.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP) }
+        val foldersImageTinted = getDrawable(R.drawable.ic_folder_black_24dp).mutate().also { it.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP) }
+        val projectImageTinted = getDrawable(R.drawable.ic_menu_slideshow).mutate().also { it.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP) }
 
 
         val pages: List<OnboarderPage> = Arrays.asList(
+                defaultBuilder()
+                        .imageResource(introImageTinted)
+                        .titleResourceId(R.string.onboarding_intro_screen_title)
+                        .descriptionResourceId(R.string.onboarding_intro_screen_description)
+                        .backgroundColor(Utilities.lighterDarker(Cyanea.instance.accentDark, 0.8f))
+                        .build()
+                ,
                 defaultBuilder()
                         .imageResource(taskImageTinted)
                         .titleResourceId(R.string.onboarding_task_screen_title)
@@ -41,12 +47,19 @@ class Onboarding : OnboarderActivity(), OnboarderPageChangeListener {
                         .build()
                 ,
                 defaultBuilder()
+                        .imageResource(foldersImageTinted)
+                        .titleResourceId(R.string.onboarding_folders_screen_title)
+                        .descriptionResourceId(R.string.onboarding_folders_screen_description)
+                        .backgroundColor(Cyanea.instance.accentLight)
+                        .build()
+                ,
+                defaultBuilder()
                         .imageResource(projectImageTinted)
                         .titleResourceId(R.string.onboarding_project_screen_title)
                         .descriptionResourceId(R.string.onboarding_project_screen_description)
-                        .backgroundColor(Cyanea.instance.accentLight)
+                        .backgroundColor(Utilities.lighterDarker(Cyanea.instance.accentLight, 1.2f))
                         .build()
-                )
+        )
 
         shouldDarkenButtonsLayout(true)
         setFinishButtonBackgroundColor(R.color.statusBarTransparent)
@@ -66,14 +79,13 @@ class Onboarding : OnboarderActivity(), OnboarderPageChangeListener {
             .textPaddingBottomDp(128)
 
     override fun onSkipButtonPressed() {
-        if(selectedPage==0) {
+        if (selectedPage == 0) {
             super.onSkipButtonPressed()
-        }else{
+        } else {
             selectedPage--
             setPage(selectedPage)
         }
     }
-
 
 
     override fun onFinishButtonPressed() {
@@ -82,9 +94,9 @@ class Onboarding : OnboarderActivity(), OnboarderPageChangeListener {
 
     override fun onPageChanged(position: Int) {
         selectedPage = position
-        if(selectedPage==0){
+        if (selectedPage == 0) {
             setSkipButtonTitle("Skip")
-        }else{
+        } else {
             setSkipButtonTitle("Previous")
         }
     }
