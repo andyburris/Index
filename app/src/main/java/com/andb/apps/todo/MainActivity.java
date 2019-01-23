@@ -455,6 +455,10 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         Log.d("eventbus", "received updateEvent");
 
+        if (event.setupProject) {
+            setupProjectSelector();
+        }
+
         FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
         NotificationHandler.resetNotifications(this);
         Drawer.projectAdapter.notifyDataSetChanged();
@@ -464,9 +468,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             project_name.setText(Current.project().getName());
         }
 
-        if (event.setupProject) {
-            setupProjectSelector();
-        }
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

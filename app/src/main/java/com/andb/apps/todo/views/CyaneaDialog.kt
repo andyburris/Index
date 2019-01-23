@@ -34,5 +34,18 @@ class CyaneaDialog(context: Context) : AlertDialog(context) {
                 }
             }
         }
+
+        fun setColorPickerButtonStyle(alertDialog: androidx.appcompat.app.AlertDialog, vararg which: Int){
+            alertDialog.apply {
+                for (b in which){
+                    getButton(b).apply {
+                        setBackgroundColor(Cyanea.instance.backgroundColor)
+                        setTextColor(Cyanea.instance.accent)
+                        setTypeface(typeface, Typeface.BOLD)
+                        textSize = 14f
+                    }
+                }
+            }
+        }
     }
 }

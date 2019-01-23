@@ -1,6 +1,7 @@
 package com.andb.apps.todo
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -135,6 +136,7 @@ class Drawer : Fragment() {
                                     setOnMenuItemClickListener { menuItem ->
                                         when (menuItem.itemId) {
                                             R.id.editProject -> {
+                                                addEditLayout.apply { (parent as ViewGroup?)?.removeView(this) }
                                                 editAlertDialog(context, adapterPosition).show()
                                             }
                                             R.id.deleteProject -> {
@@ -160,7 +162,8 @@ class Drawer : Fragment() {
                         project_task_count.visibility = View.INVISIBLE
                         project_add_icon.visibility = View.VISIBLE
                         project_frame.setOnClickListener {
-                            addAlertDialog(context, view).show()
+                            addEditLayout.apply { (parent as ViewGroup?)?.removeView(this) }
+                            addAlertDialog(context).show()
                         }
                         project_circle.setColorFilter(Color.DKGRAY)
                         project_add_divider.visibility = View.VISIBLE
@@ -170,20 +173,25 @@ class Drawer : Fragment() {
             }.build()
 
 
-    fun addAlertDialog(context: Context, view: View): android.app.AlertDialog.Builder {
+    fun addAlertDialog(context: Context): android.app.AlertDialog.Builder {
 
 
         addEditLayout.apply {
+            selectedColor = Cyanea.instance.accent
             projectColorPreview.color = selectedColor
             //TODO: Set color to preview on select
+            projectEditText.clearComposingText()
             projectColorPreview.setOnClickListener {
                 Log.d("clicked", "addProjectDialog color")
-                ColorPickerDialog.newBuilder()
+                val dialog = ColorPickerDialog.newBuilder()
                         .setColor(selectedColor)
                         .setAllowCustom(true)
                         .setShowAlphaSlider(true)
                         .setDialogId(DIALOG_ID)
-                        .show(activity)
+                        .create()
+                dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
+                activity!!.supportFragmentManager.executePendingTransactions()
+                CyaneaDialog.setButtonStyle(dialog.dialog as AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)
             }
         }
 
@@ -202,6 +210,9 @@ class Drawer : Fragment() {
                         MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(project)
                     }
                 }
+                .setOnCancelListener {
+
+                }
         return dialog
     }
 
@@ -214,16 +225,19 @@ class Drawer : Fragment() {
             projectEditText.setText(Current.allProjects()[position].name)
             projectColorPreview.color = selectedColor
             projectColorPreview.setOnClickListener {
-                ColorPickerDialog.newBuilder()
+                val dialog = ColorPickerDialog.newBuilder()
                         .setColor(selectedColor)
                         .setAllowCustom(true)
                         .setShowAlphaSlider(true)
                         .setDialogId(DIALOG_ID)
-                        .show(activity)
+                        .create()
+                dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
+                activity!!.supportFragmentManager.executePendingTransactions()
+                CyaneaDialog.setColorPickerButtonStyle(dialog.dialog as androidx.appcompat.app.AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEUTRAL)
             }
         }
 
-        val dialog = CyaneaDialog.Builder(context)
+        return CyaneaDialog.Builder(context)
                 .setTitle(context.resources.getString(R.string.edit_project))
                 .setView(addEditLayout)
                 .setPositiveButton("OK") { dialog, which ->
@@ -234,8 +248,6 @@ class Drawer : Fragment() {
                     projectAdapter.notifyDataSetChanged()
                     ProjectsUtils.update(Current.allProjects()[position])
                 }
-
-        return dialog
     }
 
 
@@ -252,13 +264,13 @@ class Drawer : Fragment() {
                     ProjectList.projectList.removeAt(position)
 
                     if (Current.viewing() >= position) {
-                        if(position!=0) {
+                        if (position != 0) {
                             ProjectList.viewing = position - 1
                         }
                         EventBus.getDefault().post(UpdateEvent(false))
                     }
 
-                    for (i in Current.viewing() until Current.allProjects().size){
+                    for (i in Current.viewing() until Current.allProjects().size) {
                         val p = Current.allProjects()[i]
                         p.index--
                     }
@@ -319,7 +331,7 @@ class Drawer : Fragment() {
                 //slideOffset 0.0 at bottom, 1.0 at top
                 var slideOffset = slideOffsetFirst
 
-                if (slideOffsetFirst > 1f){//on non drag tab collapse causes problems, fixes for sheet overdrag and icon overrotate
+                if (slideOffsetFirst > 1f) {//on non drag tab collapse causes problems, fixes for sheet overdrag and icon overrotate
                     bottomSheet.top = Resources.getSystem().displayMetrics.heightPixels - bottomSheet.height
                     slideOffset = 1f
                 }
@@ -349,7 +361,6 @@ class Drawer : Fragment() {
                     Log.d("bottomSheetScroll", "Scroll: $slideOffsetFirst")
 
                 }
-
 
 
             }

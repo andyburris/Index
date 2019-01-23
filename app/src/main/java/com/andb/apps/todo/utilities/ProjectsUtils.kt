@@ -1,7 +1,6 @@
 package com.andb.apps.todo.utilities
 
 import android.os.AsyncTask
-
 import com.andb.apps.todo.MainActivity
 import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.lists.ProjectList
@@ -9,11 +8,12 @@ import com.andb.apps.todo.objects.BaseProject
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
-
-import org.joda.time.DateTime
-
 import java.util.ArrayList
 import java.util.Random
+import kotlin.Comparator
+import kotlin.Int
+import kotlin.String
+import kotlin.apply
 
 object ProjectsUtils {
 
@@ -29,7 +29,7 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase){
+    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase) {
         AsyncTask.execute {
             projectsDatabase.tagsDao().updateTag(tag)
         }
@@ -37,24 +37,24 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase){
+    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase) {
         AsyncTask.execute {
             projectsDatabase.tasksDao().updateTask(task)
         }
     }
 
     @JvmStatic
-    fun setupProjectList(db: ProjectsDatabase){
+    fun setupProjectList(db: ProjectsDatabase) {
         ProjectList.projectList = ArrayList()
-        for(bp in db.projectsDao().all){
+        for (bp in db.projectsDao().all) {
             bp.apply {
                 ProjectList.projectList.add(Project(key, name, ArrayList(), ArrayList(), ArrayList(), color, index))
             }
         }
 
-        for (p in ProjectList.projectList){
+        for (p in ProjectList.projectList) {
             p.apply {
-                val tasksPair =  db.tasksDao().getAllFromProject(key).partition { tasks -> !tasks.isArchived  }
+                val tasksPair = db.tasksDao().getAllFromProject(key).partition { tasks -> !tasks.isArchived }
                 taskList = ArrayList(tasksPair.first)
                 archiveList = ArrayList(tasksPair.second)
                 tagList = ArrayList(db.tagsDao().getAllFromProject(key))
@@ -77,6 +77,7 @@ object ProjectsUtils {
     fun addProject(name: String, color: Int): Project {
         val project = Project(keyGenerator(), name, ArrayList(), ArrayList(), ArrayList(), color, Current.allProjects().size)
         ProjectList.projectList.add(project)
+        ProjectsUtils.update(project)
         return project
     }
 
@@ -89,7 +90,7 @@ object ProjectsUtils {
             keys.addAll(project.keyList)
         }
 
-        while (keys.contains(key)) {
+        while (keys.contains(key) || key == 0) {
             key = random.nextInt()
         }
         return key

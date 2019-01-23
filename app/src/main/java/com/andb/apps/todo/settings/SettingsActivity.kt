@@ -100,15 +100,13 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         @JvmStatic
         var subFilter: Boolean = false
         @JvmStatic
-        var subtaskDefaultShow = true
+        var subtaskDefaultShow = false
         @JvmStatic
         var defaultSort: Int = 0
 
         @JvmStatic
         var timeToNotifyForDateOnly: DateTime = DateTime().withTime(8, 0, 0, 0)
 
-
-        private val iconForeground: ImageView? = null
 
         private val preferencesAdapter = PreferencesAdapter()
 

@@ -11,9 +11,9 @@
     <!-- Primary colors -->
     <color name="cyanea_primary_reference">#f5f5f5</color>
     <!-- Background colors -->
-    <color name="cyanea_background_light">#EBE5D9</color>
-    <color name="cyanea_background_light_darker">#D4D4D4</color>
-    <color name="cyanea_background_light_lighter">#EEE8DE</color>
+    <color name="cyanea_background_light">#FAFAFA</color>
+<!--    <color name="cyanea_background_light_darker">#D4D4D4</color>
+    <color name="cyanea_background_light_lighter">#EEE8DE</color>-->
 
     <color name="tabSelectedTextColor">#000000</color>
     <color name="tabUnselectedTextColor">#99000000</color>

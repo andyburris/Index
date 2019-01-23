@@ -89,17 +89,32 @@ public class ImportExport {
 
                         ArrayList<Tasks> archiveList = new ArrayList<>();//MAYBEDO: backup/import archive tasks
 
+                        int projectKey = ProjectsUtils.keyGenerator();
+
                         ArrayList<Integer> keyList = new ArrayList<>();
                         for (Tasks task : taskList) {
+                            if(task.getProjectId()==0){
+                                task.setProjectId(projectKey);
+                            }
                             while (keyList.contains(task.getListKey())) {
                                 task.setListKey(new Random().nextInt());
                             }
                             keyList.add(task.getListKey());
                         }
 
+
                         ArrayList<Tags> tagList = gson.fromJson(tagJson, tagType);
 
-                        String projectName = "Tasks";
+                        for(int t = 0; t<tagList.size(); t++){
+                            Tags tags = tagList.get(t);
+                            tags.setIndex(t);
+                            if(tags.getProjectId()==0){
+                                tags.setProjectId(projectKey);
+                            }
+                        }
+
+
+                            String projectName = "Tasks";
 
                         if (gson.fromJson(nameJson, objectType) instanceof ArrayList) {//old taglinks
                             ArrayList<TagLinks> linkList = gson.fromJson(nameJson, linkType);
@@ -116,7 +131,6 @@ public class ImportExport {
                             projectName = gson.fromJson(nameJson, stringType);
                         }
 
-                        int projectKey = ProjectsUtils.keyGenerator();
                         Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, Cyanea.getInstance().getAccent(), Current.allProjects().size());
                         Current.allProjects().add(newProject);
                         ProjectList.INSTANCE.setViewing(Current.allProjects().size() - 1);

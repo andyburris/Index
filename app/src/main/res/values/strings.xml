@@ -9,7 +9,7 @@
     <!--Project Editing-->
     <string name="add_project">Add Project</string>
     <string name="edit_project">Edit Name</string>
-    <string name="delete_project">Delete Project</string>
+    <string name="delete_project">Delete Project?</string>
 
 
     <!-- Strings related to Settings -->
