@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.andb.apps.todo.utilities.Utilities;
 import com.jaredrummler.cyanea.Cyanea;
@@ -27,7 +28,7 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
 
         public ImageView remove;
         EditText editText;
-        ConstraintLayout bg;
+        LinearLayout bg;
         RVEditTextListener rvEditTextListener;
 
 
@@ -35,7 +36,7 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
             super(view);
             remove = view.findViewById(R.id.removeListItem);
             editText = view.findViewById(R.id.taskItemEditText);
-            bg = view.findViewById(R.id.taskListItem);
+            bg = view.findViewById(R.id.addTaskListItem);
             this.rvEditTextListener = rvEditTextListener;
 
 
@@ -66,7 +67,7 @@ public class AddTaskAdapter extends RecyclerView.Adapter<AddTaskAdapter.MyViewHo
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
 
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_item, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_task_list_item, parent, false);
 
         return new MyViewHolder(itemView, new RVEditTextListener());
     }

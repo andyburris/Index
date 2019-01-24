@@ -2,6 +2,8 @@ package com.andb.apps.todo.objects;
 
 import android.util.Log;
 
+import com.andb.apps.todo.InboxFragment;
+import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.typeconverters.CheckedConverter;
 import com.andb.apps.todo.typeconverters.ItemsConverter;
 import com.andb.apps.todo.typeconverters.TagConverter;
@@ -12,9 +14,7 @@ import com.google.gson.annotations.SerializedName;
 
 import org.joda.time.DateTime;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Random;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -23,7 +23,9 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
-@Entity(foreignKeys = @ForeignKey(entity =  BaseProject.class, parentColumns = "key", childColumns = "project_id", onDelete = ForeignKey.CASCADE))
+import static com.andb.apps.todo.utilities.Values.TIME_SORT;
+
+@Entity(foreignKeys = @ForeignKey(entity = BaseProject.class, parentColumns = "key", childColumns = "project_id", onDelete = ForeignKey.CASCADE))
 public class Tasks {
     @SerializedName("key")
     @Expose
@@ -174,11 +176,7 @@ public class Tasks {
     }
 
     public boolean isListItems() {
-        if (listItems.isEmpty()) {
-            return false;
-        } else {
-            return true;
-        }
+        return !listItems.isEmpty();
     }
 
     public void setListItems(String item) {
@@ -228,11 +226,7 @@ public class Tasks {
     }
 
     public boolean isListTags() {
-        if (listTags.isEmpty()) {
-            return false;
-        } else {
-            return true;
-        }
+        return !listTags.isEmpty();
     }
 
     public void setListTags(ArrayList<Integer> listTags) {
@@ -247,13 +241,17 @@ public class Tasks {
         this.listDue = datetime.getMillis();
     }
 
-    public boolean isListTime() {
-        if (new DateTime(listDue).isEqual(new DateTime(3000, 1, 1, 0, 0))) {
-            return false;
-        } else {
-            return true;
-        }
+    public boolean hasTime() {
+        return !new DateTime(listDue).toLocalTime().equals(new DateTime().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toLocalTime());
     }
+
+    public boolean hasDate() {
+        if(getDateTime().equals(new DateTime(3000, 1, 1, 0, 0))){//fixes migration of old dates
+            setDateTime(new DateTime(3000, 1, 1, 0, 59, 30));
+        }
+        return getDateTime().getSecondOfMinute()!=30;
+    }
+
 
     public boolean isNotified() {
         return notified;
@@ -269,6 +267,22 @@ public class Tasks {
 
     public void setListKey(int listKey) {
         this.listKey = listKey;
+    }
+
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 
     public void normalizeAfterImport() {
@@ -300,19 +314,40 @@ public class Tasks {
         return builder.toString();
     }
 
-    public int getProjectId() {
-        return projectId;
+    public int compareTo(Tasks o, int filterMode) {
+        Log.d("compareTasks", "filterMode: " + filterMode);
+        if (filterMode == TIME_SORT) {
+            Log.d("compareTasks", Integer.toString(compareTimes(o)));
+            if (compareTimes(o) != 0) {
+                return compareTimes(o);
+            } else if (compareAlphabetical(o) != 0) {
+                return compareAlphabetical(o);
+            } else {
+                return compareLists(o);
+            }
+
+        } else {//Alphabetical sort
+            if (compareAlphabetical(o) != 0) {
+                return compareAlphabetical(o);
+            } else if (compareTimes(o) != 0) {
+                return compareTimes(o);
+            } else {
+                return compareLists(o);
+            }
+        }
     }
 
-    public void setProjectId(int projectId) {
-        this.projectId = projectId;
+    public int compareTimes(Tasks o) {
+        return this.getDateTime().compareTo(o.getDateTime());
     }
 
-    public boolean isArchived() {
-        return archived;
+    public int compareAlphabetical(Tasks o) {
+        return this.listName.compareTo(o.listName);
     }
 
-    public void setArchived(boolean archived) {
-        this.archived = archived;
+    public int compareLists(Tasks o){
+        return Integer.compare(this.getListItemsSize(), o.getListItemsSize());
     }
+
+
 }

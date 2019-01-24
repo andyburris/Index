@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.get
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,14 +34,11 @@ import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.activity_task_view.*
 import kotlinx.android.synthetic.main.content_task_view.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
-import kotlinx.android.synthetic.main.inbox_list_item.*
 import kotlinx.android.synthetic.main.inbox_list_item.view.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import java.lang.ClassCastException
-import java.lang.Exception
 import java.util.*
 
 class TaskView : CyaneaFragment() {
@@ -104,14 +100,14 @@ class TaskView : CyaneaFragment() {
 
         task_view_task_name.text = task.listName.toUpperCase()
 
-        if (!task.isListTime) { //no time
+        if (!task.hasDate()) { //no time
             taskViewTimeText!!.visibility = View.GONE
             taskViewTimeIcon!!.visibility = View.GONE
-        } else if (task.dateTime.secondOfMinute == 59) { //date only
+        } else if (!task.hasTime()) { //date only
             taskViewTimeText!!.text = task.dateTime.toString("EEEE, MMMM d")
             taskViewTimeIcon!!.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
         } else {
-            taskViewTimeText!!.text = task.dateTime.toString("hh:mm a| EEEE, MMMM d")
+            taskViewTimeText!!.text = task.dateTime.toString("hh:mm a | EEEE, MMMM d")
         }
 
         prepareRecyclerViews(task)

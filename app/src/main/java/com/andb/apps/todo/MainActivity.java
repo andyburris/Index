@@ -55,6 +55,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import static com.andb.apps.todo.utilities.Values.ALPHABETICAL_SORT;
+import static com.andb.apps.todo.utilities.Values.TIME_SORT;
+
 
 public class MainActivity extends CyaneaAppCompatActivity implements ColorPickerDialogListener {
 
@@ -160,9 +163,9 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             prefs.edit().putBoolean("sort_mode_list", true).apply();
         }
         if (prefs.getBoolean("sort_mode_list", true)) {
-            SettingsActivity.Companion.setDefaultSort(0);
+            SettingsActivity.Companion.setDefaultSort(TIME_SORT);
         } else {
-            SettingsActivity.Companion.setDefaultSort(1);
+            SettingsActivity.Companion.setDefaultSort(ALPHABETICAL_SORT);
         }
         InboxFragment.Companion.setFilterMode(SettingsActivity.Companion.getDefaultSort());
 
@@ -259,11 +262,11 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
                     Log.d("filterclicked", Integer.toString(id1));
                     switch (id1) {
                         case R.id.sortDate:
-                            InboxFragment.Companion.setFilterMode(0);
+                            InboxFragment.Companion.setFilterMode(TIME_SORT);
                             InboxFragment.Companion.refreshWithAnim();
                             break;
                         case R.id.sortAlpha:
-                            InboxFragment.Companion.setFilterMode(1);
+                            InboxFragment.Companion.setFilterMode(ALPHABETICAL_SORT);
                             InboxFragment.Companion.refreshWithAnim();
                             break;
 
@@ -277,7 +280,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
                 break;
             case R.id.action_test:
-                Intent intent = new Intent(this, Onboarding.class);
+                Intent intent = new Intent(this, TestActivity.class);
                 startActivity(intent);
                 return true;
 
@@ -380,10 +383,13 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         FrameLayout bottomSheet = findViewById(R.id.bottom_sheet_container);
 
         TextView toolbarSubtitle = findViewById(R.id.toolbar_project_name);
-        toolbarSubtitle.setText(Current.project().getName());
 
         Drawer.bottomSheetBehavior = (BottomSheetBehavior.from(bottomSheet));
         Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.getNormalSheetCallback());
+
+        toolbarSubtitle.setText(Current.project().getName());
+
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> {

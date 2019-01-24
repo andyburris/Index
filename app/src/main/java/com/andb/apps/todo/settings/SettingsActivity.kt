@@ -9,13 +9,14 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.widget.ImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.andb.apps.todo.Onboarding
 import com.andb.apps.todo.R
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.Values.TIME_SORT
 import com.jaredrummler.cyanea.CyaneaResources
 import com.jaredrummler.cyanea.app.BaseCyaneaActivity
 import com.jaredrummler.cyanea.delegate.CyaneaDelegate
@@ -36,14 +37,14 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         val bg: CoordinatorLayout = findViewById(R.id.settingsCoordinator)
         bg.setBackgroundColor(cyanea.backgroundColor)
 
-        if(intent.hasExtra("expandRect")){
+        if (intent.hasExtra("expandRect")) {
             val expandRect: Rect? = Rect.unflattenFromString(intent.extras.getString("expandRect"))
-            if(expandRect != null) {
+            if (expandRect != null) {
                 expandFrom(expandRect)
-            }else{
+            } else {
                 expandFromTop()
             }
-        }else {
+        } else {
             expandFromTop()
         }
 
@@ -59,11 +60,18 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
 
         val preferenceScreen = SettingsLayout.createRootScreen(this)
         val themeIntent = Intent(this, CyaneaSettingsActivity::class.java)
+        val tutorialIntent = Intent(this, Onboarding::class.java)
         preferencesAdapter.onScreenChangeListener = object : PreferencesAdapter.OnScreenChangeListener {
             override fun onScreenChanged(preferenceScreen: PreferenceScreen, b: Boolean) {
-                if (preferenceScreen.title == "Theme") {
-                    startActivity(themeIntent)
-                    preferencesAdapter.goBack()
+                when (preferenceScreen.title) {
+                    "Theme" -> {
+                        startActivity(themeIntent)
+                        preferencesAdapter.goBack()
+                    }
+                    "Show Tutorial" -> {
+                        startActivity(tutorialIntent)
+                        preferencesAdapter.goBack()
+                    }
                 }
             }
         }
@@ -102,7 +110,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         @JvmStatic
         var subtaskDefaultShow = false
         @JvmStatic
-        var defaultSort: Int = 0
+        var defaultSort: Int = TIME_SORT
 
         @JvmStatic
         var timeToNotifyForDateOnly: DateTime = DateTime().withTime(8, 0, 0, 0)

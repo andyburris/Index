@@ -19,6 +19,8 @@
         android:layout_weight="0"
         android:alpha="0.54"
         android:paddingLeft="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:src="@drawable/list_dropdown_selector"
         android:visibility="visible"
         app:cyaneaIconBackground="background"

@@ -37,7 +37,7 @@ public class NotificationUtils {
                         }
                     }
                 } else {
-                    if (!tasks.getDateTime().equals(new DateTime(3000, 1, 1, 0, 0))) {
+                    if (!tasks.getDateTime().equals(new DateTime(3000, 1, 1, 0, 0, 59))) {
                         toReturn = tasks;
                     }
                 }

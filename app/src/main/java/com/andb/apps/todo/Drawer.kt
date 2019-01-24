@@ -60,7 +60,7 @@ class Drawer : Fragment() {
         return view
     }
 
-    fun setupMenu(context: Context, view: View) {
+    private fun setupMenu(context: Context, view: View) {
         view.archive_bg.apply {
             setBackgroundColor(Cyanea.instance.backgroundColor)
             setOnClickListener {
@@ -98,10 +98,10 @@ class Drawer : Fragment() {
         }
     }
 
-    fun drawerRecycler(layoutInflater: LayoutInflater, view: View, context: Context) = Klaster.get()
+    private fun drawerRecycler(layoutInflater: LayoutInflater, view: View, context: Context) = Klaster.get()
             .itemCount { Current.allProjects().size + 1 }
             .view(R.layout.project_switcher_item, layoutInflater)
-            .bind { position ->
+            .bind { _ ->
                 if (adapterPosition < Current.allProjects().size) {//project
                     itemView.apply {
                         val imageShape = GradientDrawable()
@@ -140,7 +140,7 @@ class Drawer : Fragment() {
                                                 editAlertDialog(context, adapterPosition).show()
                                             }
                                             R.id.deleteProject -> {
-                                                deleteAlertDialog(context, view, adapterPosition).show()
+                                                deleteAlertDialog(context, adapterPosition).show()
                                             }
                                         }
                                         true
@@ -173,7 +173,7 @@ class Drawer : Fragment() {
             }.build()
 
 
-    fun addAlertDialog(context: Context): android.app.AlertDialog.Builder {
+    private fun addAlertDialog(context: Context): android.app.AlertDialog.Builder {
 
 
         addEditLayout.apply {
@@ -191,14 +191,14 @@ class Drawer : Fragment() {
                         .create()
                 dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
                 activity!!.supportFragmentManager.executePendingTransactions()
-                CyaneaDialog.setButtonStyle(dialog.dialog as AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)
+                CyaneaDialog.setColorPickerButtonStyle(dialog.dialog as androidx.appcompat.app.AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)
             }
         }
 
-        val dialog = CyaneaDialog.Builder(context)
+        return CyaneaDialog.Builder(context)
                 .setTitle(context.resources.getString(R.string.add_project))
                 .setView(addEditLayout)
-                .setPositiveButton("OK") { dialog, which ->
+                .setPositiveButton("OK") { _, _ ->
 
 
                     val project = ProjectsUtils.addProject(addEditLayout.projectEditText.text.toString(), selectedColor)
@@ -213,11 +213,10 @@ class Drawer : Fragment() {
                 .setOnCancelListener {
 
                 }
-        return dialog
     }
 
 
-    fun editAlertDialog(context: Context, position: Int): android.app.AlertDialog.Builder {
+    private fun editAlertDialog(context: Context, position: Int): android.app.AlertDialog.Builder {
 
 
         selectedColor = Current.allProjects()[position].color
@@ -240,7 +239,7 @@ class Drawer : Fragment() {
         return CyaneaDialog.Builder(context)
                 .setTitle(context.resources.getString(R.string.edit_project))
                 .setView(addEditLayout)
-                .setPositiveButton("OK") { dialog, which ->
+                .setPositiveButton("OK") { _, _ ->
                     ProjectList.projectList[position].apply {
                         name = addEditLayout.projectEditText.text.toString()
                         color = selectedColor
@@ -251,7 +250,7 @@ class Drawer : Fragment() {
     }
 
 
-    fun deleteAlertDialog(context: Context, view: View, position: Int) = CyaneaDialog.Builder(context)
+    private fun deleteAlertDialog(context: Context, position: Int) = CyaneaDialog.Builder(context)
             .setTitle(context.resources.getString(R.string.delete_project))
             .setNegativeButton("Cancel") { _, _ ->
             }
@@ -281,7 +280,7 @@ class Drawer : Fragment() {
                     Toast.makeText(context, "Can't delete final project", Toast.LENGTH_LONG).show()
                 }
 
-            }
+            }!!
 
 
     companion object {

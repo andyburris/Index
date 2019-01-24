@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
+import android.os.AsyncTask
 import android.os.Bundle
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
@@ -26,6 +27,7 @@ import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.Values.TIME_SORT
 import com.andb.apps.todo.utilities.Values.swipeThreshold
 import com.andb.apps.todo.utilities.Vibes
 import com.jaredrummler.cyanea.Cyanea
@@ -337,7 +339,9 @@ class InboxFragment : CyaneaFragment() {
         //mAdapter.notifyItemRangeChanged(dividerPosition, mAdapter.itemCount)
         setTaskCountText(FilteredLists.inboxTaskList.size)
 
-        ProjectsUtils.update()
+        AsyncTask.execute {
+            MainActivity.projectsDatabase.tasksDao().deleteTask(tasks)
+        }
 
     }
 
@@ -376,7 +380,7 @@ class InboxFragment : CyaneaFragment() {
             return filterMode
         }
 
-        fun setFilterMode(mode: Int) {
+        fun setFilterMode(mode: Int = filterMode) {
 
             filterMode = mode
 
@@ -406,7 +410,7 @@ class InboxFragment : CyaneaFragment() {
             Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
 
 
-            if (mode == 0) {
+            if (mode == TIME_SORT) {
 
 
                 var overdue = true
@@ -482,25 +486,12 @@ class InboxFragment : CyaneaFragment() {
                 Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
 
 
-                FilteredLists.inboxTaskList.sortWith(Comparator { o1, o2 ->
-                    if (o1.dateTime == null) {
-                        o1.dateTime = DateTime(1970, 1, 1, 0, 0, 0)
-                    }
-                    if (o2.dateTime == null) {
-                        o2.dateTime = DateTime(1970, 1, 1, 0, 0, 0)
-                    }
 
-                    o1.dateTime.compareTo(o2.dateTime)
-                })
-
-
-            } else if (mode == 1) {
-
-                FilteredLists.inboxTaskList.sortWith(Comparator { o1, o2 -> o1.listName.compareTo(o2.listName) })
 
 
             }
 
+            FilteredLists.inboxTaskList.sortWith(kotlin.Comparator { t1, t2 -> t1.compareTo(t2, filterMode) })
 
         }
 

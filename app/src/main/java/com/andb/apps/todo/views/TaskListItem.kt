@@ -98,13 +98,6 @@ class TaskListItem : ConstraintLayout {
                         colors.add(Current.tagList()[tagPos].tagColor)
                     }
                 }
-                val colorString = StringBuilder()
-                for (c in colors) {
-                    colorString.append("#")
-                    colorString.append(Integer.toHexString(c))
-                    colorString.append(", ")
-                }
-                //Log.d("extraLines", "Task: ${task.listName}, Extra colors: $colorString")
                 extraTagsLine.setColors(*colors.toIntArray())
             } else {
                 extraTagsLine.setColors()

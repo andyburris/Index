@@ -4,6 +4,8 @@ import android.content.Context
 import android.preference.PreferenceManager
 import android.widget.EditText
 import com.andb.apps.todo.R
+import com.andb.apps.todo.utilities.Values.ALPHABETICAL_SORT
+import com.andb.apps.todo.utilities.Values.TIME_SORT
 import com.andb.apps.todo.views.CyaneaDialog
 import de.Maxr1998.modernpreferences.helpers.*
 
@@ -77,6 +79,10 @@ object SettingsLayout {
                 titleRes = R.string.subfolder_filter_check_title
                 iconRes = R.drawable.ic_subfolder_black_24dp
             }
+        }
+        subScreen {
+            title = "Show Tutorial"
+            iconRes = R.drawable.ic_info_black_24dp
         }
     }
 }

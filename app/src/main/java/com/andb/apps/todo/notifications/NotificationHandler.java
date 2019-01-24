@@ -111,7 +111,7 @@ public class NotificationHandler extends Service {
         String notificationText = "";
 
         for (int i = 0; i < task.getAllListItems().size(); i++) {
-            notificationText = notificationText.concat(task.getListItems(i) + "\n");
+            notificationText = notificationText.concat("- " + task.getListItems(i) + "\n");
         }
         notificationText = notificationText.concat(task.getDateTime().toString("MMM d, h:mm a"));
 
@@ -120,7 +120,9 @@ public class NotificationHandler extends Service {
                 new NotificationCompat.Builder(ctxt, todo_notification_channel)
                         .setSmallIcon(R.drawable.ic_todo_small)
                         .setContentTitle(notificationTitle)
-                        .setContentText(notificationText)
+                        //.setContentText(notificationText)
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(notificationText))
                         .setContentIntent(pendingClickIntent)
                         .setAutoCancel(true)
                         .addAction(R.drawable.ic_check_white_24dp, "DONE", pendingDoneClickIntent)

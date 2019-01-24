@@ -18,6 +18,8 @@ import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
 import me.saket.inboxrecyclerview.InboxRecyclerView;
 
+import static com.andb.apps.todo.utilities.Values.TIME_SORT;
+
 public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHolder> {
 
     public List<Tasks> taskList;
@@ -142,7 +144,7 @@ public class TaskAdapter extends InboxRecyclerView.Adapter<TaskAdapter.MyViewHol
 
     @Override
     public int getItemViewType(int position) {
-        if (InboxFragment.Companion.getFilterMode() == 0) {
+        if (InboxFragment.Companion.getFilterMode() == TIME_SORT) {
             if (taskList.get(position).getListName().equals("OVERDUE")) {
                 viewType = OVERDUE_DIVIDER;
                 return OVERDUE_DIVIDER;
