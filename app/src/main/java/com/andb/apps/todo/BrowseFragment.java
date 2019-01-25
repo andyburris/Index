@@ -109,7 +109,7 @@ public class BrowseFragment extends CyaneaFragment {
             public void onLongClick(View view, int position) {
                 if (mAdapter.getItemViewType(position) == 1 & !selected) {
                     view.setSelected(true);
-                    mAdapter.selected = position;
+                    mAdapter.setSelected(position);
                     mAdapter.notifyItemChanged(position);
                     selected = true;
                 }
@@ -385,7 +385,7 @@ public class BrowseFragment extends CyaneaFragment {
                 switch (item.getItemId()) {
                     case R.id.editTask:
                         selected = false;
-                        mAdapter.selected = -1;
+                        mAdapter.setSelected(-1);
                         mAdapter.notifyItemChanged(position);
                         Intent editTask = new Intent(BrowseFragment.this.getContext(), AddTask.class);
                         editTask.putExtra("edit", true);
@@ -402,7 +402,7 @@ public class BrowseFragment extends CyaneaFragment {
             @Override
             public void onDestroyActionMode(ActionMode mode) {
                 selected = false;
-                mAdapter.selected = -1;
+                mAdapter.setSelected(-1);
                 mAdapter.notifyItemChanged(position);
             }
         };

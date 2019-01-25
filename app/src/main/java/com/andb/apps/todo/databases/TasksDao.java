@@ -31,4 +31,7 @@ public interface TasksDao {
 
     @Query("SELECT * FROM Tasks WHERE `project_id` = :projectKey")
     List<Tasks> getAllFromProject(int projectKey);
+
+    @Query("SELECT * FROM Tasks")
+    List<Tasks> getAll(); //only use for notifications/search all
 }

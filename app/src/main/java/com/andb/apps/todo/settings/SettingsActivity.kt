@@ -80,9 +80,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
 
     }
 
-    override fun onScreenChanged(preferenceScreen: PreferenceScreen, b: Boolean) {
-
-    }
+    override fun onScreenChanged(preferenceScreen: PreferenceScreen, b: Boolean) {}
 
 
     override fun onBackPressed() {

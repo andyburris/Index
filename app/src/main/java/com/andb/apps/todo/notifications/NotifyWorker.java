@@ -44,8 +44,8 @@ public class NotifyWorker extends Worker {
 
         if (NotificationUtils.isNextNotification()) {
             Log.d("workManager", "Next isn't null");
-            NotificationObject nextNotif = NotificationUtils.nextNotificationAll(NotificationHandler.projectsDatabase);
-            NotificationHandler.createNotification(nextNotif.task, nextNotif.projectKey, getApplicationContext());
+            Tasks nextNotif = NotificationUtils.nextNotificationAll(NotificationHandler.projectsDatabase);
+            NotificationHandler.createNotification(nextNotif,  getApplicationContext());
         }
 
         return Result.success();
@@ -62,10 +62,10 @@ public class NotifyWorker extends Worker {
             Log.d("serviceRestart", "Service Restarting");
 
 
-            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), (NotificationUtils.nextNotificationAll().task).getDateTime());
+            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), (NotificationUtils.nextNotificationAll()).getDateTime());
 
-            if ((NotificationUtils.nextNotificationAll().task).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {//check for no-time reminders
-                DateTime onlyDate = (NotificationUtils.nextNotificationAll().task).getDateTime();
+            if ((NotificationUtils.nextNotificationAll()).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {//check for no-time reminders
+                DateTime onlyDate = (NotificationUtils.nextNotificationAll()).getDateTime();
                 onlyDate = onlyDate.withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
                 duration = new Duration(DateTime.now(), onlyDate);
             }

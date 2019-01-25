@@ -58,8 +58,8 @@ public class FilteredLists {
         InboxFragment.Companion.refreshWithAnim();
         //InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
 
-        Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size() + ", InboxFragment.mAdapter.taskList: " + InboxFragment.Companion.getMAdapter().taskList.size());
-        for (Tasks t : InboxFragment.Companion.getMAdapter().taskList) {
+        Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size() + ", InboxFragment.mAdapter.taskList: " + InboxFragment.Companion.getMAdapter().getTaskList().size());
+        for (Tasks t : InboxFragment.Companion.getMAdapter().getTaskList()) {
             Log.d("inboxTaskList", t.toString());
         }
         //}

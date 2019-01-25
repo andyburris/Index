@@ -12,6 +12,17 @@ class InboxRVViewPager : ViewPager {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
+    var currentPage = 0
+
+    init {
+        addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener(){
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                currentPage = position;
+            }
+        })
+    }
+
     override fun canScrollHorizontally(direction: Int): Boolean {
         return if (TaskView.pageState != 0) {
             false

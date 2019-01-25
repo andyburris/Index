@@ -26,7 +26,7 @@ import androidx.room.TypeConverters;
 import static com.andb.apps.todo.utilities.Values.TIME_SORT;
 
 @Entity(foreignKeys = @ForeignKey(entity = BaseProject.class, parentColumns = "key", childColumns = "project_id", onDelete = ForeignKey.CASCADE))
-public class Tasks {
+public class Tasks implements Cloneable {
     @SerializedName("key")
     @Expose
     @PrimaryKey
@@ -74,6 +74,9 @@ public class Tasks {
     @Expose
     @ColumnInfo(name = "archived")
     private boolean archived;
+
+    @Ignore
+    private boolean editing = false;
 
     @Ignore
     public Tasks(String listName, ArrayList<String> listItems, ArrayList<Boolean> listItemsChecked, ArrayList<Integer> listTags, DateTime time, boolean notified) {
@@ -242,7 +245,7 @@ public class Tasks {
     }
 
     public boolean hasTime() {
-        return !new DateTime(listDue).toLocalTime().equals(new DateTime().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toLocalTime());
+        return getDateTime().getSecondOfMinute()==0;
     }
 
     public boolean hasDate() {
@@ -349,5 +352,12 @@ public class Tasks {
         return Integer.compare(this.getListItemsSize(), o.getListItemsSize());
     }
 
+    public boolean isEditing() {
+        return editing;
+    }
+
+    public void setEditing(boolean editing) {
+        this.editing = editing;
+    }
 
 }

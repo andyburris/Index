@@ -28,18 +28,14 @@ public class Reschedule extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         int tempKey = -1;
-        int tempIndex = -1;
 
         Bundle bundle = getIntent().getExtras();
         if (bundle.containsKey("key")) {
             tempKey = bundle.getInt("key");
         }
-        if (bundle.containsKey("projectKey")) {
-            tempIndex = bundle.getInt("projectKey");
-        }
+
 
         final int key = tempKey;
-        final int projectKey = tempIndex;
 
         Log.d("reschedule", "activity launched");
         Log.d("reschedule", "got key: " + key);
@@ -61,8 +57,8 @@ public class Reschedule extends AppCompatActivity {
                                 tasks.setNotified(false);
                                 projectsDatabase.tasksDao().updateTask(tasks);
 
-                                if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == projectKey) {
-                                    Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(projectKey)));
+                                if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
+                                    Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(tasks.getProjectId())));
                                     EventBus.getDefault().post(new UpdateEvent(true));
                                 }
                                 finish();

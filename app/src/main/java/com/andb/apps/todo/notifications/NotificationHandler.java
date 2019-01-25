@@ -53,7 +53,7 @@ public class NotificationHandler extends Service {
     }
 
 
-    public static void createNotification(Tasks task, int projectKey, Context ctxt) {
+    public static void createNotification(Tasks task, Context ctxt) {
 
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -92,12 +92,10 @@ public class NotificationHandler extends Service {
         Intent doneClickIntent = new Intent(ctxt, NotificationHandler.class);
         doneClickIntent.putExtra("reschedule", false);
         doneClickIntent.putExtra("posFromNotifClear", key);
-        doneClickIntent.putExtra("projectKey", projectKey);
 
         Intent rescheduleClickIntent = new Intent(ctxt, NotificationHandler.class);
         rescheduleClickIntent.putExtra("reschedule", true);
         rescheduleClickIntent.putExtra("posFromNotifClear", key);
-        rescheduleClickIntent.putExtra("projectKey", projectKey);
 
 
         PendingIntent pendingDoneClickIntent =
@@ -150,13 +148,13 @@ public class NotificationHandler extends Service {
 
     public static void resetNotifications(Context ctxt) {
         WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        if (NotificationUtils.isNextNotification()) {
+        if (NotificationUtils.isNextNotification(projectsDatabase)) {
             Log.d("workManager", "Next isn't null");
             NotifyWorker.nextWork();
         }
     }
 
-    public static void handleNotification(int key, int projectKey, boolean fromAction, boolean reschedule, Context ctxt) {
+    public static void handleNotification(int key,  boolean fromAction, boolean reschedule, Context ctxt) {
         if (key != -1) {
             if (fromAction) {
 
@@ -168,10 +166,10 @@ public class NotificationHandler extends Service {
 
                 if (reschedule) {
                     //reschedule
-                    rescheduleTask(key, projectKey, ctxt);
+                    rescheduleTask(key, ctxt);
                 } else {
                     //delete
-                    deleteTask(key, projectKey, ctxt);
+                    deleteTask(key, ctxt);
                 }
             } else {
                 //open task in taskview
@@ -188,7 +186,7 @@ public class NotificationHandler extends Service {
         projectsDatabase = GetDatabase.getDatabase(ctxt);
     }
 
-    public static void rescheduleTask(final int key, final int projectKey, final Context ctxt) {
+    public static void rescheduleTask(final int key, final Context ctxt) {
         Log.d("rescheduleNotification", "rescheduling notification");
 
         //DateTime taskDateTime = new DateTime();
@@ -196,7 +194,6 @@ public class NotificationHandler extends Service {
 
         Intent intent = new Intent(ctxt, Reschedule.class);
         intent.putExtra("key", key);
-        intent.putExtra("projectKey", projectKey);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         ctxt.startActivity(intent);
@@ -206,7 +203,7 @@ public class NotificationHandler extends Service {
 
     }
 
-    public static void deleteTask(final int key, final int projectKey, final Context ctxt) {
+    public static void deleteTask(final int key, final Context ctxt) {
 
         Log.d("deleteNotification", "deleting notification");
 
@@ -218,8 +215,8 @@ public class NotificationHandler extends Service {
             projectsDatabase.tasksDao().updateTask(task);
 
             //projectsDatabase.projectsDao().updateProject(project);
-            if (NotificationHandler.checkActive(ctxt) && Current.project().getKey() == projectKey) {
-                Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(projectKey)));
+            if (NotificationHandler.checkActive(ctxt) && Current.project().getKey() == task.getProjectId()) {
+                Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(task.getProjectId())));
                 EventBus.getDefault().post(new UpdateEvent(true));
             }
         });
@@ -238,14 +235,10 @@ public class NotificationHandler extends Service {
         Bundle bundle = intent.getExtras();
 
         int key = -1;
-        int projectKey = -1;
         boolean fromAction = false;
         boolean reschedule = false;
 
         if (bundle != null) {
-            if (bundle.containsKey("projectKey")) {
-                projectKey = bundle.getInt("projectKey");
-            }
             if (bundle.containsKey("posFromNotifClear")) {
                 key = bundle.getInt("posFromNotifClear", -1);
                 fromAction = true;
@@ -262,7 +255,7 @@ public class NotificationHandler extends Service {
         Log.d("workManager", "Key: " + key + ", delete: " + fromAction + ", reschedule: " + reschedule);
 
 
-        handleNotification(key, projectKey, fromAction, reschedule, getApplicationContext());
+        handleNotification(key, fromAction, reschedule, getApplicationContext());
 
 
         return START_NOT_STICKY;

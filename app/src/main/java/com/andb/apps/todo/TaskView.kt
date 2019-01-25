@@ -72,6 +72,7 @@ class TaskView : CyaneaFragment() {
     }
 
 
+
     fun onItemsChanged(){
         expandedItem.apply {
             val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))

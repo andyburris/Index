@@ -32,6 +32,7 @@ import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.notifications.NotificationHandler;
+import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.views.InboxRVViewPager;
@@ -359,9 +360,15 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             if (TaskView.Companion.getPageState() == 0) {
-                Intent intent = new Intent(MainActivity.this, AddTask.class);
-                intent.putExtra("edit", false);
-                startActivity(intent);
+                if(mViewPager.getCurrentPage()==0){
+                    int initialPos = 2;
+                    FilteredLists.inboxTaskList.add(initialPos, new Tasks("ADD_TASK_PLACEHOLDER", null, null, null, DateTime.now(), false));
+                    InboxFragment.mAdapter.notifyItemInserted(initialPos);
+                }else {
+                    int initialPos = 2;
+                    FilteredLists.browseTaskList.add(initialPos, new Tasks("ADD_TASK_PLACEHOLDER", null, null, null, DateTime.now(), false));
+                    BrowseFragment.mAdapter.notifyItemInserted(initialPos);
+                }
             } else {
                 TaskView.Companion.taskDone();
             }

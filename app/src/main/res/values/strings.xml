@@ -77,6 +77,13 @@
     <string name="project_name_hint">Project Name</string>
     <string name="project_color_text">Project Color</string>
 
+    <!--Dividers-->
+    <string name="divider_overdue">OVERDUE</string>
+    <string name="divider_today">TODAY</string>
+    <string name="divider_week">THIS WEEK</string>
+    <string name="divider_month">THIS MONTH</string>
+    <string name="divider_future">FUTURE</string>
+
     <!--Onboarding-->
     <string name="onboarding_intro_screen_title">Hi</string>
     <string name="onboarding_intro_screen_description">Welcome to your new todo list. This tutorial will show you the basics of getting organized with ToDo. If you already know your way around, you can skip it.</string>

@@ -16,6 +16,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,12 +25,9 @@ import com.afollestad.materialcab.MaterialCab
 import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.*
 import com.andb.apps.todo.utilities.Values.TIME_SORT
 import com.andb.apps.todo.utilities.Values.swipeThreshold
-import com.andb.apps.todo.utilities.Vibes
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
@@ -56,7 +54,6 @@ class InboxFragment : CyaneaFragment() {
 
         var vibedOnSwipe: Boolean = false
 
-
         //and in your implementation of
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
             return false
@@ -80,55 +77,87 @@ class InboxFragment : CyaneaFragment() {
 
         override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
 
-            val deleteIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_done_all_black_24dp)!!.mutate()
-            deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-            val intrinsicWidth = deleteIcon.intrinsicWidth
-            val intrinsicHeight = deleteIcon.intrinsicHeight
-            val background = GradientDrawable()
-            val newDx = dX * 6 / 10
-            val alpha: Float = if (newDx > swipeThreshold) 1f else newDx / swipeThreshold
-            val backgroundColor = Color.argb((alpha * 255).toInt(), 27, 125, 27)
+            if(viewHolder.itemViewType==TaskAdapter.TASK_VIEW_ITEM) {
+                val deleteIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_done_all_black_24dp)!!.mutate()
+                deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+                val intrinsicWidth = deleteIcon.intrinsicWidth
+                val intrinsicHeight = deleteIcon.intrinsicHeight
+                val background = GradientDrawable()
+                val newDx = dX * Values.swipeFriction
+                val alpha: Float = if (newDx > swipeThreshold) 1f else newDx / swipeThreshold
+                val backgroundColor = Color.argb((alpha * 255).toInt(), 27, 125, 27)
 
 
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            val itemView = viewHolder.itemView
-            val itemHeight = itemView.bottom - itemView.top
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                val itemView = viewHolder.itemView
+                val itemHeight = itemView.bottom - itemView.top
 
-            // Draw the green delete background
-            background.setColor(backgroundColor)
-            background.setBounds(
-                    itemView.left,
-                    itemView.top,
-                    itemView.right,
-                    itemView.bottom
-            )
+                // Draw the green delete background
+                background.setColor(backgroundColor)
+                background.setBounds(
+                        itemView.left,
+                        itemView.top,
+                        itemView.right,
+                        itemView.bottom
+                )
 
-            //background.setCornerRadius(0);
+                //background.setCornerRadius(0);
 
 
-            background.draw(c)
+                background.draw(c)
 
-            // Calculate position of delete icon
-            val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight) / 2
-            val deleteIconLeft = itemView.left + intrinsicWidth
-            val deleteIconRight = itemView.left + intrinsicWidth * 2
-            val deleteIconBottom = deleteIconTop + intrinsicHeight
-            // Draw the delete icon
-            deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
-            deleteIcon.draw(c)
+                // Calculate position of delete icon
+                val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight) / 2
+                val deleteIconLeft = itemView.left + intrinsicWidth
+                val deleteIconRight = itemView.left + intrinsicWidth * 2
+                val deleteIconBottom = deleteIconTop + intrinsicHeight
+                // Draw the delete icon
+                deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
+                deleteIcon.draw(c)
 
-            if (newDx >= swipeThreshold && !vibedOnSwipe) {
-                Vibes.vibrate()
-                vibedOnSwipe = true
-            }
-            if (newDx <= swipeThreshold && vibedOnSwipe) {
-                vibedOnSwipe = false
-            }
+                if (newDx >= swipeThreshold && !vibedOnSwipe) {
+                    Vibes.vibrate()
+                    vibedOnSwipe = true
+                }
+                if (newDx <= swipeThreshold && vibedOnSwipe) {
+                    vibedOnSwipe = false
+                }
 
-            super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive)
+                super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive)
 
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                isSwiping = isCurrentlyActive
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    isSwiping = isCurrentlyActive
+                }
+            }else{
+                val newDx = dX * Values.swipeFriction
+
+                val itemView = viewHolder.itemView
+                val itemHeight = itemView.bottom - itemView.top
+
+                val deleteIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_clear_black_24dp)!!.mutate()
+
+                deleteIcon.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(cyanea.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP)
+                val intrinsicWidth = deleteIcon.intrinsicWidth
+                val intrinsicHeight = deleteIcon.intrinsicHeight
+
+                if (newDx >= swipeThreshold && !vibedOnSwipe) {
+                    Vibes.vibrate()
+                    vibedOnSwipe = true
+                }
+                if (newDx <= swipeThreshold && vibedOnSwipe) {
+                    vibedOnSwipe = false
+                }
+
+
+                // Calculate position of delete icon
+                val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight) / 2
+                val deleteIconLeft = itemView.left + intrinsicWidth
+                val deleteIconRight = itemView.left + intrinsicWidth * 2
+                val deleteIconBottom = deleteIconTop + intrinsicHeight
+                // Draw the delete icon
+                deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
+                deleteIcon.draw(c)
+                super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive)
             }
         }
 
@@ -142,7 +171,7 @@ class InboxFragment : CyaneaFragment() {
 
         //defines the enabled move directions in each state (idle, swiping, dragging).
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            return if (viewHolder.itemViewType == 0) {
+            return if (viewHolder.itemViewType == TaskAdapter.TASK_VIEW_ITEM || viewHolder.itemViewType == TaskAdapter.ADD_TASK_PLACEHOLDER) {
                 ItemTouchHelper.Callback.makeFlag(ItemTouchHelper.ACTION_STATE_SWIPE,
                         ItemTouchHelper.RIGHT)
             } else {
@@ -197,7 +226,11 @@ class InboxFragment : CyaneaFragment() {
             override fun onClick(view: View, position: Int) {}
 
             override fun onLongClick(view: View, position: Int) {
-                if (!isSwiping && (mAdapter.getItemViewType(position) == 0) && mAdapter.selected == -1) {
+                if (!isSwiping
+                        && (mAdapter.getItemViewType(position) == 0)
+                        && mAdapter.selected == -1
+                        && !Current.taskList().any { tasks -> tasks.isEditing }) {
+
                     Vibes.vibrate()
                     MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub) {
                         title = FilteredLists.inboxTaskList[position].listName
@@ -210,11 +243,8 @@ class InboxFragment : CyaneaFragment() {
                         onSelection {
                             when (it.itemId) {
                                 R.id.editTask -> {
-                                    val editTask = Intent(context, AddTask::class.java)
-                                    editTask.putExtra("edit", true)
-                                    editTask.putExtra("editPos", position)
-                                    editTask.putExtra("browse", false)
-                                    startActivity(editTask)
+                                    FilteredLists.inboxTaskList[position].isEditing = true
+                                    mAdapter.notifyItemChanged(position)
                                     MaterialCab.destroy()
                                     true
                                 }
@@ -224,6 +254,10 @@ class InboxFragment : CyaneaFragment() {
                         }
                         onCreate { _, _ ->
                             activity?.window?.statusBarColor = cyanea.accentDark
+                            menu!!.forEach { m ->
+                                val icon = m.icon.mutate().also { it.setColorFilter(Utilities.textFromBackground(cyanea.accent), PorterDuff.Mode.SRC_ATOP) }
+                                m.setIcon(icon)
+                            }
                             mAdapter.selected = position
                             mAdapter.notifyItemChanged(position)
                         }
