@@ -323,14 +323,18 @@ public class Tasks implements Cloneable {
             Log.d("compareTasks", Integer.toString(compareTimes(o)));
             if (compareTimes(o) != 0) {
                 return compareTimes(o);
-            } else if (compareAlphabetical(o) != 0) {
+            } else if(compareEditing(o)!=0){
+                return compareEditing(o);
+            }else if (compareAlphabetical(o) != 0) {
                 return compareAlphabetical(o);
             } else {
                 return compareLists(o);
             }
 
         } else {//Alphabetical sort
-            if (compareAlphabetical(o) != 0) {
+            if(compareEditing(o)!=0){
+                return compareEditing(o);
+            }else if (compareAlphabetical(o) != 0) {
                 return compareAlphabetical(o);
             } else if (compareTimes(o) != 0) {
                 return compareTimes(o);
@@ -342,6 +346,20 @@ public class Tasks implements Cloneable {
 
     public int compareTimes(Tasks o) {
         return this.getDateTime().compareTo(o.getDateTime());
+    }
+
+    public int compareEditing(Tasks o) {
+        if(this.isEditing()!=o.isEditing()){
+            if(this.isEditing()){
+                return 1;
+            }else {
+                return -1;
+            }
+        }else {
+            return 0;
+        }
+
+
     }
 
     public int compareAlphabetical(Tasks o) {
@@ -359,5 +377,6 @@ public class Tasks implements Cloneable {
     public void setEditing(boolean editing) {
         this.editing = editing;
     }
+
 
 }

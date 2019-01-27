@@ -13,4 +13,7 @@ object GetDatabase{
                 .addMigrations(*ProjectsDatabase_Migrations.build(), MIGRATION_2_3, MIGRATION_3_4)
                 .build()
     }
+
+    @JvmStatic
+    lateinit var projectsDatabase: ProjectsDatabase
 }

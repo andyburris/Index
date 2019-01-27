@@ -1,31 +1,31 @@
 package com.andb.apps.todo
 
+import android.content.ClipData.Item
 import android.content.res.Resources
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.views.TaskListItem
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_divider.view.*
-import me.saket.inboxrecyclerview.InboxRecyclerView
-import java.util.*
+import org.joda.time.DateTime
 
-class TaskAdapter(var taskList: List<Tasks>,
-                  var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
 
+class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
+
+    var taskList: MutableList<Tasks> = ArrayList()
     lateinit var expandedList: ArrayList<Boolean>
     var selected = -1
 
     private var viewType = 0
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
-
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskAdapter.MyViewHolder {
@@ -36,7 +36,10 @@ class TaskAdapter(var taskList: List<Tasks>,
 
         if (viewType == TASK_VIEW_ITEM) {
             itemView = TaskListItem(context)
-        } else if (viewType == ADD_TASK_PLACEHOLDER || viewType == EDIT_TASK_PLACEHOLDER) {
+            itemView.setLayoutParams(ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT))
+        } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
             itemView = AddTask(context)
             itemView.setLayoutParams(ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -72,24 +75,13 @@ class TaskAdapter(var taskList: List<Tasks>,
                 //TODO: lighter color on dark theme
             }
 
-            if (taskList[position].isEditing) {
-
-            }
-
-        } else if (viewType == ADD_TASK_PLACEHOLDER) {
+        } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
             val addTask = holder.itemView as AddTask
             var browse = false
             if (inboxBrowseArchive == FROM_BROWSE) {
                 browse = true
             }
-            addTask.setup(browse, realPosition)
-        } else if (viewType == EDIT_TASK_PLACEHOLDER) {
-            val addTask = holder.itemView as AddTask
-            var browse = false
-            if (inboxBrowseArchive == FROM_BROWSE) {
-                browse = true
-            }
-            addTask.setup(browse, realPosition, taskList[realPosition], true)
+            addTask.setup(browse, taskList[realPosition])
         } else { //divider logic
             Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))
 
@@ -120,10 +112,9 @@ class TaskAdapter(var taskList: List<Tasks>,
             "WEEK" -> THIS_WEEK_DIVIDER
             "MONTH" -> THIS_MONTH_DIVIDER
             "FUTURE" -> FUTURE_DIVIDER
-            "ADD_TASK_PLACEHOLDER" -> ADD_TASK_PLACEHOLDER
             else -> {
                 if (task.isEditing) {
-                    EDIT_TASK_PLACEHOLDER
+                    ADD_EDIT_TASK_PLACEHOLDER
                 } else {
                     TASK_VIEW_ITEM
                 }
@@ -150,6 +141,54 @@ class TaskAdapter(var taskList: List<Tasks>,
         }
     }
 
+    private fun updateItemsInternal(newTasks: List<Tasks>) {
+        val oldItems: List<Tasks> = ArrayList(this.taskList)
+
+        val handler = Handler()
+        Thread(Runnable {
+            val diffResult = DiffUtil.calculateDiff(TaskAdapterDiffCallback(oldItems, newTasks))
+            handler.post {
+                applyDiffResult(newTasks, diffResult)
+            }
+        }).start()
+    }
+
+    private fun applyDiffResult(newItems: List<Tasks>, diffResult: DiffUtil.DiffResult) {
+        dispatchUpdates(newItems, diffResult)
+    }
+
+    private fun dispatchUpdates(newItems: List<Tasks>, diffResult: DiffUtil.DiffResult) {
+        Log.d("dipatchUpdates", "newItems size: ${newItems.size}")
+        taskList.apply {
+            clear()
+            addAll(newItems)
+        }
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    fun update(newList: ArrayList<Tasks>) {
+        updateItemsInternal(newList)
+    }
+
+    internal class TaskAdapterDiffCallback(private val oldTasks: List<Tasks>, private val newTasks: List<Tasks>) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldTasks[oldItemPosition].listKey == newTasks[newItemPosition].listKey
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldTasks[oldItemPosition] == newTasks[newItemPosition]
+        }
+
+        override fun getNewListSize(): Int {
+            return newTasks.size
+        }
+
+        override fun getOldListSize(): Int {
+            return oldTasks.size
+        }
+
+    }
+
     companion object {
 
         const val TASK_VIEW_ITEM = 0
@@ -158,11 +197,20 @@ class TaskAdapter(var taskList: List<Tasks>,
         const val THIS_WEEK_DIVIDER = 3
         const val THIS_MONTH_DIVIDER = 4
         const val FUTURE_DIVIDER = 5
-        const val ADD_TASK_PLACEHOLDER = 6
-        const val EDIT_TASK_PLACEHOLDER = 7
+        const val ADD_EDIT_TASK_PLACEHOLDER = 6
 
         const val FROM_INBOX = 0
         const val FROM_BROWSE = 1
         const val FROM_ARCHIVE = 2
+
+        @JvmStatic
+        fun newDivider(name: String, dateTime: DateTime): Tasks {
+            return Tasks(name, ArrayList(), ArrayList(), ArrayList(), dateTime, false)
+        }
+
+        @JvmStatic
+        fun newAddTask(): Tasks {
+            return Tasks("", ArrayList(), ArrayList(), ArrayList(), DateTime(3000, 1, 1, 0, 0, 30), false).also { it.isEditing = true }
+        }
     }
 }

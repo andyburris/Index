@@ -141,9 +141,9 @@ public class ImportExport {
 
 
                         AsyncTask.execute(() -> {
-                                    MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(newProject);
-                                    MainActivity.projectsDatabase.tasksDao().insertMultipleTasks(taskList);
-                                    MainActivity.projectsDatabase.tagsDao().insertMultipleTags(tagList);
+                                    Current.database().projectsDao().insertOnlySingleProject(newProject);
+                                    Current.database().tasksDao().insertMultipleTasks(taskList);
+                                    Current.database().tagsDao().insertMultipleTags(tagList);
                                 }
                         );
 

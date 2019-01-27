@@ -164,10 +164,11 @@ public class BrowseFragment extends CyaneaFragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(FilteredLists.browseTaskList, TaskAdapter.FROM_BROWSE);
+        mAdapter = new TaskAdapter(TaskAdapter.FROM_BROWSE);
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setNested(true);
+        mAdapter.update(FilteredLists.browseTaskList);
 
         final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_browse);
         mRecyclerView.setExpandablePage(taskView);

@@ -1,5 +1,7 @@
 package com.andb.apps.todo.utilities;
 
+import com.andb.apps.todo.databases.GetDatabase;
+import com.andb.apps.todo.databases.ProjectsDatabase;
 import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.objects.Tags;
@@ -40,6 +42,10 @@ public class Current {
 
     public static ArrayList<Integer> keyList(){
         return project().getKeyList();
+    }
+
+    public static ProjectsDatabase database(){
+        return GetDatabase.projectsDatabase;
     }
 
     public static boolean hasProjects(){

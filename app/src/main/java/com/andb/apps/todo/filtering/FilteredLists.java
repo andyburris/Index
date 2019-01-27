@@ -45,8 +45,6 @@ public class FilteredLists {
         inboxTaskList.addAll(filterInbox(Current.taskList(), Filters.getCurrentFilter()));
         browseTaskList.addAll(filterBrowse(inboxTaskList, Filters.getCurrentFilter(), filteredTagLinks, Current.tagList(), SettingsActivity.getSubFilter()));
 
-        InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
-
 
         BrowseFragment.refreshWithAnim();
 
@@ -54,12 +52,12 @@ public class FilteredLists {
 
 
         //if (viewing) {
-        InboxFragment.Companion.setFilterMode(InboxFragment.Companion.getFilterMode());
+        InboxFragment.Companion.setFilterMode();
         InboxFragment.Companion.refreshWithAnim();
         //InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
 
         Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size() + ", InboxFragment.mAdapter.taskList: " + InboxFragment.Companion.getMAdapter().getTaskList().size());
-        for (Tasks t : InboxFragment.Companion.getMAdapter().getTaskList()) {
+        for (Tasks t : InboxFragment.mAdapter.getTaskList()) {
             Log.d("inboxTaskList", t.toString());
         }
         //}

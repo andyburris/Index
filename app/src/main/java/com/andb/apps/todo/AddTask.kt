@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
-import android.os.AsyncTask
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -32,7 +31,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.add_task.view.*
 import kotlinx.android.synthetic.main.add_task_list_item.view.*
-import kotlinx.android.synthetic.main.content_add_task.view.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -46,27 +44,21 @@ import kotlin.collections.ArrayList
 class AddTask(ctxt: Context) : FrameLayout(ctxt) {
 
 
-    lateinit var subtaskAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    lateinit var tagAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    private lateinit var subtaskAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    private lateinit var tagAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
 
-    lateinit var task: Tasks
-    var editing: Boolean = false
-    var viewPos: Int = -1;
-    var browse: Boolean = false
+    private lateinit var task: Tasks
+    private var browse: Boolean = false
 
-    var dateSet = false
+    private var dateSet = false
 
     init {
-        //LayoutInflater.from(context).inflate(R.layout.add_task, parent, false)
         inflate(context, R.layout.add_task, this)
         EventBus.getDefault().register(this)
     }
 
-    @JvmOverloads
-    fun setup(browse: Boolean, viewPos: Int, task: Tasks = Tasks("", ArrayList<String>(), ArrayList<Boolean>(), ArrayList<Int>(), DateTime(3000, 1, 1, 0, 0, 30), false), editing: Boolean = false) {
+    fun setup(browse: Boolean, task: Tasks) {
         this.task = task
-        this.editing = editing
-        this.viewPos = viewPos
         this.browse = browse
 
         sortView()
@@ -78,7 +70,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
     }
 
 
-    fun theme() {
+    private fun theme() {
         addTaskEditFrame.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .95f))
         addTaskName.apply {
             setHintTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .7f))
@@ -92,7 +84,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
     }
 
 
-    fun setupName() {
+    private fun setupName() {
         addTaskName.apply {
             setText(task.listName)
             addTextChangedListener(object : TextWatcher {
@@ -105,22 +97,22 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         }
     }
 
-    fun setupTime(){
-        if(task.hasDate()){
+    private fun setupTime() {
+        if (task.hasDate()) {
             dateSet = true
-            if(task.hasTime()){
+            if (task.hasTime()) {
                 addTaskTimeText.text = task.dateTime!!.toString("MMM d, h:mm a")
-            }else{
+            } else {
                 addTaskTimeText.text = task.dateTime!!.toString("MMM d")
             }
-            resetTimeButton.visibility = View.VISIBLE
+            addTaskResetReminders.visibility = View.VISIBLE
             sortView()
-        }else{
+        } else {
             addTaskTimeText.text = ""
         }
     }
 
-    fun setupRecyclers() {
+    private fun setupRecyclers() {
         val tagRecyclerView = addTaskTagsRV
         tagRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         tagAdapter = tagAdapter()
@@ -134,7 +126,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         ith.attachToRecyclerView(taskRecycler)
     }
 
-    fun setupButtons() {
+    private fun setupButtons() {
         addTaskAddListIcon.setOnClickListener {
             addSubtask()
             checkDividers()
@@ -156,13 +148,15 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
             task.dateTime = DateTime(3000, 1, 1, 0, 0, 59)
             addTaskTimeText.text = ""
             addTaskResetReminders.visibility = View.GONE
+            dateSet = false
+            sortView()
         }
         addTaskConfirm.setOnClickListener {
             save()
         }
     }
 
-    fun checkDividers() {
+    private fun checkDividers() {
         addTaskDivider1.visibility = if (task.isListItems) {
             View.VISIBLE
         } else {
@@ -175,19 +169,19 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         }
     }
 
-    fun addSubtask() {
+    private fun addSubtask() {
         task.listItems.add("")
         task.listItemsChecked.add(false)
         subtaskAdapter.notifyItemInserted(task.listItemsSize - 1)
     }
 
-    fun addTag() {
+    private fun addTag() {
         val selectTag = Intent(context, TagSelect::class.java)
         selectTag.putExtra("isTaskCreate", true)
         context.startActivity(selectTag)
     }
 
-    fun pickDate() {
+    private fun pickDate() {
         val dialog = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { datePicker, i, i1, i2 ->
             dateSet = true
             task.dateTime = task.dateTime!!.withDate(i, i1 + 1, i2)
@@ -206,7 +200,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         CyaneaDialog.setButtonStyle(dialog, DatePickerDialog.BUTTON_NEGATIVE, DatePickerDialog.BUTTON_POSITIVE)
     }
 
-    fun pickTime() {
+    private fun pickTime() {
         val timePickerDialog = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { timePicker, i, i1 ->
             val localTime = LocalTime().withHourOfDay(i).withMinuteOfHour(i1).withSecondOfMinute(0)
             if (!dateSet) {
@@ -224,15 +218,17 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         CyaneaDialog.setButtonStyle(timePickerDialog, TimePickerDialog.BUTTON_NEGATIVE, TimePickerDialog.BUTTON_POSITIVE)
     }
 
-    fun sortView(){
-        if(browse){
-
-        }else{
-            //InboxFragment.setFilterMode()
+    private fun sortView() {
+        if (browse) {
+            BrowseFragment.mAdapter.update(FilteredLists.browseTaskList)
+        } else {
+            InboxFragment.setFilterMode()
+            InboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
+            InboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.inboxTaskList.indexOf(task))
         }
     }
 
-    fun validate(): Boolean {
+    private fun validate(): Boolean {
         if (task.listName.isEmpty()) {
             Snackbar.make(addTaskEditFrame.rootView, "Please provide a name for the task", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
             return false
@@ -260,56 +256,21 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
     fun save() {
 
         if (validate()) {
-
-            if (editing) {
-                finishEdit()
-                ProjectsUtils.update(task)
-                NotificationHandler.resetNotifications(context)
-            } else {
-
-                Current.taskList().add(task)
-                finishAdd()
-                AsyncTask.execute {
-                    MainActivity.projectsDatabase.tasksDao().insertOnlySingleTask(task)
-                }
-                NotificationHandler.resetNotifications(context)
-
-            }
+            update()
+            ProjectsUtils.update(task)
+            NotificationHandler.resetNotifications()
         }
     }
 
-    fun finishAdd() {
-        if (browse) {
-            FilteredLists.browseTaskList.apply {
-                removeAt(viewPos)
-                add(viewPos, task)
-            }
-            BrowseFragment.mAdapter.notifyItemChanged(viewPos)
-            InboxFragment.mAdapter.notifyDataSetChanged()
-        } else {
-            FilteredLists.inboxTaskList.apply {
-                removeAt(viewPos)
-                add(viewPos, task)
-            }
-            InboxFragment.mAdapter.notifyItemChanged(viewPos)
-            BrowseFragment.mAdapter.notifyDataSetChanged()
-        }
-    }
-
-    fun finishEdit() {
-        val taskToReplace: Tasks
+    private fun update() {
         task.isEditing = false
         if (browse) {
-            taskToReplace = FilteredLists.browseTaskList[viewPos]
-            FilteredLists.browseTaskList[viewPos] = task
-            BrowseFragment.mAdapter.notifyItemChanged(viewPos)
+            sortView()
+            BrowseFragment.mAdapter.update(FilteredLists.browseTaskList)
         } else {
-            taskToReplace = FilteredLists.inboxTaskList[viewPos]
-            FilteredLists.inboxTaskList[viewPos] = task
-            InboxFragment.mAdapter.notifyItemChanged(viewPos)
+            sortView()
+            InboxFragment.addingTask = false
         }
-        Log.d("replaceTask", taskToReplace.toString())
-        //Current.taskList()[Current.taskList().indexOf(taskToReplace)] = task
     }
 
 
@@ -366,7 +327,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
             .build()
 
 
-    fun setCursorColor(editText: EditText, color: Int) {
+    private fun setCursorColor(editText: EditText, color: Int) {
         try {
             // Get the cursor resource id
             var field = TextView::class.java.getDeclaredField("mCursorDrawableRes")

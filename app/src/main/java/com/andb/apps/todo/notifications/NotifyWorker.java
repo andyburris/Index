@@ -1,18 +1,18 @@
 package com.andb.apps.todo.notifications;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
-import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -29,7 +29,7 @@ public class NotifyWorker extends Worker {
         super(context, params);
     }
 
-    public static final String workTag = "notifications";
+    private static final String workTag = "notifications";
 
     @NonNull
     @Override
@@ -39,13 +39,12 @@ public class NotifyWorker extends Worker {
 
 
         NotificationHandler.initializeDatabase(getApplicationContext());
-        ProjectsUtils.setupProjectList(NotificationHandler.projectsDatabase);
-
+        ProjectsUtils.setupProjectList(Current.database());
 
         if (NotificationUtils.isNextNotification()) {
             Log.d("workManager", "Next isn't null");
-            Tasks nextNotif = NotificationUtils.nextNotificationAll(NotificationHandler.projectsDatabase);
-            NotificationHandler.createNotification(nextNotif,  getApplicationContext());
+            Tasks nextNotif = NotificationUtils.nextNotificationAll(Current.database());
+            NotificationHandler.createNotification(nextNotif, getApplicationContext());
         }
 
         return Result.success();
@@ -53,33 +52,35 @@ public class NotifyWorker extends Worker {
         // later; FAILURE says not to try again.)
     }
 
-    public static void nextWork() {
+    static void nextWork() {
 
         //Here we set the request for the next notification
+        AsyncTask.execute(() -> {
+            if (NotificationUtils.isNextNotification()) {//if there are any left, restart the service
 
-        if (NotificationUtils.isNextNotification()) {//if there are any left, restart the service
-
-            Log.d("serviceRestart", "Service Restarting");
+                Log.d("serviceRestart", "Service Restarting");
 
 
-            Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), (NotificationUtils.nextNotificationAll()).getDateTime());
+                Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), (NotificationUtils.nextNotificationAll()).getDateTime());
 
-            if ((NotificationUtils.nextNotificationAll()).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {//check for no-time reminders
-                DateTime onlyDate = (NotificationUtils.nextNotificationAll()).getDateTime();
-                onlyDate = onlyDate.withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
-                duration = new Duration(DateTime.now(), onlyDate);
+                if ((NotificationUtils.nextNotificationAll()).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {//check for no-time reminders
+                    DateTime onlyDate = (NotificationUtils.nextNotificationAll()).getDateTime();
+                    onlyDate = onlyDate.withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
+                    duration = new Duration(DateTime.now(), onlyDate);
+                }
+                long delay = duration.getStandardSeconds();
+
+                OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
+                        .setInitialDelay(delay, TimeUnit.SECONDS)
+                        .addTag(workTag)
+                        .build();
+
+
+                WorkManager.getInstance().enqueue(notificationWork);
+
             }
-            long delay = duration.getStandardSeconds();
+        });
 
-            OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotifyWorker.class)
-                    .setInitialDelay(delay, TimeUnit.SECONDS)
-                    .addTag(workTag)
-                    .build();
-
-
-            WorkManager.getInstance().enqueue(notificationWork);
-
-        }
 
     }
 }

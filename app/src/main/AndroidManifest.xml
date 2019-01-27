@@ -16,8 +16,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppThemeGlobal"
-            android:windowSoftInputMode="adjustNothing">
+            android:theme="@style/AppThemeGlobal">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,10 +27,6 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppThemeLightCollapse"/>
-        <activity
-            android:name=".AddTask"
-            android:label="@string/title_activity_add_list"
-            android:theme="@style/AppThemeGlobal" />
         <activity
             android:name=".TagSelect"
             android:label="@string/title_activity_tag_select"

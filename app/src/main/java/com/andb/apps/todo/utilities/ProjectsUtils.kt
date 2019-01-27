@@ -1,7 +1,6 @@
 package com.andb.apps.todo.utilities
 
 import android.os.AsyncTask
-import com.andb.apps.todo.MainActivity
 import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.BaseProject
@@ -11,9 +10,6 @@ import com.andb.apps.todo.objects.Tasks
 import java.util.ArrayList
 import java.util.Random
 import kotlin.Comparator
-import kotlin.Int
-import kotlin.String
-import kotlin.apply
 
 object ProjectsUtils {
 
@@ -21,7 +17,7 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(project: Project = Current.project(), projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase) {
+    fun update(project: Project = Current.project(), projectsDatabase: ProjectsDatabase = Current.database()) {
         AsyncTask.execute {
             projectsDatabase.projectsDao().updateProject(project as BaseProject)
         }
@@ -29,7 +25,7 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase) {
+    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = Current.database()) {
         AsyncTask.execute {
             projectsDatabase.tagsDao().updateTag(tag)
         }
@@ -37,7 +33,7 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = MainActivity.projectsDatabase) {
+    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = Current.database()) {
         AsyncTask.execute {
             projectsDatabase.tasksDao().updateTask(task)
         }

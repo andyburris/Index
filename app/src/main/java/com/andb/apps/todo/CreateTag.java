@@ -190,7 +190,7 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
                 Tags tags = new Tags(tagName, tagColor, subFolder, Current.tagList().size());
                 Current.tagList().add(tags);
                 TagSelect.mAdapter.notifyDataSetChanged();
-                AsyncTask.execute(() -> MainActivity.projectsDatabase.tagsDao().insertOnlySingleTag(tags));
+                AsyncTask.execute(() -> Current.database().tagsDao().insertOnlySingleTag(tags));
                 finish();
 
             }

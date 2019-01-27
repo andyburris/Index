@@ -1,5 +1,6 @@
 package com.andb.apps.todo
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Canvas
@@ -10,13 +11,16 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
+import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,13 +30,14 @@ import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.*
-import com.andb.apps.todo.utilities.Values.TIME_SORT
-import com.andb.apps.todo.utilities.Values.swipeThreshold
+import com.andb.apps.todo.utilities.Values.*
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
+import kotlinx.android.synthetic.main.fragment_inbox.*
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import org.joda.time.DateTime
+import org.joda.time.LocalTime
 import java.util.*
 
 
@@ -62,16 +67,23 @@ class InboxFragment : CyaneaFragment() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             Log.d("swipeAction", "swiped")
 
-            TransitionManager.beginDelayedTransition(mRecyclerView, ChangeBounds())
-            val layoutParams = mRecyclerView.getChildAt(viewHolder.adapterPosition).layoutParams
-            layoutParams.height = 0
-            mRecyclerView.getChildAt(viewHolder.adapterPosition).layoutParams = layoutParams
-            if (InboxFragment.filterMode == 0) {
-                Log.d("removing", "removing date sorted " + Integer.toString(viewHolder.adapterPosition))
-                removeWithDivider(viewHolder.adapterPosition)
-            } else {
-                Log.d("removing", "removing alphabetical " + Integer.toString(viewHolder.adapterPosition))
-                removeTask(viewHolder.adapterPosition, false)
+            if(viewHolder.itemViewType!=TaskAdapter.ADD_EDIT_TASK_PLACEHOLDER) {
+                if (InboxFragment.filterMode == TIME_SORT) {
+                    removeWithDivider(viewHolder.adapterPosition)
+                } else {
+                    removeTask(viewHolder.adapterPosition)
+                }
+            }else{
+                if(addingTask){
+                    if (InboxFragment.filterMode == TIME_SORT) {
+                        removeWithDivider(viewHolder.adapterPosition)
+                    } else {
+                        removeTask(viewHolder.adapterPosition)
+                    }
+                    addingTask = false
+                }else{
+                    (viewHolder.itemView as AddTask).save()
+                }
             }
         }
 
@@ -162,7 +174,7 @@ class InboxFragment : CyaneaFragment() {
         }
 
         override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-            return swipeThreshold
+            return swipeThreshold/(viewHolder.itemView.width * swipeFriction)
         }
 
         override fun isItemViewSwipeEnabled(): Boolean {
@@ -171,7 +183,7 @@ class InboxFragment : CyaneaFragment() {
 
         //defines the enabled move directions in each state (idle, swiping, dragging).
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            return if (viewHolder.itemViewType == TaskAdapter.TASK_VIEW_ITEM || viewHolder.itemViewType == TaskAdapter.ADD_TASK_PLACEHOLDER) {
+            return if (viewHolder.itemViewType == TaskAdapter.TASK_VIEW_ITEM || viewHolder.itemViewType == TaskAdapter.ADD_EDIT_TASK_PLACEHOLDER) {
                 ItemTouchHelper.Callback.makeFlag(ItemTouchHelper.ACTION_STATE_SWIPE,
                         ItemTouchHelper.RIGHT)
             } else {
@@ -194,11 +206,11 @@ class InboxFragment : CyaneaFragment() {
 
         Filters.setPath()
 
-        try {
+/*        try {
             setTaskCountText(Current.project().taskList.size)
         } catch (e: Exception) {
             Log.d("notMigrated", "data not migrated yet")
-        }
+        }*/
 
         val tagButton = view.findViewById<Button>(R.id.tag_button)
         val bgdrawable = resources.getDrawable(R.drawable.rounded_button_background).mutate()
@@ -244,7 +256,7 @@ class InboxFragment : CyaneaFragment() {
                             when (it.itemId) {
                                 R.id.editTask -> {
                                     FilteredLists.inboxTaskList[position].isEditing = true
-                                    mAdapter.notifyItemChanged(position)
+                                    mAdapter.update(FilteredLists.inboxTaskList)
                                     MaterialCab.destroy()
                                     true
                                 }
@@ -256,7 +268,7 @@ class InboxFragment : CyaneaFragment() {
                             activity?.window?.statusBarColor = cyanea.accentDark
                             menu!!.forEach { m ->
                                 val icon = m.icon.mutate().also { it.setColorFilter(Utilities.textFromBackground(cyanea.accent), PorterDuff.Mode.SRC_ATOP) }
-                                m.setIcon(icon)
+                                m.icon = icon
                             }
                             mAdapter.selected = position
                             mAdapter.notifyItemChanged(position)
@@ -292,29 +304,16 @@ class InboxFragment : CyaneaFragment() {
     private fun prepareRecyclerView(view: View) {
 
 
-        mRecyclerView = view.findViewById<View>(R.id.inboxRecycler) as InboxRecyclerView
+        mRecyclerView = view.inboxRecycler
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true)
-
-        // use a linear layout manager
-        val mLayoutManager = LinearLayoutManager(view.context)
-        mRecyclerView.layoutManager = mLayoutManager
-
-        // specify an adapter (see also next example)
-
-        Log.d("inboxTaskList", "adapter set")
-        mAdapter = TaskAdapter(FilteredLists.inboxTaskList, TaskAdapter.FROM_INBOX)
-
+        //mRecyclerView.setHasFixedSize(true)
+        mRecyclerView.layoutManager = CrashFixLinearLayoutManager(view.context)
+        mAdapter = TaskAdapter(TaskAdapter.FROM_INBOX)
         mAdapter.setHasStableIds(true)
-
         mRecyclerView.adapter = mAdapter
-
+        mRecyclerView.isNestedScrollingEnabled = false
         mRecyclerView.setNested(true)
-
-
-
+        mAdapter.update(FilteredLists.inboxTaskList)
         mRecyclerView.setExpandablePage(view.expandable_page_inbox)
 
         view.expandable_page_inbox.addStateChangeCallbacks(TaskView.TaskViewPageCallbacks(activity!!))
@@ -323,6 +322,21 @@ class InboxFragment : CyaneaFragment() {
         ith.attachToRecyclerView(mRecyclerView)
 
 
+    }
+
+/*    internal class FlingFixNestedScrollView(ctxt: Context, attributeSet: AttributeSet): NestedScrollView(ctxt, attributeSet){
+        override fun stopNestedScroll(type: Int) {
+            super.stopNestedScroll(type)
+            if(type==ViewCompat.TYPE_NON_TOUCH){
+
+            }
+        }
+    }*/
+
+    internal class CrashFixLinearLayoutManager(ctxt: Context) : LinearLayoutManager(ctxt){
+        override fun supportsPredictiveItemAnimations(): Boolean {
+            return false
+        }
     }
 
     companion object {
@@ -347,34 +361,32 @@ class InboxFragment : CyaneaFragment() {
             FilteredLists.browseTaskList.remove(tasks)
         }
 
-        BrowseFragment.mAdapter.notifyDataSetChanged()
+        BrowseFragment.mAdapter.update(FilteredLists.browseTaskList)
 
     }
 
-    private fun removeTask(position: Int, above: Boolean) {
+    private fun removeTask(position: Int, above: Boolean = false) {
 
         val tasks = FilteredLists.inboxTaskList[position]
+        tasks.isArchived = true
 
         Current.archiveTaskList().add(tasks)
         Current.taskList().remove(tasks)
 
         FilteredLists.inboxTaskList.removeAt(position)
-        mAdapter.notifyItemRemoved(position)
-
-
 
         if (above) {
             val dividerPosition = position - 1
             FilteredLists.inboxTaskList.removeAt(dividerPosition)
             dividersForTaskCount--
-            mAdapter.notifyItemRemoved(dividerPosition)
         }
 
-        //mAdapter.notifyItemRangeChanged(dividerPosition, mAdapter.itemCount)
+        mAdapter.update(FilteredLists.inboxTaskList)
+
         setTaskCountText(FilteredLists.inboxTaskList.size)
 
         AsyncTask.execute {
-            MainActivity.projectsDatabase.tasksDao().deleteTask(tasks)
+            Current.database().tasksDao().updateTask(tasks)
         }
 
     }
@@ -394,15 +406,16 @@ class InboxFragment : CyaneaFragment() {
 
 
         private var filterMode = 0 //0=date, 1=alphabetical, more to come
-        public var dividersForTaskCount = 0;
+        var dividersForTaskCount = 0
+
+        @JvmStatic
+        var addingTask = false
 
         lateinit var mRecyclerView: InboxRecyclerView
         lateinit var mAdapter: TaskAdapter
 
         private var taskCountText: TextView? = null
         private var currentPathText: TextView? = null
-
-        private var noTasks: TextView? = null
 
 
         fun newInstance(): InboxFragment {
@@ -414,123 +427,73 @@ class InboxFragment : CyaneaFragment() {
             return filterMode
         }
 
-        fun setFilterMode(mode: Int = filterMode) {
+        @JvmOverloads
+        fun setFilterMode(mode: Int = filterMode, sort: Boolean = true) {
 
             filterMode = mode
 
-            var tempList = ArrayList(FilteredLists.inboxTaskList)
+            if(sort) {
+                var tempList = ArrayList(FilteredLists.inboxTaskList)
 
-            Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
+                Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
 
-            run {
-                var i = 0
-                while (i < tempList.size) {
-                    val task = tempList[i]
-                    if ((task.listName == "OVERDUE") or (task.listName == "TODAY") or (task.listName == "WEEK") or (task.listName == "MONTH") or (task.listName == "FUTURE")) {
-                        Log.d("removing", "removing " + task.listName)
-                        FilteredLists.inboxTaskList.removeAt(i)
-                        tempList.removeAt(i)
-                        i--
-                    }
-                    i++
-                }
-
-            }
-
-            dividersForTaskCount = 0
-
-            tempList = ArrayList(FilteredLists.inboxTaskList)
-
-            Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
-
-
-            if (mode == TIME_SORT) {
-
-
-                var overdue = true
-                var today = true
-                var thisWeek = true
-                var thisMonth = true
-                var future = true
-
-
-                Log.d("loopStart", "Size: " + Integer.toString(FilteredLists.inboxTaskList.size))
-
-                for ((i, task) in tempList.withIndex()) {
-
-
-                    Log.d("loopStart", "loop through " + Integer.toString(i))
-                    val taskDateTime = DateTime(task.dateTime)
-                    if (taskDateTime.isBefore(DateTime.now())) {
-                        if (overdue) {
-                            Log.d("addDivider", "adding OVERDUE from " + task.listName + ", " + task.dateTime.toString())
-                            val tasks = Tasks("OVERDUE", ArrayList(), ArrayList(), ArrayList(), DateTime(1970, 1, 1, 0, 0), false)
-
-                            FilteredLists.inboxTaskList.add(i, tasks)
-                            dividersForTaskCount++
-
-                            overdue = false
+                run {
+                    var i = 0
+                    while (i < tempList.size) {
+                        val task = tempList[i]
+                        if (isDivider(task)) {
+                            Log.d("removing", "removing " + task.listName)
+                            FilteredLists.inboxTaskList.removeAt(i)
+                            tempList.removeAt(i)
+                            i--
                         }
-                    } else if (taskDateTime.isBefore(DateTime.now().withTime(23, 59, 59, 999))) {
-                        if (today) {
-                            Log.d("addDivider", "adding TODAY from " + task.listName + ", " + task.dateTime.toString())
-                            Log.d("addDivider", task.listName)
-                            val tasks = Tasks("TODAY", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now()), false)//drop one category to show at top
-
-                            FilteredLists.inboxTaskList.add(i, tasks)
-                            dividersForTaskCount++
-
-                            today = false
-                        }
-                    } else if (taskDateTime.isBefore(DateTime.now().plusWeeks(1).minusDays(1).withTime(23, 59, 59, 999))) {
-                        if (thisWeek) {
-                            Log.d("addDivider", "adding WEEK from " + task.listName + ", " + task.dateTime.toString() + " at position " + Integer.toString(i))
-                            val tasks = Tasks("WEEK", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now().withTime(23, 59, 59, 999)), false)
-
-                            FilteredLists.inboxTaskList.add(i, tasks)
-                            dividersForTaskCount++
-
-                            thisWeek = false
-                        }
-                    } else if (taskDateTime.isBefore(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999))) {
-                        if (thisMonth) {
-                            Log.d("addDivider", "adding MONTH from " + task.listName + ", " + task.dateTime.toString())
-                            val tasks = Tasks("MONTH", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(23, 59, 59, 999)), false)
-
-                            FilteredLists.inboxTaskList.add(i, tasks)
-                            dividersForTaskCount++
-                            thisMonth = false
-                        }
-
-                    } else if (taskDateTime.isAfter(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999))) {
-                        if (future) {
-                            Log.d("addDivider", "adding FUTURE from " + task.listName + ", " + task.dateTime.toString())
-                            val tasks = Tasks("FUTURE", ArrayList(), ArrayList(), ArrayList(), DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(23, 59, 59, 999)), false)
-
-                            FilteredLists.inboxTaskList.add(i, tasks)
-                            dividersForTaskCount++
-
-                            future = false
-                        }
-
+                        i++
                     }
 
                 }
+
+                dividersForTaskCount = 0
+
+                tempList = ArrayList(FilteredLists.inboxTaskList)
 
                 Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
 
 
+                if (mode == TIME_SORT) {
 
+                    val endOfDay = LocalTime(23, 59, 59, 999)
 
+                    val overdue = TaskAdapter.newDivider("OVERDUE", DateTime(1970, 1, 1, 0, 0))
+                    val today = TaskAdapter.newDivider("TODAY", DateTime(DateTime.now()))
+                    val thisWeek = TaskAdapter.newDivider("WEEK", DateTime(DateTime.now().withTime(endOfDay)))
+                    val thisMonth = TaskAdapter.newDivider("MONTH", DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(endOfDay)))
+                    val future = TaskAdapter.newDivider("FUTURE", DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(endOfDay)))
 
+                    if (tempList.any { tasks -> tasks.dateTime.isBefore(today.dateTime) }) {
+                        FilteredLists.inboxTaskList.add(overdue)
+                    }
+                    if (tempList.any { tasks -> tasks.dateTime.isAfter(today.dateTime) && tasks.dateTime.isBefore(thisWeek.dateTime) }) {
+                        FilteredLists.inboxTaskList.add(today)
+                    }
+                    if (tempList.any { tasks -> tasks.dateTime.isAfter(thisWeek.dateTime) && tasks.dateTime.isBefore(thisMonth.dateTime) }) {
+                        FilteredLists.inboxTaskList.add(thisWeek)
+                    }
+                    if (tempList.any { tasks -> tasks.dateTime.isAfter(thisMonth.dateTime) && tasks.dateTime.isBefore(future.dateTime) }) {
+                        FilteredLists.inboxTaskList.add(thisMonth)
+                    }
+                    if (tempList.any { tasks -> tasks.dateTime.isAfter(future.dateTime) }) {
+                        FilteredLists.inboxTaskList.add(future)
+                    }
+
+                }
+
+                FilteredLists.inboxTaskList.sortWith(Comparator { t1, t2 -> t1.compareTo(t2, filterMode) })
             }
-
-            FilteredLists.inboxTaskList.sortWith(kotlin.Comparator { t1, t2 -> t1.compareTo(t2, filterMode) })
 
         }
 
         fun refreshWithAnim() {
-            mAdapter.notifyDataSetChanged()
+            mAdapter.update(FilteredLists.inboxTaskList)
             mRecyclerView.scheduleLayoutAnimation()
         }
 

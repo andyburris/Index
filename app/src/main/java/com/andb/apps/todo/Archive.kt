@@ -25,6 +25,8 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.andb.apps.todo.filtering.FilteredLists
+import com.andb.apps.todo.objects.Tasks
 import me.saket.inboxrecyclerview.PullCollapsibleActivity
 
 import com.andb.apps.todo.utilities.Values.swipeThreshold
@@ -47,17 +49,21 @@ class Archive : PullCollapsibleActivity() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             Log.d("swipeAction", "swiped")
 
+            val task = Current.project().archiveList[viewHolder.adapterPosition]
             if (direction == ItemTouchHelper.RIGHT) {//restore
-                Current.taskList().add(Current.project().archiveList[viewHolder.adapterPosition])
-                Current.project().archiveList.removeAt(viewHolder.adapterPosition)
-                mAdapter.notifyItemRemoved(viewHolder.adapterPosition)
+                task.isArchived = false
+                Current.taskList().add(task)
+                Current.project().archiveList.remove(task)
+                mAdapter.update(Current.archiveTaskList())
                 EventBus.getDefault().post(UpdateEvent(true))
-                InboxFragment.mAdapter.notifyDataSetChanged()
-                ProjectsUtils.update()
+                ProjectsUtils.update(task)
             } else if (direction == ItemTouchHelper.LEFT) {//delete permanently
-                Current.project().archiveList.removeAt(viewHolder.adapterPosition)
-                mAdapter.notifyItemRemoved(viewHolder.adapterPosition)
-                ProjectsUtils.update()
+                Current.project().archiveList.remove(task)
+                mAdapter.update(Current.archiveTaskList())
+                AsyncTask.execute {
+                    Current.database().tasksDao().deleteTask(task)
+                }
+
             }
         }
 
@@ -225,7 +231,8 @@ class Archive : PullCollapsibleActivity() {
         mRecyclerView.layoutManager = mLayoutManager
 
         // specify an adapter (see also next example)
-        mAdapter = TaskAdapter(Current.archiveTaskList(), TaskAdapter.FROM_ARCHIVE)
+        mAdapter = TaskAdapter(TaskAdapter.FROM_ARCHIVE)
+        mAdapter.update(Current.archiveTaskList())
         mRecyclerView.adapter = mAdapter
 
         val ith = ItemTouchHelper(_ithCallback)

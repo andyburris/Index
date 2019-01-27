@@ -3,6 +3,7 @@ package com.andb.apps.todo.lists
 import android.content.Context
 import android.os.AsyncTask
 import android.preference.PreferenceManager
+import androidx.room.Query
 import com.andb.apps.todo.utilities.OnceHolder
 import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.objects.Project
@@ -18,7 +19,17 @@ object ProjectList {
     fun appStart(context: Context, db: ProjectsDatabase) {
         var viewing = PreferenceManager.getDefaultSharedPreferences(context).getInt("project_viewing", 0)
 
+        db.tasksDao().apply {//cleanse blank names from add & exit app
+            val list = findTasksByName("")
+            for(t in list){
+                deleteTask(t)
+            }
+
+        }
+
         ProjectsUtils.setupProjectList(db)
+
+
 
         OnceHolder.checkAppSetup(context)
 

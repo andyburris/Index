@@ -17,10 +17,7 @@ import android.widget.Toast;
 import com.andb.apps.todo.MainActivity;
 import com.andb.apps.todo.R;
 import com.andb.apps.todo.databases.GetDatabase;
-import com.andb.apps.todo.databases.ProjectsDatabase;
 import com.andb.apps.todo.eventbus.UpdateEvent;
-import com.andb.apps.todo.lists.ProjectList;
-import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.objects.Tasks;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
@@ -43,8 +40,6 @@ public class NotificationHandler extends Service {
     private final static String todo_notification_channel = "Task Reminders";
     public static final String workTag = "notifications";
 
-    public static ProjectsDatabase projectsDatabase;
-
 
     @Nullable
     @Override
@@ -55,48 +50,22 @@ public class NotificationHandler extends Service {
 
     public static void createNotification(Tasks task, Context ctxt) {
 
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //define the importance level of the notification
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-
-            //build the actual notification channel, giving it a unique ID and name
-            NotificationChannel channel =
-                    new NotificationChannel(todo_notification_channel, todo_notification_channel, importance);
-
-            //we can optionally add a description for the channel
-            String description = "Shows notifications for tasks when they are due";
-            channel.setDescription(description);
-
-            //we can optionally set notification LED colour
-            channel.setLightColor(Cyanea.getInstance().getAccent());
-
-            // Register the channel with the system
-            NotificationManager notificationManager = (NotificationManager) ctxt.
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
+        createNotificationChannel(ctxt);
 
         int key = task.getListKey();
         Intent bodyClickIntent = new Intent(ctxt, NotificationHandler.class);
-        bodyClickIntent.putExtra("posFromNotif", key);
-
-        //put together the PendingIntent
-        PendingIntent pendingClickIntent =
-                PendingIntent.getActivity(ctxt, key, bodyClickIntent, FLAG_UPDATE_CURRENT);
-
+        bodyClickIntent.putExtra("taskKey", key);
 
         Intent doneClickIntent = new Intent(ctxt, NotificationHandler.class);
         doneClickIntent.putExtra("reschedule", false);
-        doneClickIntent.putExtra("posFromNotifClear", key);
+        doneClickIntent.putExtra("taskKeyClear", key);
 
         Intent rescheduleClickIntent = new Intent(ctxt, NotificationHandler.class);
         rescheduleClickIntent.putExtra("reschedule", true);
-        rescheduleClickIntent.putExtra("posFromNotifClear", key);
+        rescheduleClickIntent.putExtra("taskKeyClear", key);
 
+        PendingIntent pendingBodyClickIntent =
+                PendingIntent.getActivity(ctxt, key, bodyClickIntent, FLAG_UPDATE_CURRENT);
 
         PendingIntent pendingDoneClickIntent =
                 PendingIntent.getService(ctxt, key, doneClickIntent, FLAG_UPDATE_CURRENT);
@@ -111,7 +80,11 @@ public class NotificationHandler extends Service {
         for (int i = 0; i < task.getAllListItems().size(); i++) {
             notificationText = notificationText.concat("- " + task.getListItems(i) + "\n");
         }
-        notificationText = notificationText.concat(task.getDateTime().toString("MMM d, h:mm a"));
+        String pattern = "MMM d";
+        if(task.hasTime()){
+            pattern += ", h:mm a";
+        }
+        notificationText = notificationText.concat(task.getDateTime().toString(pattern));
 
         //build the notification
         NotificationCompat.Builder notificationBuilder =
@@ -120,8 +93,8 @@ public class NotificationHandler extends Service {
                         .setContentTitle(notificationTitle)
                         //.setContentText(notificationText)
                         .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(notificationText))
-                        .setContentIntent(pendingClickIntent)
+                                .bigText(notificationText))
+                        .setContentIntent(pendingBodyClickIntent)
                         .setAutoCancel(true)
                         .addAction(R.drawable.ic_check_white_24dp, "DONE", pendingDoneClickIntent)
                         .addAction(R.drawable.ic_access_time_black_24dp, "RESCHEDULE", pendingRescheduleClickIntent)
@@ -142,19 +115,25 @@ public class NotificationHandler extends Service {
 
         Log.d("serviceRestart", "Before Restart");
 
+        task.setNotified(true);
+        ProjectsUtils.update(task);
+
         NotifyWorker.nextWork();
     }
 
 
-    public static void resetNotifications(Context ctxt) {
-        WorkManager.getInstance().cancelAllWorkByTag(workTag);
-        if (NotificationUtils.isNextNotification(projectsDatabase)) {
-            Log.d("workManager", "Next isn't null");
-            NotifyWorker.nextWork();
-        }
+    public static void resetNotifications() {
+        AsyncTask.execute(() -> {
+            WorkManager.getInstance().cancelAllWorkByTag(workTag);
+            if (NotificationUtils.isNextNotification(Current.database())) {
+                Log.d("workManager", "Next isn't null");
+                NotifyWorker.nextWork();
+            }
+        });
+
     }
 
-    public static void handleNotification(int key,  boolean fromAction, boolean reschedule, Context ctxt) {
+    public static void handleNotification(int key, boolean fromAction, boolean reschedule, Context ctxt) {
         if (key != -1) {
             if (fromAction) {
 
@@ -163,7 +142,6 @@ public class NotificationHandler extends Service {
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(ctxt);
                 notificationManager.cancel(Integer.toString(key), key);
 
-
                 if (reschedule) {
                     //reschedule
                     rescheduleTask(key, ctxt);
@@ -171,10 +149,14 @@ public class NotificationHandler extends Service {
                     //delete
                     deleteTask(key, ctxt);
                 }
+
+                //TODO: refactor handleNotification for better code
             } else {
                 //open task in taskview
                 Intent intent = new Intent(ctxt, MainActivity.class);
             }
+
+
         } else {
             Toast.makeText(ctxt, "Couldn't find task", Toast.LENGTH_SHORT).show();
         }
@@ -183,7 +165,7 @@ public class NotificationHandler extends Service {
     }
 
     public static void initializeDatabase(Context ctxt) {
-        projectsDatabase = GetDatabase.getDatabase(ctxt);
+        GetDatabase.projectsDatabase = GetDatabase.getDatabase(ctxt);
     }
 
     public static void rescheduleTask(final int key, final Context ctxt) {
@@ -208,15 +190,13 @@ public class NotificationHandler extends Service {
         Log.d("deleteNotification", "deleting notification");
 
         AsyncTask.execute(() -> {
-
-
-            Tasks task = projectsDatabase.tasksDao().findTasksById(key);
+            Tasks task = Current.database().tasksDao().findTasksById(key);
             task.setArchived(true);
-            projectsDatabase.tasksDao().updateTask(task);
+            Current.database().tasksDao().updateTask(task);
 
             //projectsDatabase.projectsDao().updateProject(project);
             if (NotificationHandler.checkActive(ctxt) && Current.project().getKey() == task.getProjectId()) {
-                Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(task.getProjectId())));
+                Current.project().setTaskList(new ArrayList<>(Current.database().tasksDao().getAllFromProject(task.getProjectId())));
                 EventBus.getDefault().post(new UpdateEvent(true));
             }
         });
@@ -239,14 +219,14 @@ public class NotificationHandler extends Service {
         boolean reschedule = false;
 
         if (bundle != null) {
-            if (bundle.containsKey("posFromNotifClear")) {
-                key = bundle.getInt("posFromNotifClear", -1);
+            if (bundle.containsKey("taskKeyClear")) {
+                key = bundle.getInt("taskKeyClear", -1);
                 fromAction = true;
                 if (bundle.containsKey("reschedule")) {
                     reschedule = bundle.getBoolean("reschedule");
                 }
-            } else if (bundle.containsKey("posFromNotif")) {
-                key = bundle.getInt("posFromNotif", -1);
+            } else if (bundle.containsKey("taskKey")) {
+                key = bundle.getInt("taskKey", -1);
             }
 
 
@@ -259,6 +239,33 @@ public class NotificationHandler extends Service {
 
 
         return START_NOT_STICKY;
+    }
+
+    public static void createNotificationChannel(Context ctxt){
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //define the importance level of the notification
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            //build the actual notification channel, giving it a unique ID and name
+            NotificationChannel channel =
+                    new NotificationChannel(todo_notification_channel, todo_notification_channel, importance);
+
+            //we can optionally add a description for the channel
+            String description = "Shows notifications for tasks when they are due";
+            channel.setDescription(description);
+
+            //we can optionally set notification LED colour
+            channel.setLightColor(Cyanea.getInstance().getAccent());
+
+            // Register the channel with the system
+            NotificationManager notificationManager = (NotificationManager) ctxt.
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
     }
 }
 

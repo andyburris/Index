@@ -29,6 +29,9 @@ public interface TasksDao {
     @Query("SELECT * FROM Tasks WHERE `listKey` = :key")
     Tasks findTasksById(int key);
 
+    @Query("SELECT * FROM Tasks WHERE `list_name` = :name")
+    List<Tasks> findTasksByName(String name);
+
     @Query("SELECT * FROM Tasks WHERE `project_id` = :projectKey")
     List<Tasks> getAllFromProject(int projectKey);
 

@@ -19,57 +19,42 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import static com.andb.apps.todo.notifications.NotificationHandler.projectsDatabase;
-
 public class Reschedule extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int tempKey = -1;
 
-        Bundle bundle = getIntent().getExtras();
-        if (bundle.containsKey("key")) {
-            tempKey = bundle.getInt("key");
-        }
-
-
-        final int key = tempKey;
+        final int key = getIntent().getIntExtra("key", -1);
 
         Log.d("reschedule", "activity launched");
         Log.d("reschedule", "got key: " + key);
 
 
-        DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                final DateTime taskDateTime = new DateTime().withDate(i, i1 + 1, i2);
-                TimePickerDialog timePickerDialog = new TimePickerDialog(Reschedule.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                        final DateTime finalDateTime = taskDateTime.withTime(i, i1, 0, 0);
-                        AsyncTask.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                Tasks tasks = projectsDatabase.tasksDao().findTasksById(key);
-                                tasks.setDateTime(finalDateTime);
-                                tasks.setNotified(false);
-                                projectsDatabase.tasksDao().updateTask(tasks);
+        DatePickerDialog dialog = new DatePickerDialog(this, (datePicker, i, i1, i2) -> {
+            final DateTime taskDateTime = new DateTime().withDate(i, i1 + 1, i2);
 
-                                if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
-                                    Current.project().setTaskList(new ArrayList<>(projectsDatabase.tasksDao().getAllFromProject(tasks.getProjectId())));
-                                    EventBus.getDefault().post(new UpdateEvent(true));
-                                }
-                                finish();
-                            }
+            TimePickerDialog timePickerDialog = new TimePickerDialog(Reschedule.this, (timePicker, i3, i11) -> {
 
+                final DateTime finalDateTime = taskDateTime.withTime(i3, i11, 0, 0);
+                AsyncTask.execute(() -> {
+                    Tasks tasks = Current.database().tasksDao().findTasksById(key);
+                    tasks.setDateTime(finalDateTime);
+                    tasks.setNotified(false);
+                    Current.database().tasksDao().updateTask(tasks);
 
-                        });
+                    if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
+                        Current.project().setTaskList(new ArrayList<>(Current.database().tasksDao().getAllFromProject(tasks.getProjectId())));
+                        EventBus.getDefault().post(new UpdateEvent(true));
                     }
-                }, DateTime.now().getHourOfDay(), DateTime.now().getMinuteOfHour(), false);
-                timePickerDialog.show();
-            }
+                    NotificationHandler.resetNotifications();
+                    finish();
+                });
+
+            }, DateTime.now().getHourOfDay(), DateTime.now().getMinuteOfHour(), false);
+
+            timePickerDialog.show();
 
         }, DateTime.now().getYear(), DateTime.now().getMonthOfYear() - 1, DateTime.now().getDayOfMonth());
         dialog.show();

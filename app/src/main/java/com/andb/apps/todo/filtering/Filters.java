@@ -60,7 +60,7 @@ public class Filters {
         Log.d("backStack", Integer.toString(backTagFilters.get(backTagFilters.size() - 2).size()) + ", " + Integer.toString(backTagFilters.get(backTagFilters.size() - 1).size()));
 
         FilteredLists.createFilteredTaskList(getCurrentFilter(), true);//filters tasklist with new filter
-        BrowseFragment.mAdapter.notifyDataSetChanged();//updates recyclerviews
+        BrowseFragment.mAdapter.update(FilteredLists.browseTaskList);//updates recyclerviews
 
         setPath();
     }
@@ -75,7 +75,7 @@ public class Filters {
         newFilter.add(tag);
         backTagFilters.add(newFilter);
         FilteredLists.createFilteredTaskList(getCurrentFilter(), true);
-        BrowseFragment.mAdapter.notifyDataSetChanged();
+        BrowseFragment.mAdapter.update(FilteredLists.browseTaskList);
 
         setPath();
 

@@ -207,7 +207,7 @@ class Drawer : Fragment() {
                     EventBus.getDefault().post(UpdateEvent(false))
 
                     AsyncTask.execute {
-                        MainActivity.projectsDatabase.projectsDao().insertOnlySingleProject(project)
+                        Current.database().projectsDao().insertOnlySingleProject(project)
                     }
                 }
                 .setOnCancelListener {
@@ -258,7 +258,7 @@ class Drawer : Fragment() {
                 if (ProjectList.projectList.size > 0) {//MAYBEDO: Let reset with new project
                     val project = Current.allProjects()[position]
                     AsyncTask.execute {
-                        MainActivity.projectsDatabase.projectsDao().deleteProject(project)
+                        Current.database().projectsDao().deleteProject(project)
                     }
                     ProjectList.projectList.removeAt(position)
 

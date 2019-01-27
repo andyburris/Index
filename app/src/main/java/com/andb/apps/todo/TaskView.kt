@@ -1,8 +1,6 @@
 package com.andb.apps.todo
 
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -230,12 +228,6 @@ class TaskView : CyaneaFragment() {
     }
 
 
-    override fun onPause() {
-        super.onPause()
-        InboxFragment.mAdapter.notifyDataSetChanged()
-        BrowseFragment.mAdapter.notifyDataSetChanged()
-    }
-
     companion object {
 
         lateinit var oldNavIcon: Drawable
@@ -246,24 +238,20 @@ class TaskView : CyaneaFragment() {
         lateinit var task: Tasks
 
 
-        fun editFromToolbar(ctxt: Context) {
+        fun editFromToolbar() {
             when (inboxBrowseArchive) {
                 TaskAdapter.FROM_BROWSE -> {
-                    val editTask = Intent(ctxt, AddTask::class.java)
-                    editTask.putExtra("edit", true)
-                    editTask.putExtra("editPos", position)
-                    editTask.putExtra("browse", true)
-                    ctxt.startActivity(editTask)
+                    BrowseFragment.mRecyclerView.collapse()
+                    FilteredLists.browseTaskList[position].isEditing = true
+                    BrowseFragment.mAdapter.update(FilteredLists.browseTaskList)
                 }
                 TaskAdapter.FROM_ARCHIVE -> {
                 }
                 else //inbox
                 -> {
-                    val editTask = Intent(ctxt, AddTask::class.java)
-                    editTask.putExtra("edit", true)
-                    editTask.putExtra("editPos", position)
-                    editTask.putExtra("browse", false)
-                    ctxt.startActivity(editTask)
+                    InboxFragment.mRecyclerView.collapse()
+                    FilteredLists.inboxTaskList[position].isEditing = true
+                    InboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
                 }
             }
         }
