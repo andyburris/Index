@@ -150,14 +150,14 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
                 ViewCompat.postOnAnimationDelayed(holder.itemView, new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(0).size())
+                        Log.d("noFiltersOnBack", Integer.toString(Filters.getCurrentFilter().size())
                                 + ", "
                                 + Filters.backTagFilters.size());
-                        int tagClicked = FilteredLists.filteredTagLinks.get(position);
+                        int tagClicked = FilteredLists.INSTANCE.getFilteredTagLinks().get(position);
 
 
                         Filters.tagForward(tagClicked);
-                        Log.d("noFiltersOnBack", Integer.toString(Filters.backTagFilters.get(0).size()) + ", " + Filters.backTagFilters.size());
+                        Log.d("noFiltersOnBack", Integer.toString(Filters.getCurrentFilter().size()) + ", " + Filters.backTagFilters.size());
 
                     }
                 }, 100);
@@ -169,7 +169,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             @Override
             public boolean onLongClick(View v) {
                 if (!Current.tagList().get(tagLinks.get(realPosition)).isSubFolder()) {
-                    Filters.tagReset(FilteredLists.filteredTagLinks.get(position));
+                    Filters.tagReset(FilteredLists.INSTANCE.getFilteredTagLinks().get(position));
                 }
                 return true;
             }

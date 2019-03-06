@@ -47,7 +47,6 @@ public class ImportExport {
             File path = new File(Environment.getExternalStorageDirectory() + folder);
             final ArrayList<File> fileList = new ArrayList<>(Arrays.asList(path.listFiles()));
 
-
             CyaneaDialog.Builder builder = new CyaneaDialog.Builder(ctxt);
             builder.setItems(path.list(), new DialogInterface.OnClickListener() {
                 @Override
@@ -85,36 +84,37 @@ public class ImportExport {
                         Log.i("ImportedTaskList", taskJson);
 
 
-                        ArrayList<Tasks> taskList = gson.fromJson(taskJson, taskType);
+                        ArrayList<Tasks> oldTaskList = gson.fromJson(taskJson, taskType);
+
 
                         ArrayList<Tasks> archiveList = new ArrayList<>();//MAYBEDO: backup/import archive tasks
 
                         int projectKey = ProjectsUtils.keyGenerator();
 
                         ArrayList<Integer> keyList = new ArrayList<>();
-                        for (Tasks task : taskList) {
-                            if(task.getProjectId()==0){
-                                task.setProjectId(projectKey);
+                        ArrayList<Tasks> taskList = new ArrayList<>();
+                        for (Tasks task : oldTaskList) {
+                            task.setProjectId(projectKey);
+
+                            int key = task.getListKey();
+                            while (keyList.contains(key)) {
+                                key = new Random().nextInt();
                             }
-                            while (keyList.contains(task.getListKey())) {
-                                task.setListKey(new Random().nextInt());
-                            }
+                            taskList.add(task.withKey(key));
                             keyList.add(task.getListKey());
                         }
 
 
                         ArrayList<Tags> tagList = gson.fromJson(tagJson, tagType);
 
-                        for(int t = 0; t<tagList.size(); t++){
+                        for (int t = 0; t < tagList.size(); t++) {
                             Tags tags = tagList.get(t);
                             tags.setIndex(t);
-                            if(tags.getProjectId()==0){
-                                tags.setProjectId(projectKey);
-                            }
+                            tags.setProjectId(projectKey);
                         }
 
 
-                            String projectName = "Tasks";
+                        String projectName = "Tasks";
 
                         if (gson.fromJson(nameJson, objectType) instanceof ArrayList) {//old taglinks
                             ArrayList<TagLinks> linkList = gson.fromJson(nameJson, linkType);
@@ -136,9 +136,13 @@ public class ImportExport {
                         ProjectList.INSTANCE.setViewing(Current.allProjects().size() - 1);
 
 
-                        FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), true);
+                        FilteredLists.INSTANCE.createFilteredTaskList(Filters.getCurrentFilter(), true);
                         EventBus.getDefault().post(new UpdateEvent(false));
 
+                        Log.d("projectKey", Integer.toString(projectKey));
+                        for (Tasks task : taskList) {
+                            Log.d("importProjectKey", Integer.toString(task.getProjectId()));
+                        }
 
                         AsyncTask.execute(() -> {
                                     Current.database().projectsDao().insertOnlySingleProject(newProject);

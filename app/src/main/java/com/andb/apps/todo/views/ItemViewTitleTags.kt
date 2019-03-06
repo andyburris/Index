@@ -89,17 +89,14 @@ class ItemViewTitleTags : ConstraintLayout {
 
             val tagsList = ArrayList(Arrays.asList<Chip>(c3, c2, c1))
 
-            if (task.hasDate()) {
+            if (!task.timeReminders.isEmpty()) {
                 val drawable = resources.getDrawable(R.drawable.ic_event_black_24dp).also { it.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP) }
-                val datePattern: String = when (task.dateTime.toLocalDate()) {
+                val datePattern: String = when (task.nextReminderTime().toLocalDate()) {
                     DateTime.now().toLocalDate() -> "h:mm a"
                     else -> "MMM d"
                 }
-                val dateTimeDisplay = if (task.hasTime()) {
-                                        task.dateTime
-                                      } else {
-                                        task.dateTime.withTime(SettingsActivity.timeToNotifyForDateOnly.toLocalTime())
-                                      }
+                val dateTimeDisplay = task.nextReminderTime()
+
                 c3.apply {
                     chipIcon = drawable
                     text = dateTimeDisplay.toString(datePattern)
@@ -114,7 +111,7 @@ class ItemViewTitleTags : ConstraintLayout {
 
             for (i in tagsList.indices) {
 
-                if (i < task.allListTags.size) {
+                if (i < task.listTags.size) {
                     val reversedPos = task.listTags.size - (i + 1)//to show most nested tags first TODO: Most nested first as option
                     val tagtemp = Current.tagList()[task.listTags[reversedPos]]
                     val chiptemp = tagsList[i]

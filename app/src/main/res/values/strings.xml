@@ -1,5 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- <string name="app_name">ToDo</string> -->
     <string name="tab_1">Inbox</string>
     <string name="tab_2">Browse</string>
@@ -70,6 +69,7 @@
     <string name="pref_header_folder">Folders</string>
     <string name="pref_header_notif">Notifications</string>
     <string name="no_remaining_tasks">No Tasks Left!</string>
+    <string name="already_adding_task">Already Adding Task!</string>
 
     <string name="search_hint">Search tasks and tags</string>
     <string name="project_header_title">Project</string>
@@ -95,7 +95,19 @@
     <string name="onboarding_folders_screen_description">To get around the app, you can select the tags you want to see, and only look at those tasks. The Inbox view lets you see all the tasks containing the tags you\'ve picked. The Browse view lets you pick tags to filter down, and only shows exact matches.</string>
     <string name="onboarding_project_screen_title">Projects</string>
     <string name="onboarding_project_screen_description">Projects are the highest level of sorting in the app. Each has a separate set of tasks and tags. You could make one for simple reminders, and one for long-term projects, for example. \n \n That\'s it! Go add some tasks!</string>
+
     <string name="add_task_name_hint">Task Name</string>
+    <string name="reminder_picker_title">Reminders</string>
+    <string name="location_type_enter">Enter</string>
+    <string name="location_type_near">Near</string>
+    <string name="location_type_exit">Exit</string>
+    <string name="location_map_not_loaded">No location selected, please wait or cancel the reminder</string>
+    <string name="location_picker_radius">Radius</string>
+    <string name="location_no_address">None</string>
+    <string name="geofence_unknown_error">Unknown error: the Geofence service is not available now.</string>
+    <string name="geofence_not_available">Geofence service is not available now. Go to Settings>Location>Mode and choose High accuracy.</string>
+    <string name="geofence_too_many_geofences">Your app has registered too many geofences.</string>
+    <string name="geofence_too_many_pending_intents">You have provided too many PendingIntents to the addGeofences() call.</string>
 
 
 </resources>

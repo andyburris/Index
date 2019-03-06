@@ -10,7 +10,7 @@ import com.andb.apps.todo.objects.BaseProject
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
 
-@Database(entities = arrayOf(BaseProject::class, Tasks::class, Tags::class), version = 5)
+@Database(entities = arrayOf(BaseProject::class, Tasks::class, Tags::class), version = 6)
 @GenerateRoomMigrations(MigrationRules::class)
 abstract class ProjectsDatabase : RoomDatabase() {
     abstract fun projectsDao(): ProjectsDao
@@ -29,3 +29,11 @@ val MIGRATION_3_4: Migration = object : Migration(3, 4) {
         database.execSQL("ALTER TABLE PROJECT " + " ADD COLUMN project_index INTEGER DEFAULT -1 NOT NULL")
     }
 }
+
+/*
+val MIGRATION_5_6: Migration = object : Migration(5, 6){
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE UNIQUE INDEX index_BaseProject_key ON BaseProject(`key`)")
+    }
+}
+*/

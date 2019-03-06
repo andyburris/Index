@@ -127,73 +127,28 @@
                 app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV" />
 
             <com.andb.apps.todo.views.CyaneaIcon
-                android:id="@+id/addTaskResetReminders"
+                android:id="@+id/addTaskAddReminderIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:alpha=".54"
-                android:paddingStart="4dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV"
-                app:srcCompat="@drawable/ic_refresh_black_24dp" />
-
-            <com.andb.apps.todo.views.CyaneaIcon
-                android:id="@+id/addTaskAddDateIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:alpha=".54"
                 android:padding="4dp"
-                android:src="@drawable/ic_event_black_24dp"
+                android:src="@drawable/ic_add_alert_black_24dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/addTaskTimeText"
-                app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV" />
-
-            <com.andb.apps.todo.views.CyaneaIcon
-                android:id="@+id/addTaskAddTimeIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:alpha=".54"
-                android:padding="4dp"
-                android:src="@drawable/ic_access_time_black_24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/addTaskAddDateIcon"
-                app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV" />
-
-            <com.andb.apps.todo.views.CyaneaIcon
-                android:id="@+id/addTaskAddLocationIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:alpha=".54"
-                android:padding="4dp"
-                android:src="@drawable/ic_location_black_24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/addTaskAddTimeIcon"
+                app:layout_constraintEnd_toStartOf="@+id/addTaskRemindersText"
                 app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV" />
 
             <TextView
-                android:id="@+id/addTaskTimeText"
+                android:id="@+id/addTaskRemindersText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/addTaskResetReminders"
-                app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV"
+                tools:text="3 Reminders" />
 
             <TextView
                 android:id="@+id/addTaskLocationText"
@@ -201,11 +156,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/addTaskAddLocationIcon"
-                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@+id/addTaskAddTagsIcon"
                 app:layout_constraintTop_toBottomOf="@+id/addTaskTagsRV" />
         </androidx.constraintlayout.widget.ConstraintLayout>

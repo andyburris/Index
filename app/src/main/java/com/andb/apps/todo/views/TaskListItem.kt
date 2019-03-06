@@ -113,14 +113,14 @@ class TaskListItem : ConstraintLayout {
         val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))
 
         if (task.isListItems) {
-            Log.d("items", task.listName + ", multipleItems: " + task.listItemsSize)
+            Log.d("items", task.listName + ", multipleItems: " + task.listItems.size)
 
             for (i in 0..2) {
                 val scale: Float = this.resources.displayMetrics.density
                 val checkBox: CheckBox = checkBoxes[i]
                 checkBox.setPadding(Math.round(4f * scale + 0.5f), checkBox.paddingTop, checkBox.paddingRight, checkBox.paddingBottom)
 
-                if (i < task.listItemsSize) {
+                if (i < task.listItems.size) {
 
                     checkBox.text = task.listItems[i]
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
@@ -131,7 +131,7 @@ class TaskListItem : ConstraintLayout {
                         }
 
                     }
-                    checkBox.isChecked = task.getListItemsChecked(i)
+                    checkBox.isChecked = task.listItemsChecked[i]
                     checkBox.paintFlags = if (!checkBox.isChecked) checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
                     checkBox.visibility = View.VISIBLE
@@ -140,7 +140,7 @@ class TaskListItem : ConstraintLayout {
                     checkBox.visibility = View.GONE
                 }
             }
-            if (task.listItemsSize > 3) {
+            if (task.listItems.size > 3) {
                 moreTasks.visibility = View.VISIBLE
             } else {
                 moreTasks.visibility = View.GONE

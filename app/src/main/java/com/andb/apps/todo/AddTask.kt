@@ -1,5 +1,7 @@
 package com.andb.apps.todo
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
@@ -26,6 +28,7 @@ import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.views.CyaneaDialog
+import com.andb.apps.todo.views.ReminderPicker
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.snackbar.Snackbar
 import com.jaredrummler.cyanea.Cyanea
@@ -64,9 +67,9 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         sortView()
         theme()
         setupName()
-        setupTime()
         setupRecyclers()
         setupButtons()
+        setReminders()
     }
 
 
@@ -76,9 +79,6 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
             setHintTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .7f))
             setTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .5f))
             setCursorColor(this, Utilities.lighterDarker(Cyanea.instance.backgroundColor, .6f))
-        }
-        addTaskResetReminders.apply {
-            visibility = View.GONE
         }
         checkDividers()
     }
@@ -97,20 +97,6 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         }
     }
 
-    private fun setupTime() {
-        if (task.hasDate()) {
-            dateSet = true
-            if (task.hasTime()) {
-                addTaskTimeText.text = task.dateTime!!.toString("MMM d, h:mm a")
-            } else {
-                addTaskTimeText.text = task.dateTime!!.toString("MMM d")
-            }
-            addTaskResetReminders.visibility = View.VISIBLE
-            sortView()
-        } else {
-            addTaskTimeText.text = ""
-        }
-    }
 
     private fun setupRecyclers() {
         val tagRecyclerView = addTaskTagsRV
@@ -135,25 +121,29 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
             addTag()
             checkDividers()
         }
-        addTaskAddDateIcon.setOnClickListener {
-            pickDate()
-        }
-        addTaskAddTimeIcon.setOnClickListener {
-            pickTime()
-        }
-        addTaskAddLocationIcon.setOnClickListener {
-            Snackbar.make(addTaskAddLocationIcon.rootView, "Location reminders not available yet", Snackbar.LENGTH_LONG).also { it.animationMode = Snackbar.ANIMATION_MODE_SLIDE }.show()
-        }
-        addTaskResetReminders.setOnClickListener {
-            task.dateTime = DateTime(3000, 1, 1, 0, 0, 59)
-            addTaskTimeText.text = ""
-            addTaskResetReminders.visibility = View.GONE
-            dateSet = false
-            sortView()
+        addTaskAddReminderIcon.setOnClickListener {
+            addReminder()
         }
         addTaskConfirm.setOnClickListener {
             save()
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setReminders(){
+        addTaskRemindersText.text = (task.timeReminders.size + task.locationReminders.size).toString() + " " + context.getString(R.string.reminder_picker_title)
+    }
+
+    private fun addReminder(){
+        val view = ReminderPicker(context)
+        val dialog = AlertDialog.Builder(context).setView(view).show().also {
+            it.window?.setBackgroundDrawable(null)
+            it.setOnCancelListener {
+                sortView()
+                setReminders()
+            }
+        }
+        view.setup(task, dialog)
     }
 
     private fun checkDividers() {
@@ -172,7 +162,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
     private fun addSubtask() {
         task.listItems.add("")
         task.listItemsChecked.add(false)
-        subtaskAdapter.notifyItemInserted(task.listItemsSize - 1)
+        subtaskAdapter.notifyItemInserted(task.listItems.size - 1)
     }
 
     private fun addTag() {
@@ -181,42 +171,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
         context.startActivity(selectTag)
     }
 
-    private fun pickDate() {
-        val dialog = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { datePicker, i, i1, i2 ->
-            dateSet = true
-            task.dateTime = task.dateTime!!.withDate(i, i1 + 1, i2)
-            if (task.dateTime.secondOfMinute != 0) {
-                task.dateTime = task.dateTime!!.withTime(23, 59, 59, 0)
-                addTaskTimeText.text = task.dateTime!!.toString("MMM d")
-            } else {
-                addTaskTimeText.text = task.dateTime!!.toString("MMM d, h:mm a")
-            }
 
-            addTaskResetReminders.visibility = View.VISIBLE
-            sortView()
-
-        }, DateTime.now().year, DateTime.now().monthOfYear - 1, DateTime.now().dayOfMonth)
-        dialog.show()
-        CyaneaDialog.setButtonStyle(dialog, DatePickerDialog.BUTTON_NEGATIVE, DatePickerDialog.BUTTON_POSITIVE)
-    }
-
-    private fun pickTime() {
-        val timePickerDialog = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { timePicker, i, i1 ->
-            val localTime = LocalTime().withHourOfDay(i).withMinuteOfHour(i1).withSecondOfMinute(0)
-            if (!dateSet) {
-                task.dateTime = DateTime(DateTime.now().year, DateTime.now().monthOfYear, DateTime.now().dayOfMonth, 23, 0)
-                task.dateTime = task.dateTime!!.withTime(localTime)
-                addTaskTimeText.text = task.dateTime!!.toString("h:mm a")
-            } else {
-                task.dateTime = task.dateTime!!.withTime(localTime)
-                addTaskTimeText.text = task.dateTime!!.toString("MMM d, h:mm a")
-            }
-            addTaskResetReminders.visibility = View.VISIBLE
-            sortView()
-        }, DateTime.now().hourOfDay, DateTime.now().minuteOfHour, false)
-        timePickerDialog.show()
-        CyaneaDialog.setButtonStyle(timePickerDialog, TimePickerDialog.BUTTON_NEGATIVE, TimePickerDialog.BUTTON_POSITIVE)
-    }
 
     private fun sortView() {
         if (browse) {
@@ -293,7 +248,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
             .build()
 
     private fun subtaskAdapter() = Klaster.get()
-            .itemCount { task.listItemsSize }
+            .itemCount { task.listItems.size }
             .view(R.layout.add_task_list_item, LayoutInflater.from(context))
             .bind { _ ->
                 itemView.apply {
@@ -317,7 +272,7 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
                         subtaskAdapter.notifyItemRemoved(adapterPosition)
                         checkDividers()
                     }
-                    if (adapterPosition == task.listItemsSize - 1) {
+                    if (adapterPosition == task.listItems.size - 1) {
                         (layoutParams as RecyclerView.LayoutParams).bottomMargin = Utilities.pxFromDp(8)
                     } else {
                         (layoutParams as RecyclerView.LayoutParams).bottomMargin = Utilities.pxFromDp(0)

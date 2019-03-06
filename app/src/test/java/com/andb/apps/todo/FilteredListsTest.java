@@ -5,6 +5,8 @@ import android.graphics.Color;
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
+import com.andb.apps.todo.objects.reminders.LocationReminder;
+import com.andb.apps.todo.objects.reminders.SimpleReminder;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -33,14 +35,14 @@ public class FilteredListsTest {
         setupTaskList();
 
         Tags parent = initialTagList.get(initialFilters.get(initialFilters.size() - 1));
-        ArrayList<Integer> filteredFilters = FilteredLists.filterChildren(
+        ArrayList<Integer> filteredFilters = FilteredLists.INSTANCE.filterChildren(
                 initialTagList,
                 parent,
                 initialFilters
         );
 
-        ArrayList<Tasks> filteredInboxList = FilteredLists.filterInbox(initialTaskList, initialFilters);
-        ArrayList<Tasks> filteredBrowseList = FilteredLists.filterBrowse(filteredInboxList, initialFilters, parent.getChildren(), initialTagList, true);
+        ArrayList<Tasks> filteredInboxList = FilteredLists.INSTANCE.filterInbox(initialTaskList, initialFilters);
+        ArrayList<Tasks> filteredBrowseList = FilteredLists.INSTANCE.filterBrowse(filteredInboxList, initialFilters, parent.getChildren(), initialTagList, true);
 
         assert expectedInboxList.equals(filteredInboxList);
         assert expectedBrowseList.equals(filteredBrowseList);
@@ -81,10 +83,10 @@ public class FilteredListsTest {
     }
 
     private void setupTaskList() {
-        Tasks serial = new Tasks("serial", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(4, 7)), DateTime.now(), false, 1, -1, false);
-        Tasks salmon = new Tasks("salmon", new ArrayList<String>(Arrays.asList("1 lb", "boneless")), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 2)), DateTime.now(), false, 2, -1, false);
-        Tasks cauliflower = new Tasks("cauliflower", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 1, 8)), DateTime.now(), false, 3, -1, false);
-        Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), DateTime.now(), false, 4, -1, false);
+        Tasks serial = new Tasks("serial", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(4, 7)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 1, -1, false);
+        Tasks salmon = new Tasks("salmon", new ArrayList<String>(Arrays.asList("1 lb", "boneless")), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 2)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 2, -1, false);
+        Tasks cauliflower = new Tasks("cauliflower", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 1, 8)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 3, -1, false);
+        Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 4, -1, false);
 
         initialTaskList.addAll(Arrays.asList(serial, salmon, cauliflower, parts));
         expectedBrowseList.addAll(Collections.singletonList(salmon));

@@ -10,6 +10,7 @@ import android.widget.TimePicker;
 
 import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.objects.Tasks;
+import com.andb.apps.todo.objects.reminders.SimpleReminder;
 import com.andb.apps.todo.utilities.Current;
 
 import org.greenrobot.eventbus.EventBus;
@@ -40,8 +41,8 @@ public class Reschedule extends AppCompatActivity {
                 final DateTime finalDateTime = taskDateTime.withTime(i3, i11, 0, 0);
                 AsyncTask.execute(() -> {
                     Tasks tasks = Current.database().tasksDao().findTasksById(key);
-                    tasks.setDateTime(finalDateTime);
-                    tasks.setNotified(false);
+                    tasks.getTimeReminders().add(new SimpleReminder(finalDateTime));
+                    tasks.nextReminder().setNotified(false);
                     Current.database().tasksDao().updateTask(tasks);
 
                     if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {

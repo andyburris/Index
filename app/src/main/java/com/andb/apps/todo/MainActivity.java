@@ -37,6 +37,7 @@ import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.views.InboxRVViewPager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.jaredrummler.android.colorpicker.ColorPanelView;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
@@ -331,17 +332,21 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             if (TaskView.Companion.getPageState() == 0) {
+                if(InboxFragment.getAddingTask() || BrowseFragment.addingTask){
+                    Snackbar.make(fab.getRootView(), R.string.already_adding_task, Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
+                    return;
+                }
                 Tasks task = TaskAdapter.newAddTask();
                 if(mViewPager.getCurrentPage()==0){
-                    FilteredLists.inboxTaskList.add(task);
+                    FilteredLists.INSTANCE.getInboxTaskList().add(task);
                     InboxFragment.Companion.setFilterMode();
-                    InboxFragment.mAdapter.update(FilteredLists.inboxTaskList);
+                    InboxFragment.mAdapter.update(FilteredLists.INSTANCE.getInboxTaskList());
                     InboxFragment.setAddingTask(true);
-                    InboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.inboxTaskList.indexOf(task));
+                    InboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.INSTANCE.getInboxTaskList().indexOf(task));
                 }else {
-                    FilteredLists.browseTaskList.add(task);
-                    BrowseFragment.mAdapter.update(FilteredLists.browseTaskList);
-                    BrowseFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.browseTaskList.indexOf(task));
+                    FilteredLists.INSTANCE.getBrowseTaskList().add(task);
+                    BrowseFragment.mAdapter.update(FilteredLists.INSTANCE.getBrowseTaskList());
+                    BrowseFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.INSTANCE.getBrowseTaskList().indexOf(task));
                 }
                 AsyncTask.execute(()-> Current.database().tasksDao().insertOnlySingleTask(task));
             } else {
@@ -441,7 +446,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             setupProjectSelector();
         }
 
-        FilteredLists.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
+        FilteredLists.INSTANCE.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
         NotificationHandler.resetNotifications();
         Drawer.projectAdapter.notifyDataSetChanged();
 
@@ -460,6 +465,9 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         }
         if (event.startVersion == 4 && event.endVersion == 5){
             MigrationHelper.migrate_4_5_with_context(this, Current.database());
+        }
+        if (event.startVersion == 5 && event.endVersion == 6){
+            MigrationHelper.migrate_5_6_with_context(this, Current.database());
         }
     }
 

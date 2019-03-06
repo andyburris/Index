@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "84d3f3b7e0bf3f3e5e4834aa24a56ee0",
+    "identityHash": "f86e9b520bf48df3b6ea71229b2b9c48",
     "entities": [
       {
         "tableName": "BaseProject",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "Tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`listKey` INTEGER NOT NULL, `list_name` TEXT, `list_items` TEXT, `list_items_checked` TEXT, `list_tags` TEXT, `list_due` INTEGER NOT NULL, `list_notified` INTEGER NOT NULL, `project_id` INTEGER NOT NULL, `archived` INTEGER NOT NULL, PRIMARY KEY(`listKey`), FOREIGN KEY(`project_id`) REFERENCES `BaseProject`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`listKey` INTEGER NOT NULL, `list_name` TEXT NOT NULL, `list_items` TEXT NOT NULL, `list_items_checked` TEXT NOT NULL, `list_tags` TEXT NOT NULL, `list_times` TEXT NOT NULL, `list_locations` TEXT NOT NULL, `project_id` INTEGER NOT NULL, `archived` INTEGER NOT NULL, PRIMARY KEY(`listKey`), FOREIGN KEY(`project_id`) REFERENCES `BaseProject`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "listKey",
@@ -56,36 +56,36 @@
             "fieldPath": "listName",
             "columnName": "list_name",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "listItems",
             "columnName": "list_items",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "listItemsChecked",
             "columnName": "list_items_checked",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "listTags",
             "columnName": "list_tags",
             "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "listDue",
-            "columnName": "list_due",
-            "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "notified",
-            "columnName": "list_notified",
-            "affinity": "INTEGER",
+            "fieldPath": "timeReminders",
+            "columnName": "list_times",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationReminders",
+            "columnName": "list_locations",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -95,7 +95,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "archived",
+            "fieldPath": "isArchived",
             "columnName": "archived",
             "affinity": "INTEGER",
             "notNull": true
@@ -194,7 +194,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"84d3f3b7e0bf3f3e5e4834aa24a56ee0\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"f86e9b520bf48df3b6ea71229b2b9c48\")"
     ]
   }
 }

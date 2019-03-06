@@ -24,6 +24,7 @@ object MigrationHelper {
 
     val oldList_1_2: ArrayList<Tasks> = ArrayList()
     val oldList_4_5 = ArrayList<Project>()
+    var oldList_5_6 = ArrayList<Tasks>()
 
 
     @JvmStatic
@@ -66,6 +67,7 @@ object MigrationHelper {
         for(p in oldList_4_5){
             p.apply {
                 projectList.add(this as BaseProject)
+
                 for((i, t) in tagList.withIndex()){
                     t.projectId = key
                     t.index = i
@@ -94,7 +96,16 @@ object MigrationHelper {
             EventBus.getDefault().post(UpdateEvent())
         }
 
+    }
 
+    @JvmStatic
+    fun migrate_5_6_with_context(ctxt: Context, db: ProjectsDatabase){
+        AsyncTask.execute {
+            db.tasksDao().insertMultipleTasks(oldList_5_6)
+            ProjectList.appStart(ctxt, db)
+
+            EventBus.getDefault().post(UpdateEvent())
+        }
 
     }
 

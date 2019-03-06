@@ -337,9 +337,11 @@ class Drawer : Fragment() {
 
                 bottomSheet.apply {
                     (parent as CoordinatorLayout).bottomSheetDim.alpha = slideOffset
+                    val toolbarColor = Utilities.colorBetween(Cyanea.instance.primary, Cyanea.instance.backgroundColor, slideOffset)
                     (toolbar as ViewGroup).apply {
                         getChildAt(0).rotation = 180 * slideOffset
                     }
+                    toolbar.backgroundTint = ColorStateList.valueOf(toolbarColor)
                     val tabIndicatorColor: Int = Utilities.colorFromAlpha(Cyanea.instance.accent, Cyanea.instance.primary, 1 - slideOffset)
                     val alphaSelected: Float = 1f - (1f * slideOffset)
                     val alphaDeselected: Float = .54f - (.54f * slideOffset)
@@ -347,7 +349,7 @@ class Drawer : Fragment() {
                     tabs.apply {
                         setSelectedTabIndicatorColor(tabIndicatorColor)
                         setTabTextColors(App.colorAlpha(Cyanea.instance.primary, alphaDeselected), App.colorAlpha(Cyanea.instance.primary, alphaSelected))
-
+                        setBackgroundColor(toolbarColor)
                         (layoutParams as ConstraintLayout.LayoutParams).apply {
                             val margin = Utilities.pxFromDp(88)
                             val fabHeight = Utilities.pxFromDp(36)

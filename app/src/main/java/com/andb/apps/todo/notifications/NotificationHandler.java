@@ -26,6 +26,7 @@ import com.jaredrummler.cyanea.Cyanea;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -50,7 +51,7 @@ public class NotificationHandler extends Service {
 
     public static void createNotification(Tasks task, Context ctxt) {
 
-        createNotificationChannel(ctxt);
+        createNotificationChannel(ctxt, todo_notification_channel);
 
         int key = task.getListKey();
         Intent bodyClickIntent = new Intent(ctxt, NotificationHandler.class);
@@ -77,14 +78,12 @@ public class NotificationHandler extends Service {
         String notificationTitle = task.getListName();
         String notificationText = "";
 
-        for (int i = 0; i < task.getAllListItems().size(); i++) {
-            notificationText = notificationText.concat("- " + task.getListItems(i) + "\n");
+        for (int i = 0; i < task.getListItems().size(); i++) {
+            notificationText = notificationText.concat("- " + task.getListItems().get(i) + "\n");
         }
-        String pattern = "MMM d";
-        if(task.hasTime()){
-            pattern += ", h:mm a";
-        }
-        notificationText = notificationText.concat(task.getDateTime().toString(pattern));
+        String pattern = "MMM d, h:mm a";
+
+        notificationText = notificationText.concat(task.nextReminderTime().toString(pattern));
 
         //build the notification
         NotificationCompat.Builder notificationBuilder =
@@ -115,7 +114,7 @@ public class NotificationHandler extends Service {
 
         Log.d("serviceRestart", "Before Restart");
 
-        task.setNotified(true);
+        Objects.requireNonNull(task.nextReminder()).setNotified(true);
         ProjectsUtils.update(task);
 
         NotifyWorker.nextWork();
@@ -241,7 +240,7 @@ public class NotificationHandler extends Service {
         return START_NOT_STICKY;
     }
 
-    public static void createNotificationChannel(Context ctxt){
+    public static void createNotificationChannel(Context ctxt, String name){
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -250,7 +249,7 @@ public class NotificationHandler extends Service {
 
             //build the actual notification channel, giving it a unique ID and name
             NotificationChannel channel =
-                    new NotificationChannel(todo_notification_channel, todo_notification_channel, importance);
+                    new NotificationChannel(name, name, importance);
 
             //we can optionally add a description for the channel
             String description = "Shows notifications for tasks when they are due";

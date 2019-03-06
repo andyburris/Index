@@ -55,7 +55,7 @@ public class BrowseFragment extends CyaneaFragment {
 
     static boolean removing;
 
-
+    static boolean addingTask = false;
     private BrowseFragment.OnFragmentInteractionListener mListener;
 
     public BrowseFragment() {
@@ -168,7 +168,7 @@ public class BrowseFragment extends CyaneaFragment {
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setNested(true);
-        mAdapter.update(FilteredLists.browseTaskList);
+        mAdapter.update(FilteredLists.INSTANCE.getBrowseTaskList());
 
         final ExpandablePageLayout taskView = view.findViewById(R.id.expandable_page_browse);
         mRecyclerView.setExpandablePage(taskView);
@@ -188,7 +188,7 @@ public class BrowseFragment extends CyaneaFragment {
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)
-        tAdapter = new BrowseTagAdapter(FilteredLists.filteredTagLinks);
+        tAdapter = new BrowseTagAdapter(FilteredLists.INSTANCE.getFilteredTagLinks());
 
         tRecyclerView.setAdapter(tAdapter);
 
@@ -282,7 +282,7 @@ public class BrowseFragment extends CyaneaFragment {
                     }
                 } else {
                     removing = false;
-                    tAdapter.notifyItemRangeChanged(0, FilteredLists.filteredTagLinks.size());
+                    tAdapter.notifyItemRangeChanged(0, FilteredLists.INSTANCE.getFilteredTagLinks().size());
                     //collapseButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
                     collapseButton.setImageState(STATE_ONE, true);
 
@@ -310,7 +310,7 @@ public class BrowseFragment extends CyaneaFragment {
                         collapseButton.setImageState(STATE_ZERO, true);
 
 
-                        tAdapter.notifyItemRangeChanged(0, FilteredLists.filteredTagLinks.size());
+                        tAdapter.notifyItemRangeChanged(0, FilteredLists.INSTANCE.getFilteredTagLinks().size());
 
                         collapseButton.setOnClickListener(null);
                         collapseButton.setOnTouchListener(new View.OnTouchListener() {

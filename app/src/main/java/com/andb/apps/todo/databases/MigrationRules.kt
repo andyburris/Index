@@ -5,7 +5,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.andb.apps.todo.eventbus.MigrateEvent
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.typeconverters.*
+import com.andb.apps.todo.utilities.ProjectsUtils
 import dev.matrix.roomigrant.rules.OnMigrationEndRule
 import dev.matrix.roomigrant.rules.OnMigrationStartRule
 import org.greenrobot.eventbus.EventBus
@@ -27,7 +29,8 @@ class MigrationRules {
                 val notified = cursor.getInt(cursor.getColumnIndex("list_notified")) > 0
                 val taskKey = cursor.getInt(cursor.getColumnIndex("listKey"))
 
-                val tasks = Tasks(listName, listItems, listItemsChecked, listTags, DateTime(due), notified, taskKey, -1, false)
+                val tasks = Tasks(listName, listItems, listItemsChecked, listTags, arrayListOf(SimpleReminder(DateTime(due), notified)), ArrayList(), taskKey, false)
+
                 Log.d("cursor", tasks.toString())
                 MigrationHelper.oldList_1_2.add(tasks)
                 cursor.moveToNext()
@@ -70,6 +73,41 @@ class MigrationRules {
     fun migrate_4_5_after(db: SupportSQLiteDatabase, version1: Int, version2: Int){
         EventBus.getDefault().post(MigrateEvent(4, 5))
     }
+
+    @OnMigrationStartRule(version1 = 5, version2 = 6)
+    fun migrate_5_6_before(db: SupportSQLiteDatabase, version1: Int, version2: Int){
+        val cursor = db.query("select * from TASKS", null)
+        cursor.apply {
+            if (moveToFirst()) {
+                while (!isAfterLast) {
+                    val listName = cursor.getString(cursor.getColumnIndex("list_name"))
+                    val listItems = ItemsConverter.itemsArrayList(cursor.getString(cursor.getColumnIndex("list_items")))
+                    val listItemsChecked = CheckedConverter.checkedArrayList(cursor.getString(cursor.getColumnIndex("list_items_checked")))
+                    val listTags = TagConverter.tagsArrayList(cursor.getString(cursor.getColumnIndex("list_tags")))
+                    val due = cursor.getLong(cursor.getColumnIndex("list_due"))
+                    val notified = cursor.getInt(cursor.getColumnIndex("list_notified")) > 0
+                    val taskKey = cursor.getInt(cursor.getColumnIndex("listKey"))
+                    val projectKey = cursor.getInt(cursor.getColumnIndex("project_id"))
+                    val archived =  cursor.getInt(cursor.getColumnIndex("archived")) > 0
+
+
+
+                    val task = Tasks(listName, listItems, listItemsChecked, listTags, arrayListOf(SimpleReminder(DateTime(due), notified)), ArrayList(), taskKey, projectKey, archived)
+                    Log.d("cursor", task.toString())
+                    MigrationHelper.oldList_5_6.add(task)
+                    moveToNext()
+                }
+            }
+        }
+
+    }
+
+    @OnMigrationEndRule(version1 = 5, version2 = 6)
+    fun migrate_5_6_after(db: SupportSQLiteDatabase, version1: Int, version2: Int){
+        EventBus.getDefault().post(MigrateEvent(5, 6))
+    }
+
+
 }
 
 

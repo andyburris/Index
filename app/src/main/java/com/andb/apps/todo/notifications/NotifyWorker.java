@@ -61,10 +61,10 @@ public class NotifyWorker extends Worker {
                 Log.d("serviceRestart", "Service Restarting");
 
 
-                Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), (NotificationUtils.nextNotificationAll()).getDateTime());
+                Duration duration = new Duration(DateTime.now().withSecondOfMinute(0), (NotificationUtils.nextNotificationAll()).nextReminderTime());
 
-                if ((NotificationUtils.nextNotificationAll()).getDateTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {//check for no-time reminders
-                    DateTime onlyDate = (NotificationUtils.nextNotificationAll()).getDateTime();
+                if ((NotificationUtils.nextNotificationAll()).nextReminderTime().get(DateTimeFieldType.secondOfMinute()) == (59)) {//check for no-time reminders
+                    DateTime onlyDate = (NotificationUtils.nextNotificationAll()).nextReminderTime();
                     onlyDate = onlyDate.withTime(SettingsActivity.Companion.getTimeToNotifyForDateOnly().toLocalTime());
                     duration = new Duration(DateTime.now(), onlyDate);
                 }

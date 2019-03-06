@@ -11,32 +11,22 @@ import java.util.ArrayList;
 
 class NotificationUtils {
 
-    public static Tasks nextNotificationAll(ProjectsDatabase projectsDatabase) {
+    static Tasks nextNotificationAll(ProjectsDatabase projectsDatabase) {
 
         Tasks toReturn = null;
 
         ArrayList<Tasks> allProjectsTaskList = new ArrayList<>(projectsDatabase.tasksDao().getAll());
 
         for (Tasks task : allProjectsTaskList) {
-            if (task.hasDate() && !task.isNotified() && !task.isArchived()) {
+            if (!task.getTimeReminders().isEmpty() && !task.nextReminder().getNotified() && !task.isArchived()) {
                 if (toReturn != null) {
 
-                    DateTime compareTime;
-                    if (toReturn.hasTime()) {
-                        compareTime = toReturn.getDateTime();
-                    } else {
-                        compareTime = toReturn.getDateTime().withTime(SettingsActivity.getTimeToNotifyForDateOnly().toLocalTime());
-                    }
+                    DateTime compareTime = toReturn.nextReminderTime();
 
-                    if (task.hasTime()) {
-                        if (task.getDateTime().isBefore(compareTime)) {
+                        if (task.nextReminderTime().isBefore(compareTime)) {
                             toReturn = task;
                         }
-                    } else {//untimed tasks
-                        if (task.getDateTime().withTime(SettingsActivity.getTimeToNotifyForDateOnly().toLocalTime()).isBefore(compareTime)) {
-                            toReturn = task;
-                        }
-                    }
+
                 } else {
                     toReturn = task;
                 }

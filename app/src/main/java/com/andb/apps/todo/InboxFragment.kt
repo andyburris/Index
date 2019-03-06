@@ -9,18 +9,13 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
 import android.os.Bundle
-import android.transition.ChangeBounds
-import android.transition.TransitionManager
-import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,23 +28,11 @@ import com.andb.apps.todo.utilities.*
 import com.andb.apps.todo.utilities.Values.*
 import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
-import kotlinx.android.synthetic.main.fragment_inbox.*
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import org.joda.time.DateTime
 import org.joda.time.LocalTime
 import java.util.*
-
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [InboxFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [InboxFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-
 
 class InboxFragment : CyaneaFragment() {
 
@@ -148,7 +131,7 @@ class InboxFragment : CyaneaFragment() {
 
                 val deleteIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_clear_black_24dp)!!.mutate()
 
-                deleteIcon.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(cyanea.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP)
+                deleteIcon.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP)
                 val intrinsicWidth = deleteIcon.intrinsicWidth
                 val intrinsicHeight = deleteIcon.intrinsicHeight
 
@@ -246,8 +229,8 @@ class InboxFragment : CyaneaFragment() {
                     Vibes.vibrate()
                     MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub) {
                         title = FilteredLists.inboxTaskList[position].listName
-                        backgroundColor = cyanea.accent
-                        titleColor = Utilities.textFromBackground(cyanea.accent)
+                        backgroundColor = Cyanea.instance.accent
+                        titleColor = Utilities.textFromBackground(Cyanea.instance.accent)
                         menuRes = R.menu.toolbar_inbox_long_press
                         contentInsetStart = 96
 
@@ -265,9 +248,9 @@ class InboxFragment : CyaneaFragment() {
 
                         }
                         onCreate { _, _ ->
-                            activity?.window?.statusBarColor = cyanea.accentDark
+                            activity?.window?.statusBarColor = Cyanea.instance.accentDark
                             menu!!.forEach { m ->
-                                val icon = m.icon.mutate().also { it.setColorFilter(Utilities.textFromBackground(cyanea.accent), PorterDuff.Mode.SRC_ATOP) }
+                                val icon = m.icon.mutate().also { it.setColorFilter(Utilities.textFromBackground(Cyanea.instance.accent), PorterDuff.Mode.SRC_ATOP) }
                                 m.icon = icon
                             }
                             mAdapter.selected = position
@@ -469,19 +452,19 @@ class InboxFragment : CyaneaFragment() {
                     val thisMonth = TaskAdapter.newDivider("MONTH", DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(endOfDay)))
                     val future = TaskAdapter.newDivider("FUTURE", DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(endOfDay)))
 
-                    if (tempList.any { tasks -> tasks.dateTime.isBefore(today.dateTime) }) {
+                    if (tempList.any { tasks -> tasks.nextReminderTime().isBefore(today.nextReminderTime()) }) {
                         FilteredLists.inboxTaskList.add(overdue)
                     }
-                    if (tempList.any { tasks -> tasks.dateTime.isAfter(today.dateTime) && tasks.dateTime.isBefore(thisWeek.dateTime) }) {
+                    if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(today.nextReminderTime()) && tasks.nextReminderTime().isBefore(thisWeek.nextReminderTime()) }) {
                         FilteredLists.inboxTaskList.add(today)
                     }
-                    if (tempList.any { tasks -> tasks.dateTime.isAfter(thisWeek.dateTime) && tasks.dateTime.isBefore(thisMonth.dateTime) }) {
+                    if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(thisWeek.nextReminderTime()) && tasks.nextReminderTime().isBefore(thisMonth.nextReminderTime()) }) {
                         FilteredLists.inboxTaskList.add(thisWeek)
                     }
-                    if (tempList.any { tasks -> tasks.dateTime.isAfter(thisMonth.dateTime) && tasks.dateTime.isBefore(future.dateTime) }) {
+                    if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(thisMonth.nextReminderTime()) && tasks.nextReminderTime().isBefore(future.nextReminderTime()) }) {
                         FilteredLists.inboxTaskList.add(thisMonth)
                     }
-                    if (tempList.any { tasks -> tasks.dateTime.isAfter(future.dateTime) }) {
+                    if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(future.nextReminderTime()) }) {
                         FilteredLists.inboxTaskList.add(future)
                     }
 
@@ -515,4 +498,4 @@ class InboxFragment : CyaneaFragment() {
         }
     }
 
-}// Required empty public constructor
+}

@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity//(indices = arrayOf(Index(value = ["key"])))
 open class BaseProject {
 
     /*    constructor(key: Int, name: String, color: Int, index: Int) {

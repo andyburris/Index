@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.views.TaskListItem
 import com.jaredrummler.cyanea.Cyanea
@@ -141,21 +142,8 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
         }
     }
 
-    private fun updateItemsInternal(newTasks: List<Tasks>) {
-        val oldItems: List<Tasks> = ArrayList(this.taskList)
 
-        val handler = Handler()
-        Thread(Runnable {
-            val diffResult = DiffUtil.calculateDiff(TaskAdapterDiffCallback(oldItems, newTasks))
-            handler.post {
-                applyDiffResult(newTasks, diffResult)
-            }
-        }).start()
-    }
 
-    private fun applyDiffResult(newItems: List<Tasks>, diffResult: DiffUtil.DiffResult) {
-        dispatchUpdates(newItems, diffResult)
-    }
 
     private fun dispatchUpdates(newItems: List<Tasks>, diffResult: DiffUtil.DiffResult) {
         Log.d("dipatchUpdates", "newItems size: ${newItems.size}")
@@ -167,7 +155,15 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
     }
 
     fun update(newList: ArrayList<Tasks>) {
-        updateItemsInternal(newList)
+        val oldItems: List<Tasks> = ArrayList(this.taskList)
+
+        val handler = Handler()
+        Thread(Runnable {
+            val diffResult = DiffUtil.calculateDiff(TaskAdapterDiffCallback(oldItems, newList))
+            handler.post {
+                dispatchUpdates(newList, diffResult)
+            }
+        }).start()
     }
 
     internal class TaskAdapterDiffCallback(private val oldTasks: List<Tasks>, private val newTasks: List<Tasks>) : DiffUtil.Callback() {
@@ -176,7 +172,7 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldTasks[oldItemPosition] == newTasks[newItemPosition]
+            return oldTasks[oldItemPosition] == newTasks[newItemPosition] && oldTasks[oldItemPosition].isEditing == newTasks[newItemPosition].isEditing
         }
 
         override fun getNewListSize(): Int {
@@ -205,12 +201,12 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
 
         @JvmStatic
         fun newDivider(name: String, dateTime: DateTime): Tasks {
-            return Tasks(name, ArrayList(), ArrayList(), ArrayList(), dateTime, false)
+            return Tasks(name, ArrayList(), ArrayList(), ArrayList(), arrayListOf(SimpleReminder(dateTime)), ArrayList())
         }
 
         @JvmStatic
         fun newAddTask(): Tasks {
-            return Tasks("", ArrayList(), ArrayList(), ArrayList(), DateTime(3000, 1, 1, 0, 0, 30), false).also { it.isEditing = true }
+            return Tasks("", ArrayList(), ArrayList(), ArrayList(), ArrayList(), ArrayList()).also { it.isEditing = true }
         }
     }
 }

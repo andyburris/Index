@@ -99,14 +99,12 @@ class TaskView : CyaneaFragment() {
 
         task_view_task_name.text = task.listName.toUpperCase()
 
-        if (!task.hasDate()) { //no time
+        if (task.timeReminders.isEmpty()) { //no time
             taskViewTimeText!!.visibility = View.GONE
             taskViewTimeIcon!!.visibility = View.GONE
-        } else if (!task.hasTime()) { //date only
-            taskViewTimeText!!.text = task.dateTime.toString("EEEE, MMMM d")
-            taskViewTimeIcon!!.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
         } else {
-            taskViewTimeText!!.text = task.dateTime.toString("hh:mm a | EEEE, MMMM d")
+            taskViewTimeText!!.text = task.nextReminderTime().toString("hh:mm a | EEEE, MMMM d")
+            taskViewTimeIcon!!.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
         }
 
         prepareRecyclerViews(task)
@@ -137,13 +135,13 @@ class TaskView : CyaneaFragment() {
     }
 
     fun subtaskAdapter() = Klaster.get()
-            .itemCount { task.listItemsSize }
+            .itemCount { task.listItems.size }
             .view(R.layout.inbox_checklist_list_item, layoutInflater)
             .bind { pos ->
                 itemView.listTextView.apply {
                     backgroundTintList = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-                    text = task.getListItems(pos)
-                    isChecked = task.getListItemsChecked(pos)
+                    text = task.listItems[pos]
+                    isChecked = task.listItemsChecked[pos]
                     paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                     setOnCheckedChangeListener { _, isChecked ->
                         task.editListItemsChecked(isChecked, pos)
@@ -162,7 +160,7 @@ class TaskView : CyaneaFragment() {
             .itemCount { task.listTagsSize }
             .view(R.layout.task_view_tag_list_item, layoutInflater)
             .bind { pos ->
-                val tag = Current.project().tagList[task.getListTags(pos)]
+                val tag = Current.project().tagList[task.listTags.get(pos)]
                 itemView.tagImage.setColorFilter(tag.tagColor)
                 itemView.task_view_item_tag_name.text = tag.tagName
             }

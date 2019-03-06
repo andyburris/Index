@@ -103,7 +103,7 @@
         android:id="@+id/archive_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@android:color/white"
+        android:background="?attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
         app:layout_constraintTop_toBottomOf="@+id/tabs">
 
@@ -113,7 +113,7 @@
         android:id="@+id/import_export_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@android:color/white"
+        android:background="?attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="@+id/bottom_sheet_menu_divider"
         app:layout_constraintTop_toBottomOf="@+id/archive_icon">
 
@@ -123,7 +123,7 @@
         android:id="@+id/settings_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@android:color/white"
+        android:background="?attr/selectableItemBackground"
         app:layout_constraintBottom_toTopOf="@+id/project_switcher_frame"
         app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_menu_divider">
 
