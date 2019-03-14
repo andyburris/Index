@@ -5,6 +5,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.location.Geocoder
+import android.os.AsyncTask
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,10 +14,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.R
+import com.andb.apps.todo.databases.GetDatabase
+import com.andb.apps.todo.notifications.removeFence
 import com.andb.apps.todo.notifications.requestFromFence
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.objects.reminders.LocationReminder
+import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.objects.reminders.SimpleReminder
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.github.rongi.klaster.Klaster
 import com.jaredrummler.cyanea.Cyanea
@@ -55,6 +60,32 @@ class ReminderPicker(context: Context) : ConstraintLayout(context) {
         reminderPickerConfirm.setOnClickListener {
             alertDialog.cancel()
         }
+
+        val handler = Handler()
+        Thread {
+            handler.post {
+
+                for(fence in task.locationReminders){
+                    val addresses = Geocoder(context).getFromLocation(fence.lat, fence.long, 1)
+
+                    if(fence.name.isEmpty()){
+                        fence.name = addresses.let { addresses ->
+                            if (addresses.isEmpty()) {
+                                context.getString(R.string.location_no_address)
+                            } else {
+                                val address = addresses[0]
+                                val streetAddr = address.getAddressLine(0)
+                                streetAddr
+                            }
+                        }
+                    }
+                }
+
+                reminderAdapter.notifyDataSetChanged()
+
+            }
+        }.start()
+
     }
 
     fun reminderAdapter() = Klaster.get()
@@ -78,6 +109,7 @@ class ReminderPicker(context: Context) : ConstraintLayout(context) {
                         reminderItemInfo.text = reminder.toString()
                         reminderItemDelete.setOnClickListener {
                             task.locationReminders.remove(reminder)
+                            removeFence(reminder.key, context)
                             reminderAdapter.notifyItemRemoved(position)
                         }
                     }
@@ -105,15 +137,13 @@ class ReminderPicker(context: Context) : ConstraintLayout(context) {
 
     fun returnLocation(fence: LocationFence) {
         dialog.cancel()
-        requestFromFence(fence, context)
-        val reminder = LocationReminder.fromFence(fence)
-        task.locationReminders.add(reminder)
+        task.locationReminders.add(fence)
         val handler = Handler()
 
         Thread {
             val addresses = Geocoder(context).getFromLocation(fence.lat, fence.long, 1)
             handler.post {
-                reminder.name = addresses.let { addresses ->
+                fence.name = addresses.let { addresses ->
                     if (addresses.isEmpty()) {
                         context.getString(R.string.location_no_address)
                     } else {
@@ -127,6 +157,17 @@ class ReminderPicker(context: Context) : ConstraintLayout(context) {
 
             }
         }.start()
+
+        AsyncTask.execute {
+            ProjectsUtils.update(task, async = false)
+            val allTasks = GetDatabase.projectsDatabase.tasksDao().all.filter { !it.isArchived }
+            Log.d("fenceTaskAdding", "database search size: ${allTasks.size}")
+            Log.d("fenceTaskAdding", "database contains: ${allTasks.contains(task)}")
+            Log.d("fenceTaskAdding", "task ids: ${task.locationReminders.map { it.key }}")
+            Log.d("fenceTaskAdding", "all reminder ids: ${allTasks.flatMap { it.locationReminders.map { it.key } } }")
+            Log.d("fenceTaskAdding", "all trigger ids: ${allTasks.flatMap { it.locationReminders.mapNotNull { it.trigger?.key } } }")
+            requestFromFence(fence, context)
+        }
     }
 
     private fun pickDateTime(reminder: SimpleReminder? = null) {

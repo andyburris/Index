@@ -36,36 +36,21 @@ import me.saket.inboxrecyclerview.InboxRecyclerView;
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link BrowseFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link BrowseFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class BrowseFragment extends CyaneaFragment {
-    public static InboxRecyclerView mRecyclerView;
-    public static TaskAdapter mAdapter;
-    public static BrowseTagAdapter tAdapter;
+    public InboxRecyclerView mRecyclerView;
+    public TaskAdapter mAdapter;
+    public BrowseTagAdapter tAdapter;
 
-    public boolean selected = false;
+    private boolean selected = false;
 
     private boolean tagCollapsed = false;
 
-    static boolean removing;
+    boolean removing;
 
-    static boolean addingTask = false;
-    private BrowseFragment.OnFragmentInteractionListener mListener;
+    boolean addingTask = false;
 
     public BrowseFragment() {
         // Required empty public constructor
-    }
-
-    public static BrowseFragment newInstance() {
-        BrowseFragment fragment = new BrowseFragment();
-
-        return fragment;
     }
 
     @Override
@@ -85,18 +70,8 @@ public class BrowseFragment extends CyaneaFragment {
         View view = inflater.inflate(R.layout.fragment_browse, container, false);
         prepareRecyclerView(view);
 
-
-        //EventBus.getDefault().post(new UpdateEvent(true));//all things needed for this to run have been loaded
-
-
         prepareTagCollapse(view);
         prepareTagAdd(view);
-
-        NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.browseScrollView);
-
-
-
-
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(), mRecyclerView, new RecyclerTouchListener.ClickListener() {
 
@@ -135,7 +110,6 @@ public class BrowseFragment extends CyaneaFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
 
@@ -164,7 +138,7 @@ public class BrowseFragment extends CyaneaFragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(TaskAdapter.FROM_BROWSE);
+        mAdapter = new TaskAdapter(TaskAdapter.FROM_BROWSE, (MainActivity) getActivity());
         mAdapter.setHasStableIds(true);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setNested(true);
@@ -188,7 +162,7 @@ public class BrowseFragment extends CyaneaFragment {
         tRecyclerView.setLayoutManager(tLayoutManager);
 
         // specify an adapter (see also next example)
-        tAdapter = new BrowseTagAdapter(FilteredLists.INSTANCE.getFilteredTagLinks());
+        tAdapter = new BrowseTagAdapter(FilteredLists.INSTANCE.getFilteredTagLinks(), (MainActivity) getActivity());
 
         tRecyclerView.setAdapter(tAdapter);
 
@@ -346,7 +320,7 @@ public class BrowseFragment extends CyaneaFragment {
         });
 
     }
-    private static void prepareTagAdd(View view){
+    private void prepareTagAdd(View view){
         ImageView addButton = view.findViewById(R.id.tagAddButton);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -361,7 +335,7 @@ public class BrowseFragment extends CyaneaFragment {
 
 
 
-    public static void refreshWithAnim() {
+    public void refreshWithAnim() {
         mAdapter.notifyDataSetChanged();
         mRecyclerView.scheduleLayoutAnimation();
     }

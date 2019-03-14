@@ -21,13 +21,13 @@
 
 
 
-        <androidx.recyclerview.widget.RecyclerView
+        <me.saket.inboxrecyclerview.InboxRecyclerView
             android:id="@+id/archiveRecycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingTop="56dp">
 
 
-        </androidx.recyclerview.widget.RecyclerView>
+        </me.saket.inboxrecyclerview.InboxRecyclerView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

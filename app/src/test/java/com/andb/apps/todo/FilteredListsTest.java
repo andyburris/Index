@@ -1,11 +1,9 @@
 package com.andb.apps.todo;
 
-import android.graphics.Color;
-
 import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.objects.reminders.LocationReminder;
+import com.andb.apps.todo.objects.reminders.LocationFence;
 import com.andb.apps.todo.objects.reminders.SimpleReminder;
 
 import org.joda.time.DateTime;
@@ -83,10 +81,10 @@ public class FilteredListsTest {
     }
 
     private void setupTaskList() {
-        Tasks serial = new Tasks("serial", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(4, 7)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 1, -1, false);
-        Tasks salmon = new Tasks("salmon", new ArrayList<String>(Arrays.asList("1 lb", "boneless")), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 2)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 2, -1, false);
-        Tasks cauliflower = new Tasks("cauliflower", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 1, 8)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 3, -1, false);
-        Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationReminder>(), 4, -1, false);
+        Tasks serial = new Tasks("serial", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(4, 7)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationFence>(), 1, -1, false);
+        Tasks salmon = new Tasks("salmon", new ArrayList<String>(Arrays.asList("1 lb", "boneless")), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 2)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationFence>(), 2, -1, false);
+        Tasks cauliflower = new Tasks("cauliflower", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 0, 1, 8)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationFence>(), 3, -1, false);
+        Tasks parts = new Tasks("computer parts", new ArrayList<String>(), new ArrayList<Boolean>(), new ArrayList<Integer>(Arrays.asList(5, 4)), new ArrayList<SimpleReminder>(Arrays.asList(new SimpleReminder(DateTime.now()))), new ArrayList<LocationFence>(), 4, -1, false);
 
         initialTaskList.addAll(Arrays.asList(serial, salmon, cauliflower, parts));
         expectedBrowseList.addAll(Collections.singletonList(salmon));
@@ -99,7 +97,7 @@ public class FilteredListsTest {
         return getIntFromColor(random.nextInt(255), random.nextInt(255), random.nextInt(255));
     }
 
-    private int getIntFromColor(int Red, int Green, int Blue){
+    private int getIntFromColor(int Red, int Green, int Blue) {
         Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
         Green = (Green << 8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
         Blue = Blue & 0x000000FF; //Mask out anything not blue.

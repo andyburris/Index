@@ -1,27 +1,23 @@
 package com.andb.apps.todo.objects
 
 import android.util.Log
-
-import com.andb.apps.todo.objects.reminders.LocationReminder
+import androidx.room.*
+import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.objects.reminders.SimpleReminder
+import com.andb.apps.todo.typeconverters.*
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
+import com.andb.apps.todo.utilities.Values.TIME_SORT
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-
 import org.joda.time.DateTime
-
 import java.util.ArrayList
-
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.andb.apps.todo.typeconverters.*
-
-import com.andb.apps.todo.utilities.Values.TIME_SORT
+import kotlin.Boolean
+import kotlin.Cloneable
+import kotlin.Comparator
+import kotlin.Int
+import kotlin.NoSuchElementException
+import kotlin.String
 
 @Entity(foreignKeys = [ForeignKey(entity = BaseProject::class, parentColumns = ["key"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE)])
 class Tasks : Cloneable {
@@ -61,9 +57,9 @@ class Tasks : Cloneable {
 
     @SerializedName("list_locations")
     @Expose
-    @TypeConverters(LocationReminderConverter::class)
+    @TypeConverters(LocationFenceConverter::class)
     @ColumnInfo(name = "list_locations")
-    val locationReminders: ArrayList<LocationReminder>
+    val locationReminders: ArrayList<LocationFence>
 
     @SerializedName("project_id")
     @Expose
@@ -92,10 +88,10 @@ class Tasks : Cloneable {
     @Ignore
     @JvmOverloads
     constructor(listName: String, listItems: ArrayList<String>, listItemsChecked: ArrayList<Boolean>, listTags: ArrayList<Int>, timeReminders: ArrayList<SimpleReminder>,
-                locationReminders: ArrayList<LocationReminder>, projectId: Int = Current.project().key, archived: Boolean = false) : this (listName, listItems, listItemsChecked, listTags, timeReminders, locationReminders, ProjectsUtils.keyGenerator(), projectId, archived)
+                locationReminders: ArrayList<LocationFence>, projectId: Int = Current.project().key, archived: Boolean = false) : this(listName, listItems, listItemsChecked, listTags, timeReminders, locationReminders, ProjectsUtils.keyGenerator(), projectId, archived)
 
     constructor(listName: String, listItems: ArrayList<String>, listItemsChecked: ArrayList<Boolean>, listTags: ArrayList<Int>, timeReminders: ArrayList<SimpleReminder>,
-                locationReminders: ArrayList<LocationReminder>, listKey: Int, projectId: Int, archived: Boolean) {
+                locationReminders: ArrayList<LocationFence>, listKey: Int, projectId: Int, archived: Boolean) {
         this.listKey = listKey
         this.listName = listName
         this.listItems = listItems
@@ -157,18 +153,38 @@ class Tasks : Cloneable {
         return nextReminder()?.asDateTime() ?: DateTime(3000, 1, 1, 0, 0, 59)
     }
 
-    fun nextReminder(): SimpleReminder?{
-        val sorted = timeReminders.sortedWith(Comparator { o1, o2 -> o1.asDateTime().compareTo(o2.asDateTime()) })
+    fun nextReminder(): SimpleReminder? {
+        val sorted = timeReminders.sortedWith(Comparator { o1, o2 ->
+            o1.asDateTime().compareTo(o2.asDateTime())
+        })
         return try {
             sorted.first { !it.notified }
-        }catch (e: NoSuchElementException){
-            if(!timeReminders.isEmpty()){
+        } catch (e: NoSuchElementException) {
+            if (!timeReminders.isEmpty()) {
                 sorted[0]
-            }else {
+            } else {
                 null
             }
         }
 
+    }
+
+    fun hasLocationOrTrigger(locationKey: String): Boolean{
+        val reminders: Boolean = locationReminders.map { it.key }.contains(locationKey.toInt())
+        val triggers: Boolean = locationReminders.map { it.trigger?.key ?: -1 }.contains(locationKey.toInt())
+        return reminders || triggers
+    }
+
+    fun findLocation(locationKey: String, isTrigger: Boolean = isTrigger(locationKey)): LocationFence{
+        return if(isTrigger){
+            locationReminders.first { it.trigger?.key.toString()==locationKey }
+        }else{
+            locationReminders.first { it.key.toString()==locationKey }
+        }
+    }
+
+    fun isTrigger(locationKey: String): Boolean{
+        return locationReminders.map { it.trigger?.key ?: -1 }.contains(locationKey.toInt())
     }
 
     private fun compareTimes(o: Tasks): Int {
@@ -197,8 +213,11 @@ class Tasks : Cloneable {
         return Integer.compare(this.listItems.size, o.listItems.size)
     }
 
-    fun withKey(key: Int): Tasks{
-        return Tasks(listName, listItems, listItemsChecked, listTags, timeReminders?: ArrayList(), locationReminders?: ArrayList(), key, projectId, isArchived)
+    fun withKey(key: Int): Tasks {
+        return Tasks(
+            listName, listItems, listItemsChecked, listTags, timeReminders
+                ?: ArrayList(), locationReminders ?: ArrayList(), key, projectId, isArchived
+        )
     }
 
 

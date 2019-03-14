@@ -38,13 +38,13 @@ public class NotifyWorker extends Worker {
         Log.d("workManager", "Running NotifyWorker");
 
 
-        NotificationHandler.initializeDatabase(getApplicationContext());
+        NotificationHandler.Companion.initializeDatabase(getApplicationContext());
         ProjectsUtils.setupProjectList(Current.database());
 
         if (NotificationUtils.isNextNotification()) {
             Log.d("workManager", "Next isn't null");
             Tasks nextNotif = NotificationUtils.nextNotificationAll(Current.database());
-            NotificationHandler.createNotification(nextNotif, getApplicationContext());
+            NotificationHandler.Companion.createNotification(nextNotif, getApplicationContext());
         }
 
         return Result.success();

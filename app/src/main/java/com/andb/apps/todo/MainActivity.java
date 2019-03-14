@@ -56,6 +56,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import static com.andb.apps.todo.DrawerKt.DRAWER_DIALOG_ID;
 import static com.andb.apps.todo.utilities.Values.ALPHABETICAL_SORT;
 import static com.andb.apps.todo.utilities.Values.TIME_SORT;
 
@@ -65,23 +66,32 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    public static InboxRVViewPager mViewPager;
+    public InboxRVViewPager mViewPager;
 
     private boolean appStart;
 
-
+    public InboxFragment inboxFragment;
+    public BrowseFragment browseFragment;
+    public Drawer drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-
         appStart = true;
+
+        inboxFragment = new InboxFragment();
+        browseFragment = new BrowseFragment();
+
+        FilteredLists.INSTANCE.init(this);
 
         loadSettings();
 
         setContentView(R.layout.activity_main);
+        getSupportFragmentManager().executePendingTransactions();
+        drawer = (Drawer) getSupportFragmentManager().findFragmentById(R.id.drawerFragment);
+        Log.d("drawerInit", "drawer null = " + Boolean.toString(drawer==null));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -110,8 +120,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
             AsyncTask.execute(() -> {
                 ProjectList.INSTANCE.appStart(this, Current.database());
-                Filters.homeViewAdd(false); //add current filter to back stack
-
+                Filters.homeViewAdd(); //add current filter to back stack
 
                 Log.d("eventBusTrace", "onResume/appstart");
                 EventBus.getDefault().post(new UpdateEvent(false, true));
@@ -156,7 +165,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         } else {
             SettingsActivity.Companion.setDefaultSort(ALPHABETICAL_SORT);
         }
-        InboxFragment.Companion.setFilterMode(SettingsActivity.Companion.getDefaultSort(), false);
+        inboxFragment.setFilterMode(SettingsActivity.Companion.getDefaultSort(), false);
 
         SettingsActivity.Companion.setColoredToolbar(prefs.getBoolean("colored_toolbar", false));
         SettingsActivity.Companion.setSubFilter(prefs.getBoolean("sub_Filter_pref", false));
@@ -172,11 +181,11 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     @Override
     public void onBackPressed() {
 
-        if (Drawer.bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        } else if (TaskView.Companion.getPageState() != 0) {
-            InboxFragment.mRecyclerView.collapse();
-            BrowseFragment.mRecyclerView.collapse();
+        if (drawer.bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        } else if (TaskView.Companion.getAnyExpanded()) {
+            inboxFragment.mRecyclerView.collapse();
+            browseFragment.mRecyclerView.collapse();
         } else if (MaterialCab.Companion.isActive()) {
             MaterialCab.Companion.destroy();
         } else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
@@ -235,12 +244,12 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
                     Log.d("filterclicked", Integer.toString(id1));
                     switch (id1) {
                         case R.id.sortDate:
-                            InboxFragment.Companion.setFilterMode(TIME_SORT);
-                            InboxFragment.Companion.refreshWithAnim();
+                            inboxFragment.setFilterMode(TIME_SORT);
+                            inboxFragment.mAdapter.update(FilteredLists.INSTANCE.getInboxTaskList());
                             break;
                         case R.id.sortAlpha:
-                            InboxFragment.Companion.setFilterMode(ALPHABETICAL_SORT);
-                            InboxFragment.Companion.refreshWithAnim();
+                            inboxFragment.setFilterMode(ALPHABETICAL_SORT);
+                            inboxFragment.mAdapter.update(FilteredLists.INSTANCE.getInboxTaskList());
                             break;
 
                     }
@@ -259,7 +268,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
             /*TASKVIEW ITEMS*/
             case R.id.app_bar_edit:
-                TaskView.Companion.editFromToolbar();
+                TaskView.Companion.editFromToolbarStat();
                 return true;
             //TODO: Reschedule
         }
@@ -282,10 +291,10 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return InboxFragment.Companion.newInstance();
+                    return inboxFragment;
 
                 case 1:
-                    return BrowseFragment.newInstance();
+                    return browseFragment;
                 default:
                     return null;
             }
@@ -331,26 +340,27 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
-            if (TaskView.Companion.getPageState() == 0) {
-                if(InboxFragment.getAddingTask() || BrowseFragment.addingTask){
+            if (!TaskView.Companion.getAnyExpanded()) {
+                if(inboxFragment.getAddingTask() || browseFragment.addingTask){
                     Snackbar.make(fab.getRootView(), R.string.already_adding_task, Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
                     return;
                 }
                 Tasks task = TaskAdapter.newAddTask();
                 if(mViewPager.getCurrentPage()==0){
                     FilteredLists.INSTANCE.getInboxTaskList().add(task);
-                    InboxFragment.Companion.setFilterMode();
-                    InboxFragment.mAdapter.update(FilteredLists.INSTANCE.getInboxTaskList());
-                    InboxFragment.setAddingTask(true);
-                    InboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.INSTANCE.getInboxTaskList().indexOf(task));
+                    inboxFragment.setFilterMode();
+                    inboxFragment.mAdapter.update(FilteredLists.INSTANCE.getInboxTaskList());
+                    inboxFragment.setAddingTask(true);
+                    inboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.INSTANCE.getInboxTaskList().indexOf(task));
                 }else {
                     FilteredLists.INSTANCE.getBrowseTaskList().add(task);
-                    BrowseFragment.mAdapter.update(FilteredLists.INSTANCE.getBrowseTaskList());
-                    BrowseFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.INSTANCE.getBrowseTaskList().indexOf(task));
+                    browseFragment.mAdapter.update(FilteredLists.INSTANCE.getBrowseTaskList());
+                    browseFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.INSTANCE.getBrowseTaskList().indexOf(task));
                 }
+                Current.taskList().add(task);
                 AsyncTask.execute(()-> Current.database().tasksDao().insertOnlySingleTask(task));
             } else {
-                TaskView.Companion.taskDone();
+                TaskView.Companion.taskDoneStat();
             }
         });
 
@@ -363,7 +373,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     }
 
 
-    static boolean expanded = false;
+    boolean expanded = false;
 
     public void setupProjectSelector() {
 
@@ -371,8 +381,8 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         TextView toolbarSubtitle = findViewById(R.id.toolbar_project_name);
 
-        Drawer.bottomSheetBehavior = (BottomSheetBehavior.from(bottomSheet));
-        Drawer.bottomSheetBehavior.setBottomSheetCallback(Drawer.getNormalSheetCallback());
+        drawer.bottomSheetBehavior = (BottomSheetBehavior.from(bottomSheet));
+        drawer.bottomSheetBehavior.setBottomSheetCallback(drawer.getNormalSheetCallback());
 
         toolbarSubtitle.setText(Current.project().getName());
 
@@ -380,17 +390,17 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> {
-            if (TaskView.Companion.getPageState() == 0) {
+            if (!TaskView.Companion.getAnyExpanded()) {
                 expanded = !expanded;
                 Log.d("expanded", Boolean.toString(expanded));
                 if (expanded) {
-                    Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 } else {
-                    Drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    drawer.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
             } else {
-                InboxFragment.mRecyclerView.collapse();
-                BrowseFragment.mRecyclerView.collapse();
+                inboxFragment.mRecyclerView.collapse();
+                browseFragment.mRecyclerView.collapse();
             }
         });
 
@@ -447,8 +457,8 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         }
 
         FilteredLists.INSTANCE.createFilteredTaskList(Filters.getCurrentFilter(), event.viewing);
-        NotificationHandler.resetNotifications();
-        Drawer.projectAdapter.notifyDataSetChanged();
+        NotificationHandler.Companion.resetNotifications();
+        drawer.projectAdapter.notifyDataSetChanged();
 
         if(Current.hasProjects()) {
             TextView project_name = findViewById(R.id.toolbar_project_name);
@@ -474,12 +484,12 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     @Override
     public void onColorSelected(int dialogId, int color) {
         switch (dialogId) {
-            case Drawer.DIALOG_ID: {
-                ColorPanelView colorPanelView = Drawer.addEditLayout.findViewById(R.id.projectColorPreview);
+            case DRAWER_DIALOG_ID: {
+                ColorPanelView colorPanelView = drawer.addEditLayout.findViewById(R.id.projectColorPreview);
                 if (colorPanelView != null) {
                     colorPanelView.setColor(color);
                 }
-                Drawer.setSelectedColor(color);
+                drawer.setSelectedColor(color);
             }
         }
     }

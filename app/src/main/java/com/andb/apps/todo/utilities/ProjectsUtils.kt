@@ -33,8 +33,12 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = Current.database()) {
-        AsyncTask.execute {
+    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = Current.database(), async: Boolean = true) {
+        if(async) {
+            AsyncTask.execute {
+                projectsDatabase.tasksDao().updateTask(task)
+            }
+        }else{
             projectsDatabase.tasksDao().updateTask(task)
         }
     }

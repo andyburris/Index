@@ -1,16 +1,13 @@
 package com.andb.apps.todo.notifications
 
 import android.app.IntentService
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import com.andb.apps.todo.R
+import com.andb.apps.todo.databases.GetDatabase
 import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.ProjectsUtils
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingEvent
@@ -25,6 +22,7 @@ class GeofenceHandler : IntentService("GeofenceHandler") {
             return
         }
 
+        Log.d("fenceRecieved", "GEOFENCE RECEIVED")
         Toast.makeText(this, "GEOFENCE RECEIVED", Toast.LENGTH_LONG).show()
         //sendNotification(this, "GEOFENCE RECEIVED")
         // Get the transition type.
@@ -42,28 +40,41 @@ class GeofenceHandler : IntentService("GeofenceHandler") {
 
 
         for(geofence in triggeringGeofences) {
-            val task: Tasks = findTaskFromLocationReminder(geofence)
+            GeofencingClient(this).removeGeofences(listOf(geofence.requestId))
+            val task = findTaskFromLocationReminder(geofence)
+            val isTrigger = task.isTrigger(geofence.requestId)
 
-            // Send notification and log the transition details.
-            NotificationHandler.createNotification(task, this)
-            GeofencingClient(this).removeGeofences(geofencingEvent.triggeringGeofences.map { it.requestId })
+            if(isTrigger){
+                val reminder = task.findLocation(geofence.requestId, true)
+                requestFromFence(reminder, this)
+            }else {
+                // Send notification and log the transition details.
+                NotificationHandler.createNotification(task, this, geofence.requestId)
+            }
+
+
             Log.i("geofenceSuccess", geofenceTransitionDetails)
         }
 
     }
 
 
-    fun findTaskFromLocationReminder(geofence: Geofence): Tasks{
-        return Current.allProjects().flatMap { it.taskList }.first { it.locationReminders.map { it.key }.contains(geofence.requestId.toInt()) }
+    private fun findTaskFromLocationReminder(geofence: Geofence): Tasks{
+        GetDatabase.projectsDatabase = GetDatabase.getDatabase(this)
+
+        val allTasks = GetDatabase.projectsDatabase.tasksDao().all.filter { !it.isArchived }
+        Log.d("fenceTask", "database search size: ${allTasks.size}")
+        Log.d("fenceTask", "all reminder ids: ${allTasks.flatMap { it.locationReminders.map { it.key } } }")
+        Log.d("fenceTask", "all trigger ids: ${allTasks.flatMap { it.locationReminders.mapNotNull { it.trigger?.key } } }")
+        val task = allTasks.first{ it.hasLocationOrTrigger(geofence.requestId) }
+        return task
     }
 
-    fun getGeofenceTransitionDetails(transitionType: Int, triggers: List<Geofence>): String {
-        val string = "Geofence: ${geofenceTypeToString(transitionType)}, triggers: " + triggers.map { geofence -> geofence.requestId.toString() }
-
-        return string
+    private fun getGeofenceTransitionDetails(transitionType: Int, triggers: List<Geofence>): String {
+        return "Geofence: ${geofenceTypeToString(transitionType)}, triggers: " + triggers.map { geofence -> geofence.requestId.toString() }
     }
 
-    fun geofenceTypeToString(type: Int): String {
+    private fun geofenceTypeToString(type: Int): String {
         return when (type) {
             Geofence.GEOFENCE_TRANSITION_ENTER -> "GEOFENCE_TRANSITION_ENTER"
             Geofence.GEOFENCE_TRANSITION_DWELL -> "GEOFENCE_TRANSITION_DWELL"

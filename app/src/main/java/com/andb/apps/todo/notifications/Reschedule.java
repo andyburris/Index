@@ -45,11 +45,11 @@ public class Reschedule extends AppCompatActivity {
                     tasks.nextReminder().setNotified(false);
                     Current.database().tasksDao().updateTask(tasks);
 
-                    if (NotificationHandler.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
+                    if (NotificationHandler.Companion.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
                         Current.project().setTaskList(new ArrayList<>(Current.database().tasksDao().getAllFromProject(tasks.getProjectId())));
                         EventBus.getDefault().post(new UpdateEvent(true));
                     }
-                    NotificationHandler.resetNotifications();
+                    NotificationHandler.Companion.resetNotifications();
                     finish();
                 });
 

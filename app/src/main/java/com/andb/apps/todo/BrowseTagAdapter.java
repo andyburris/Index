@@ -27,21 +27,13 @@ import androidx.transition.TransitionManager;
 import androidx.transition.Visibility;
 
 public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyViewHolder> {
-    public static List<Integer> tagLinks = new ArrayList<>();
-
-    private Context context;
-    private ActionMode actionMode;
-
-
-    private int viewType = 0;
+    private List<Integer> tagLinks;
+    private MainActivity activity;
 
     private static final int TAG_LINK_ITEM = 0;
     private static final int TASK_VIEW_ITEM = 1;
     private static final int DIVIDER = 2;
 
-    private int lastPosition = -1;
-
-    public int debugSetTasks = 0;
 
     //Preferences for which to show
 
@@ -50,13 +42,12 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
 
         public TextView tagName;
-        public ImageView browseTagImage;
-        public ConstraintLayout browseLayout;
+        ImageView browseTagImage;
+        ConstraintLayout browseLayout;
 
-        public ImageView removeButton;
+        ImageView removeButton;
 
-
-        public MyViewHolder(View view) {
+        MyViewHolder(View view) {
             super(view);
 
 
@@ -78,8 +69,9 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
     }
 
 
-    public BrowseTagAdapter(List<Integer> tagLinks) {
+    public BrowseTagAdapter(List<Integer> tagLinks, MainActivity activity) {
         this.tagLinks = tagLinks;
+        this.activity = activity;
     }
 
 
@@ -89,7 +81,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
         /*//Indicates whether each item in the data set can be represented with a unique identifier
         setHasStableIds(true);*/
 
-        context = parent.getContext();
+        Context context = parent.getContext();
         View itemView = LayoutInflater.from(context)
                 .inflate(R.layout.browse_tag_list_item, parent, false);
 
@@ -113,7 +105,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
     public void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
 
-        if (BrowseFragment.removing) {
+        if (activity.browseFragment.removing) {
 
 
             Slide slide = new Slide();
@@ -183,15 +175,13 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
 
         Log.d("taskListError", "TAG");
-        viewType = TAG_LINK_ITEM;
         return TAG_LINK_ITEM;
 
     }
 
     @Override
     public int getItemCount() {
-        int size = tagLinks.size();
-        return size;
+        return tagLinks.size();
     }
 
 

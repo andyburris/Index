@@ -44,7 +44,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class AddTask(ctxt: Context) : FrameLayout(ctxt) {
+class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
 
 
     private lateinit var subtaskAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -175,11 +175,11 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
 
     private fun sortView() {
         if (browse) {
-            BrowseFragment.mAdapter.update(FilteredLists.browseTaskList)
+            activity.browseFragment.mAdapter.update(FilteredLists.browseTaskList)
         } else {
-            InboxFragment.setFilterMode()
-            InboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
-            InboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.inboxTaskList.indexOf(task))
+            activity.inboxFragment.setFilterMode()
+            activity.inboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
+            activity.inboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.inboxTaskList.indexOf(task))
         }
     }
 
@@ -219,12 +219,11 @@ class AddTask(ctxt: Context) : FrameLayout(ctxt) {
 
     private fun update() {
         task.isEditing = false
+        sortView()
         if (browse) {
-            sortView()
-            BrowseFragment.mAdapter.update(FilteredLists.browseTaskList)
+            activity.browseFragment.mAdapter.update(FilteredLists.browseTaskList)
         } else {
-            sortView()
-            InboxFragment.addingTask = false
+            activity.inboxFragment.addingTask = false
         }
     }
 

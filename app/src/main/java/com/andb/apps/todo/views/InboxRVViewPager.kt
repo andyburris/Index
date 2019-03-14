@@ -18,13 +18,13 @@ class InboxRVViewPager : ViewPager {
         addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener(){
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                currentPage = position;
+                currentPage = position
             }
         })
     }
 
     override fun canScrollHorizontally(direction: Int): Boolean {
-        return if (TaskView.pageState != 0) {
+        return if (TaskView.anyExpanded) {
             false
         } else {
             super.canScrollHorizontally(direction)
@@ -33,7 +33,7 @@ class InboxRVViewPager : ViewPager {
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
         // Never allow swiping to switch between pages
-        return if (TaskView.pageState != 0) {
+        return if (TaskView.anyExpanded) {
             false
         } else {
             super.onInterceptTouchEvent(event)
@@ -41,7 +41,7 @@ class InboxRVViewPager : ViewPager {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // Never allow swiping to switch between pages
-        return if (TaskView.pageState != 0) {
+        return if (TaskView.anyExpanded) {
             false
         } else {
             super.onTouchEvent(event)

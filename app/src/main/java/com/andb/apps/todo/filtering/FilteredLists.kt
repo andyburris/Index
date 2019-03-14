@@ -4,6 +4,7 @@ import android.util.Log
 
 import com.andb.apps.todo.BrowseFragment
 import com.andb.apps.todo.InboxFragment
+import com.andb.apps.todo.MainActivity
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
@@ -16,6 +17,11 @@ object FilteredLists {
     var inboxTaskList = ArrayList<Tasks>()
     var browseTaskList = ArrayList<Tasks>()
     var filteredTagLinks = ArrayList<Int>()
+    lateinit var mainActivity: MainActivity
+
+    fun init(activity: MainActivity){
+        this.mainActivity = activity
+    }
 
     fun createFilteredTaskList(tagsToFilter: ArrayList<Int>, viewing: Boolean) {
 
@@ -44,25 +50,17 @@ object FilteredLists {
         browseTaskList.addAll(filterBrowse(inboxTaskList, Filters.getCurrentFilter(), filteredTagLinks, Current.tagList(), SettingsActivity.subFilter))
 
 
-        BrowseFragment.refreshWithAnim()
+        mainActivity.browseFragment.refreshWithAnim()
 
-        BrowseFragment.tAdapter.notifyDataSetChanged()
+        mainActivity.browseFragment.tAdapter.notifyDataSetChanged()
 
+        mainActivity.inboxFragment.setFilterMode()
+        mainActivity.inboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
 
-        //if (viewing) {
-        InboxFragment.setFilterMode()
-        InboxFragment.refreshWithAnim()
-        //InboxFragment.Companion.getMAdapter().notifyDataSetChanged();
-
-        Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size + ", InboxFragment.mAdapter.taskList: " + InboxFragment.mAdapter.taskList.size)
-        for (t in InboxFragment.mAdapter.taskList) {
+        Log.d("inboxTaskList", "inboxTaskList: " + inboxTaskList.size + ", com.andb.apps.todo.filtering.FilteredLists.mainActivity.inboxFragment.mAdapter.taskList: " + mainActivity.inboxFragment.mAdapter.taskList.size)
+        for (t in mainActivity.inboxFragment.mAdapter.taskList) {
             Log.d("inboxTaskList", t.toString())
         }
-        //}
-
-
-        InboxFragment.setTaskCountText(inboxTaskList.size)
-
 
     }
 

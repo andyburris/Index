@@ -14,11 +14,10 @@ import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.andb.apps.todo.R
-import com.andb.apps.todo.utilities.ProjectsUtils
+import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.utilities.Utilities
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -32,24 +31,13 @@ import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.view_location_picker.view.*
 
-const val ENTER_RADIUS = 15
-const val EXIT_RADIUS = 15
-const val ENTER_DURATION = 15000
 
-sealed class LocationFence(var lat: Double, var long: Double, var radius: Int, val key:Int = ProjectsUtils.keyGenerator()) {
-    class Enter(lat: Double, long: Double, val duration: Int = ENTER_DURATION) :
-        LocationFence(lat, long, ENTER_RADIUS)
-
-    class Exit(lat: Double, long: Double) : LocationFence(lat, long, EXIT_RADIUS)
-    class Near(lat: Double, long: Double, radius: Int) : LocationFence(lat, long, radius)
-}
 
 class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCallback,
     GoogleMap.OnCameraMoveListener, GoogleMap.OnCameraIdleListener {
 
     var map: GoogleMap? = null
     lateinit var fence: LocationFence
-    var nearRadius = 30
     private val geocoder by lazy { Geocoder(context) }
     lateinit var currentCircle: Circle
 
@@ -57,7 +45,7 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
         inflate(context, R.layout.view_location_picker, this)
     }
 
-    fun setup(bundle: Bundle , callback: (LocationFence) -> Unit) {
+    fun setup(bundle: Bundle, callback: (LocationFence) -> Unit) {
         Log.d("locationPickerSetup", "setting up")
         MapsInitializer.initialize(context)
         locationPickerMapView.apply {
@@ -85,8 +73,8 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
         locationRadiusPicker.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 Log.d("seekbarListener", "progress changed")
-                nearRadius = progress+15
-                locationRadiusPickerStatus.text = nearRadius.toString()
+                fence.radius = progress + 15
+                locationRadiusPickerStatus.text = fence.radius.toString()
 
                 setRadiusOnMap()
 
@@ -127,8 +115,9 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
 
     fun getCurrentLocation(): Location {
         val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-        return if (lm!=null &&ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER) ?: Location("").also { it.latitude = 0.0; it.longitude = 0.0 }
+        return if (lm != null && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                ?: Location("").also { it.latitude = 0.0; it.longitude = 0.0 }
         } else {
             Location("").also {
                 it.latitude = 0.0
@@ -141,7 +130,7 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
         fence = when (locationPickerTabLayout.selectedTabPosition) {
             0 -> LocationFence.Enter(lat, long)
             1 -> LocationFence.Exit(lat, long)
-            else -> LocationFence.Near(lat, long, nearRadius)
+            else -> LocationFence.Near(lat, long, fence.radius)
         }
     }
 
@@ -149,7 +138,7 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
         val height = if (position == 2) 1000 else 0
         TransitionManager.beginDelayedTransition(locationPickerFrame, ChangeBounds())
         locationRadiusPickerFrame.maxHeight = height
-        locationRadiusPickerStatus.text = nearRadius.toString()
+        locationRadiusPickerStatus.text = if(::fence.isInitialized)fence.radius.toString() else 30.toString()
     }
 
     fun setRadiusOnMap() {
@@ -158,11 +147,11 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
                 currentCircle.remove()
             }
 
-            if(locationPickerTabLayout.selectedTabPosition==2) {
+            if (locationPickerTabLayout.selectedTabPosition == 2) {
                 currentCircle = addCircle(
                     CircleOptions()
                         .center(LatLng(fence.lat, fence.long))
-                        .radius(nearRadius.toDouble())
+                        .radius(fence.radius.toDouble())
                         .strokeWidth(0f)
                         .fillColor(0x44000000)
                 )
@@ -179,7 +168,7 @@ class LocationPicker(context: Context) : ConstraintLayout(context), OnMapReadyCa
     override fun onCameraIdle() {
         val handler = Handler()
 
-        Thread{
+        Thread {
             val addresses = geocoder.getFromLocation(fence.lat, fence.long, 1)
             handler.post {
                 locationPickerAddress.text = addresses.let { addresses ->

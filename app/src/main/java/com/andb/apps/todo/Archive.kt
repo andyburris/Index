@@ -31,6 +31,7 @@ import me.saket.inboxrecyclerview.PullCollapsibleActivity
 
 import com.andb.apps.todo.utilities.Values.swipeThreshold
 import kotlinx.android.synthetic.main.activity_archive.*
+import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.InterceptResult
 
 class Archive : PullCollapsibleActivity() {
@@ -220,7 +221,7 @@ class Archive : PullCollapsibleActivity() {
 
     fun prepareRecyclerView() {
         Log.d("recycler", "preparing archive rView")
-        mRecyclerView = findViewById<View>(R.id.archiveRecycler) as RecyclerView
+        mRecyclerView = findViewById<View>(R.id.archiveRecycler) as InboxRecyclerView
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -231,8 +232,9 @@ class Archive : PullCollapsibleActivity() {
         mRecyclerView.layoutManager = mLayoutManager
 
         // specify an adapter (see also next example)
-        mAdapter = TaskAdapter(TaskAdapter.FROM_ARCHIVE)
+        mAdapter = TaskAdapter(TaskAdapter.FROM_ARCHIVE, this)
         mAdapter.update(Current.archiveTaskList())
+        mAdapter.setHasStableIds(true)
         mRecyclerView.adapter = mAdapter
 
         val ith = ItemTouchHelper(_ithCallback)
@@ -251,7 +253,7 @@ class Archive : PullCollapsibleActivity() {
 
     companion object {
 
-        lateinit var mRecyclerView: RecyclerView
+        lateinit var mRecyclerView: InboxRecyclerView
         lateinit var mAdapter: TaskAdapter
 
         private fun isMaxScrollReached(recyclerView: RecyclerView): Boolean {

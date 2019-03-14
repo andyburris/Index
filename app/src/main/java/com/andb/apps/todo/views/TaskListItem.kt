@@ -1,7 +1,7 @@
 package com.andb.apps.todo.views
 
+import android.app.Activity
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Paint
 import android.os.AsyncTask
 import android.os.Bundle
@@ -12,7 +12,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import androidx.annotation.IntegerRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +23,7 @@ import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_list_item.view.*
-import java.lang.StringBuilder
+import me.saket.inboxrecyclerview.InboxRecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -41,9 +40,31 @@ class TaskListItem : ConstraintLayout {
         inflate(context, R.layout.inbox_list_item, this)
     }
 
-    fun setup(tasks: Tasks, pos: Int, inboxBrowseArchive: Int) {
+    fun setup(tasks: Tasks, pos: Int, inboxBrowseArchive: Int, activity: Activity) {
+        val recyclerView: InboxRecyclerView
+        val adapter: TaskAdapter
+        val expandablePageRef: Int
+        when (inboxBrowseArchive) {
+            TaskAdapter.FROM_BROWSE -> {
+                activity as MainActivity
+                recyclerView = activity.browseFragment.mRecyclerView
+                adapter = activity.browseFragment.mAdapter
+                expandablePageRef = R.id.expandable_page_browse
+            }
+            TaskAdapter.FROM_ARCHIVE -> {
+                recyclerView = Archive.mRecyclerView
+                adapter = Archive.mAdapter
+                expandablePageRef = R.id.expandable_page_archive
+            }
+            else -> { //inbox
+                activity as MainActivity
+                recyclerView = activity.inboxFragment.mRecyclerView
+                adapter = activity.inboxFragment.mAdapter
+                expandablePageRef = R.id.expandable_page_inbox
+            }
+        }
         task = tasks
-        setTasks(pos, inboxBrowseArchive)
+        setTasks(pos, recyclerView)
         topLayout.setTags(tasks)
         topLayout.setTitle(task.listName)
         topLayout.setOverflow(this)
@@ -54,30 +75,16 @@ class TaskListItem : ConstraintLayout {
             bundle.putInt("pos", pos)
             bundle.putInt("inboxBrowseArchive", inboxBrowseArchive)
 
-            val activity = context as FragmentActivity
-            val ft = activity.supportFragmentManager.beginTransaction()
+            val fragmentActivity = context as FragmentActivity
+            val ft = fragmentActivity.supportFragmentManager.beginTransaction()
 
             val taskView = TaskView()
             taskView.arguments = bundle
 
-
-            when (inboxBrowseArchive) {
-                TaskAdapter.FROM_BROWSE -> {
-                    if (BrowseFragment.mAdapter.selected == -1) {
-                        ft.add(R.id.expandable_page_browse, taskView)
-                        ft.commit()
-                        BrowseFragment.mRecyclerView.expandItem(BrowseFragment.mAdapter.getItemId(pos))
-                    }
-                }
-                TaskAdapter.FROM_ARCHIVE -> {
-                }
-                else -> { //inbox
-                    if (InboxFragment.mAdapter.selected == -1) {
-                        ft.add(R.id.expandable_page_inbox, taskView)
-                        ft.commit()
-                        InboxFragment.mRecyclerView.expandItem(InboxFragment.mAdapter.getItemId(pos))
-                    }
-                }
+            if (adapter.selected == -1) {
+                ft.add(expandablePageRef, taskView)
+                ft.commit()
+                recyclerView.expandItem(adapter.getItemId(pos))
             }
 
 
@@ -108,7 +115,7 @@ class TaskListItem : ConstraintLayout {
     }
 
 
-    private fun setTasks(pos: Int, inboxBrowseArchive: Int) {
+    private fun setTasks(pos: Int, recyclerView: RecyclerView) {
 
         val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))
 
@@ -146,17 +153,10 @@ class TaskListItem : ConstraintLayout {
                 moreTasks.visibility = View.GONE
             }
 
-            var expandedList: ArrayList<Boolean>
-            var taskList: ArrayList<Tasks>
-            val adapter: TaskAdapter
-            val rv: RecyclerView
-            when (inboxBrowseArchive) {
-                TaskAdapter.FROM_ARCHIVE -> rv = Archive.mRecyclerView
-                TaskAdapter.FROM_BROWSE -> rv = BrowseFragment.mRecyclerView
-                else -> rv = InboxFragment.mRecyclerView
-            }
+            val expandedList: ArrayList<Boolean>
+            val taskList: ArrayList<Tasks>
+            val adapter: TaskAdapter = recyclerView.adapter as TaskAdapter
 
-            adapter = rv.adapter as TaskAdapter
             taskList = ArrayList(adapter.taskList)
             adapter.expandedList = ArrayList<Boolean>()
             expandedList = adapter.expandedList
@@ -170,7 +170,7 @@ class TaskListItem : ConstraintLayout {
                 expandedList.add(selected)
             }
 
-            setupCollapse(expandedList, pos, rv)
+            setupCollapse(expandedList, pos, recyclerView)
 
 
         } else { //no checkboxes
@@ -244,7 +244,6 @@ class TaskListItem : ConstraintLayout {
     fun setCyaneaBackground(color: Int) {
         inboxCard.setBackgroundColor(color)
     }
-
 
 
 }

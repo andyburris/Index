@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: "kotlin-android"
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
 
 
@@ -45,12 +46,16 @@ android {
     lintOptions {
         disable 'LogNotTimber'
     }
+
+
 }
 
 dependencies {
 
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

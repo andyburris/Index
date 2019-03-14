@@ -4,11 +4,12 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import com.andb.apps.todo.R
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 
-class CyaneaTextView(context: Context, attributeSet: AttributeSet) : TextView(context, attributeSet){
+class CyaneaTextView(context: Context, attributeSet: AttributeSet) : AppCompatTextView(context, attributeSet){
     init {
         context.theme.obtainStyledAttributes(attributeSet, R.styleable.CyaneaTextView, 0, 0).apply {
             try {

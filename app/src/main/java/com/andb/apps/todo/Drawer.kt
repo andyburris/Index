@@ -43,7 +43,18 @@ import kotlinx.android.synthetic.main.project_create_edit_layout.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
 import org.greenrobot.eventbus.EventBus
 
+const val DRAWER_DIALOG_ID = 1
 class Drawer : Fragment() {
+
+
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
+    var selectedTab: Int = 0
+
+    var selectedColor: Int = Cyanea.instance.accent
+
+    lateinit var addEditLayout: View
+
+    lateinit var projectAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
@@ -187,7 +198,7 @@ class Drawer : Fragment() {
                         .setColor(selectedColor)
                         .setAllowCustom(true)
                         .setShowAlphaSlider(true)
-                        .setDialogId(DIALOG_ID)
+                        .setDialogId(DRAWER_DIALOG_ID)
                         .create()
                 dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
                 activity!!.supportFragmentManager.executePendingTransactions()
@@ -228,7 +239,7 @@ class Drawer : Fragment() {
                         .setColor(selectedColor)
                         .setAllowCustom(true)
                         .setShowAlphaSlider(true)
-                        .setDialogId(DIALOG_ID)
+                        .setDialogId(DRAWER_DIALOG_ID)
                         .create()
                 dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
                 activity!!.supportFragmentManager.executePendingTransactions()
@@ -280,28 +291,15 @@ class Drawer : Fragment() {
                     Toast.makeText(context, "Can't delete final project", Toast.LENGTH_LONG).show()
                 }
 
-            }!!
+            }
 
 
-    companion object {
-        lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
-        var selectedTab: Int = 0
-
-        const val DIALOG_ID = 1
-        @JvmStatic
-        var selectedColor: Int = Cyanea.instance.accent
-
-        lateinit var addEditLayout: View
-
-        lateinit var projectAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-
-        @JvmStatic
         val normalSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
             @SuppressLint("SwitchIntDef")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        MainActivity.expanded = true
+                        (activity as? MainActivity)?.expanded = true
                         (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = true
                         bottomSheet.tabs.apply {
                             //disable selection
@@ -312,11 +310,11 @@ class Drawer : Fragment() {
 
                     }
                     BottomSheetBehavior.STATE_COLLAPSED -> {
-                        MainActivity.expanded = false
+                        (activity as? MainActivity)?.expanded = false
                         (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = false
                         bottomSheet.tabs.apply {
                             //reenable selection
-                            addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(MainActivity.mViewPager))
+                            addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener((activity as MainActivity).mViewPager))
                             tabRippleColor = ColorStateList.valueOf(Cyanea.instance.accent)
                             getTabAt(selectedTab)?.select()
                         }
@@ -369,7 +367,6 @@ class Drawer : Fragment() {
 
         }
 
-        @JvmStatic
         val collapsedSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
             }
@@ -378,5 +375,5 @@ class Drawer : Fragment() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
-    }
+
 }

@@ -21,36 +21,17 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/inboxScrollView"
+    <me.saket.inboxrecyclerview.InboxRecyclerView
+        android:id="@+id/inboxRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <include
-                layout="@layout/inbox_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-            <me.saket.inboxrecyclerview.InboxRecyclerView
-                android:id="@+id/inboxRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="@dimen/rv_padding_for_bottom_bar"
-                android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim">
+        android:clipToPadding="false"
+        android:layoutAnimation="@anim/rv_slide_from_bottom_layout_anim"
+        android:paddingBottom="@dimen/rv_padding_for_bottom_bar">
 
 
-            </me.saket.inboxrecyclerview.InboxRecyclerView>
+    </me.saket.inboxrecyclerview.InboxRecyclerView>
 
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
     <me.saket.inboxrecyclerview.page.ExpandablePageLayout
         android:id="@+id/expandable_page_inbox"
         android:layout_width="match_parent"

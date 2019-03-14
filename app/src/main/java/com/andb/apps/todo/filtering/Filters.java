@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.andb.apps.todo.BrowseFragment;
 import com.andb.apps.todo.InboxFragment;
+import com.andb.apps.todo.MainActivity;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
 
@@ -20,15 +21,8 @@ public class Filters {
         return backTagFilters;
     }
 
-
-    public static void homeViewAdd() {
-        homeViewAdd(true);
-    }
-    public static void homeViewAdd(boolean updatePath){
+    public static void homeViewAdd(){
         backTagFilters.clear();
-        if (updatePath) {
-            setPath();
-        }
     }
 
 
@@ -40,7 +34,6 @@ public class Filters {
 
         FilteredLists.INSTANCE.createFilteredTaskList(getCurrentFilter(), true);
 
-        setPath();
 
     }
 
@@ -49,9 +42,7 @@ public class Filters {
         backTagFilters.add(tag);//adds new filter to stack
 
         FilteredLists.INSTANCE.createFilteredTaskList(getCurrentFilter(), true);//filters tasklist with new filter
-        BrowseFragment.mAdapter.update(FilteredLists.INSTANCE.getBrowseTaskList());//updates recyclerviews
 
-        setPath();
     }
 
     public static void tagReset(int tag) {
@@ -62,9 +53,7 @@ public class Filters {
         homeViewAdd();
         backTagFilters.add(tag);
         FilteredLists.INSTANCE.createFilteredTaskList(getCurrentFilter(), true);
-        BrowseFragment.mAdapter.update(FilteredLists.INSTANCE.getBrowseTaskList());
 
-        setPath();
 
 
     }
@@ -77,7 +66,7 @@ public class Filters {
         }
     }
 
-    public static void setPath(){
+    public static String path(){
 
         StringBuilder subtitle = new StringBuilder("All");
 
@@ -87,6 +76,6 @@ public class Filters {
             }
         }
 
-        InboxFragment.Companion.setPathText(subtitle.toString());
+        return subtitle.toString();
     }
 }

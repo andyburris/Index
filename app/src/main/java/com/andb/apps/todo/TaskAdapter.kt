@@ -1,5 +1,6 @@
 package com.andb.apps.todo
 
+import android.app.Activity
 import android.content.ClipData.Item
 import android.content.res.Resources
 import android.os.Handler
@@ -12,13 +13,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.views.InboxHeader
 import com.andb.apps.todo.views.TaskListItem
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_divider.view.*
 import org.joda.time.DateTime
 
 
-class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
+class TaskAdapter(var inboxBrowseArchive: Int, val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
 
     var taskList: MutableList<Tasks> = ArrayList()
     lateinit var expandedList: ArrayList<Boolean>
@@ -37,18 +39,18 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
 
         if (viewType == TASK_VIEW_ITEM) {
             itemView = TaskListItem(context)
-            itemView.setLayoutParams(ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT))
         } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
-            itemView = AddTask(context)
-            itemView.setLayoutParams(ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT))
+            itemView = AddTask(context, activity as MainActivity)
+        } else if(viewType== INBOX_HEADER){
+            itemView = InboxHeader(context)
         } else {
             itemView = LayoutInflater.from(context).inflate(
                     R.layout.inbox_divider, parent, false)
         }
+
+        itemView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT)
 
         return TaskAdapter.MyViewHolder(itemView)
 
@@ -70,7 +72,7 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
 
         if (viewType == TASK_VIEW_ITEM) {
             val taskListItem = holder.itemView as TaskListItem
-            taskListItem.setup(taskList[position], realPosition, inboxBrowseArchive)
+            taskListItem.setup(taskList[position], realPosition, inboxBrowseArchive, activity)
             if (position == selected) {
                 taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 0.8f), 0.7))
                 //TODO: lighter color on dark theme
@@ -83,15 +85,11 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
                 browse = true
             }
             addTask.setup(browse, taskList[realPosition])
-        } else { //divider logic
-            Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))
+        } else if(viewType == INBOX_HEADER){
+            (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size)
 
-            if (realPosition == 0) { //resize if at top
-                val scale = Resources.getSystem().displayMetrics.density
-                val padding16Dp = (16 * scale).toInt()
-                val padding20Dp = (20 * scale).toInt()
-                holder.itemView.dividerName.setPadding(padding16Dp, padding20Dp, 0, padding16Dp)
-            }
+        } else{ //divider logic
+            Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))
 
             when (viewType) {
                 OVERDUE_DIVIDER -> holder.itemView.dividerName.setText(R.string.divider_overdue)
@@ -108,6 +106,7 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
         val task = taskList[position]
         val taskName = task.listName
         viewType = when (taskName) {
+            "INBOX_HEADER"-> INBOX_HEADER
             "OVERDUE" -> OVERDUE_DIVIDER
             "TODAY" -> TODAY_DIVIDER
             "WEEK" -> THIS_WEEK_DIVIDER
@@ -122,11 +121,10 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
             }
         }
 
-
-
-
         return viewType
     }
+
+
 
     override fun getItemCount(): Int {
         return taskList.size
@@ -168,11 +166,19 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
 
     internal class TaskAdapterDiffCallback(private val oldTasks: List<Tasks>, private val newTasks: List<Tasks>) : DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldTasks[oldItemPosition].listKey == newTasks[newItemPosition].listKey
+            val oldTask = oldTasks[oldItemPosition]
+            val newTask = newTasks[newItemPosition]
+
+            return oldTask.listKey == newTask.listKey
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldTasks[oldItemPosition] == newTasks[newItemPosition] && oldTasks[oldItemPosition].isEditing == newTasks[newItemPosition].isEditing
+            val oldTask = oldTasks[oldItemPosition]
+            val newTask = newTasks[newItemPosition]
+
+            return oldTask == newTask
+                    && oldTask.isEditing == newTask.isEditing
+                    && (oldTask.listName != "INBOX_HEADER" && newTask.listName != "INBOX_HEADER" || oldTasks.filter { !isDivider(it) }.size==newTasks.filter { !isDivider(it) }.size)
         }
 
         override fun getNewListSize(): Int {
@@ -185,6 +191,7 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
 
     }
 
+
     companion object {
 
         const val TASK_VIEW_ITEM = 0
@@ -194,6 +201,7 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
         const val THIS_MONTH_DIVIDER = 4
         const val FUTURE_DIVIDER = 5
         const val ADD_EDIT_TASK_PLACEHOLDER = 6
+        const val INBOX_HEADER = 7
 
         const val FROM_INBOX = 0
         const val FROM_BROWSE = 1
@@ -202,6 +210,12 @@ class TaskAdapter(var inboxBrowseArchive: Int) : RecyclerView.Adapter<TaskAdapte
         @JvmStatic
         fun newDivider(name: String, dateTime: DateTime): Tasks {
             return Tasks(name, ArrayList(), ArrayList(), ArrayList(), arrayListOf(SimpleReminder(dateTime)), ArrayList())
+        }
+
+        @JvmStatic
+        fun newHeader(): Tasks {
+            val dateTime = DateTime(DateTime(1969, 1, 1, 0, 0))
+            return Tasks("INBOX_HEADER", ArrayList(), ArrayList(), ArrayList(), arrayListOf(SimpleReminder(dateTime)), ArrayList())
         }
 
         @JvmStatic

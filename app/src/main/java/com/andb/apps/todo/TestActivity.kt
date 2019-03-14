@@ -3,7 +3,7 @@ package com.andb.apps.todo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
-import com.andb.apps.todo.views.LocationFence
+import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.views.LocationPicker
 import com.google.android.material.snackbar.Snackbar
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
