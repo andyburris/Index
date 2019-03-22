@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
 import com.andb.apps.todo.filtering.Filters
+import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.snackbar.Snackbar
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity
@@ -27,6 +29,7 @@ class TagSelect : CyaneaAppCompatActivity() {
 
 
     private var contextualToolbar: ActionMode? = null
+    lateinit var list: List<Tags>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +38,7 @@ class TagSelect : CyaneaAppCompatActivity() {
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
+        list = Current.tagListAll()
 
         val bundle = intent.extras
         if (bundle!!.containsKey("isTaskCreate")) {
@@ -51,13 +55,13 @@ class TagSelect : CyaneaAppCompatActivity() {
 
 
         // specify an adapter (see also next example)
-        mAdapter = tagAdapter()
+        mAdapter = tagAdapter(list)
         tagRecycler.adapter = mAdapter
 
 
         tagRecycler.addOnItemTouchListener(RecyclerTouchListener(applicationContext, tagRecycler, object : RecyclerTouchListener.ClickListener {
             override fun onClick(view: View, position: Int) {
-                val tags = Current.tagList()[position]
+                val tags = list[position]
                 Toast.makeText(applicationContext, tags.tagName + " is selected!", Toast.LENGTH_SHORT).show()
 
 
@@ -66,21 +70,21 @@ class TagSelect : CyaneaAppCompatActivity() {
                     EventBus.getDefault().post(AddTaskAddTagEvent(position))
                     finish()
                 } else if (isTagLink && Filters.getCurrentFilter().size > 0) {
-                    Current.tagList()[Filters.getMostRecent()].children.apply {
+                    list[Filters.getMostRecent().index].children.apply {
                         when (contains(position)) {
                             false -> {
-                                if (position != Filters.getMostRecent()) {
+                                if (position != Filters.getMostRecent().index) {
                                     add(position)
                                     finish()
                                 } else {
                                     Snackbar.make(toolbar.rootView, "The tag you selected is the current tag. Why would you do that?", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                                 }
                             }
-                            true -> Snackbar.make(toolbar.rootView, "The tag you selected has already been linked", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                            true -> Snackbar.make(toolbar.rootView, "The tag you selectedi has already been linked", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                         }
                     }
                 } else {
-                    Filters.tagForward(position)
+                    Filters.tagForward(list[position])
                     finish()
                 }
 
@@ -98,11 +102,11 @@ class TagSelect : CyaneaAppCompatActivity() {
 
     }
 
-    private fun tagAdapter() = Klaster.get()
-            .itemCount { Current.tagList().size }
+    private fun tagAdapter(list: List<Tags>) = Klaster.get()
+            .itemCount { list.size }
             .view(R.layout.tag_list_item, layoutInflater)
             .bind { position ->
-                val tag = Current.tagList()[position]
+                val tag = list[position]
                 itemView.tagname.text = tag.tagName
                 itemView.tagIcon.setColorFilter(tag.tagColor)
             }
@@ -152,7 +156,7 @@ class TagSelect : CyaneaAppCompatActivity() {
                         return true
                     }
                     R.id.deleteTag -> {
-                        Current.tagList().removeAt(position)
+                        ProjectsUtils.remove(list[position])
                         mAdapter.notifyItemRemoved(position)
                         mode.finish()
                     }

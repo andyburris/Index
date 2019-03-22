@@ -1,36 +1,23 @@
 package com.andb.apps.todo.objects
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.andb.apps.todo.utilities.ProjectsUtils
 import java.util.*
 
-open class Project(key: Int, name: String, var taskList: ArrayList<Tasks>, var archiveList: ArrayList<Tasks>, var tagList: ArrayList<Tags>, color: Int, index: Int) : BaseProject() {
+@Entity
+open class Project(
+    @PrimaryKey
+    val key: Int,
 
+    @ColumnInfo(name = "project_name")
+    var name: String,
 
-    var keyList: ArrayList<Int> = ArrayList()
+    @ColumnInfo(name = "project_color")
+    var color: Int = 0x00000000, //black
 
+    @ColumnInfo(name = "project_index")
+    var index: Int
 
-    //TODO: Run updateKeyList on add task/tag
-    fun updateKeyList() {
-        for (t: Tasks in taskList) {
-            this.keyList.add(t.listKey)
-        }
-        for (t: Tasks in archiveList) {
-            this.keyList.add(t.listKey)
-        }
-        for (t: Tags in tagList) {
-            while (this.keyList.contains(t.key)) {
-                t.key = ProjectsUtils.keyGenerator()
-            }
-            this.keyList.add(t.key)
-        }
-    }
-
-    init {
-        super.key = key
-        super.name = name
-        super.color = color
-        super.index = index
-        updateKeyList()
-    }
-
-}
+)

@@ -2,6 +2,7 @@ package com.andb.apps.todo
 
 import android.app.AlertDialog
 import android.app.Application
+import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -10,6 +11,7 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
+import com.andb.apps.todo.utilities.OnceHolder
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.utilities.Vibes
 import com.google.android.material.bottomappbar.BottomAppBar
@@ -19,6 +21,7 @@ import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.inflator.CyaneaViewProcessor
 import com.jaredrummler.cyanea.inflator.decor.CyaneaDecorator
 import com.jaredrummler.cyanea.inflator.decor.FontDecorator
+import com.pixplicity.easyprefs.library.Prefs
 import jonathanfinerty.once.Once
 
 class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provider {
@@ -27,6 +30,14 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
         Cyanea.init(this, resources)
         Vibes.init(this)
         Once.initialise(this)
+
+        Prefs.Builder()
+            .setContext(this)
+            .setMode(ContextWrapper.MODE_PRIVATE)
+            .setPrefsName(packageName)
+            .setUseDefaultSharedPreference(true)
+            .build()
+
     }
 
     override fun getViewProcessors(): Array<CyaneaViewProcessor<out View>> = arrayOf(

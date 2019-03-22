@@ -2,8 +2,6 @@ package com.andb.apps.todo
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -21,13 +19,11 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
-import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.notifications.NotificationHandler
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.views.CyaneaDialog
 import com.andb.apps.todo.views.ReminderPicker
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.snackbar.Snackbar
@@ -38,8 +34,6 @@ import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.joda.time.DateTime
-import org.joda.time.LocalTime
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -51,7 +45,6 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
     private lateinit var tagAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private lateinit var task: Tasks
-    private var browse: Boolean = false
 
     private var dateSet = false
 
@@ -60,11 +53,8 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
         EventBus.getDefault().register(this)
     }
 
-    fun setup(browse: Boolean, task: Tasks) {
+    fun setup(task: Tasks) {
         this.task = task
-        this.browse = browse
-
-        sortView()
         theme()
         setupName()
         setupRecyclers()
@@ -76,9 +66,9 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
     private fun theme() {
         addTaskEditFrame.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .95f))
         addTaskName.apply {
-            setHintTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .7f))
-            setTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .5f))
-            setCursorColor(this, Utilities.lighterDarker(Cyanea.instance.backgroundColor, .6f))
+            setHintTextColor(Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, .7f))
+            setTextColor(Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, .5f))
+            setCursorColor(this, Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, .6f))
         }
         checkDividers()
     }
@@ -130,16 +120,15 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun setReminders(){
+    private fun setReminders() {
         addTaskRemindersText.text = (task.timeReminders.size + task.locationReminders.size).toString() + " " + context.getString(R.string.reminder_picker_title)
     }
 
-    private fun addReminder(){
+    private fun addReminder() {
         val view = ReminderPicker(context)
         val dialog = AlertDialog.Builder(context).setView(view).show().also {
             it.window?.setBackgroundDrawable(null)
             it.setOnCancelListener {
-                sortView()
                 setReminders()
             }
         }
@@ -172,25 +161,16 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
     }
 
 
-
-    private fun sortView() {
-        if (browse) {
-            activity.browseFragment.mAdapter.update(FilteredLists.browseTaskList)
-        } else {
-            activity.inboxFragment.setFilterMode()
-            activity.inboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
-            activity.inboxFragment.mRecyclerView.smoothScrollToPosition(FilteredLists.inboxTaskList.indexOf(task))
-        }
-    }
-
     private fun validate(): Boolean {
         if (task.listName.isEmpty()) {
-            Snackbar.make(addTaskEditFrame.rootView, "Please provide a name for the task", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+            Snackbar.make(addTaskEditFrame.rootView, "Please provide a name for the task", Snackbar.LENGTH_LONG)
+                .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
             return false
         }
         when (task.listName) {
             "OVERDUE", "TODAY", "WEEK", "MONTH", "FUTURE", "ADD_TASK_PLACEHOLDER" -> {
-                Snackbar.make(addTaskEditFrame.rootView, "Sorry, those names are reserved for the app's use. Please choose a different wording or capitalization", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                Snackbar.make(addTaskEditFrame.rootView, "Sorry, those names are reserved for the app's use. Please choose a different wording or capitalization", Snackbar.LENGTH_LONG)
+                    .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                 return false
             }
         }
@@ -219,66 +199,61 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
 
     private fun update() {
         task.isEditing = false
-        sortView()
-        if (browse) {
-            activity.browseFragment.mAdapter.update(FilteredLists.browseTaskList)
-        } else {
-            activity.inboxFragment.addingTask = false
-        }
+        activity.inboxFragment.addingTask = false
     }
 
 
     private fun tagAdapter() = Klaster.get()
-            .itemCount { task.listTagsSize }
-            .view(R.layout.task_view_tag_list_item, LayoutInflater.from(context))
-            .bind { _ ->
-                val tag = Current.tagList()[task.listTags[adapterPosition]]
-                itemView.apply {
-                    tagImage.setColorFilter(tag.tagColor)
-                    task_view_item_tag_name.text = tag.tagName
-                    setOnClickListener {
-                        task.listTags.removeAt(adapterPosition)
-                        tagAdapter.notifyItemRemoved(adapterPosition)
-                        checkDividers()
-                    }
-                }
-
-            }
-            .build()
-
-    private fun subtaskAdapter() = Klaster.get()
-            .itemCount { task.listItems.size }
-            .view(R.layout.add_task_list_item, LayoutInflater.from(context))
-            .bind { _ ->
-                itemView.apply {
-                    taskItemEditText.apply {
-                        setText(task.listItems[adapterPosition])
-                        addTextChangedListener(object : TextWatcher {
-                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                task.listItems[adapterPosition] = s.toString()
-                            }
-
-                            override fun afterTextChanged(s: Editable?) {}
-                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                        })
-                        backgroundTintList = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .6f))
-                        setTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .7f))
-                        setCursorColor(this, Utilities.lighterDarker(Cyanea.instance.backgroundColor, .6f))
-                    }
-                    removeListItem.setOnClickListener {
-                        task.listItems.removeAt(adapterPosition)
-                        task.listItemsChecked.removeAt(adapterPosition)
-                        subtaskAdapter.notifyItemRemoved(adapterPosition)
-                        checkDividers()
-                    }
-                    if (adapterPosition == task.listItems.size - 1) {
-                        (layoutParams as RecyclerView.LayoutParams).bottomMargin = Utilities.pxFromDp(8)
-                    } else {
-                        (layoutParams as RecyclerView.LayoutParams).bottomMargin = Utilities.pxFromDp(0)
-                    }
+        .itemCount { task.listTagsSize }
+        .view(R.layout.task_view_tag_list_item, LayoutInflater.from(context))
+        .bind { _ ->
+            val tag = Current.tagListAll()[task.listTags[adapterPosition]]
+            itemView.apply {
+                tagImage.setColorFilter(tag.tagColor)
+                task_view_item_tag_name.text = tag.tagName
+                setOnClickListener {
+                    task.listTags.removeAt(adapterPosition)
+                    tagAdapter.notifyItemRemoved(adapterPosition)
+                    checkDividers()
                 }
             }
-            .build()
+
+        }
+        .build()
+
+    private fun subtaskAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder> = Klaster.get()
+        .itemCount { task.listItems.size }
+        .view(R.layout.add_task_list_item, LayoutInflater.from(context))
+        .bind { _ ->
+            itemView.apply {
+                taskItemEditText.apply {
+                    setText(task.listItems[adapterPosition])
+                    addTextChangedListener(object : TextWatcher {
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            task.listItems[adapterPosition] = s.toString()
+                        }
+
+                        override fun afterTextChanged(s: Editable?) {}
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    })
+                    backgroundTintList = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .6f))
+                    setTextColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, .7f))
+                    setCursorColor(this, Utilities.lighterDarker(Cyanea.instance.backgroundColor, .6f))
+                }
+                removeListItem.setOnClickListener {
+                    task.listItems.removeAt(adapterPosition)
+                    task.listItemsChecked.removeAt(adapterPosition)
+                    subtaskAdapter.notifyItemRemoved(adapterPosition)
+                    checkDividers()
+                }
+                if (adapterPosition == task.listItems.size - 1) {
+                    (layoutParams as RecyclerView.LayoutParams).bottomMargin = Utilities.pxFromDp(8)
+                } else {
+                    (layoutParams as RecyclerView.LayoutParams).bottomMargin = Utilities.pxFromDp(0)
+                }
+            }
+        }
+        .build()
 
 
     private fun setCursorColor(editText: EditText, color: Int) {
@@ -331,8 +306,10 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
 
         //defines the enabled move directions in each state (idle, swiping, dragging).
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            return ItemTouchHelper.Callback.makeFlag(ItemTouchHelper.ACTION_STATE_DRAG,
-                    ItemTouchHelper.DOWN or ItemTouchHelper.UP)
+            return ItemTouchHelper.Callback.makeFlag(
+                ItemTouchHelper.ACTION_STATE_DRAG,
+                ItemTouchHelper.DOWN or ItemTouchHelper.UP
+            )
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
@@ -352,7 +329,8 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
             tagAdapter.notifyItemInserted(task.listTagsSize - 1)
             checkDividers()
         } else {
-            Snackbar.make(addTaskEditFrame.rootView, "The tag you selected has already been added to this task", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+            Snackbar.make(addTaskEditFrame.rootView, "The tag you selected has already been added to this task", Snackbar.LENGTH_LONG)
+                .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
         }
     }
 

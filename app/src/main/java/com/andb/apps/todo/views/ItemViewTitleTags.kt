@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.andb.apps.todo.R
+import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
@@ -113,7 +114,7 @@ class ItemViewTitleTags : ConstraintLayout {
 
                 if (i < task.listTags.size) {
                     val reversedPos = task.listTags.size - (i + 1)//to show most nested tags first TODO: Most nested first as option
-                    val tagtemp = Current.tagList()[task.listTags[reversedPos]]
+                    val tagtemp = Current.tagListAll()[task.listTags[reversedPos]]
                     val chiptemp = tagsList[i]
 
                     chiptemp.apply {

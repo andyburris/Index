@@ -5,28 +5,33 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
 import android.os.Bundle
-import android.preference.PreferenceManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.PopupMenu
-import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.andb.apps.todo.databases.projectsDao
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.filtering.Filters
+import com.andb.apps.todo.filtering.filterProject
 import com.andb.apps.todo.lists.ProjectList
+import com.andb.apps.todo.objects.Project
+import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
@@ -34,7 +39,6 @@ import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.views.CyaneaDialog
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.tabs.TabLayout
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.activity_main.view.*
@@ -44,22 +48,25 @@ import kotlinx.android.synthetic.main.project_switcher_item.view.*
 import org.greenrobot.eventbus.EventBus
 
 const val DRAWER_DIALOG_ID = 1
+
 class Drawer : Fragment() {
 
 
     lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
-    var selectedTab: Int = 0
 
     var selectedColor: Int = Cyanea.instance.accent
 
     lateinit var addEditLayout: View
-
     lateinit var projectAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    val drawerViewModel: DrawerViewModel by lazy {
+        ViewModelProviders.of(this).get(DrawerViewModel::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
-        setupMenu(context!!, view)
-        projectAdapter = drawerRecycler(inflater, view, context!!)
+
+        setupMenu(requireContext(), view)
+        projectAdapter = drawerRecycler(inflater, view, requireContext())
         view.project_switcher_recycler.apply {
             adapter = projectAdapter
             layoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
@@ -69,6 +76,12 @@ class Drawer : Fragment() {
         addEditLayout = inflater.inflate(R.layout.project_create_edit_layout, view as ViewGroup, false)
 
         return view
+    }
+
+    fun setup(){
+        drawerViewModel.projects.observe(viewLifecycleOwner, Observer{newProjects->
+            update(newProjects)
+        })
     }
 
     private fun setupMenu(context: Context, view: View) {
@@ -88,8 +101,8 @@ class Drawer : Fragment() {
             setOnClickListener {
                 val builder = CyaneaDialog.Builder(context)
                 builder.setMessage("Import or export tasks, tags, and links")
-                        .setNegativeButton("Export") { _, _ -> ImportExport.exportTasks(context) }
-                        .setPositiveButton("Import") { _, _ -> ImportExport.importTasks(context) }
+                    .setNegativeButton("Export") { _, _ -> ImportExport.exportTasks(context, Pair(Current.taskListAll(), Current.tagListAll())) }
+                    .setPositiveButton("Import") { _, _ -> ImportExport.importTasks(context) }
 
                 val alertDialog = builder.create()
                 alertDialog.show()
@@ -109,37 +122,35 @@ class Drawer : Fragment() {
         }
     }
 
-    private fun drawerRecycler(layoutInflater: LayoutInflater, view: View, context: Context) = Klaster.get()
-            .itemCount { Current.allProjects().size + 1 }
+    private fun drawerRecycler(layoutInflater: LayoutInflater, view: View, context: Context) =
+        Klaster.get()
+            .itemCount { drawerViewModel.projectsBuffer.size/* + 1 */}
             .view(R.layout.project_switcher_item, layoutInflater)
             .bind { _ ->
-                if (adapterPosition < Current.allProjects().size) {//project
+                if (adapterPosition < drawerViewModel.projectsBuffer.size) {//project
+                    val project = drawerViewModel.getProjectIndexed(adapterPosition)
                     itemView.apply {
                         val imageShape = GradientDrawable()
-                        imageShape.color = ColorStateList.valueOf(Current.allProjects()[adapterPosition].color)
-                        imageShape.cornerRadius = if (Current.viewing() == adapterPosition) 16f else 92f
+                        imageShape.color = ColorStateList.valueOf(project.color)
+                        imageShape.cornerRadius = if (Current.viewing() == project.key) 16f else 92f
                         project_circle.apply {
                             setImageDrawable(imageShape)
-                            elevation = if (Current.viewing() == adapterPosition) 4f else 0f
+                            elevation = if (Current.viewing() == project.key) 4f else 0f
                             background = imageShape//for shadow drawing
                         }
 
                         project_add_icon.visibility = View.GONE
                         project_text.apply {
                             visibility = View.VISIBLE
-                            text = Current.allProjects()[adapterPosition].name
+                            text = project.name
                         }
                         project_add_divider.visibility = View.GONE
                         project_frame.apply {
                             setOnClickListener {
-                                ProjectList.viewing = adapterPosition
+                                ProjectList.setViewing(project.key)
+                                view.toolbar_project_name.text = project.name
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                                view.toolbar_project_name.text = Current.project().name
-                                Filters.backTagFilters.clear()
                                 Filters.homeViewAdd()
-                                EventBus.getDefault().post(UpdateEvent(false))
-                                PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("project_viewing", Current.viewing()).apply()
-                                projectAdapter.notifyDataSetChanged()
                             }
                             setOnLongClickListener {
                                 PopupMenu(context, itemView).apply {
@@ -148,10 +159,10 @@ class Drawer : Fragment() {
                                         when (menuItem.itemId) {
                                             R.id.editProject -> {
                                                 addEditLayout.apply { (parent as ViewGroup?)?.removeView(this) }
-                                                editAlertDialog(context, adapterPosition).show()
+                                                editAlertDialog(context, project).show()
                                             }
                                             R.id.deleteProject -> {
-                                                deleteAlertDialog(context, adapterPosition).show()
+                                                deleteAlertDialog(context, adapterPosition, project).show()
                                             }
                                         }
                                         true
@@ -163,7 +174,7 @@ class Drawer : Fragment() {
                         }
                         project_task_count.apply {
                             visibility = View.VISIBLE
-                            text = Current.allProjects()[adapterPosition].taskList.size.toString()
+                            text = Current.taskListAll(project.key).size.toString()
                             elevation = if (Current.viewing() == adapterPosition) 4f else 0f
                         }
                     }
@@ -183,6 +194,51 @@ class Drawer : Fragment() {
 
             }.build()
 
+    private fun dispatchUpdates(newItems: List<Project>, diffResult: DiffUtil.DiffResult) {
+        Log.d("dipatchUpdates", "newItems size: ${newItems.size}")
+        drawerViewModel.projectsBuffer.apply {
+            clear()
+            addAll(newItems)
+        }
+        diffResult.dispatchUpdatesTo(projectAdapter)
+    }
+
+    fun update(newList: List<Project>) {
+        val oldItems: List<Project> = ArrayList(drawerViewModel.projectsBuffer)
+
+        val handler = Handler(Looper.getMainLooper())
+        Thread(Runnable {
+            val diffResult = DiffUtil.calculateDiff(DrawerAdapterDiffCallback(oldItems, newList))
+            handler.post {
+                dispatchUpdates(newList, diffResult)
+            }
+        }).start()
+    }
+
+    internal class DrawerAdapterDiffCallback(private val oldProjects: List<Project>, private val newProjects: List<Project>) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldProject = oldProjects[oldItemPosition]
+            val newProject = newProjects[newItemPosition]
+
+            return oldProject.key == newProject.key
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldProject = oldProjects[oldItemPosition]
+            val newProject = newProjects[newItemPosition]
+
+            return oldProject == newProject
+        }
+
+        override fun getNewListSize(): Int {
+            return newProjects.size
+        }
+
+        override fun getOldListSize(): Int {
+            return oldProjects.size
+        }
+
+    }
 
     private fun addAlertDialog(context: Context): android.app.AlertDialog.Builder {
 
@@ -190,16 +246,15 @@ class Drawer : Fragment() {
         addEditLayout.apply {
             selectedColor = Cyanea.instance.accent
             projectColorPreview.color = selectedColor
-            //TODO: Set color to preview on select
             projectEditText.clearComposingText()
             projectColorPreview.setOnClickListener {
                 Log.d("clicked", "addProjectDialog color")
                 val dialog = ColorPickerDialog.newBuilder()
-                        .setColor(selectedColor)
-                        .setAllowCustom(true)
-                        .setShowAlphaSlider(true)
-                        .setDialogId(DRAWER_DIALOG_ID)
-                        .create()
+                    .setColor(selectedColor)
+                    .setAllowCustom(true)
+                    .setShowAlphaSlider(true)
+                    .setDialogId(DRAWER_DIALOG_ID)
+                    .create()
                 dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
                 activity!!.supportFragmentManager.executePendingTransactions()
                 CyaneaDialog.setColorPickerButtonStyle(dialog.dialog as androidx.appcompat.app.AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)
@@ -207,40 +262,36 @@ class Drawer : Fragment() {
         }
 
         return CyaneaDialog.Builder(context)
-                .setTitle(context.resources.getString(R.string.add_project))
-                .setView(addEditLayout)
-                .setPositiveButton("OK") { _, _ ->
+            .setTitle(context.resources.getString(R.string.add_project))
+            .setView(addEditLayout)
+            .setPositiveButton("OK") { _, _ ->
 
 
-                    val project = ProjectsUtils.addProject(addEditLayout.projectEditText.text.toString(), selectedColor)
-                    ProjectList.viewing = ProjectList.projectList.indexOf(project)
-                    projectAdapter.notifyDataSetChanged()
-                    EventBus.getDefault().post(UpdateEvent(false))
+                val project = ProjectsUtils.addProject(addEditLayout.projectEditText.text.toString(), selectedColor)
+                ProjectList.setViewing(project.key)
+                projectAdapter.notifyDataSetChanged()
 
-                    AsyncTask.execute {
-                        Current.database().projectsDao().insertOnlySingleProject(project)
-                    }
-                }
-                .setOnCancelListener {
+            }
+            .setOnCancelListener {
 
-                }
+            }
     }
 
 
-    private fun editAlertDialog(context: Context, position: Int): android.app.AlertDialog.Builder {
+    private fun editAlertDialog(context: Context, project: Project): android.app.AlertDialog.Builder {
 
 
-        selectedColor = Current.allProjects()[position].color
+        selectedColor = project.color
         addEditLayout.apply {
-            projectEditText.setText(Current.allProjects()[position].name)
+            projectEditText.setText(project.name)
             projectColorPreview.color = selectedColor
             projectColorPreview.setOnClickListener {
                 val dialog = ColorPickerDialog.newBuilder()
-                        .setColor(selectedColor)
-                        .setAllowCustom(true)
-                        .setShowAlphaSlider(true)
-                        .setDialogId(DRAWER_DIALOG_ID)
-                        .create()
+                    .setColor(selectedColor)
+                    .setAllowCustom(true)
+                    .setShowAlphaSlider(true)
+                    .setDialogId(DRAWER_DIALOG_ID)
+                    .create()
                 dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
                 activity!!.supportFragmentManager.executePendingTransactions()
                 CyaneaDialog.setColorPickerButtonStyle(dialog.dialog as androidx.appcompat.app.AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEUTRAL)
@@ -248,132 +299,98 @@ class Drawer : Fragment() {
         }
 
         return CyaneaDialog.Builder(context)
-                .setTitle(context.resources.getString(R.string.edit_project))
-                .setView(addEditLayout)
-                .setPositiveButton("OK") { _, _ ->
-                    ProjectList.projectList[position].apply {
-                        name = addEditLayout.projectEditText.text.toString()
-                        color = selectedColor
-                    }
-                    projectAdapter.notifyDataSetChanged()
-                    ProjectsUtils.update(Current.allProjects()[position])
+            .setTitle(context.resources.getString(R.string.edit_project))
+            .setView(addEditLayout)
+            .setPositiveButton("OK") { _, _ ->
+                project.apply {
+                    name = addEditLayout.projectEditText.text.toString()
+                    color = selectedColor
                 }
+                projectAdapter.notifyDataSetChanged()
+                ProjectsUtils.update(project)
+            }
     }
 
 
-    private fun deleteAlertDialog(context: Context, position: Int) = CyaneaDialog.Builder(context)
+    private fun deleteAlertDialog(context: Context, position: Int, project: Project) =
+        CyaneaDialog.Builder(context)
             .setTitle(context.resources.getString(R.string.delete_project))
             .setNegativeButton("Cancel") { _, _ ->
             }
             .setPositiveButton("Delete") { _, _ ->
-                if (ProjectList.projectList.size > 0) {//MAYBEDO: Let reset with new project
-                    val project = Current.allProjects()[position]
-                    AsyncTask.execute {
-                        Current.database().projectsDao().deleteProject(project)
+                AsyncTask.execute {
+                    if (projectsDao().allStatic.size <= 1) {
+                        Current.database().projectsDao()
+                            .insertOnlySingleProject(Project(ProjectsUtils.keyGenerator(), "Tasks", Cyanea.instance.accent, 0))
                     }
-                    ProjectList.projectList.removeAt(position)
+                    Current.database().projectsDao().deleteProject(project)
+
 
                     if (Current.viewing() >= position) {
                         if (position != 0) {
-                            ProjectList.viewing = position - 1
+                            ProjectList.setViewing(drawerViewModel.getProjectIndexed(position - 1).key)
                         }
-                        EventBus.getDefault().post(UpdateEvent(false))
                     }
 
-                    for (i in Current.viewing() until Current.allProjects().size) {
-                        val p = Current.allProjects()[i]
+                    for (i in Current.viewing() until drawerViewModel.projectsBuffer.size) {
+                        val p = drawerViewModel.projectsBuffer[i]
                         p.index--
+                        ProjectsUtils.update(p)
                     }
 
                     projectAdapter.notifyItemRemoved(position)
 
-                } else {
-                    Toast.makeText(context, "Can't delete final project", Toast.LENGTH_LONG).show()
                 }
 
             }
 
 
-        val normalSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-            @SuppressLint("SwitchIntDef")
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        (activity as? MainActivity)?.expanded = true
-                        (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = true
-                        bottomSheet.tabs.apply {
-                            //disable selection
-                            clearOnTabSelectedListeners()
-                            tabRippleColor = ColorStateList.valueOf(Cyanea.instance.primary)
-                            selectedTab = selectedTabPosition
-                        }
-
-                    }
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        (activity as? MainActivity)?.expanded = false
-                        (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = false
-                        bottomSheet.tabs.apply {
-                            //reenable selection
-                            addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener((activity as MainActivity).mViewPager))
-                            tabRippleColor = ColorStateList.valueOf(Cyanea.instance.accent)
-                            getTabAt(selectedTab)?.select()
-                        }
-                    }
+    val normalSheetCallback: BottomSheetBehavior.BottomSheetCallback = object :
+        BottomSheetBehavior.BottomSheetCallback() {
+        @SuppressLint("SwitchIntDef")
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            when (newState) {
+                BottomSheetBehavior.STATE_EXPANDED -> {
+                    (activity as? MainActivity)?.expanded = true
+                    (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = true
 
                 }
+                BottomSheetBehavior.STATE_COLLAPSED -> {
+                    (activity as? MainActivity)?.expanded = false
+                    (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = false
+                }
+
             }
+        }
 
 
-            override fun onSlide(bottomSheet: View, slideOffsetFirst: Float) {
-                //slideOffset 0.0 at bottom, 1.0 at top
-                var slideOffset = slideOffsetFirst
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
-                if (slideOffsetFirst > 1f) {//on non drag tab collapse causes problems, fixes for sheet overdrag and icon overrotate
-                    bottomSheet.top = Resources.getSystem().displayMetrics.heightPixels - bottomSheet.height
-                    slideOffset = 1f
+
+            bottomSheet.apply {
+                (parent as CoordinatorLayout).bottomSheetDim.alpha = slideOffset
+                val toolbarColor = Utilities.colorBetween(Cyanea.instance.primary, Cyanea.instance.backgroundColor, slideOffset)
+                (toolbar as ViewGroup).apply {
+                    getChildAt(0).rotation = 180 * slideOffset
                 }
-
-                bottomSheet.apply {
-                    (parent as CoordinatorLayout).bottomSheetDim.alpha = slideOffset
-                    val toolbarColor = Utilities.colorBetween(Cyanea.instance.primary, Cyanea.instance.backgroundColor, slideOffset)
-                    (toolbar as ViewGroup).apply {
-                        getChildAt(0).rotation = 180 * slideOffset
-                    }
-                    toolbar.backgroundTint = ColorStateList.valueOf(toolbarColor)
-                    val tabIndicatorColor: Int = Utilities.colorFromAlpha(Cyanea.instance.accent, Cyanea.instance.primary, 1 - slideOffset)
-                    val alphaSelected: Float = 1f - (1f * slideOffset)
-                    val alphaDeselected: Float = .54f - (.54f * slideOffset)
-
-                    tabs.apply {
-                        setSelectedTabIndicatorColor(tabIndicatorColor)
-                        setTabTextColors(App.colorAlpha(Cyanea.instance.primary, alphaDeselected), App.colorAlpha(Cyanea.instance.primary, alphaSelected))
-                        setBackgroundColor(toolbarColor)
-                        (layoutParams as ConstraintLayout.LayoutParams).apply {
-                            val margin = Utilities.pxFromDp(88)
-                            val fabHeight = Utilities.pxFromDp(36)
-                            val tabHeight = Utilities.pxFromDp(48)
-                            height = tabHeight - (tabHeight * slideOffset).toInt()
-                            topMargin = margin - (slideOffset * (margin - fabHeight)).toInt() + (tabHeight - height)
-                        }
-                    }
-
-                    Log.d("bottomSheetScroll", "Scroll: $slideOffsetFirst")
-
-                }
-
+                toolbar.backgroundTint = ColorStateList.valueOf(toolbarColor)
 
             }
 
 
         }
 
-        val collapsedSheetCallback: BottomSheetBehavior.BottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            }
 
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+    }
+
+    val collapsedSheetCallback: BottomSheetBehavior.BottomSheetCallback = object :
+        BottomSheetBehavior.BottomSheetCallback() {
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
         }
+
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
 
 }

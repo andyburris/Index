@@ -5,6 +5,7 @@ import com.andb.apps.todo.objects.Tasks;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -27,14 +28,14 @@ public interface TasksDao {
     void deleteTask(Tasks task);
 
     @Query("SELECT * FROM Tasks WHERE `listKey` = :key")
-    Tasks findTasksById(int key);
+    Tasks findTaskById(int key);
 
     @Query("SELECT * FROM Tasks WHERE `list_name` = :name")
     List<Tasks> findTasksByName(String name);
 
     @Query("SELECT * FROM Tasks WHERE `project_id` = :projectKey")
-    List<Tasks> getAllFromProject(int projectKey);
+    LiveData<List<Tasks>> getAllFromProject(int projectKey);
 
     @Query("SELECT * FROM Tasks")
-    List<Tasks> getAll(); //only use for notifications/search all
+    LiveData<List<Tasks>> getAll(); //only use for notifications/search all
 }

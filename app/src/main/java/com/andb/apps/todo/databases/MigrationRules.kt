@@ -59,9 +59,9 @@ class MigrationRules {
 
 
 
-                    val project = Project(key, projectName, taskList, archiveList, tagList, color, index)
+                    val project = Project(key, projectName, color, index)
                     Log.d("cursor", project.toString())
-                    MigrationHelper.oldList_4_5.add(project)
+                    MigrationHelper.oldList_4_5.add(Triple(project, Pair(taskList, archiveList), tagList))
                     moveToNext()
                 }
             }

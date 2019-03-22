@@ -5,6 +5,7 @@ import com.andb.apps.todo.objects.Tasks;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -30,5 +31,8 @@ public interface TagsDao {
     Tags findTagsById(int key);
 
     @Query("SELECT * FROM Tags WHERE `project_id` = :projectKey")
-    List<Tags> getAllFromProject(int projectKey);
+    LiveData<List<Tags>> getAllFromProject(int projectKey);
+
+    @Query("SELECT * FROM Tags")
+    LiveData<List<Tags>> getAll();
 }

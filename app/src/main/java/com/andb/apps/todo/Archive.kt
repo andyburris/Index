@@ -4,34 +4,27 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-
-import com.andb.apps.todo.eventbus.UpdateEvent
-import com.andb.apps.todo.objects.Project
-import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andb.apps.todo.utilities.Values
-import com.andb.apps.todo.utilities.Vibes
-import com.jaredrummler.cyanea.Cyanea
-
-import org.greenrobot.eventbus.EventBus
-import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.andb.apps.todo.filtering.FilteredLists
+import com.andb.apps.todo.databases.tasksDao
+import com.andb.apps.todo.filtering.filterArchive
 import com.andb.apps.todo.objects.Tasks
-import me.saket.inboxrecyclerview.PullCollapsibleActivity
-
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Values.swipeThreshold
+import com.andb.apps.todo.utilities.Vibes
+import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.activity_archive.*
+import kotlinx.android.synthetic.main.activity_main.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
+import me.saket.inboxrecyclerview.PullCollapsibleActivity
 import me.saket.inboxrecyclerview.page.InterceptResult
 
 class Archive : PullCollapsibleActivity() {
@@ -50,17 +43,11 @@ class Archive : PullCollapsibleActivity() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             Log.d("swipeAction", "swiped")
 
-            val task = Current.project().archiveList[viewHolder.adapterPosition]
+            val task = mAdapter.taskList[viewHolder.adapterPosition]
             if (direction == ItemTouchHelper.RIGHT) {//restore
                 task.isArchived = false
-                Current.taskList().add(task)
-                Current.project().archiveList.remove(task)
-                mAdapter.update(Current.archiveTaskList())
-                EventBus.getDefault().post(UpdateEvent(true))
                 ProjectsUtils.update(task)
             } else if (direction == ItemTouchHelper.LEFT) {//delete permanently
-                Current.project().archiveList.remove(task)
-                mAdapter.update(Current.archiveTaskList())
                 AsyncTask.execute {
                     Current.database().tasksDao().deleteTask(task)
                 }
@@ -92,10 +79,10 @@ class Archive : PullCollapsibleActivity() {
                 // Draw the green delete background
                 background.setColor(backgroundColor)
                 background.setBounds(
-                        itemView.left,
-                        itemView.top,
-                        itemView.right,
-                        itemView.bottom
+                    itemView.left,
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
                 )
 
                 //background.setCornerRadius(0);
@@ -144,10 +131,10 @@ class Archive : PullCollapsibleActivity() {
                 // Draw the green delete background
                 background.setColor(backgroundColor)
                 background.setBounds(
-                        itemView.left,
-                        itemView.top,
-                        itemView.right,
-                        itemView.bottom
+                    itemView.left,
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
                 )
 
                 //background.setCornerRadius(0);
@@ -182,8 +169,10 @@ class Archive : PullCollapsibleActivity() {
 
         //defines the enabled move directions in each state (idle, swiping, dragging).
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            return ItemTouchHelper.Callback.makeFlag(ItemTouchHelper.ACTION_STATE_SWIPE,
-                    ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            return ItemTouchHelper.Callback.makeFlag(
+                ItemTouchHelper.ACTION_STATE_SWIPE,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            )
         }
     }
 
@@ -210,7 +199,8 @@ class Archive : PullCollapsibleActivity() {
         archiveRecycler.setBackgroundColor(Cyanea.instance.backgroundColor)
         prepareRecyclerView()
 
-        activityPageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
+        val expandablePageLayout = expandable_page_archive
+        expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
             val directionInt = if (upwardPull) +1 else -1
             val canScrollFurther = archiveRecycler.canScrollVertically(directionInt)
             if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
@@ -232,8 +222,8 @@ class Archive : PullCollapsibleActivity() {
         mRecyclerView.layoutManager = mLayoutManager
 
         // specify an adapter (see also next example)
-        mAdapter = TaskAdapter(TaskAdapter.FROM_ARCHIVE, this)
-        mAdapter.update(Current.archiveTaskList())
+        mAdapter = TaskAdapter(this)
+        tasksDao().all.observe(this, listObserver)
         mAdapter.setHasStableIds(true)
         mRecyclerView.adapter = mAdapter
 
@@ -251,16 +241,17 @@ class Archive : PullCollapsibleActivity() {
 
     }
 
-    companion object {
+    val listObserver = Observer<List<Tasks>> { newTasks ->
+        mAdapter.update(newTasks.filterArchive())
+    }
 
-        lateinit var mRecyclerView: InboxRecyclerView
-        lateinit var mAdapter: TaskAdapter
+    lateinit var mRecyclerView: InboxRecyclerView
+    lateinit var mAdapter: TaskAdapter
 
-        private fun isMaxScrollReached(recyclerView: RecyclerView): Boolean {
-            val maxScroll = recyclerView.computeVerticalScrollRange()
-            val currentScroll = recyclerView.computeVerticalScrollOffset() + recyclerView.computeVerticalScrollExtent()
-            return currentScroll >= maxScroll
-        }
+    private fun isMaxScrollReached(recyclerView: RecyclerView): Boolean {
+        val maxScroll = recyclerView.computeVerticalScrollRange()
+        val currentScroll = recyclerView.computeVerticalScrollOffset() + recyclerView.computeVerticalScrollExtent()
+        return currentScroll >= maxScroll
     }
 
 

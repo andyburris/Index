@@ -2,7 +2,6 @@ package com.andb.apps.todo;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.utilities.Current;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -27,12 +24,10 @@ import androidx.transition.TransitionManager;
 import androidx.transition.Visibility;
 
 public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyViewHolder> {
-    private List<Integer> tagLinks;
+    private List<Tags> tagLinks;
     private MainActivity activity;
 
     private static final int TAG_LINK_ITEM = 0;
-    private static final int TASK_VIEW_ITEM = 1;
-    private static final int DIVIDER = 2;
 
 
     //Preferences for which to show
@@ -69,7 +64,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
     }
 
 
-    public BrowseTagAdapter(List<Integer> tagLinks, MainActivity activity) {
+    public BrowseTagAdapter(List<Tags> tagLinks, MainActivity activity) {
         this.tagLinks = tagLinks;
         this.activity = activity;
     }
@@ -103,13 +98,13 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
 
     }
 
-    public void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
+    private void setUpByViewType(final int position, final MyViewHolder holder, final int realPosition) {
 
-        if (activity.browseFragment.removing) {
+/*        if (activity.browseFragment.removing) {
 
 
             Slide slide = new Slide();
-            slide.setSlideEdge(Gravity.LEFT);
+            slide.setSlideEdge(Gravity.START);
             slide.setMode(Visibility.MODE_IN);
             slide.setDuration(1000);
 
@@ -121,7 +116,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             holder.removeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Tags toRemoveFrom = Current.tagList().get(Filters.getMostRecent());
+                    Tags toRemoveFrom = Filters.getMostRecent();
                     Log.d("removeLinks", "Size: " + tagLinks.size() + ", position:" + realPosition);
                     toRemoveFrom.getChildren().remove(tagLinks.get(realPosition));
                     tagLinks.remove(realPosition);
@@ -131,10 +126,10 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
             });
         } else {
             holder.removeButton.setVisibility(View.GONE);
-        }
+        }*/
 
-        holder.tagName.setText(Current.tagList().get(tagLinks.get(position)).getTagName());
-        holder.browseTagImage.setColorFilter(Current.tagList().get(tagLinks.get(position)).getTagColor());
+        holder.tagName.setText(tagLinks.get(position).getTagName());
+        holder.browseTagImage.setColorFilter(tagLinks.get(position).getTagColor());
         holder.browseLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,7 +140,7 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
                         Log.d("noFiltersOnBack", Integer.toString(Filters.getCurrentFilter().size())
                                 + ", "
                                 + Filters.backTagFilters.size());
-                        int tagClicked = FilteredLists.INSTANCE.getFilteredTagLinks().get(position);
+                        Tags tagClicked = tagLinks.get(position);
 
 
                         Filters.tagForward(tagClicked);
@@ -160,8 +155,8 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
         holder.browseLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!Current.tagList().get(tagLinks.get(realPosition)).isSubFolder()) {
-                    Filters.tagReset(FilteredLists.INSTANCE.getFilteredTagLinks().get(position));
+                if (!tagLinks.get(realPosition).isSubFolder()) {
+                    Filters.tagReset(tagLinks.get(position));
                 }
                 return true;
             }

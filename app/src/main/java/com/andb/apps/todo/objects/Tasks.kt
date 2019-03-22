@@ -7,7 +7,7 @@ import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.typeconverters.*
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andb.apps.todo.utilities.Values.TIME_SORT
+import com.andb.apps.todo.utilities.Values.SORT_TIME
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import org.joda.time.DateTime
@@ -19,7 +19,7 @@ import kotlin.Int
 import kotlin.NoSuchElementException
 import kotlin.String
 
-@Entity(foreignKeys = [ForeignKey(entity = BaseProject::class, parentColumns = ["key"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE)])
+@Entity(foreignKeys = [ForeignKey(entity = Project::class, parentColumns = ["key"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE)])
 class Tasks : Cloneable {
     @SerializedName("key")
     @Expose
@@ -111,42 +111,17 @@ class Tasks : Cloneable {
     override fun toString(): String {
         val builder = StringBuilder()
         builder.append(listName)
-        builder.append(", " + nextReminderTime().toString("MMMM D, h:mm") + "\n")
+        builder.append(", " + nextReminderTime().toString("MMMM d, h:mm") + "\n")
         for (s in listItems) {
             builder.append("- $s\n")
         }
-        builder.append("Tags: \n")
+        if(listTags.isNotEmpty()) {
+            builder.append("Tags: \n")
+        }
         for (i in listTags) {
             builder.append("- Tag $i\n")
         }
         return builder.toString()
-    }
-
-    fun compareTo(o: Tasks, filterMode: Int): Int {
-        Log.d("compareTasks", "filterMode: $filterMode")
-        if (filterMode == TIME_SORT) {
-            Log.d("compareTasks", Integer.toString(compareTimes(o)))
-            return if (compareTimes(o) != 0) {
-                compareTimes(o)
-            } else if (compareEditing(o) != 0) {
-                compareEditing(o)
-            } else if (compareAlphabetical(o) != 0) {
-                compareAlphabetical(o)
-            } else {
-                compareLists(o)
-            }
-
-        } else {//Alphabetical sort
-            return if (compareEditing(o) != 0) {
-                compareEditing(o)
-            } else if (compareAlphabetical(o) != 0) {
-                compareAlphabetical(o)
-            } else if (compareTimes(o) != 0) {
-                compareTimes(o)
-            } else {
-                compareLists(o)
-            }
-        }
     }
 
     fun nextReminderTime(): DateTime {
@@ -186,6 +161,32 @@ class Tasks : Cloneable {
     fun isTrigger(locationKey: String): Boolean{
         return locationReminders.map { it.trigger?.key ?: -1 }.contains(locationKey.toInt())
     }
+
+    fun compareTo(o: Tasks, filterMode: Int): Int {
+        if (filterMode == SORT_TIME) {
+            return if (compareTimes(o) != 0) {
+                compareTimes(o)
+            } else if (compareEditing(o) != 0) {
+                compareEditing(o)
+            } else if (compareAlphabetical(o) != 0) {
+                compareAlphabetical(o)
+            } else {
+                compareLists(o)
+            }
+
+        } else {//Alphabetical sort
+            return if (compareEditing(o) != 0) {
+                compareEditing(o)
+            } else if (compareAlphabetical(o) != 0) {
+                compareAlphabetical(o)
+            } else if (compareTimes(o) != 0) {
+                compareTimes(o)
+            } else {
+                compareLists(o)
+            }
+        }
+    }
+
 
     private fun compareTimes(o: Tasks): Int {
         return this.nextReminderTime().compareTo(o.nextReminderTime())

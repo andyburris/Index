@@ -2,6 +2,7 @@ package com.andb.apps.todo.databases
 
 import android.content.Context
 import androidx.room.Room
+import com.andb.apps.todo.databases.GetDatabase.projectsDatabase
 
 object GetDatabase{
     const val DATABASE_NAME = "Tasks_db"
@@ -17,4 +18,13 @@ object GetDatabase{
 
     @JvmStatic
     lateinit var projectsDatabase: ProjectsDatabase
+
+    @JvmStatic
+    fun isInit(): Boolean{
+        return ::projectsDatabase.isInitialized
+    }
 }
+
+fun tasksDao() = projectsDatabase.tasksDao()
+fun tagsDao() = projectsDatabase.tagsDao()
+fun projectsDao() = projectsDatabase.projectsDao()

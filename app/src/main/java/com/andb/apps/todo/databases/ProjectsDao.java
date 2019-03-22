@@ -1,10 +1,10 @@
 package com.andb.apps.todo.databases;
 
-import com.andb.apps.todo.objects.BaseProject;
 import com.andb.apps.todo.objects.Project;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -15,22 +15,25 @@ import androidx.room.Update;
 public interface ProjectsDao {
 
     @Insert
-    void insertOnlySingleProject(BaseProject project);
+    void insertOnlySingleProject(Project project);
 
     @Insert
-    void insertMultipleProjects(List<BaseProject> projectList);
+    void insertMultipleProjects(List<Project> projectList);
 
     @Update
-    void updateProject(BaseProject project);
+    void updateProject(Project project);
 
     @Delete
-    void deleteProject(BaseProject project);
+    void deleteProject(Project project);
 
-    @Query("SELECT * FROM BaseProject WHERE `key` = :key")
-    BaseProject findProjectById(int key);
+    @Query("SELECT * FROM Project WHERE `key` = :key")
+    Project findProjectById(int key);
 
-    @Query("SELECT * FROM BaseProject")
-    List<BaseProject> getAll();
+    @Query("SELECT * FROM Project")
+    List<Project> getAllStatic();
+
+    @Query("SELECT * FROM Project")
+    LiveData<List<Project>> getAll();
 
 
 }

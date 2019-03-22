@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import com.andb.apps.todo.databases.TagLinks;
 import com.andb.apps.todo.eventbus.UpdateEvent;
-import com.andb.apps.todo.filtering.FilteredLists;
 import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.objects.Project;
@@ -36,7 +35,10 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+
+import kotlin.Pair;
 
 public class ImportExport {
 
@@ -131,13 +133,9 @@ public class ImportExport {
                             projectName = gson.fromJson(nameJson, stringType);
                         }
 
-                        Project newProject = new Project(projectKey, projectName, taskList, archiveList, tagList, Cyanea.getInstance().getAccent(), Current.allProjects().size());
+                        Project newProject = new Project(projectKey, projectName, Cyanea.getInstance().getAccent(), Current.allProjects().size());
                         Current.allProjects().add(newProject);
-                        ProjectList.INSTANCE.setViewing(Current.allProjects().size() - 1);
 
-
-                        FilteredLists.INSTANCE.createFilteredTaskList(Filters.getCurrentFilter(), true);
-                        EventBus.getDefault().post(new UpdateEvent(false));
 
                         Log.d("projectKey", Integer.toString(projectKey));
                         for (Tasks task : taskList) {
@@ -148,10 +146,12 @@ public class ImportExport {
                                     Current.database().projectsDao().insertOnlySingleProject(newProject);
                                     Current.database().tasksDao().insertMultipleTasks(taskList);
                                     Current.database().tagsDao().insertMultipleTags(tagList);
+
+                                    ProjectList.INSTANCE.postViewing(projectKey);
                                 }
                         );
 
-                        Log.i("ImportedTaskList", Current.project().getTaskList().toString());
+                        Log.i("ImportedTaskList", Current.taskListAll().toString());
 
 
                     } catch (Exception e) {
@@ -173,7 +173,7 @@ public class ImportExport {
         }
     }
 
-    public static void exportTasks(Context ctxt) {
+    public static void exportTasks(Context ctxt, Pair<List<Tasks>, List<Tags>> lists) {
         if (isExternalStorageWritable()) {
             ArrayList<String> exportList = new ArrayList<>();
 
@@ -185,8 +185,8 @@ public class ImportExport {
             Type arrayListType = new TypeToken<ArrayList<String>>() {
             }.getType();
 
-            String taskJson = gson.toJson(Current.taskList(), taskType);
-            String tagJson = gson.toJson(Current.tagList(), tagType);
+            String taskJson = gson.toJson(lists.getFirst(), taskType);
+            String tagJson = gson.toJson(lists.getSecond(), tagType);
 
             Log.i("ExportedTaskList", taskJson);
 

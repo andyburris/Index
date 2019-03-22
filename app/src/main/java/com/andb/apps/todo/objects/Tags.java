@@ -1,5 +1,6 @@
 package com.andb.apps.todo.objects;
 
+import android.nfc.Tag;
 import android.util.Log;
 
 import com.andb.apps.todo.typeconverters.KeyListConverter;
@@ -9,6 +10,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -18,7 +20,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
-@Entity(foreignKeys = @ForeignKey(entity = BaseProject.class, parentColumns = "key", childColumns = "project_id", onDelete = ForeignKey.CASCADE))
+@Entity(foreignKeys = @ForeignKey(entity = Project.class, parentColumns = "key", childColumns = "project_id", onDelete = ForeignKey.CASCADE))
 public class Tags {
 
     public Tags(int key, @NonNull String tagName, int tagColor, boolean subFolder, ArrayList<Integer> children, int projectId, int index) {
@@ -133,7 +135,24 @@ public class Tags {
         sb.append(tagName).append(": \n");
         if (children != null) {
             for (int c : children) {
-                sb.append("- ").append(Current.tagList().get(c).tagName).append("\n");
+                sb.append("- ").append("Tag ").append(c).append("\n");
+            }
+        } else {
+            Log.d("getMostRecentTag", "null children");
+        }
+
+
+        return sb.toString();
+    }
+
+    @NonNull
+    public String toString(ArrayList<Tags> tagList) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(tagName).append(": \n");
+        if (children != null) {
+            for (int c : children) {
+                sb.append("- ").append(tagList.get(c).tagName).append("\n");
             }
         } else {
             Log.d("getMostRecentTag", "null children");

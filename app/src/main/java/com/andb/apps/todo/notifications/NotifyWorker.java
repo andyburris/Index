@@ -39,7 +39,7 @@ public class NotifyWorker extends Worker {
 
 
         NotificationHandler.Companion.initializeDatabase(getApplicationContext());
-        ProjectsUtils.setupProjectList(Current.database());
+        Current.initProjectsSync(Current.database());
 
         if (NotificationUtils.isNextNotification()) {
             Log.d("workManager", "Next isn't null");

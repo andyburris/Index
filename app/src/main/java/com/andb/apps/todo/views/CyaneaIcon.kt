@@ -23,17 +23,17 @@ class CyaneaIcon(context: Context, attributeSet: AttributeSet) : AppCompatImageV
 
     fun setCyaneaBackground(bg: Int, alpha: Float){
         when(bg){
-            0-> setColorFilter(
+            0-> setColorFilter(//bg
                     if(Utilities.lightOnBackground(Cyanea.instance.backgroundColor))
                         Utilities.colorWithAlpha(Color.WHITE, alpha)
                     else
                         Utilities.colorWithAlpha(Color.BLACK, alpha))
-            1-> setColorFilter(
+            1-> setColorFilter(//primary
                     if(Utilities.lightOnBackground(Cyanea.instance.primary))
                         Utilities.colorWithAlpha(Color.WHITE, alpha)
                     else
                         Utilities.colorWithAlpha(Color.BLACK, alpha))
-            2-> setColorFilter(
+            2-> setColorFilter(//accent
                     if(Utilities.lightOnBackground(Cyanea.instance.accent))
                         Utilities.colorWithAlpha(Color.WHITE, alpha)
                     else Utilities.colorWithAlpha(Color.BLACK, alpha))

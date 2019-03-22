@@ -33,6 +33,14 @@ public class Utilities {
 
     }
 
+    public static int sidedLighterDarker(int color, float factor){
+        if(lightOnBackground(color)){
+            return lighterDarker(color, 1+factor);
+        }else {
+            return lighterDarker(color, factor);
+        }
+    }
+
     public static boolean lightOnBackground(int background) {
         int color = (int) Long.parseLong(Integer.toHexString(background), 16);
         int r = (color >> 16) & 0xFF;
@@ -81,10 +89,13 @@ public class Utilities {
 
 
         int r = Math.round(r1 + (abs(r1 - r2) * amount));
+        r = Math.round(transposeRange(0f, 1f, r1, r2, amount));
         int g = Math.round(g1 + (abs(g1 - g2) * amount));
+        g = Math.round(transposeRange(0f, 1f, g1, g2, amount));
         int b = Math.round(b1 + (abs(b1 - b2) * amount));
+        b = Math.round(transposeRange(0f, 1f, b1, b2, amount));
 
-        System.out.println("colorBetween - r1: " + r1 + ", g1: " + g1 + ", b1: " + b1 + ", r2: " + r2 + ", g2: " + g2 + ", b2: " + b2 + ", r: " + r + ", g: " + g + ", b: " + b);
+        //System.out.println("colorBetween - r1: " + r1 + ", g1: " + g1 + ", b1: " + b1 + ", r2: " + r2 + ", g2: " + g2 + ", b2: " + b2 + ", r: " + r + ", g: " + g + ", b: " + b);
 
         return Color.rgb(r, g, b);
     }

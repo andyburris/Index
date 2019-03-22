@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ClipData.Item
 import android.content.res.Resources
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,19 +18,26 @@ import com.andb.apps.todo.views.InboxHeader
 import com.andb.apps.todo.views.TaskListItem
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_divider.view.*
+import me.saket.inboxrecyclerview.InboxRecyclerView
 import org.joda.time.DateTime
 
 
-class TaskAdapter(var inboxBrowseArchive: Int, val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
+class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
 
     var taskList: MutableList<Tasks> = ArrayList()
     lateinit var expandedList: ArrayList<Boolean>
     var selected = -1
 
+    lateinit var parentRecycler: RecyclerView
+
     private var viewType = 0
 
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        parentRecycler = recyclerView
+        super.onAttachedToRecyclerView(recyclerView)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskAdapter.MyViewHolder {
 
@@ -72,19 +80,15 @@ class TaskAdapter(var inboxBrowseArchive: Int, val activity: Activity) : Recycle
 
         if (viewType == TASK_VIEW_ITEM) {
             val taskListItem = holder.itemView as TaskListItem
-            taskListItem.setup(taskList[position], realPosition, inboxBrowseArchive, activity)
+            taskListItem.setup(taskList[position], realPosition, parentRecycler as InboxRecyclerView)
             if (position == selected) {
-                taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 0.8f), 0.7))
+                taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, 0.8f), 0.7))
                 //TODO: lighter color on dark theme
             }
 
         } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
             val addTask = holder.itemView as AddTask
-            var browse = false
-            if (inboxBrowseArchive == FROM_BROWSE) {
-                browse = true
-            }
-            addTask.setup(browse, taskList[realPosition])
+            addTask.setup(taskList[realPosition])
         } else if(viewType == INBOX_HEADER){
             (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size)
 
@@ -152,10 +156,10 @@ class TaskAdapter(var inboxBrowseArchive: Int, val activity: Activity) : Recycle
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun update(newList: ArrayList<Tasks>) {
+    fun update(newList: List<Tasks>) {
         val oldItems: List<Tasks> = ArrayList(this.taskList)
 
-        val handler = Handler()
+        val handler = Handler(Looper.getMainLooper())
         Thread(Runnable {
             val diffResult = DiffUtil.calculateDiff(TaskAdapterDiffCallback(oldItems, newList))
             handler.post {

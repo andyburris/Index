@@ -21,7 +21,6 @@ import com.andb.apps.todo.databases.GetDatabase
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.objects.reminders.LocationFence
-import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.jaredrummler.cyanea.Cyanea
@@ -104,14 +103,20 @@ class NotificationHandler : Service() {
 
 
             val notificationTitle = task.listName
-            var notificationText = ""
+            val notificationText = buildString {
+                for (i in task.listItems) {
+                    append("- $i \n")
+                }
 
-            for (i in 0 until task.listItems.size) {
-                notificationText += ("- " + task.listItems[i] + "\n")
+                if (locationKey.isEmpty()) {
+                    val pattern = "MMM d, h:mm a"
+                    append(task.nextReminderTime().toString(pattern))
+                } else {
+                    append(task.locationReminders.first { it.key == locationKey.toInt() }.name)
+                }
             }
-            val pattern = "MMM d, h:mm a"
 
-            notificationText += task.nextReminderTime().toString(pattern)
+
             val reschedule = ctxt.getString(if (locationKey.isNotEmpty()) R.string.notif_action_next_location else R.string.notif_action_reschedule)
 
             //build the notification
@@ -134,16 +139,15 @@ class NotificationHandler : Service() {
 
             //we give each notification the ID of the event it's describing,
             //to ensure they all show up and there are no duplicates
-
-
             notificationManager.notify(Integer.toString(key), key, notificationBuilder.build())
+
 
             Log.d("notificationCreate", "Name: " + task.listName + ", Key: " + Integer.toString(key))
 
 
             Log.d("serviceRestart", "Before Restart")
 
-            if(locationKey.isEmpty()) {
+            if (locationKey.isEmpty()) {
                 task.nextReminder()?.notified = true
             }
             ProjectsUtils.update(task)
@@ -225,18 +229,18 @@ class NotificationHandler : Service() {
             AsyncTask.execute {
 
                 val task = GetDatabase.projectsDatabase.tasksDao()
-                    .findTasksById(key)
+                    .findTaskById(key)
                 val reminder: LocationFence = task.locationReminders.first { it.key == locationKey }
                 val exitReminder = LocationFence.Exit(reminder.lat, reminder.long, reminder.radius)
                 reminder.trigger = exitReminder
 
                 ProjectsUtils.update(task, async = false)
-                val allTasks = GetDatabase.projectsDatabase.tasksDao().all.filter { !it.isArchived }
+                val allTasks = GetDatabase.projectsDatabase.tasksDao().all.value!!.filter { !it.isArchived }
                 Log.d("fenceTaskNext", "database search size: ${allTasks.size}")
                 Log.d("fenceTaskNext", "database contains: ${allTasks.contains(task)}")
-                Log.d("fenceTaskNext", "task trigger ids: ${task.locationReminders.mapNotNull { it.trigger?.key } }")
-                Log.d("fenceTaskNext", "all reminder ids: ${allTasks.flatMap { it.locationReminders.map { it.key } } }")
-                Log.d("fenceTaskNext", "all trigger ids: ${allTasks.flatMap { it.locationReminders.mapNotNull { it.trigger?.key } } }")
+                Log.d("fenceTaskNext", "task trigger ids: ${task.locationReminders.mapNotNull { it.trigger?.key }}")
+                Log.d("fenceTaskNext", "all reminder ids: ${allTasks.flatMap { it.locationReminders.map { it.key } }}")
+                Log.d("fenceTaskNext", "all trigger ids: ${allTasks.flatMap { it.locationReminders.mapNotNull { it.trigger?.key } }}")
                 requestFromFence(exitReminder, ctxt)
 
             }
@@ -248,24 +252,19 @@ class NotificationHandler : Service() {
             Log.d("deleteNotification", "deleting notification")
 
             AsyncTask.execute {
-                val task = Current.database().tasksDao().findTasksById(key)
+                val task = Current.database().tasksDao().findTaskById(key)
                 task.isArchived = true
                 Current.database().tasksDao().updateTask(task)
-
+/*
                 //projectsDatabase.projectsDao().updateProject(project);
                 if (NotificationHandler.checkActive(ctxt) && Current.project().key == task.projectId) {
                     Current.project()
                         .taskList = ArrayList(Current.database().tasksDao().getAllFromProject(task.projectId))
                     EventBus.getDefault().post(UpdateEvent(true))
-                }
+                }*/
             }
         }
 
-        fun checkActive(ctxt: Context): Boolean {
-            val sp = ctxt.getSharedPreferences("OURINFO", Context.MODE_PRIVATE)
-
-            return sp.getBoolean("active", false)
-        }
 
         fun createNotificationChannel(ctxt: Context, name: String) {
             // Create the NotificationChannel, but only on API 26+ because

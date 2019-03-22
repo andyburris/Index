@@ -1,27 +1,32 @@
 package com.andb.apps.todo.filtering;
 
-import android.util.Log;
-
-import com.andb.apps.todo.BrowseFragment;
-import com.andb.apps.todo.InboxFragment;
-import com.andb.apps.todo.MainActivity;
+import com.andb.apps.todo.objects.Tags;
 import com.andb.apps.todo.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
 
 import java.util.ArrayList;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+
 public class Filters {
 
 
-    public static ArrayList<Integer> backTagFilters = new ArrayList<>();
+    public static ArrayList<Tags> backTagFilters = new ArrayList<>();
+    public static LiveData<ArrayList<Tags>> filterObserver = new LiveData<ArrayList<Tags>>() {
+        @Nullable
+        @Override
+        public ArrayList<Tags> getValue() {
+            return backTagFilters;
+        }
+    };
 
-
-    public static ArrayList<Integer> getCurrentFilter() {
+    public static ArrayList<Tags> getCurrentFilter() {
         //Log.d("backStack", "Size: " + Integer.toString(backTagFilters.get(backTagFilters.size() - 1).size()));
         return backTagFilters;
     }
 
-    public static void homeViewAdd(){
+    public static void homeViewAdd() {
         backTagFilters.clear();
     }
 
@@ -31,48 +36,38 @@ public class Filters {
 
         backTagFilters.remove(backTagFilters.size() - 1);
 
-
-        FilteredLists.INSTANCE.createFilteredTaskList(getCurrentFilter(), true);
-
-
     }
 
 
-    public static void tagForward(int tag) {
+    public static void tagForward(Tags tag) {
         backTagFilters.add(tag);//adds new filter to stack
-
-        FilteredLists.INSTANCE.createFilteredTaskList(getCurrentFilter(), true);//filters tasklist with new filter
-
     }
 
-    public static void tagReset(int tag) {
+    public static void tagReset(Tags tag) {
 
         if (SettingsActivity.Companion.getFolderMode()) {
             backTagFilters.clear();        //if folders back to home, if filter back to last multi-tag filter; right now folder behavior
         }
         homeViewAdd();
         backTagFilters.add(tag);
-        FilteredLists.INSTANCE.createFilteredTaskList(getCurrentFilter(), true);
-
-
 
     }
 
-    public static int getMostRecent() {
+    public static Tags getMostRecent() {
         if (!getCurrentFilter().isEmpty()) {
             return getCurrentFilter().get(getCurrentFilter().size() - 1);
         } else {
-            return -1;
+            return null;
         }
     }
 
-    public static String path(){
+    public static String path() {
 
         StringBuilder subtitle = new StringBuilder("All");
 
-        if(backTagFilters.size()>0 && Current.hasProjects()) {
-            for (int f : getCurrentFilter()) {
-                subtitle.append("/").append(Current.tagList().get(f).getTagName());
+        if (backTagFilters.size() > 0 && Current.hasProjects()) {
+            for (Tags f : getCurrentFilter()) {
+                subtitle.append("/").append(f.getTagName());
             }
         }
 

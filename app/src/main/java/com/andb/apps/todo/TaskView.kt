@@ -1,6 +1,7 @@
 package com.andb.apps.todo
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -13,18 +14,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.get
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
-import com.andb.apps.todo.filtering.FilteredLists
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.views.TaskListItem
+import com.andb.apps.todo.utilities.*
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
@@ -32,59 +33,38 @@ import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.activity_task_view.*
 import kotlinx.android.synthetic.main.content_task_view.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
-import kotlinx.android.synthetic.main.inbox_list_item.view.*
+import kotlinx.android.synthetic.main.inbox_list_item.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
 import java.util.*
+import kotlin.collections.ArrayList
 
-class TaskView : CyaneaFragment() {
 
+class TaskView : Fragment() {
 
     private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
     val mAdapter by lazy { subtaskAdapter() }
-    lateinit var expandedItem: TaskListItem
+    lateinit var viewModel: TaskViewViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bundle = arguments
 
-        position = bundle!!.getInt("pos")
-        inboxBrowseArchive = bundle.getInt("inboxBrowseArchive")
+        val key = bundle!!.getInt("key")
+        viewModel = ViewModelProviders.of(this, viewModelFactory { TaskViewViewModel(key) })
+            .get(TaskViewViewModel::class.java)
 
-        when (inboxBrowseArchive) {
-            TaskAdapter.FROM_BROWSE -> {
-                task = FilteredLists.browseTaskList[position]
-                expandedItem = (activity as MainActivity).browseFragment.mRecyclerView.layoutManager?.findViewByPosition(position) as TaskListItem
-            }
-            TaskAdapter.FROM_ARCHIVE -> task = Current.project().archiveList[position]
-            else //inbox
-            -> {
-                task = FilteredLists.inboxTaskList[position]
-                expandedItem = (activity as MainActivity).inboxFragment.mRecyclerView.layoutManager?.findViewByPosition(position) as TaskListItem
-            }
-        }
 
         editFromToolbarFun = ::editFromToolbar
         taskDoneFun = ::taskDone
 
     }
 
-
-    fun onItemsChanged() {
-        expandedItem.apply {
-            val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))
-            for ((i, c) in checkBoxes.withIndex()) {
-                c.text = task.listItems[i]
-                c.isChecked = task.listItemsChecked[i]
-            }
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        viewModel.viewModelTask.observe(viewLifecycleOwner, taskObserver)
         return inflater.inflate(R.layout.activity_task_view, container!!.parent as ViewGroup, false)
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -94,10 +74,17 @@ class TaskView : CyaneaFragment() {
         task_view_parent.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
         collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab))
 
+        prepareRecyclerViews()
 
-        Log.d("onePosUpError", task.listName)
+        expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
+            val directionInt = if (upwardPull) +1 else -1
+            val canScrollFurther = taskViewScrollLayout.canScrollVertically(directionInt)
+            if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
+        }
 
+    }
 
+    private val taskObserver = Observer<Tasks>{ task->
         task_view_task_name.text = task.listName.toUpperCase()
 
         if (task.timeReminders.isEmpty()) { //no time
@@ -108,25 +95,19 @@ class TaskView : CyaneaFragment() {
             taskViewTimeIcon!!.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
         }
 
-        prepareRecyclerViews(task)
-
-        expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
-            val directionInt = if (upwardPull) +1 else -1
-            val canScrollFurther = taskViewScrollLayout.canScrollVertically(directionInt)
-            if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
-        }
+        subTasks.clearWith(task.listItems.mapIndexed { index, s ->  Pair(s, task.listItemsChecked[index] ) })
+        subTags.clearWith(task.listTags)
+        mAdapter.notifyDataSetChanged()
     }
 
     fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton) {
         oldNavIcon = toolbar.navigationIcon!!.mutate()
 
         val newIcon = resources.getDrawable(R.drawable.ic_clear_black_24dp)
-        newIcon.setColorFilter(Utilities.textFromBackground(cyanea.primary), PorterDuff.Mode.SRC_ATOP)
+        newIcon.setColorFilter(Utilities.textFromBackground(Cyanea.instance.primary), PorterDuff.Mode.SRC_ATOP)
         toolbar.navigationIcon = newIcon
 
         TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
-
-        (activity as MainActivity).drawer.bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136 - 48)
 
         (activity as MainActivity).drawer.bottomSheetBehavior.setBottomSheetCallback((activity as MainActivity).drawer.collapsedSheetCallback)
 
@@ -136,40 +117,38 @@ class TaskView : CyaneaFragment() {
         toolbar.menu.setGroupVisible(R.id.toolbar_main, false)
     }
 
+    val subTasks = ArrayList<Pair<String, Boolean>>()
     fun subtaskAdapter() = Klaster.get()
-        .itemCount { task.listItems.size }
+        .itemCount { subTasks.size }
         .view(R.layout.inbox_checklist_list_item, layoutInflater)
         .bind { pos ->
             itemView.listTextView.apply {
                 backgroundTintList = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-                text = task.listItems[pos]
-                isChecked = task.listItemsChecked[pos]
+                text = subTasks[pos].first
+                isChecked = subTasks[pos].second
                 paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 setOnCheckedChangeListener { _, isChecked ->
-                    task.editListItemsChecked(isChecked, pos)
+                    viewModel.viewModelTask.value?.editListItemsChecked(isChecked, pos)
                     paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                    onItemsChanged()
-                    AsyncTask.execute {
-                        ProjectsUtils.update(task)
-                    }
                 }
             }
 
         }
         .build()
 
+    val subTags = ArrayList<Int>()
     fun tagAdapter() = Klaster.get()
-        .itemCount { task.listTagsSize }
+        .itemCount { subTags.size }
         .view(R.layout.task_view_tag_list_item, layoutInflater)
         .bind { pos ->
-            val tag = Current.project().tagList[task.listTags.get(pos)]
+            val tag = Current.tagListAll()[subTags[pos]]
             itemView.tagImage.setColorFilter(tag.tagColor)
             itemView.task_view_item_tag_name.text = tag.tagName
         }
         .build()
 
 
-    fun prepareRecyclerViews(task: Tasks) {
+    fun prepareRecyclerViews() {
         val mRecyclerView = taskViewRecycler
         // use a linear layout manager
         mRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -194,20 +173,9 @@ class TaskView : CyaneaFragment() {
             val toPosition = target.adapterPosition
 
 
-            if (fromPosition < toPosition) {
-                for (i in fromPosition until toPosition) {
-                    Collections.swap(task.listItems, i, i + 1)
-                    Collections.swap(task.listItemsChecked, i, i + 1)
-                }
-            } else {
-                for (i in fromPosition downTo toPosition + 1) {
-                    Collections.swap(task.listItems, i, i - 1)
-                    Collections.swap(task.listItemsChecked, i, i - 1)
-                }
-            }
+
             mAdapter.notifyItemMoved(fromPosition, toPosition)
-            onItemsChanged()
-            ProjectsUtils.update(task)
+            ProjectsUtils.update(viewModel.viewModelTask.value!!)
             return false
 
         }
@@ -233,59 +201,27 @@ class TaskView : CyaneaFragment() {
     }
 
 
-    var oldMargin: Int = 0
-    internal var position: Int = 0
-    internal var inboxBrowseArchive: Int = 0 //0 is inbox, 1 is browse, 2 is archive
-    lateinit var task: Tasks
-
-
-
-
     fun taskDone() {
-        Current.archiveTaskList().add(task)
-        when (inboxBrowseArchive) {
-            TaskAdapter.FROM_BROWSE -> {
-                Current.taskList().apply {
-                    removeAt(indexOf(task))
-                }
-            }
-            TaskAdapter.FROM_ARCHIVE -> {
-            }
-            else //inbox
-            -> {
-                (activity as MainActivity).inboxFragment.removeWithDivider(position)
-            }
-        }
+        viewModel.viewModelTask.value?.isArchived = true
         (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
-        (activity as MainActivity).browseFragment.mRecyclerView.collapse()
     }
 
     fun editFromToolbar() {
-        when (inboxBrowseArchive) {
-            TaskAdapter.FROM_BROWSE -> {
-                (activity as MainActivity).browseFragment.mRecyclerView.collapse()
-                FilteredLists.browseTaskList[position].isEditing = true
-                (activity as MainActivity).browseFragment.mAdapter.update(FilteredLists.browseTaskList)
-            }
-            TaskAdapter.FROM_ARCHIVE -> {
-            }
-            else //inbox
-            -> {
-                (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
-                FilteredLists.inboxTaskList[position].isEditing = true
-                (activity as MainActivity).inboxFragment.mAdapter.update(FilteredLists.inboxTaskList)
-            }
-        }
+        (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
+        viewModel.viewModelTask.value?.isEditing = true
+
     }
+
     companion object {
         lateinit var oldNavIcon: Drawable
         var anyExpanded: Boolean = false
-        private lateinit var editFromToolbarFun: ()->Unit
-        private lateinit var taskDoneFun: ()->Unit
-        fun editFromToolbarStat(){
+        private lateinit var editFromToolbarFun: () -> Unit
+        private lateinit var taskDoneFun: () -> Unit
+        fun editFromToolbarStat() {
             editFromToolbarFun()
         }
-        fun taskDoneStat(){
+
+        fun taskDoneStat() {
             taskDoneFun()
         }
     }
@@ -309,10 +245,9 @@ class TaskView : CyaneaFragment() {
 
             val toolbar: Toolbar = activity.findViewById(R.id.toolbar)
             val fab: FloatingActionButton = activity.findViewById(R.id.fab)
-            (activity as MainActivity).drawer.bottomSheetBehavior.setBottomSheetCallback((activity as MainActivity).drawer.normalSheetCallback)
+            (activity as MainActivity).drawer.bottomSheetBehavior.setBottomSheetCallback(activity.drawer.normalSheetCallback)
 
             android.transition.TransitionManager.beginDelayedTransition(toolbar.getRootView() as ViewGroup, android.transition.ChangeBounds())
-            (activity as MainActivity).drawer.bottomSheetBehavior.peekHeight = Utilities.pxFromDp(136)
             toolbar.navigationIcon = oldNavIcon
 
             fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp)?.mutate())

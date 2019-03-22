@@ -53,7 +53,8 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="18sp"
             app:layout_anchor="@id/toolbar"
-            app:layout_anchorGravity="top|start|top|start" />
+            app:layout_anchorGravity="top|start|top|start"
+            custom:cyaneaTextBackground="primary"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -68,44 +69,13 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="88dp"
-        android:layout_marginBottom="8dp"
-        android:theme="@style/AppThemeTabLayout"
-        app:layout_constraintBottom_toTopOf="@+id/archive_icon"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tabIndicatorColor="?colorAccent"
-        app:tabSelectedTextColor="@color/tabSelectedTextColor"
-        app:tabTextColor="@color/tabUnselectedTextColor">
-
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabItem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_1" />
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/tabItem2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_2"
-
-            />
-
-
-    </com.google.android.material.tabs.TabLayout>
-
     <FrameLayout
         android:id="@+id/archive_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="?attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
-        app:layout_constraintTop_toBottomOf="@+id/tabs">
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_coordinator">
 
     </FrameLayout>
 
@@ -134,10 +104,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/import_export_icon"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_coordinator"
         app:srcCompat="@drawable/ic_archive_black_24dp" />
 
     <com.andb.apps.todo.views.CyaneaTextView

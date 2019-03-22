@@ -7,7 +7,6 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.lists.ProjectList
-import com.andb.apps.todo.objects.BaseProject
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
@@ -23,7 +22,7 @@ import kotlin.collections.ArrayList
 object MigrationHelper {
 
     val oldList_1_2: ArrayList<Tasks> = ArrayList()
-    val oldList_4_5 = ArrayList<Project>()
+    val oldList_4_5 = ArrayList<Triple<Project, Pair<ArrayList<Tasks>, ArrayList<Tasks>>, ArrayList<Tags>>>()
     var oldList_5_6 = ArrayList<Tasks>()
 
 
@@ -48,10 +47,13 @@ object MigrationHelper {
             t.children = tagLink?.allTagLinks
         }
 
-        val project = Project(Random().nextInt(), "Tasks", oldList_1_2, archiveList, tagList, 0x000000, 0)
+        val project = Project(Random().nextInt(), "Tasks",  0x000000, 0)
 
         AsyncTask.execute {
             db.projectsDao().insertOnlySingleProject(project)
+            db.tasksDao().insertMultipleTasks(oldList_1_2)
+            db.tasksDao().insertMultipleTasks(archiveList)
+            db.tagsDao().insertMultipleTags(tagList)
             //ProjectList.projectList = ArrayList(db.projectsDao().all) TODO: Migrate to v5
 
             EventBus.getDefault().post(UpdateEvent(true))
@@ -62,25 +64,29 @@ object MigrationHelper {
     fun migrate_4_5_with_context(ctxt: Context, db: ProjectsDatabase){
         val newTaskList = ArrayList<Tasks>()
         val newTagList = ArrayList<Tags>()
-        val projectList = ArrayList<BaseProject>()
+        val projectList = ArrayList<Project>()
 
-        for(p in oldList_4_5){
-            p.apply {
-                projectList.add(this as BaseProject)
+        for(trip in oldList_4_5){
+            trip.apply {
+                val proj = first
+                val taskList = second.first
+                val archiveList = second.second
+                val tagList = third
+                projectList.add(proj)
 
                 for((i, t) in tagList.withIndex()){
-                    t.projectId = key
+                    t.projectId = proj.key
                     t.index = i
                     newTagList.add(t)
                 }
                 for(t in taskList){
                     t.isArchived = false
-                    t.projectId = key
+                    t.projectId = proj.key
                     newTaskList.add(t)
                 }
                 for(t in archiveList){
                     t.isArchived = true
-                    t.projectId = key
+                    t.projectId = proj.key
                     newTaskList.add(t)
                 }
             }
@@ -91,7 +97,7 @@ object MigrationHelper {
             db.tasksDao().insertMultipleTasks(newTaskList)
             db.tagsDao().insertMultipleTags(newTagList)
 
-            ProjectList.appStart(ctxt, db)
+            ProjectList.appStart(db)
 
             EventBus.getDefault().post(UpdateEvent())
         }
@@ -102,7 +108,7 @@ object MigrationHelper {
     fun migrate_5_6_with_context(ctxt: Context, db: ProjectsDatabase){
         AsyncTask.execute {
             db.tasksDao().insertMultipleTasks(oldList_5_6)
-            ProjectList.appStart(ctxt, db)
+            ProjectList.appStart(db)
 
             EventBus.getDefault().post(UpdateEvent())
         }

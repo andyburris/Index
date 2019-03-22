@@ -5,8 +5,6 @@ import android.app.TimePickerDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.DatePicker;
-import android.widget.TimePicker;
 
 import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.objects.Tasks;
@@ -40,15 +38,15 @@ public class Reschedule extends AppCompatActivity {
 
                 final DateTime finalDateTime = taskDateTime.withTime(i3, i11, 0, 0);
                 AsyncTask.execute(() -> {
-                    Tasks tasks = Current.database().tasksDao().findTasksById(key);
+                    Tasks tasks = Current.database().tasksDao().findTaskById(key);
                     tasks.getTimeReminders().add(new SimpleReminder(finalDateTime));
                     tasks.nextReminder().setNotified(false);
                     Current.database().tasksDao().updateTask(tasks);
-
+/*
                     if (NotificationHandler.Companion.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
                         Current.project().setTaskList(new ArrayList<>(Current.database().tasksDao().getAllFromProject(tasks.getProjectId())));
                         EventBus.getDefault().post(new UpdateEvent(true));
-                    }
+                    }*/
                     NotificationHandler.Companion.resetNotifications();
                     finish();
                 });

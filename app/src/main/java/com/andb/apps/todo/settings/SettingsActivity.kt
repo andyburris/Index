@@ -16,11 +16,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.Onboarding
 import com.andb.apps.todo.R
 import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.utilities.Values.TIME_SORT
+import com.andb.apps.todo.utilities.Values.SORT_TIME
 import com.jaredrummler.cyanea.CyaneaResources
 import com.jaredrummler.cyanea.app.BaseCyaneaActivity
 import com.jaredrummler.cyanea.delegate.CyaneaDelegate
 import com.jaredrummler.cyanea.prefs.CyaneaSettingsActivity
+import com.pixplicity.easyprefs.library.Prefs
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import me.saket.inboxrecyclerview.PullCollapsibleActivity
@@ -108,7 +109,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         @JvmStatic
         var subtaskDefaultShow = false
         @JvmStatic
-        var defaultSort: Int = TIME_SORT
+        var defaultSort: Int = SORT_TIME
 
         @JvmStatic
         var timeToNotifyForDateOnly: DateTime = DateTime().withTime(8, 0, 0, 0)
@@ -118,10 +119,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
 
         fun setTimeToNotifyForDateOnly(dateTime: DateTime, context: Context) {
             timeToNotifyForDateOnly = dateTime
-            PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putLong("pref_notif_only_date", dateTime.millis)
-                    .apply()
+            Prefs.putLong("pref_notif_only_date", dateTime.millis)
             preferencesAdapter.currentScreen["pref_notif_only_date"]!!.summary = timeToNotifyForDateOnly.toString("h:mm")
             preferencesAdapter.notifyDataSetChanged()
         }

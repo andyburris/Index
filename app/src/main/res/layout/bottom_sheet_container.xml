@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="136dp"
+    app:behavior_peekHeight="88dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <fragment
-        android:id="@+id/drawerFragment"
-        android:name="com.andb.apps.todo.Drawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:id="@+id/drawerFragment"
+    android:name="com.andb.apps.todo.Drawer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 
 </FrameLayout>

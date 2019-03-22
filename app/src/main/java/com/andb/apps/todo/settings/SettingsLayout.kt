@@ -4,9 +4,8 @@ import android.content.Context
 import android.preference.PreferenceManager
 import android.widget.EditText
 import com.andb.apps.todo.R
-import com.andb.apps.todo.utilities.Values.ALPHABETICAL_SORT
-import com.andb.apps.todo.utilities.Values.TIME_SORT
 import com.andb.apps.todo.views.CyaneaDialog
+import com.pixplicity.easyprefs.library.Prefs
 import de.Maxr1998.modernpreferences.helpers.*
 
 object SettingsLayout {
@@ -22,8 +21,7 @@ object SettingsLayout {
             }
             pref("user_name") {
                 title = "Name"
-                val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-                summary = prefs.getString("user_name", "John Doe")
+                summary = Prefs.getString("user_name", "John Doe")
                 requestRebind()
                 clickView { _, holder ->
                     val view = EditText(context)

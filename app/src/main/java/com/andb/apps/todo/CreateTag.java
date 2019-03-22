@@ -25,6 +25,7 @@ import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -69,12 +70,12 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
 
             tagPosition = bundle.getInt("editPos");
             Log.d("taskPosition", Integer.toString(tagPosition));
-            tagNameEdit.setText(Current.tagList().get(tagPosition).getTagName());
-            tagColor = Current.tagList().get(tagPosition).getTagColor();
+            tagNameEdit.setText(Current.tagListAll().get(tagPosition).getTagName());
+            tagColor = Current.tagListAll().get(tagPosition).getTagColor();
             ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.tagColorPreview);
             colorPanelView.setColor(tagColor);
 
-            subFolderSwitch.setChecked(Current.tagList().get(tagPosition).isSubFolder());
+            subFolderSwitch.setChecked(Current.tagListAll().get(tagPosition).isSubFolder());
         }
 
         ConstraintLayout colorPreview = (ConstraintLayout) findViewById(R.id.colorPreviewLayout);
@@ -166,11 +167,12 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
     public void fabAddTag() {
         Log.d("gotToCode", "Clicked FAB");
 
+
         String tagName = tagNameEdit.getText().toString();
         subFolder = subFolderSwitch.isChecked();
 
         boolean nameTaken = false;
-        for (Tags tags : Current.tagList()) {
+        for (Tags tags : Current.tagListAll()) {
             if (tags.getTagName().equals(tagNameEdit.getText().toString())) {
                 nameTaken = true;
             }
@@ -182,13 +184,14 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
             Snackbar.make(tagNameEdit.getRootView().getRootView(), "A tag with this name already exists, please choose another one", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
         } else {
             if (editing) {
-                Tags tags = new Tags(tagName, tagColor, subFolder, tagPosition);
-                Current.tagList().set(tagPosition, tags);
+                Tags editingTag = Current.tagListAll().get(tagPosition);
+                Tags tags = new Tags(editingTag.getKey(), tagName, tagColor, subFolder, editingTag.getChildren(), editingTag.getProjectId(), tagPosition);
+                Current.tagListAll().set(tagPosition, tags);
                 TagSelect.mAdapter.notifyItemChanged(tagPosition);
                 ProjectsUtils.update(tags);
             } else {
-                Tags tags = new Tags(tagName, tagColor, subFolder, Current.tagList().size());
-                Current.tagList().add(tags);
+                Tags tags = new Tags(tagName, tagColor, subFolder, Current.tagListAll().size());
+                Current.tagListAll().add(tags);
                 TagSelect.mAdapter.notifyDataSetChanged();
                 AsyncTask.execute(() -> Current.database().tagsDao().insertOnlySingleTag(tags));
                 finish();

@@ -16,6 +16,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.*
+import com.andb.apps.todo.filtering.filterProject
+import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
@@ -40,40 +42,18 @@ class TaskListItem : ConstraintLayout {
         inflate(context, R.layout.inbox_list_item, this)
     }
 
-    fun setup(tasks: Tasks, pos: Int, inboxBrowseArchive: Int, activity: Activity) {
-        val recyclerView: InboxRecyclerView
-        val adapter: TaskAdapter
-        val expandablePageRef: Int
-        when (inboxBrowseArchive) {
-            TaskAdapter.FROM_BROWSE -> {
-                activity as MainActivity
-                recyclerView = activity.browseFragment.mRecyclerView
-                adapter = activity.browseFragment.mAdapter
-                expandablePageRef = R.id.expandable_page_browse
-            }
-            TaskAdapter.FROM_ARCHIVE -> {
-                recyclerView = Archive.mRecyclerView
-                adapter = Archive.mAdapter
-                expandablePageRef = R.id.expandable_page_archive
-            }
-            else -> { //inbox
-                activity as MainActivity
-                recyclerView = activity.inboxFragment.mRecyclerView
-                adapter = activity.inboxFragment.mAdapter
-                expandablePageRef = R.id.expandable_page_inbox
-            }
-        }
+    fun setup(tasks: Tasks, pos: Int, recyclerView: InboxRecyclerView) {
+        val adapter = recyclerView.adapter as TaskAdapter
+        val expandablePageRef: Int= R.id.expandable_page_inbox
         task = tasks
         setTasks(pos, recyclerView)
         topLayout.setTags(tasks)
         topLayout.setTitle(task.listName)
         topLayout.setOverflow(this)
-        //updateOverflow(topLayout)
-        //extraTagsLine.setColors(Color.RED, Color.GREEN, Color.BLUE)
+
         inboxCard.setOnClickListener {
             val bundle = Bundle()
-            bundle.putInt("pos", pos)
-            bundle.putInt("inboxBrowseArchive", inboxBrowseArchive)
+            bundle.putInt("key", task.listKey)
 
             val fragmentActivity = context as FragmentActivity
             val ft = fragmentActivity.supportFragmentManager.beginTransaction()
@@ -94,7 +74,7 @@ class TaskListItem : ConstraintLayout {
 
     fun updateOverflow(topLayout: ItemViewTitleTags) {
 
-        if (Current.taskList().contains(task)) {//safeguard against update after list has switched but task reference is kept
+        if (Current.taskListAll().contains(task)) {//safeguard against update after list has switched but task reference is kept
             if (topLayout.chipsVisible < task.listTagsSize) {
                 val colors = ArrayList<Int>()
                 for (i in topLayout.chipsVisible until topLayout.chipsVisible + 3) {
@@ -102,7 +82,7 @@ class TaskListItem : ConstraintLayout {
                     //if(task.listTags.size>reversedPos) {
                     if (reversedPos > -1) {
                         val tagPos = task.listTags[reversedPos]
-                        colors.add(Current.tagList()[tagPos].tagColor)
+                        colors.add(Current.tagListAll().filterProjectTags()[tagPos].tagColor)
                     }
                 }
                 extraTagsLine.setColors(*colors.toIntArray())

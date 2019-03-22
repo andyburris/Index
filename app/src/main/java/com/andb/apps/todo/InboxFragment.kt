@@ -1,8 +1,6 @@
 package com.andb.apps.todo
 
 import android.content.Context
-import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -13,17 +11,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialcab.MaterialCab
-import com.andb.apps.todo.filtering.FilteredLists
+import com.andb.apps.todo.databases.tasksDao
 import com.andb.apps.todo.filtering.Filters
+import com.andb.apps.todo.filtering.filterInbox
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
@@ -35,23 +35,17 @@ import com.jaredrummler.cyanea.Cyanea
 import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
-import org.joda.time.DateTime
-import org.joda.time.LocalTime
-import java.lang.Exception
-import java.util.*
 
-class InboxFragment : CyaneaFragment() {
+class InboxFragment : Fragment() {
 
     internal var isSwiping = false
-
-
-    private var filterMode = 0 //0=date, 1=alphabetical, more to come
-    var dividersForTaskCount = 0
+    var filterMode = 0 //0=date, 1=alphabetical, more to come
 
     var addingTask = false
 
     lateinit var mRecyclerView: InboxRecyclerView
     lateinit var mAdapter: TaskAdapter
+    val inboxViewModel: InboxViewModel by lazy { ViewModelProviders.of(this).get(InboxViewModel::class.java) }
 
 
     // Extend the Callback class
@@ -67,24 +61,20 @@ class InboxFragment : CyaneaFragment() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             Log.d("swipeAction", "swiped")
 
-            if (viewHolder.itemViewType != TaskAdapter.ADD_EDIT_TASK_PLACEHOLDER) {
-                if (filterMode == TIME_SORT) {
-                    removeWithDivider(viewHolder.adapterPosition)
+            val task = inboxViewModel.getTasks().value?.get(viewHolder.adapterPosition)
+            task?.apply {
+                if (viewHolder.itemViewType != TaskAdapter.ADD_EDIT_TASK_PLACEHOLDER) {
+                    inboxViewModel.archiveTask(context, this)
                 } else {
-                    removeTask(viewHolder.adapterPosition)
-                }
-            } else {
-                if (addingTask) {
-                    if (filterMode == TIME_SORT) {
-                        removeWithDivider(viewHolder.adapterPosition)
+                    if (addingTask) {
+                        inboxViewModel.archiveTask(context, this)
+                        addingTask = false
                     } else {
-                        removeTask(viewHolder.adapterPosition)
+                        (viewHolder.itemView as AddTask).save()
                     }
-                    addingTask = false
-                } else {
-                    (viewHolder.itemView as AddTask).save()
                 }
             }
+
         }
 
         override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
@@ -215,11 +205,11 @@ class InboxFragment : CyaneaFragment() {
                     if (!isSwiping
                         && (mAdapter.getItemViewType(position) == 0)
                         && mAdapter.selected == -1
-                        && !Current.taskList().any { tasks -> tasks.isEditing }) {
+                        && !mAdapter.taskList.any { tasks -> tasks.isEditing }) {
 
                         Vibes.vibrate()
                         MaterialCab.attach(activity as AppCompatActivity, R.id.cab_stub) {
-                            title = FilteredLists.inboxTaskList[position].listName
+                            title = mAdapter.taskList[position].listName
                             backgroundColor = Cyanea.instance.accent
                             titleColor = Utilities.textFromBackground(Cyanea.instance.accent)
                             menuRes = R.menu.toolbar_inbox_long_press
@@ -229,8 +219,8 @@ class InboxFragment : CyaneaFragment() {
                             onSelection {
                                 when (it.itemId) {
                                     R.id.editTask -> {
-                                        FilteredLists.inboxTaskList[position].isEditing = true
-                                        mAdapter.update(FilteredLists.inboxTaskList)
+                                        mAdapter.taskList[position].isEditing = true
+                                        mAdapter.update(mAdapter.taskList)
                                         MaterialCab.destroy()
                                         true
                                     }
@@ -274,11 +264,12 @@ class InboxFragment : CyaneaFragment() {
 
         //mRecyclerView.setHasFixedSize(true)
         mRecyclerView.layoutManager = CrashFixLinearLayoutManager(view.context)
-        mAdapter = TaskAdapter(TaskAdapter.FROM_INBOX, activity as MainActivity)
+        mAdapter = TaskAdapter(activity as MainActivity)
         mAdapter.setHasStableIds(true)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.isNestedScrollingEnabled = false
-        mAdapter.update(FilteredLists.inboxTaskList)
+        //mAdapter.update(tasksDao().all)
+        tasksDao().all.observe(viewLifecycleOwner, listObserver)
         mRecyclerView.setExpandablePage(view.expandable_page_inbox)
 
         view.expandable_page_inbox.addStateChangeCallbacks(TaskView.TaskViewPageCallbacks(activity!!))
@@ -289,158 +280,15 @@ class InboxFragment : CyaneaFragment() {
 
     }
 
-/*    internal class FlingFixNestedScrollView(ctxt: Context, attributeSet: AttributeSet): NestedScrollView(ctxt, attributeSet){
-        override fun stopNestedScroll(type: Int) {
-            super.stopNestedScroll(type)
-            if(type==ViewCompat.TYPE_NON_TOUCH){
+    private val listObserver = Observer<List<Tasks>> { newTasks ->
+        mAdapter.update(newTasks.filterInbox(filterMode))
+    }
 
-            }
-        }
-    }*/
 
     internal class CrashFixLinearLayoutManager(ctxt: Context) : LinearLayoutManager(ctxt) {
         override fun supportsPredictiveItemAnimations(): Boolean {
             return false
         }
-    }
-
-
-    fun removeWithDivider(position: Int) {
-
-        val dividerPosition = position - 1
-        val belowDividerPosition = position + 1
-
-        val tasks = FilteredLists.inboxTaskList[position]
-        val dividerTask = FilteredLists.inboxTaskList[dividerPosition]
-        val belowDividerTask: Tasks? = if (belowDividerPosition < FilteredLists.inboxTaskList.size) FilteredLists.inboxTaskList[belowDividerPosition] else null
-
-
-        if (isDivider(dividerTask) and isDivider(belowDividerTask)) {
-            removeTask(position, true)
-        } else {
-            removeTask(position, false)
-        }
-
-        if (FilteredLists.browseTaskList.contains(tasks)) {
-            FilteredLists.browseTaskList.remove(tasks)
-        }
-
-        (activity as MainActivity).browseFragment.mAdapter.update(FilteredLists.browseTaskList)
-
-    }
-
-    private fun removeTask(position: Int, above: Boolean = false) {
-
-        val tasks = FilteredLists.inboxTaskList[position]
-        tasks.isArchived = true
-
-        Current.archiveTaskList().add(tasks)
-        Current.taskList().remove(tasks)
-
-        FilteredLists.inboxTaskList.removeAt(position)
-
-        if (above) {
-            val dividerPosition = position - 1
-            FilteredLists.inboxTaskList.removeAt(dividerPosition)
-            dividersForTaskCount--
-        }
-
-        mAdapter.update(FilteredLists.inboxTaskList)
-
-
-        AsyncTask.execute {
-            if(context==null){
-                throw Exception("Context null for removing geofence")
-            } else {
-                if(tasks.locationReminders.isNotEmpty()) {
-                    GeofencingClient(context!!).removeGeofences(tasks.locationReminders.map { it.key.toString() })
-                    GeofencingClient(context!!).removeGeofences(tasks.locationReminders.mapNotNull { it.trigger?.key.toString() })
-                }
-            }
-            Current.database().tasksDao().updateTask(tasks)
-        }
-
-    }
-
-
-
-
-
-
-    @JvmOverloads
-    fun setFilterMode(mode: Int = filterMode, sort: Boolean = true) {
-
-        filterMode = mode
-
-        if (sort) {
-            var tempList = ArrayList(FilteredLists.inboxTaskList)
-
-            Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
-
-            run {
-                var i = 0
-                while (i < tempList.size) {
-                    val task = tempList[i]
-                    if (isDivider(task)) {
-                        Log.d("removing", "removing " + task.listName)
-                        FilteredLists.inboxTaskList.removeAt(i)
-                        tempList.removeAt(i)
-                        i--
-                    }
-                    i++
-                }
-
-            }
-
-            dividersForTaskCount = 0
-
-            tempList = ArrayList(FilteredLists.inboxTaskList)
-
-            Log.d("inboxFilterInbox", Integer.toString(FilteredLists.inboxTaskList.size))
-
-
-            if (mode == TIME_SORT) {
-
-                val endOfDay = LocalTime(23, 59, 59, 999)
-
-                val overdue = TaskAdapter.newDivider("OVERDUE", DateTime(1970, 1, 1, 0, 0))
-                val today = TaskAdapter.newDivider("TODAY", DateTime(DateTime.now()))
-                val thisWeek = TaskAdapter.newDivider("WEEK", DateTime(DateTime.now().withTime(endOfDay)))
-                val thisMonth = TaskAdapter.newDivider("MONTH", DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(endOfDay)))
-                val future = TaskAdapter.newDivider("FUTURE", DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(endOfDay)))
-
-                if (tempList.any { tasks ->
-                        tasks.nextReminderTime().isBefore(today.nextReminderTime())
-                    }) {
-                    FilteredLists.inboxTaskList.add(overdue)
-                    dividersForTaskCount++
-                }
-                if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(today.nextReminderTime()) && tasks.nextReminderTime().isBefore(thisWeek.nextReminderTime()) }) {
-                    FilteredLists.inboxTaskList.add(today)
-                    dividersForTaskCount++
-                }
-                if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(thisWeek.nextReminderTime()) && tasks.nextReminderTime().isBefore(thisMonth.nextReminderTime()) }) {
-                    FilteredLists.inboxTaskList.add(thisWeek)
-                    dividersForTaskCount++
-                }
-                if (tempList.any { tasks -> tasks.nextReminderTime().isAfter(thisMonth.nextReminderTime()) && tasks.nextReminderTime().isBefore(future.nextReminderTime()) }) {
-                    FilteredLists.inboxTaskList.add(thisMonth)
-                    dividersForTaskCount++
-                }
-                if (tempList.any { tasks ->
-                        tasks.nextReminderTime().isAfter(future.nextReminderTime())
-                    }) {
-                    FilteredLists.inboxTaskList.add(future)
-                    dividersForTaskCount++
-                }
-
-            }
-
-            FilteredLists.inboxTaskList.sortWith(Comparator { t1, t2 -> t1.compareTo(t2, filterMode) })
-            FilteredLists.inboxTaskList.add(0, TaskAdapter.newHeader())
-
-        }
-
     }
 
 

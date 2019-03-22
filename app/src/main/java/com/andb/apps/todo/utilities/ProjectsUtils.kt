@@ -2,14 +2,15 @@ package com.andb.apps.todo.utilities
 
 import android.os.AsyncTask
 import com.andb.apps.todo.databases.ProjectsDatabase
+import com.andb.apps.todo.databases.projectsDao
+import com.andb.apps.todo.databases.tagsDao
+import com.andb.apps.todo.databases.tasksDao
 import com.andb.apps.todo.lists.ProjectList
-import com.andb.apps.todo.objects.BaseProject
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
 import java.util.ArrayList
 import java.util.Random
-import kotlin.Comparator
 
 object ProjectsUtils {
 
@@ -19,14 +20,18 @@ object ProjectsUtils {
     @JvmStatic
     fun update(project: Project = Current.project(), projectsDatabase: ProjectsDatabase = Current.database()) {
         AsyncTask.execute {
-            projectsDatabase.projectsDao().updateProject(project as BaseProject)
+            projectsDatabase.projectsDao().updateProject(project)
         }
     }
 
     @JvmOverloads
     @JvmStatic
-    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = Current.database()) {
-        AsyncTask.execute {
+    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = Current.database(), async: Boolean = true) {
+        if(async) {
+            AsyncTask.execute {
+                projectsDatabase.tagsDao().updateTag(tag)
+            }
+        }else{
             projectsDatabase.tagsDao().updateTag(tag)
         }
     }
@@ -44,24 +49,32 @@ object ProjectsUtils {
     }
 
     @JvmStatic
-    fun setupProjectList(db: ProjectsDatabase) {
-        ProjectList.projectList = ArrayList()
-        for (bp in db.projectsDao().all) {
-            bp.apply {
-                ProjectList.projectList.add(Project(key, name, ArrayList(), ArrayList(), ArrayList(), color, index))
+    fun remove(tag: Tags){
+        AsyncTask.execute {
+            for(task in Current.taskListAll()){
+                if(task.listTags.contains(tag.index)){
+                    task.listTags.remove(tag.index)
+                    update(task, async = false)
+                }
             }
-        }
+            for(childHolder in Current.tagListAll()){
+                if(childHolder.children.contains(tag.index)){
+                    childHolder.children.remove(tag.index)
+                    update(childHolder, async = false)
+                }
+            }
 
-        for (p in ProjectList.projectList) {
-            p.apply {
-                val tasksPair = db.tasksDao().getAllFromProject(key).partition { tasks -> !tasks.isArchived }
-                taskList = ArrayList(tasksPair.first)
-                archiveList = ArrayList(tasksPair.second)
-                tagList = ArrayList(db.tagsDao().getAllFromProject(key))
-                tagList.sortWith(Comparator { o1, o2 -> o1.index.compareTo(o2.index) })
-            }
+            tagsDao().deleteTag(tag)
         }
     }
+
+    @JvmStatic
+    fun remove(task: Tasks){
+        AsyncTask.execute {
+            tasksDao().deleteTask(task)
+        }
+    }
+
 
     @JvmStatic
     fun projectFromKey(key: Int): Project? {
@@ -75,22 +88,19 @@ object ProjectsUtils {
 
     @JvmStatic
     fun addProject(name: String, color: Int): Project {
-        val project = Project(keyGenerator(), name, ArrayList(), ArrayList(), ArrayList(), color, Current.allProjects().size)
-        ProjectList.projectList.add(project)
-        ProjectsUtils.update(project)
+        val project = Project(keyGenerator(), name,  color, Current.allProjects().size)
+        AsyncTask.execute {
+            projectsDao().insertOnlySingleProject(project)
+        }
+
         return project
     }
 
     @JvmStatic
     fun keyGenerator(): Int {
         var key = random.nextInt()
-        val keys = ArrayList<Int>()
-        for (project in Current.allProjects()) {
-            keys.add(project.key)
-            keys.addAll(project.keyList)
-        }
 
-        while (keys.contains(key) || key == 0) {
+        while (Current.keyList().contains(key) || key == 0) {
             key = random.nextInt()
         }
         return key

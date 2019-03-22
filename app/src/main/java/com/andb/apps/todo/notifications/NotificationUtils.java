@@ -15,7 +15,7 @@ class NotificationUtils {
 
         Tasks toReturn = null;
 
-        ArrayList<Tasks> allProjectsTaskList = new ArrayList<>(projectsDatabase.tasksDao().getAll());
+        ArrayList<Tasks> allProjectsTaskList = new ArrayList<Tasks>(projectsDatabase.tasksDao().getAll().getValue());
 
         for (Tasks task : allProjectsTaskList) {
             if (!task.getTimeReminders().isEmpty() && !task.nextReminder().getNotified() && !task.isArchived()) {

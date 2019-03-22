@@ -10,10 +10,7 @@ import jonathanfinerty.once.Once
 object OnceHolder{
     const val appSetup = "app setup"
 
-    fun init(app: App){
-
-    }
-
+    @JvmStatic
     fun checkAppSetup(ctxt: Context){
         if(!Once.beenDone(Once.THIS_APP_INSTALL, appSetup)){
             appSetup(ctxt)
@@ -23,6 +20,6 @@ object OnceHolder{
 
     fun appSetup(ctxt: Context){
         ctxt.startActivity(Intent(ctxt, Onboarding::class.java))
-        ProjectsUtils.addProject("Tasks", Cyanea.instance.accent)
+        Current.bufferProjects.add(ProjectsUtils.addProject("Tasks", Cyanea.instance.accent))
     }
 }
