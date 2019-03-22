@@ -151,11 +151,11 @@ class Archive : PullCollapsibleActivity() {
                 deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom)
                 deleteIcon.draw(c)
 
-                if (-newDx >= swipeThreshold && (!vibedOnSwipe)!!) {
+                if (-newDx >= swipeThreshold && (!vibedOnSwipe)) {
                     Vibes.vibrate()
                     vibedOnSwipe = true
                 }
-                if (-newDx <= swipeThreshold && vibedOnSwipe!!) {
+                if (-newDx <= swipeThreshold && vibedOnSwipe) {
                     vibedOnSwipe = false
                 }
 

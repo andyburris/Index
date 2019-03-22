@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,32 +20,38 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialcab.MaterialCab
-import com.andb.apps.todo.databases.tasksDao
-import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.filtering.filterInbox
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.utilities.Values
-import com.andb.apps.todo.utilities.Values.*
+import com.andb.apps.todo.utilities.Values.swipeFriction
+import com.andb.apps.todo.utilities.Values.swipeThreshold
 import com.andb.apps.todo.utilities.Vibes
-import com.google.android.gms.location.GeofencingClient
 import com.jaredrummler.cyanea.Cyanea
-import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.fragment_inbox.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
+
+/*Sort keys*/
+const val SORT_TIME = 32982
+const val SORT_ALPHA = 87432
 
 class InboxFragment : Fragment() {
 
     internal var isSwiping = false
-    var filterMode = 0 //0=date, 1=alphabetical, more to come
+    var filterMode = SORT_TIME
 
-    var addingTask = false
+    var editingId = -1
+    var adding = false
+    fun isEditing(): Boolean = editingId != -1 || adding
 
     lateinit var mRecyclerView: InboxRecyclerView
     lateinit var mAdapter: TaskAdapter
-    val inboxViewModel: InboxViewModel by lazy { ViewModelProviders.of(this).get(InboxViewModel::class.java) }
+    val inboxViewModel: InboxViewModel by lazy {
+        ViewModelProviders.of(this).get(InboxViewModel::class.java)
+    }
 
+
+    var tasks = ArrayList<Tasks>()
 
     // Extend the Callback class
     private val _ithCallback = object : ItemTouchHelper.Callback() {
@@ -61,14 +66,17 @@ class InboxFragment : Fragment() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             Log.d("swipeAction", "swiped")
 
-            val task = inboxViewModel.getTasks().value?.get(viewHolder.adapterPosition)
-            task?.apply {
+            val task = tasks.get(viewHolder.adapterPosition)
+            task.apply {
                 if (viewHolder.itemViewType != TaskAdapter.ADD_EDIT_TASK_PLACEHOLDER) {
+                    mAdapter.notifyItemRemoved(viewHolder.adapterPosition)//so it does not have to wait for database processing
                     inboxViewModel.archiveTask(context, this)
                 } else {
-                    if (addingTask) {
+                    if (adding) {
+                        mAdapter.notifyItemRemoved(viewHolder.adapterPosition)//so it does not have to wait for database processing
                         inboxViewModel.archiveTask(context, this)
-                        addingTask = false
+                        adding = false
+                        editingId = -1
                     } else {
                         (viewHolder.itemView as AddTask).save()
                     }
@@ -80,7 +88,7 @@ class InboxFragment : Fragment() {
         override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
 
             if (viewHolder.itemViewType == TaskAdapter.TASK_VIEW_ITEM) {
-                val deleteIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_done_all_black_24dp)!!.mutate()
+                val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_done_all_black_24dp)!!.mutate()
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
                 val intrinsicWidth = deleteIcon.intrinsicWidth
                 val intrinsicHeight = deleteIcon.intrinsicHeight
@@ -136,7 +144,7 @@ class InboxFragment : Fragment() {
                 val itemView = viewHolder.itemView
                 val itemHeight = itemView.bottom - itemView.top
 
-                val deleteIcon = ContextCompat.getDrawable(context!!, R.drawable.ic_clear_black_24dp)!!.mutate()
+                val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_clear_black_24dp)!!.mutate()
 
                 deleteIcon.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP)
                 val intrinsicWidth = deleteIcon.intrinsicWidth
@@ -220,6 +228,7 @@ class InboxFragment : Fragment() {
                                 when (it.itemId) {
                                     R.id.editTask -> {
                                         mAdapter.taskList[position].isEditing = true
+                                        mAdapter.selected = -1
                                         mAdapter.update(mAdapter.taskList)
                                         MaterialCab.destroy()
                                         true
@@ -230,7 +239,7 @@ class InboxFragment : Fragment() {
                             }
                             onCreate { _, _ ->
                                 activity?.window?.statusBarColor = Cyanea.instance.accentDark
-                                menu!!.forEach { m ->
+                                menu?.forEach { m ->
                                     val icon = m.icon.mutate()
                                         .also { it.setColorFilter(Utilities.textFromBackground(Cyanea.instance.accent), PorterDuff.Mode.SRC_ATOP) }
                                     m.icon = icon
@@ -269,10 +278,10 @@ class InboxFragment : Fragment() {
         mRecyclerView.adapter = mAdapter
         mRecyclerView.isNestedScrollingEnabled = false
         //mAdapter.update(tasksDao().all)
-        tasksDao().all.observe(viewLifecycleOwner, listObserver)
+        inboxViewModel.getTasks().observe(viewLifecycleOwner, listObserver)
         mRecyclerView.setExpandablePage(view.expandable_page_inbox)
 
-        view.expandable_page_inbox.addStateChangeCallbacks(TaskView.TaskViewPageCallbacks(activity!!))
+        view.expandable_page_inbox.addStateChangeCallbacks(TaskView.TaskViewPageCallbacks(requireActivity()))
 
         val ith = ItemTouchHelper(_ithCallback)
         ith.attachToRecyclerView(mRecyclerView)
@@ -281,7 +290,12 @@ class InboxFragment : Fragment() {
     }
 
     private val listObserver = Observer<List<Tasks>> { newTasks ->
-        mAdapter.update(newTasks.filterInbox(filterMode))
+        if(newTasks!=null) {
+            tasks = ArrayList(newTasks)
+            mAdapter.update(newTasks.also {
+                if (isEditing()) it.find { it.listKey == editingId }?.isEditing = true
+            })
+        }
     }
 
 
@@ -290,7 +304,6 @@ class InboxFragment : Fragment() {
             return false
         }
     }
-
 
 
 }

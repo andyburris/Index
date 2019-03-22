@@ -2,6 +2,7 @@ package com.andb.apps.todo
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -39,6 +40,9 @@ class TagSelect : CyaneaAppCompatActivity() {
         setSupportActionBar(toolbar)
 
         list = Current.tagListAll()
+        Log.d("tagSort", "keys: ${list.map { it.key }}")
+        Log.d("tagSort", "indices: ${list.map { it.index }}")
+
 
         val bundle = intent.extras
         if (bundle!!.containsKey("isTaskCreate")) {

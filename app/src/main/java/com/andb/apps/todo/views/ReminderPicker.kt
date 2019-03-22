@@ -160,7 +160,7 @@ class ReminderPicker(context: Context) : ConstraintLayout(context) {
 
         AsyncTask.execute {
             ProjectsUtils.update(task, async = false)
-            val allTasks = GetDatabase.projectsDatabase.tasksDao().all.value!!.filter { !it.isArchived }
+            val allTasks = Current.taskListAll().filter { !it.isArchived }
             Log.d("fenceTaskAdding", "database search size: ${allTasks.size}")
             Log.d("fenceTaskAdding", "database contains: ${allTasks.contains(task)}")
             Log.d("fenceTaskAdding", "task ids: ${task.locationReminders.map { it.key }}")

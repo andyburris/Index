@@ -1,22 +1,17 @@
 package com.andb.apps.todo.objects
 
 import androidx.room.*
+import com.andb.apps.todo.SORT_TIME
 import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.typeconverters.*
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andb.apps.todo.utilities.Values.SORT_TIME
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import org.joda.time.DateTime
 import java.util.ArrayList
-import kotlin.Boolean
-import kotlin.Cloneable
 import kotlin.Comparator
-import kotlin.Int
-import kotlin.NoSuchElementException
-import kotlin.String
 
 @Entity(foreignKeys = [ForeignKey(entity = Project::class, parentColumns = ["key"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE)])
 class Tasks : Cloneable {
@@ -114,7 +109,7 @@ class Tasks : Cloneable {
         for (s in listItems) {
             builder.append("- $s\n")
         }
-        if(listTags.isNotEmpty()) {
+        if (listTags.isNotEmpty()) {
             builder.append("Tags: \n")
         }
         for (i in listTags) {
@@ -143,21 +138,22 @@ class Tasks : Cloneable {
 
     }
 
-    fun hasLocationOrTrigger(locationKey: String): Boolean{
+    fun hasLocationOrTrigger(locationKey: String): Boolean {
         val reminders: Boolean = locationReminders.map { it.key }.contains(locationKey.toInt())
-        val triggers: Boolean = locationReminders.map { it.trigger?.key ?: -1 }.contains(locationKey.toInt())
+        val triggers: Boolean = locationReminders.map { it.trigger?.key ?: -1 }
+            .contains(locationKey.toInt())
         return reminders || triggers
     }
 
-    fun findLocation(locationKey: String, isTrigger: Boolean = isTrigger(locationKey)): LocationFence{
-        return if(isTrigger){
-            locationReminders.first { it.trigger?.key.toString()==locationKey }
-        }else{
-            locationReminders.first { it.key.toString()==locationKey }
+    fun findLocation(locationKey: String, isTrigger: Boolean = isTrigger(locationKey)): LocationFence {
+        return if (isTrigger) {
+            locationReminders.first { it.trigger?.key.toString() == locationKey }
+        } else {
+            locationReminders.first { it.key.toString() == locationKey }
         }
     }
 
-    fun isTrigger(locationKey: String): Boolean{
+    fun isTrigger(locationKey: String): Boolean {
         return locationReminders.map { it.trigger?.key ?: -1 }.contains(locationKey.toInt())
     }
 

@@ -12,6 +12,7 @@ import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.utilities.Values
 import com.google.android.material.chip.Chip
@@ -114,7 +115,15 @@ class ItemViewTitleTags : ConstraintLayout {
 
                 if (i < task.listTags.size) {
                     val reversedPos = task.listTags.size - (i + 1)//to show most nested tags first TODO: Most nested first as option
-                    val tagtemp = Current.tagListAll()[task.listTags[reversedPos]]
+                    val tagtemp = Current.tagListAll()[task.listTags[reversedPos].run {
+                        if(this>=Current.tagListAll().size){
+                            task.listTags.remove(this)
+                            ProjectsUtils.update(task)
+                            return@run this
+                        }else{
+                            return@run this
+                        }
+                    }]
                     val chiptemp = tagsList[i]
 
                     chiptemp.apply {

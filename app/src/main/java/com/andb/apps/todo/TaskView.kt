@@ -63,18 +63,26 @@ class TaskView : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewModel.viewModelTask.observe(viewLifecycleOwner, taskObserver)
-        return inflater.inflate(R.layout.activity_task_view, container!!.parent as ViewGroup, false)
+        return inflater.inflate(R.layout.activity_task_view, container?.parent as ViewGroup?, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         task_view_parent.setBackgroundColor(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-        collapseAndChangeAppBar(activity!!.findViewById(R.id.toolbar), activity!!.findViewById(R.id.fab))
+        collapseAndChangeAppBar(requireActivity().findViewById(R.id.toolbar), requireActivity().findViewById(R.id.fab))
 
         prepareRecyclerViews()
+
+        task_view_task_name.text = viewModel.task().listName.toUpperCase()
+
+        if (viewModel.task().timeReminders.isEmpty()) { //no time
+            taskViewTimeText.visibility = View.GONE
+            taskViewTimeIcon.visibility = View.GONE
+        } else {
+            taskViewTimeText.text = viewModel.task().nextReminderTime().toString("hh:mm a | EEEE, MMMM d")
+            taskViewTimeIcon.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
+        }
 
         expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
             val directionInt = if (upwardPull) +1 else -1
@@ -84,21 +92,7 @@ class TaskView : Fragment() {
 
     }
 
-    private val taskObserver = Observer<Tasks>{ task->
-        task_view_task_name.text = task.listName.toUpperCase()
 
-        if (task.timeReminders.isEmpty()) { //no time
-            taskViewTimeText!!.visibility = View.GONE
-            taskViewTimeIcon!!.visibility = View.GONE
-        } else {
-            taskViewTimeText!!.text = task.nextReminderTime().toString("hh:mm a | EEEE, MMMM d")
-            taskViewTimeIcon!!.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
-        }
-
-        subTasks.clearWith(task.listItems.mapIndexed { index, s ->  Pair(s, task.listItemsChecked[index] ) })
-        subTags.clearWith(task.listTags)
-        mAdapter.notifyDataSetChanged()
-    }
 
     fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton) {
         oldNavIcon = toolbar.navigationIcon!!.mutate()
@@ -117,18 +111,17 @@ class TaskView : Fragment() {
         toolbar.menu.setGroupVisible(R.id.toolbar_main, false)
     }
 
-    val subTasks = ArrayList<Pair<String, Boolean>>()
     fun subtaskAdapter() = Klaster.get()
-        .itemCount { subTasks.size }
+        .itemCount { viewModel.task().listItems.size }
         .view(R.layout.inbox_checklist_list_item, layoutInflater)
         .bind { pos ->
             itemView.listTextView.apply {
                 backgroundTintList = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-                text = subTasks[pos].first
-                isChecked = subTasks[pos].second
+                text = viewModel.task().listItems[pos]
+                isChecked = viewModel.task().listItemsChecked[pos]
                 paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 setOnCheckedChangeListener { _, isChecked ->
-                    viewModel.viewModelTask.value?.editListItemsChecked(isChecked, pos)
+                    viewModel.setChecked(pos, isChecked)
                     paintFlags = if (!isChecked) paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 }
             }
@@ -136,12 +129,11 @@ class TaskView : Fragment() {
         }
         .build()
 
-    val subTags = ArrayList<Int>()
     fun tagAdapter() = Klaster.get()
-        .itemCount { subTags.size }
+        .itemCount { viewModel.task().listTags.size }
         .view(R.layout.task_view_tag_list_item, layoutInflater)
         .bind { pos ->
-            val tag = Current.tagListAll()[subTags[pos]]
+            val tag = Current.tagListAll()[viewModel.task().listTags[pos]]
             itemView.tagImage.setColorFilter(tag.tagColor)
             itemView.task_view_item_tag_name.text = tag.tagName
         }
@@ -172,10 +164,9 @@ class TaskView : Fragment() {
             val fromPosition = viewHolder.adapterPosition
             val toPosition = target.adapterPosition
 
-
+            viewModel.reorder(fromPosition, toPosition)
 
             mAdapter.notifyItemMoved(fromPosition, toPosition)
-            ProjectsUtils.update(viewModel.viewModelTask.value!!)
             return false
 
         }
@@ -202,14 +193,13 @@ class TaskView : Fragment() {
 
 
     fun taskDone() {
-        viewModel.viewModelTask.value?.isArchived = true
+        viewModel.setArchived()
         (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
     }
 
     fun editFromToolbar() {
+        viewModel.setEditing()
         (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
-        viewModel.viewModelTask.value?.isEditing = true
-
     }
 
     companion object {

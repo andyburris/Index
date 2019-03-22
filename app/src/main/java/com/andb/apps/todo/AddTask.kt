@@ -92,12 +92,12 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
         val tagRecyclerView = addTaskTagsRV
         tagRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         tagAdapter = tagAdapter()
-        tagRecyclerView!!.adapter = tagAdapter
+        tagRecyclerView.adapter = tagAdapter
 
         val taskRecycler = addTaskSublistRV
         taskRecycler.layoutManager = LinearLayoutManager(context)
         subtaskAdapter = subtaskAdapter()
-        taskRecycler!!.adapter = subtaskAdapter
+        taskRecycler.adapter = subtaskAdapter
         val ith = ItemTouchHelper(_ithCallback)
         ith.attachToRecyclerView(taskRecycler)
     }
@@ -199,7 +199,8 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
 
     private fun update() {
         task.isEditing = false
-        activity.inboxFragment.addingTask = false
+        activity.inboxFragment.adding = false
+        activity.inboxFragment.editingId = -1
     }
 
 

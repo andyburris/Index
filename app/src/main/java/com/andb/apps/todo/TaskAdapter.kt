@@ -27,6 +27,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
     var taskList: MutableList<Tasks> = ArrayList()
     lateinit var expandedList: ArrayList<Boolean>
     var selected = -1
+    var editing = -1
 
     lateinit var parentRecycler: RecyclerView
 

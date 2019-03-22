@@ -189,6 +189,7 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
                 Current.tagListAll().set(tagPosition, tags);
                 TagSelect.mAdapter.notifyItemChanged(tagPosition);
                 ProjectsUtils.update(tags);
+                finish();
             } else {
                 Tags tags = new Tags(tagName, tagColor, subFolder, Current.tagListAll().size());
                 Current.tagListAll().add(tags);

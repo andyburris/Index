@@ -52,15 +52,20 @@ object ProjectsUtils {
     fun remove(tag: Tags){
         AsyncTask.execute {
             for(task in Current.taskListAll()){
-                if(task.listTags.contains(tag.index)){
-                    task.listTags.remove(tag.index)
+                if(task.listTags.contains(tag.key)){
+                    task.listTags.remove(tag.key)
                     update(task, async = false)
                 }
             }
             for(childHolder in Current.tagListAll()){
-                if(childHolder.children.contains(tag.index)){
-                    childHolder.children.remove(tag.index)
+                if(childHolder.children.contains(tag.key)){
+                    childHolder.children.remove(tag.key)
                     update(childHolder, async = false)
+                }
+            }
+            for(t in Current.tagListAll()){
+                if (t.index>tag.index){
+                    t.index--
                 }
             }
 
@@ -100,7 +105,7 @@ object ProjectsUtils {
     fun keyGenerator(): Int {
         var key = random.nextInt()
 
-        while (Current.keyList().contains(key) || key == 0) {
+        while (Current.keyList().contains(key) || key in listOf(0, -1)) {
             key = random.nextInt()
         }
         return key

@@ -62,7 +62,7 @@ class GeofenceHandler : IntentService("GeofenceHandler") {
     private fun findTaskFromLocationReminder(geofence: Geofence): Tasks{
         GetDatabase.projectsDatabase = GetDatabase.getDatabase(this)
 
-        val allTasks = GetDatabase.projectsDatabase.tasksDao().all.value!!.filter { !it.isArchived }
+        val allTasks = Current.taskListAll().filter { !it.isArchived }
         Log.d("fenceTask", "database search size: ${allTasks.size}")
         Log.d("fenceTask", "all reminder ids: ${allTasks.flatMap { it.locationReminders.map { it.key } } }")
         Log.d("fenceTask", "all trigger ids: ${allTasks.flatMap { it.locationReminders.mapNotNull { it.trigger?.key } } }")

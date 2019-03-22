@@ -14,7 +14,7 @@ import com.andb.apps.todo.utilities.Values
 import com.google.android.gms.location.GeofencingClient
 
 class InboxViewModel : ViewModel() {
-    private val filterMode = Values.SORT_TIME
+    private val filterMode = SORT_TIME
     private val inboxTaskList = MediatorLiveData<List<Tasks>>()
 
     init {

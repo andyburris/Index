@@ -37,5 +37,8 @@ public interface TasksDao {
     LiveData<List<Tasks>> getAllFromProject(int projectKey);
 
     @Query("SELECT * FROM Tasks")
-    LiveData<List<Tasks>> getAll(); //only use for notifications/search all
+    LiveData<List<Tasks>> getAll();
+
+    @Query("SELECT * FROM Tasks")
+    List<Tasks> getAllStatic();
 }

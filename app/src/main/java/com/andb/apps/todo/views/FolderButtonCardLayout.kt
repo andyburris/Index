@@ -15,13 +15,29 @@ class FolderButtonCardLayout : CardView {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
+    var collapsed = true
 
     init {
         inflate(context, R.layout.folder_picker, this)
         collapse()
+
+        setOnClickListener {
+            if(collapsed){
+                expand()
+            }
+        }
+
+        folderCollapseButton.setOnClickListener {
+            if(!collapsed){
+                collapse()
+            }
+        }
     }
 
     fun expand(){
+
+        collapsed = false
+
         folderCardHolder.apply {
             radius = Utilities.pxFromDp(8).toFloat()
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
@@ -37,6 +53,9 @@ class FolderButtonCardLayout : CardView {
     }
 
     fun collapse(){
+
+        collapsed = true
+
         folderCardHolder.apply {
             radius = Utilities.pxFromDp(24).toFloat()
             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT

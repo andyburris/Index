@@ -1,24 +1,18 @@
 package com.andb.apps.todo
 
-import com.andb.apps.todo.filtering.*
-import com.andb.apps.todo.lists.ProjectList
+import com.andb.apps.todo.filtering.filterBrowse
+import com.andb.apps.todo.filtering.filterInbox
+import com.andb.apps.todo.filtering.filterSubTags
+import com.andb.apps.todo.filtering.filterTags
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.objects.reminders.SimpleReminder
-import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
-
 import org.joda.time.DateTime
 import org.junit.Test
-
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
-import java.util.Random
-
-import com.andb.apps.todo.utilities.Values.SORT_TIME
+import java.util.*
 
 class FilteredListsTest {
 
@@ -41,7 +35,8 @@ class FilteredListsTest {
 
         val filteredFilters = initialTagList.filterTags(initialFilters)
 
-        val filteredInboxList = initialTaskList.filterInbox(SORT_TIME, initialFilters).filter { !isDivider(it) }
+        val filteredInboxList = initialTaskList.filterInbox(SORT_TIME, initialFilters)
+            .filter { !isDivider(it) }
         val filteredBrowseList = initialTaskList.filterBrowse(filteredFilters.filterSubTags(true), initialFilters)
 
         println("expectedFilters: $expectedFilters")

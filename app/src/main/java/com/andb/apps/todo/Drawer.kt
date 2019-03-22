@@ -66,7 +66,7 @@ class Drawer : Fragment() {
         projectAdapter = drawerRecycler(inflater, view, requireContext())
         view.project_switcher_recycler.apply {
             adapter = projectAdapter
-            layoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
         view.project_switcher_frame.setBackgroundColor(Cyanea.instance.backgroundColor)
 
@@ -135,7 +135,7 @@ class Drawer : Fragment() {
                     itemView.apply {
                         val imageShape = GradientDrawable()
                         imageShape.color = ColorStateList.valueOf(project.color)
-                        imageShape.cornerRadius = if (Current.projectKey() == project.key) 16f else 92f
+                        imageShape.cornerRadius = if (Current.projectKey() == project.key) 24f else 92f
                         project_circle.apply {
                             setImageDrawable(imageShape)
                             elevation = if (Current.projectKey() == project.key) 4f else 0f
@@ -176,8 +176,8 @@ class Drawer : Fragment() {
                         }
                         project_task_count.apply {
                             visibility = View.VISIBLE
-                            text = /*Current.taskListAll(project.key).size.toString()*/ 7.toString()
-                            elevation = if (Current.projectKey() == adapterPosition) 4f else 0f
+                            text = Current.taskListAll(project.key).size.toString()
+                            elevation = if (Current.projectKey() == project.key) 4f else 0f
                         }
                     }
                 } else {//add project
@@ -260,8 +260,8 @@ class Drawer : Fragment() {
                     .setShowAlphaSlider(true)
                     .setDialogId(DRAWER_DIALOG_ID)
                     .create()
-                dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
-                activity!!.supportFragmentManager.executePendingTransactions()
+                dialog.show(requireActivity().supportFragmentManager, "color-picker-dialog")
+                requireActivity().supportFragmentManager.executePendingTransactions()
                 CyaneaDialog.setColorPickerButtonStyle(dialog.dialog as androidx.appcompat.app.AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)
             }
         }
@@ -297,8 +297,8 @@ class Drawer : Fragment() {
                     .setShowAlphaSlider(true)
                     .setDialogId(DRAWER_DIALOG_ID)
                     .create()
-                dialog.show(activity!!.supportFragmentManager, "color-picker-dialog")
-                activity!!.supportFragmentManager.executePendingTransactions()
+                dialog.show(requireActivity().supportFragmentManager, "color-picker-dialog")
+                requireActivity().supportFragmentManager.executePendingTransactions()
                 CyaneaDialog.setColorPickerButtonStyle(dialog.dialog as androidx.appcompat.app.AlertDialog, AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEUTRAL)
             }
         }

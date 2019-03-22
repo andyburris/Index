@@ -8,15 +8,14 @@ import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.preference.PreferenceManager
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.Onboarding
 import com.andb.apps.todo.R
+import com.andb.apps.todo.SORT_TIME
 import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.utilities.Values.SORT_TIME
 import com.jaredrummler.cyanea.CyaneaResources
 import com.jaredrummler.cyanea.app.BaseCyaneaActivity
 import com.jaredrummler.cyanea.delegate.CyaneaDelegate
@@ -28,7 +27,8 @@ import me.saket.inboxrecyclerview.PullCollapsibleActivity
 import org.joda.time.DateTime
 
 
-class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenChangeListener, BaseCyaneaActivity {
+class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenChangeListener,
+    BaseCyaneaActivity {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,8 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         val preferenceScreen = SettingsLayout.createRootScreen(this)
         val themeIntent = Intent(this, CyaneaSettingsActivity::class.java)
         val tutorialIntent = Intent(this, Onboarding::class.java)
-        preferencesAdapter.onScreenChangeListener = object : PreferencesAdapter.OnScreenChangeListener {
+        preferencesAdapter.onScreenChangeListener = object :
+            PreferencesAdapter.OnScreenChangeListener {
             override fun onScreenChanged(preferenceScreen: PreferenceScreen, b: Boolean) {
                 when (preferenceScreen.title) {
                     "Theme" -> {
@@ -120,7 +121,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         fun setTimeToNotifyForDateOnly(dateTime: DateTime, context: Context) {
             timeToNotifyForDateOnly = dateTime
             Prefs.putLong("pref_notif_only_date", dateTime.millis)
-            preferencesAdapter.currentScreen["pref_notif_only_date"]!!.summary = timeToNotifyForDateOnly.toString("h:mm")
+            preferencesAdapter.currentScreen["pref_notif_only_date"]?.summary = timeToNotifyForDateOnly.toString("h:mm")
             preferencesAdapter.notifyDataSetChanged()
         }
     }

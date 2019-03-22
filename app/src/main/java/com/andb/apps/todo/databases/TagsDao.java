@@ -33,6 +33,12 @@ public interface TagsDao {
     @Query("SELECT * FROM Tags WHERE `project_id` = :projectKey")
     LiveData<List<Tags>> getAllFromProject(int projectKey);
 
+    @Query("SELECT * FROM Tags WHERE `project_id` = :projectKey")
+    List<Tags> getAllFromProjectStatic(int projectKey);
+
     @Query("SELECT * FROM Tags")
     LiveData<List<Tags>> getAll();
+
+    @Query("SELECT * FROM Tags")
+    List<Tags> getAllStatic();
 }

@@ -235,7 +235,7 @@ class NotificationHandler : Service() {
                 reminder.trigger = exitReminder
 
                 ProjectsUtils.update(task, async = false)
-                val allTasks = GetDatabase.projectsDatabase.tasksDao().all.value!!.filter { !it.isArchived }
+                val allTasks = Current.taskListAll().filter { !it.isArchived }
                 Log.d("fenceTaskNext", "database search size: ${allTasks.size}")
                 Log.d("fenceTaskNext", "database contains: ${allTasks.contains(task)}")
                 Log.d("fenceTaskNext", "task trigger ids: ${task.locationReminders.mapNotNull { it.trigger?.key }}")
