@@ -22,11 +22,11 @@ val FUTURE= TaskAdapter.newDivider("FUTURE", DateTime(DateTime.now().plusMonths(
 @JvmOverloads
 fun List<Tasks>.filterInbox(filterMode: Int, filters: List<Tags> = Filters.getCurrentFilter()): List<Tasks> {
 
-    System.out.println("projectKey: " + Current.project().key)
+    System.out.println("projectKey: " + Current.projectKey())
 
     val mutableList = this/*.also {
         for (task in it){
-            System.out.println("task: " + task.listName + ", projectId: " + task.projectId + ", filteredIn: " + (task.projectId == Current.project().key))
+            System.out.println("task: " + task.listName + ", projectId: " + task.projectId + ", filteredIn: " + (task.projectId == Current.projectKey()))
         }
     }*/.filterProject()/*.also {
         for (task in it){
@@ -72,7 +72,7 @@ fun List<Tasks>.filterInbox(filterMode: Int, filters: List<Tags> = Filters.getCu
 
 
 @JvmOverloads
-fun List<Tasks>.filterProject(id: Int = Current.project().key): List<Tasks> {
+fun List<Tasks>.filterProject(id: Int = Current.projectKey()): List<Tasks> {
     return this.filter { it.projectId == id }
 }
 
@@ -97,7 +97,7 @@ fun List<Tasks>.filterArchive(isArchived: Boolean = false): List<Tasks> {
 /*********Tag List************/
 
 @JvmOverloads
-fun List<Tags>.filterProjectTags(id: Int = Current.project().key): List<Tags> {
+fun List<Tags>.filterProjectTags(id: Int = Current.projectKey()): List<Tags> {
     return this.filter { it.projectId == id }
 }
 

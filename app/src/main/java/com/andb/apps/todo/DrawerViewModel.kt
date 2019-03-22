@@ -1,11 +1,8 @@
 package com.andb.apps.todo
 
-import android.os.AsyncTask
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.andb.apps.todo.databases.projectsDao
-import com.andb.apps.todo.databases.tasksDao
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.utilities.Current
 
@@ -15,11 +12,11 @@ class DrawerViewModel : ViewModel(){
     val projectsBuffer = ArrayList<Project>()
 
 
-    fun getCurrentName(viewing: Int = Current.viewing()): String{
+    fun getCurrentName(viewing: Int = Current.projectKey()): String{
         return getProject(viewing).name
     }
 
-    fun getProject(viewing: Int = Current.viewing()): Project{
+    fun getProject(viewing: Int = Current.projectKey()): Project{
         return projectsBuffer.first { it.key==viewing }
     }
 

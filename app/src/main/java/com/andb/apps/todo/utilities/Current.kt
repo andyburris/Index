@@ -1,9 +1,7 @@
 package com.andb.apps.todo.utilities
 
-import android.app.Activity
 import android.util.Log.d
 
-import com.andb.apps.todo.TaskAdapter
 import com.andb.apps.todo.databases.GetDatabase
 import com.andb.apps.todo.databases.*
 import com.andb.apps.todo.databases.ProjectsDatabase
@@ -14,7 +12,6 @@ import com.andb.apps.todo.objects.Tasks
 
 import java.util.ArrayList
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.andb.apps.todo.filtering.filterProject
@@ -26,7 +23,7 @@ object Current {
     private val bufferTags = ArrayList<Tags>()
     private val bufferTasks = ArrayList<Tasks>()
     val bufferProjects = ArrayList<Project>()
-    var bufferViewing = 0
+    var bufferViewingKey = 0
 
 
     @JvmStatic
@@ -47,8 +44,7 @@ object Current {
 
     @JvmStatic
     fun initProjects(lifecycleOwner: LifecycleOwner){
-        bufferProjects.clear()
-        bufferProjects.addAll(projectsDao().allStatic)
+
         projectsDao().all.observe(lifecycleOwner, Observer {projects->
             bufferProjects.clear()
             bufferProjects.addAll(projects)
@@ -57,15 +53,15 @@ object Current {
 
     @JvmStatic
     fun initViewing(lifecycleOwner: LifecycleOwner){
-        ProjectList.getViewing().observe(lifecycleOwner, Observer { viewing->
-            bufferViewing = viewing
+        ProjectList.getKey().observe(lifecycleOwner, Observer { viewing->
+            bufferViewingKey = viewing
         })
     }
 
     @JvmStatic
     fun initProjectsSync(db: ProjectsDatabase){
         bufferProjects.clear()
-        bufferProjects.addAll(db.projectsDao().all!!.value as List<Project>)
+        bufferProjects.addAll(db.projectsDao().allStatic)
     }
 
     @JvmStatic
@@ -75,15 +71,15 @@ object Current {
     }
 
     @JvmStatic
-    fun viewing(): Int {
-        return bufferViewing
+    fun projectKey(): Int {
+        return bufferViewingKey
     }
 
     @JvmStatic
     fun project(): Project {
 
-        d("allProjects", "size = ${allProjects().size}, items = ${allProjects().joinToString { "name: ${it.name}, key: ${it.key}" }}, key to find = ${viewing()}")
-        return allProjects().first { it.key== viewing() }
+        d("allProjects", "size = ${allProjects().size}, items = ${allProjects().joinToString { "name: ${it.name}, key: ${it.key}" }}, key to find = ${projectKey()}")
+        return allProjects().first { it.key== projectKey() }
     }
 
     @JvmStatic
@@ -118,7 +114,7 @@ object Current {
 
     @JvmStatic
     @JvmOverloads
-    fun taskListAll(id: Int = project().key): List<Tasks> {
+    fun taskListAll(id: Int = projectKey()): List<Tasks> {
         return bufferTasks.filterProject(id)
     }
 }

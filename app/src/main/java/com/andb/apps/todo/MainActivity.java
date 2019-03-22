@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,10 +24,8 @@ import android.widget.TextView;
 
 import com.afollestad.materialcab.MaterialCab;
 import com.andb.apps.todo.databases.GetDatabase;
-import com.andb.apps.todo.databases.GetDatabaseKt;
 import com.andb.apps.todo.databases.MigrationHelper;
 import com.andb.apps.todo.eventbus.MigrateEvent;
-import com.andb.apps.todo.eventbus.UpdateEvent;
 import com.andb.apps.todo.filtering.FilteredListsKt;
 import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ProjectList;
@@ -51,10 +48,13 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
+import java.util.List;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 import static com.andb.apps.todo.DrawerKt.DRAWER_DIALOG_ID;
+import static com.andb.apps.todo.databases.GetDatabaseKt.tasksDao;
 import static com.andb.apps.todo.utilities.Values.SORT_ALPHA;
 import static com.andb.apps.todo.utilities.Values.SORT_TIME;
 
@@ -73,16 +73,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         super.onCreate(savedInstanceState);
 
-        GetDatabase.projectsDatabase = GetDatabase.getDatabase(getApplicationContext());
-        Log.d("databaseInit", Boolean.toString(GetDatabase.isInit()));
-
-        OnceHolder.checkAppSetup(this);
-
-        Current.initProjects(this);
-        ProjectList.setViewing(Prefs.getInt("project_viewing", Current.allProjects().get(0).getKey()));
-        Current.initViewing(this);
-        Current.initTags(this);
-        Current.initTasks(this);
+        appStart();
 
         inboxFragment = new InboxFragment();
 
@@ -91,6 +82,11 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         setContentView(R.layout.activity_main);
         getSupportFragmentManager().executePendingTransactions();
         drawer = (Drawer) getSupportFragmentManager().findFragmentById(R.id.drawerFragment);
+        drawer.setup();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragmentHolder, inboxFragment).commit();
+        setupProjectSelector();
+
+        Filters.homeViewAdd(); //add current filter to back stack
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -113,21 +109,6 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
 
 
-            Handler handler = new Handler();
-            AsyncTask.execute(() -> {
-                ProjectList.INSTANCE.appStart(Current.database());
-                handler.post(() -> {
-                    Filters.homeViewAdd(); //add current filter to back stack
-                    drawer.setup();
-                    getSupportFragmentManager().beginTransaction().add(R.id.fragmentHolder, inboxFragment);
-                    setupProjectSelector();
-                });
-
-
-            });
-
-
-
 
         String label = getResources().getString(R.string.app_name);
         Bitmap icon = BitmapFactory.decodeResource(getResources(),
@@ -142,6 +123,28 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         this.setTaskDescription(taskDescription);//set header color in recents
 
 
+    }
+
+    public void appStart() {
+
+        GetDatabase.projectsDatabase = GetDatabase.getDatabase(getApplicationContext());
+        Log.d("databaseInit", java.lang.Boolean.toString(GetDatabase.isInit()));
+
+        OnceHolder.checkAppSetup(this);
+
+        Current.initProjects(this);
+        ProjectList.setKey(Prefs.getInt("project_viewing", 0));
+        Current.initViewing(this);
+
+        Current.initTags(this);
+        Current.initTasks(this);
+
+        AsyncTask.execute(() -> {//cleanse blank names from add & exit app
+            List<Tasks> list = tasksDao().findTasksByName("");
+            for (Tasks t : list) {
+                tasksDao().deleteTask(t);
+            }
+        });
     }
 
     public void loadSettings() {
@@ -280,7 +283,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
                 Tasks task = TaskAdapter.newAddTask();
                 inboxFragment.setAddingTask(true);
 
-                AsyncTask.execute(() -> GetDatabaseKt.tasksDao().insertOnlySingleTask(task));
+                AsyncTask.execute(() -> tasksDao().insertOnlySingleTask(task));
             } else {
                 TaskView.Companion.taskDoneStat();
             }
@@ -301,12 +304,9 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         FrameLayout bottomSheet = findViewById(R.id.bottom_sheet_container);
 
-        TextView toolbarSubtitle = findViewById(R.id.toolbar_project_name);
 
         drawer.bottomSheetBehavior = (BottomSheetBehavior.from(bottomSheet));
         drawer.bottomSheetBehavior.setBottomSheetCallback(drawer.getNormalSheetCallback());
-
-        toolbarSubtitle.setText(Current.project().getName());
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);

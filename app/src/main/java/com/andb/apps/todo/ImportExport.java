@@ -9,8 +9,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.andb.apps.todo.databases.TagLinks;
-import com.andb.apps.todo.eventbus.UpdateEvent;
-import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ProjectList;
 import com.andb.apps.todo.objects.Project;
 import com.andb.apps.todo.objects.Tags;
@@ -23,7 +21,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.jaredrummler.cyanea.Cyanea;
 
-import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 
 import java.io.BufferedReader;
@@ -147,7 +144,7 @@ public class ImportExport {
                                     Current.database().tasksDao().insertMultipleTasks(taskList);
                                     Current.database().tagsDao().insertMultipleTags(tagList);
 
-                                    ProjectList.INSTANCE.postViewing(projectKey);
+                                    ProjectList.INSTANCE.postKey(projectKey);
                                 }
                         );
 

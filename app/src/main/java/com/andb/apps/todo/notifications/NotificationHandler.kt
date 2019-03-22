@@ -257,7 +257,7 @@ class NotificationHandler : Service() {
                 Current.database().tasksDao().updateTask(task)
 /*
                 //projectsDatabase.projectsDao().updateProject(project);
-                if (NotificationHandler.checkActive(ctxt) && Current.project().key == task.projectId) {
+                if (NotificationHandler.checkActive(ctxt) && Current.projectKey() == task.projectId) {
                     Current.project()
                         .taskList = ArrayList(Current.database().tasksDao().getAllFromProject(task.projectId))
                     EventBus.getDefault().post(UpdateEvent(true))

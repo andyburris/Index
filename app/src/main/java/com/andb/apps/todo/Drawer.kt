@@ -26,12 +26,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.databases.projectsDao
-import com.andb.apps.todo.eventbus.UpdateEvent
 import com.andb.apps.todo.filtering.Filters
-import com.andb.apps.todo.filtering.filterProject
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
-import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
@@ -42,10 +39,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.android.synthetic.main.bottom_sheet_layout.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
 import kotlinx.android.synthetic.main.project_create_edit_layout.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
-import org.greenrobot.eventbus.EventBus
 
 const val DRAWER_DIALOG_ID = 1
 
@@ -81,6 +78,12 @@ class Drawer : Fragment() {
     fun setup(){
         drawerViewModel.projects.observe(viewLifecycleOwner, Observer{newProjects->
             update(newProjects)
+            toolbar_project_name.text = drawerViewModel.getCurrentName(Current.projectKey())
+        })
+        ProjectList.getKey().observe(viewLifecycleOwner, Observer { key->
+            if(drawerViewModel.projectsBuffer.isNotEmpty()){
+                toolbar_project_name.text = drawerViewModel.getCurrentName(key)
+            }
         })
     }
 
@@ -124,7 +127,7 @@ class Drawer : Fragment() {
 
     private fun drawerRecycler(layoutInflater: LayoutInflater, view: View, context: Context) =
         Klaster.get()
-            .itemCount { drawerViewModel.projectsBuffer.size/* + 1 */}
+            .itemCount { drawerViewModel.projectsBuffer.size + 1 }
             .view(R.layout.project_switcher_item, layoutInflater)
             .bind { _ ->
                 if (adapterPosition < drawerViewModel.projectsBuffer.size) {//project
@@ -132,10 +135,10 @@ class Drawer : Fragment() {
                     itemView.apply {
                         val imageShape = GradientDrawable()
                         imageShape.color = ColorStateList.valueOf(project.color)
-                        imageShape.cornerRadius = if (Current.viewing() == project.key) 16f else 92f
+                        imageShape.cornerRadius = if (Current.projectKey() == project.key) 16f else 92f
                         project_circle.apply {
                             setImageDrawable(imageShape)
-                            elevation = if (Current.viewing() == project.key) 4f else 0f
+                            elevation = if (Current.projectKey() == project.key) 4f else 0f
                             background = imageShape//for shadow drawing
                         }
 
@@ -147,8 +150,7 @@ class Drawer : Fragment() {
                         project_add_divider.visibility = View.GONE
                         project_frame.apply {
                             setOnClickListener {
-                                ProjectList.setViewing(project.key)
-                                view.toolbar_project_name.text = project.name
+                                ProjectList.setKey(project.key)
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 Filters.homeViewAdd()
                             }
@@ -174,8 +176,8 @@ class Drawer : Fragment() {
                         }
                         project_task_count.apply {
                             visibility = View.VISIBLE
-                            text = Current.taskListAll(project.key).size.toString()
-                            elevation = if (Current.viewing() == adapterPosition) 4f else 0f
+                            text = /*Current.taskListAll(project.key).size.toString()*/ 7.toString()
+                            elevation = if (Current.projectKey() == adapterPosition) 4f else 0f
                         }
                     }
                 } else {//add project
@@ -196,23 +198,26 @@ class Drawer : Fragment() {
 
     private fun dispatchUpdates(newItems: List<Project>, diffResult: DiffUtil.DiffResult) {
         Log.d("dipatchUpdates", "newItems size: ${newItems.size}")
-        drawerViewModel.projectsBuffer.apply {
-            clear()
-            addAll(newItems)
-        }
         diffResult.dispatchUpdatesTo(projectAdapter)
     }
 
     fun update(newList: List<Project>) {
         val oldItems: List<Project> = ArrayList(drawerViewModel.projectsBuffer)
-
-        val handler = Handler(Looper.getMainLooper())
-        Thread(Runnable {
-            val diffResult = DiffUtil.calculateDiff(DrawerAdapterDiffCallback(oldItems, newList))
-            handler.post {
-                dispatchUpdates(newList, diffResult)
-            }
-        }).start()
+        drawerViewModel.projectsBuffer.apply {
+            clear()
+            addAll(newList)
+        }
+        if(oldItems.isNotEmpty()&&newList.isNotEmpty()) {
+            val handler = Handler(Looper.getMainLooper())
+            Thread(Runnable {
+                val diffResult = DiffUtil.calculateDiff(DrawerAdapterDiffCallback(oldItems, newList))
+                handler.post {
+                    dispatchUpdates(newList, diffResult)
+                }
+            }).start()
+        }else{
+            projectAdapter.notifyDataSetChanged()
+        }
     }
 
     internal class DrawerAdapterDiffCallback(private val oldProjects: List<Project>, private val newProjects: List<Project>) : DiffUtil.Callback() {
@@ -268,7 +273,7 @@ class Drawer : Fragment() {
 
 
                 val project = ProjectsUtils.addProject(addEditLayout.projectEditText.text.toString(), selectedColor)
-                ProjectList.setViewing(project.key)
+                ProjectList.setKey(project.key)
                 projectAdapter.notifyDataSetChanged()
 
             }
@@ -326,13 +331,13 @@ class Drawer : Fragment() {
                     Current.database().projectsDao().deleteProject(project)
 
 
-                    if (Current.viewing() >= position) {
+                    if (Current.projectKey() >= position) {
                         if (position != 0) {
-                            ProjectList.setViewing(drawerViewModel.getProjectIndexed(position - 1).key)
+                            ProjectList.setKey(drawerViewModel.getProjectIndexed(position - 1).key)
                         }
                     }
 
-                    for (i in Current.viewing() until drawerViewModel.projectsBuffer.size) {
+                    for (i in Current.projectKey() until drawerViewModel.projectsBuffer.size) {
                         val p = drawerViewModel.projectsBuffer[i]
                         p.index--
                         ProjectsUtils.update(p)

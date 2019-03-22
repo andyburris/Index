@@ -1,6 +1,5 @@
 package com.andb.apps.todo.objects
 
-import android.util.Log
 import androidx.room.*
 import com.andb.apps.todo.objects.reminders.LocationFence
 import com.andb.apps.todo.objects.reminders.SimpleReminder
@@ -88,7 +87,7 @@ class Tasks : Cloneable {
     @Ignore
     @JvmOverloads
     constructor(listName: String, listItems: ArrayList<String>, listItemsChecked: ArrayList<Boolean>, listTags: ArrayList<Int>, timeReminders: ArrayList<SimpleReminder>,
-                locationReminders: ArrayList<LocationFence>, projectId: Int = Current.project().key, archived: Boolean = false) : this(listName, listItems, listItemsChecked, listTags, timeReminders, locationReminders, ProjectsUtils.keyGenerator(), projectId, archived)
+                locationReminders: ArrayList<LocationFence>, projectId: Int = Current.projectKey(), archived: Boolean = false) : this(listName, listItems, listItemsChecked, listTags, timeReminders, locationReminders, ProjectsUtils.keyGenerator(), projectId, archived)
 
     constructor(listName: String, listItems: ArrayList<String>, listItemsChecked: ArrayList<Boolean>, listTags: ArrayList<Int>, timeReminders: ArrayList<SimpleReminder>,
                 locationReminders: ArrayList<LocationFence>, listKey: Int, projectId: Int, archived: Boolean) {

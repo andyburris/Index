@@ -1,6 +1,5 @@
 package com.andb.apps.todo.objects;
 
-import android.nfc.Tag;
 import android.util.Log;
 
 import com.andb.apps.todo.typeconverters.KeyListConverter;
@@ -10,7 +9,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -40,7 +38,7 @@ public class Tags {
         this.tagColor = tagColor;
         this.subFolder = subFolder;
         this.index = index;
-        this.projectId = Current.project().getKey();
+        this.projectId = Current.projectKey();
     }
 
     @PrimaryKey

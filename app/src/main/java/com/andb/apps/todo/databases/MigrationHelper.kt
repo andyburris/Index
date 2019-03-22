@@ -96,10 +96,6 @@ object MigrationHelper {
             db.projectsDao().insertMultipleProjects(projectList)
             db.tasksDao().insertMultipleTasks(newTaskList)
             db.tagsDao().insertMultipleTags(newTagList)
-
-            ProjectList.appStart(db)
-
-            EventBus.getDefault().post(UpdateEvent())
         }
 
     }
@@ -108,9 +104,6 @@ object MigrationHelper {
     fun migrate_5_6_with_context(ctxt: Context, db: ProjectsDatabase){
         AsyncTask.execute {
             db.tasksDao().insertMultipleTasks(oldList_5_6)
-            ProjectList.appStart(db)
-
-            EventBus.getDefault().post(UpdateEvent())
         }
 
     }
