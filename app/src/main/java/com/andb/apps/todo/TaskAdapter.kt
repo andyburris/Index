@@ -11,13 +11,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.objects.reminders.SimpleReminder
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.views.FolderButtonCardLayout
 import com.andb.apps.todo.views.InboxHeader
 import com.andb.apps.todo.views.TaskListItem
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_divider.view.*
+import kotlinx.android.synthetic.main.inbox_header.view.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import org.joda.time.DateTime
 
@@ -27,8 +31,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
     var taskList: MutableList<Tasks> = ArrayList()
     lateinit var expandedList: ArrayList<Boolean>
     var selected = -1
-    var editing = -1
-    var expanded: Boolean = false
+    var headerPair: Pair<Boolean, Boolean> = Pair(first = false, second = false)
 
     lateinit var parentRecycler: RecyclerView
 
@@ -92,7 +95,16 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
             val addTask = holder.itemView as AddTask
             addTask.setup(taskList[realPosition])
         } else if(viewType == INBOX_HEADER){
-            (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size, parentRecycler, expanded)
+            val header =(holder.itemView as InboxHeader)
+            header.setup(taskList.filter { !isDivider(it) }.size, headerPair)
+            header.folderButton.addExpandCollapseListener {e->
+                TransitionManager.beginDelayedTransition(parentRecycler, ChangeBounds().setDuration(FolderButtonCardLayout.ANIMATION_DURATION))
+                headerPair = Pair(e, headerPair.second)
+            }
+            header.folderButton.addEditListener {e->
+                headerPair = Pair(headerPair.first, e)
+            }
+
 
         } else{ //divider logic
             Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))

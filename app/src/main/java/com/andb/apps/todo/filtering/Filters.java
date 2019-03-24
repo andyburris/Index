@@ -53,6 +53,17 @@ public class Filters {
 
     }
 
+    public static void updateTag(int position, Tags tag){
+        backTagFilters.set(position, tag);
+        filterObserver.setValue(backTagFilters);
+    }
+
+
+    public static void updateMostRecent(Tags tag){
+        backTagFilters.set(backTagFilters.size()-1, tag);
+        filterObserver.setValue(backTagFilters);
+    }
+
     public static Tags getMostRecent() {
         if (!getCurrentFilter().isEmpty()) {
             return getCurrentFilter().get(getCurrentFilter().size() - 1);

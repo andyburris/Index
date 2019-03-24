@@ -63,10 +63,12 @@ class TagSelect : CyaneaAppCompatActivity() {
         tagRecycler.adapter = mAdapter
 
 
-        tagRecycler.addOnItemTouchListener(RecyclerTouchListener(applicationContext, tagRecycler, object : RecyclerTouchListener.ClickListener {
+        tagRecycler.addOnItemTouchListener(RecyclerTouchListener(applicationContext, tagRecycler, object :
+            RecyclerTouchListener.ClickListener {
             override fun onClick(view: View, position: Int) {
                 val tags = list[position]
-                Toast.makeText(applicationContext, tags.tagName + " is selected!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, tags.tagName + " is selected!", Toast.LENGTH_SHORT)
+                    .show()
 
 
                 if (isTaskCreate) {
@@ -74,14 +76,18 @@ class TagSelect : CyaneaAppCompatActivity() {
                     EventBus.getDefault().post(AddTaskAddTagEvent(position))
                     finish()
                 } else if (isTagLink && Filters.getCurrentFilter().size > 0) {
-                    list[Filters.getMostRecent().index].children.apply {
+                    val tag = Filters.getMostRecent()
+                    list[tag.index].children.apply {
                         when (contains(position)) {
                             false -> {
-                                if (position != Filters.getMostRecent().index) {
+                                if (position != tag.index) {
                                     add(position)
+                                    Filters.updateMostRecent(tag)
+                                    ProjectsUtils.update(tag)
                                     finish()
                                 } else {
-                                    Snackbar.make(toolbar.rootView, "The tag you selected is the current tag", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                                    Snackbar.make(toolbar.rootView, "The tag you selected is the current tag", Snackbar.LENGTH_LONG)
+                                        .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                                 }
                             }
                             true -> Snackbar.make(toolbar.rootView, "The tag you selected has already been linked", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
@@ -107,14 +113,14 @@ class TagSelect : CyaneaAppCompatActivity() {
     }
 
     private fun tagAdapter(list: List<Tags>) = Klaster.get()
-            .itemCount { list.size }
-            .view(R.layout.tag_list_item, layoutInflater)
-            .bind { position ->
-                val tag = list[position]
-                itemView.tagname.text = tag.tagName
-                itemView.tagIcon.setColorFilter(tag.tagColor)
-            }
-            .build()
+        .itemCount { list.size }
+        .view(R.layout.tag_list_item, layoutInflater)
+        .bind { position ->
+            val tag = list[position]
+            itemView.tagname.text = tag.tagName
+            itemView.tagIcon.setColorFilter(tag.tagColor)
+        }
+        .build()
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

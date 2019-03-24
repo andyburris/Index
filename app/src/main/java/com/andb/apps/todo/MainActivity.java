@@ -55,6 +55,7 @@ import java.util.List;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
+import kotlin.Pair;
 import kotlin.collections.CollectionsKt;
 
 import static com.andb.apps.todo.DrawerKt.DRAWER_DIALOG_ID;
@@ -205,6 +206,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             MaterialCab.Companion.destroy();
         } else if (Filters.getCurrentFilter().size() > 0) {
             Filters.tagBack();
+            inboxFragment.mAdapter.setHeaderPair(new Pair<>(inboxFragment.mAdapter.getHeaderPair().getFirst(), false));
         } else {
             super.onBackPressed();
         }
