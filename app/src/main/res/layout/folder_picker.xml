@@ -74,13 +74,12 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.andb.apps.todo.views.CyaneaIcon
-                    android:id="@+id/folderCollapseButton"
+                    android:id="@+id/folderEditButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:rotation="180"
-                    android:src="@drawable/taglinkremove_selector"
+                    android:src="@drawable/ic_edit_black_24dp"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -96,7 +95,7 @@
                     android:src="@drawable/ic_add_black_24dp"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/folderCollapseButton"
+                    app:layout_constraintEnd_toStartOf="@id/folderEditButton"
                     app:layout_constraintTop_toTopOf="parent" />
 
 

@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,56 +12,78 @@ import android.widget.FrameLayout
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
-import androidx.transition.Transition
 import androidx.transition.TransitionManager
 import com.andb.apps.todo.R
-import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.utilities.Utilities
 import com.github.rongi.klaster.Klaster
-import com.github.rongi.klaster.KlasterBuilder
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.browse_tag_list_item.view.*
 import kotlinx.android.synthetic.main.folder_picker.view.*
+import androidx.core.content.ContextCompat.startActivity
+import com.andb.apps.todo.TagSelect
+import android.content.Intent
+import com.andb.apps.todo.TaskAdapter
+import com.andb.apps.todo.filtering.Filters
+import com.andb.apps.todo.utilities.bindEmpty
+
 
 class FolderButtonCardLayout : FrameLayout {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
-    var collapsed = true
+    var expanded = true
     val folderAdapter = tagAdapter()
     val tagList = ArrayList<Tags>()
     lateinit var transitionParent: RecyclerView
     lateinit var tagClickCallback: (tag: Tags, longClick: Boolean)->Unit
     var collapseListener: (()->Unit)? = null
     var expandListener: (()->Unit)? = null
+    var editing: Boolean = false
 
     init {
         inflate(context, R.layout.folder_picker, this)
 
         setOnClickListener {
-            if(collapsed){
+            if(expanded){
                 expand()
             }else{
                 collapse()
             }
+            (transitionParent.adapter as TaskAdapter).expanded = expanded
         }
 
-        folderCollapseButton.setOnClickListener {
-            if(!collapsed){
-                collapse()
+        folderEditButton.apply {
+            if(Filters.getCurrentFilter().isNotEmpty()) {
+                setVisibility(true)
+                setOnClickListener {
+                    editing = !editing
+                    if (editing) {
+                        setImageDrawable(context.getDrawable(R.drawable.ic_clear_black_24dp))
+                    } else {
+                        setImageDrawable(context.getDrawable(R.drawable.ic_edit_black_24dp))
+                    }
+                    folderAdapter.notifyDataSetChanged()
+                }
+            }else{
+                setVisibility(false)
             }
+        }
+
+        folderAddButton.setOnClickListener {
+            val intent = Intent(context, TagSelect::class.java)
+            intent.putExtra("isTagLink", true)
+            context.startActivity(intent)
         }
     }
 
 
 
-    fun setup(tagList: List<Tags>, transitionParent: RecyclerView, tagClickCallback: (tag: Tags, longClick: Boolean)->Unit){
+    fun setup(tagList: List<Tags>, transitionParent: RecyclerView, expanded: Boolean, tagClickCallback: (tag: Tags, longClick: Boolean)->Unit){
         this.tagList.clear()
         this.tagList.addAll(tagList)
         this.transitionParent = transitionParent
@@ -73,15 +94,20 @@ class FolderButtonCardLayout : FrameLayout {
             adapter = folderAdapter
         }
 
-        collapse()
+        if(expanded){
+            expand()
+        }else {
+            collapse()
+        }
+        this.expanded = !expanded
     }
 
     fun tagAdapter() = Klaster.get()
         .itemCount { tagList.size }
-        .view(R.layout.browse_tag_list_item, LayoutInflater.from(context))
-        .bind { position ->
+        .view(com.andb.apps.todo.R.layout.browse_tag_list_item, LayoutInflater.from(context))
+        .bindEmpty {
             itemView.apply {
-                val tag = tagList[position]
+                val tag = tagList[adapterPosition]
                 browseTagName.text = tag.tagName
                 browseTagImage.setColorFilter(tag.tagColor)
                 setOnClickListener {
@@ -93,6 +119,15 @@ class FolderButtonCardLayout : FrameLayout {
                     tagClickCallback.invoke(tag, true)
                     true
                 }
+                if(editing){
+                    TransitionManager.beginDelayedTransition(tagCardBrowseLayout, ChangeBounds())
+                    browseRemoveImage.setOnClickListener {
+
+                    }
+                    browseRemoveImage.setVisibility(true)
+                }else{
+                    browseRemoveImage.setVisibility(false)
+                }
             }
         }
         .build()
@@ -100,7 +135,7 @@ class FolderButtonCardLayout : FrameLayout {
 
     fun expand(){
 
-        collapsed = false
+        expanded = false
         expandListener?.invoke()
 
         TransitionManager.endTransitions(transitionParent)
@@ -121,7 +156,7 @@ class FolderButtonCardLayout : FrameLayout {
         }
         folderHeaderButtonText.visibility = View.GONE
         folderAddButton.visibility = View.VISIBLE
-        folderCollapseButton.visibility = View.VISIBLE
+        folderEditButton.visibility = View.VISIBLE
         folderDivider.visibility = View.VISIBLE
         folderTagRecycler.visibility = View.VISIBLE
     }
@@ -130,7 +165,7 @@ class FolderButtonCardLayout : FrameLayout {
 
     fun collapse(){
 
-        collapsed = true
+        expanded = true
         collapseListener?.invoke()
 
         TransitionManager.endTransitions(transitionParent)
@@ -154,7 +189,7 @@ class FolderButtonCardLayout : FrameLayout {
         }
         folderHeaderButtonText.visibility = View.VISIBLE
         folderAddButton.visibility = View.GONE
-        folderCollapseButton.visibility = View.GONE
+        folderEditButton.visibility = View.GONE
         folderDivider.visibility = View.GONE
         folderTagRecycler.visibility = View.GONE
 

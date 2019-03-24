@@ -28,6 +28,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
     lateinit var expandedList: ArrayList<Boolean>
     var selected = -1
     var editing = -1
+    var expanded: Boolean = false
 
     lateinit var parentRecycler: RecyclerView
 
@@ -91,7 +92,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
             val addTask = holder.itemView as AddTask
             addTask.setup(taskList[realPosition])
         } else if(viewType == INBOX_HEADER){
-            (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size, parentRecycler)
+            (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size, parentRecycler, expanded)
 
         } else{ //divider logic
             Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))

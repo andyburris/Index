@@ -31,13 +31,13 @@ class InboxHeader : ConstraintLayout {
         inflate(context, R.layout.inbox_header, this)
     }
 
-    fun setup(taskCount: Int, transitionParent: RecyclerView, path: String = Filters.path()) {
+    fun setup(taskCount: Int, transitionParent: RecyclerView, expanded: Boolean, path: String = Filters.path()) {
         task_path_text.text = path
         task_count_text.text = taskCountText(taskCount)
         //setupButton()
         val tagList = Current.tagListAll().filterTags()/* listOf(Tags("Test 1", 0xFF8800, false, 0), Tags("Test 2", 0x00FFFF, false, 1))*/
         folderButton.apply {
-            setup(tagList, transitionParent, ::returnTag)
+            setup(tagList, transitionParent, expanded, ::returnTag)
             TransitionManager.beginDelayedTransition(parent as ViewGroup)
             expandListener = {
                 (layoutParams as ConstraintLayout.LayoutParams).bottomMargin = Utilities.pxFromDp(0)

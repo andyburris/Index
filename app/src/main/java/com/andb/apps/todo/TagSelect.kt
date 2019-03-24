@@ -81,10 +81,10 @@ class TagSelect : CyaneaAppCompatActivity() {
                                     add(position)
                                     finish()
                                 } else {
-                                    Snackbar.make(toolbar.rootView, "The tag you selected is the current tag. Why would you do that?", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                                    Snackbar.make(toolbar.rootView, "The tag you selected is the current tag", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                                 }
                             }
-                            true -> Snackbar.make(toolbar.rootView, "The tag you selectedi has already been linked", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                            true -> Snackbar.make(toolbar.rootView, "The tag you selected has already been linked", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
                         }
                     }
                 } else {
