@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
@@ -16,10 +17,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Adapter
 import android.widget.FrameLayout
 import android.widget.PopupMenu
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DiffUtil
@@ -33,16 +37,23 @@ import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.bindEmpty
 import com.andb.apps.todo.views.CyaneaDialog
 import com.github.rongi.klaster.Klaster
+import com.github.rongi.klaster.KlasterViewHolder
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.cyanea.Cyanea
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.android.synthetic.main.bottom_sheet_container.*
+import kotlinx.android.synthetic.main.bottom_sheet_container.view.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
 import kotlinx.android.synthetic.main.project_create_edit_layout.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
+import me.saket.inboxrecyclerview.InboxRecyclerView
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 
 const val DRAWER_DIALOG_ID = 1
 
@@ -55,12 +66,13 @@ class Drawer : Fragment() {
 
     lateinit var addEditLayout: View
     lateinit var projectAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
-    val drawerViewModel: DrawerViewModel by lazy {
+    lateinit var archiveAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>
+    private val drawerViewModel: DrawerViewModel by lazy {
         ViewModelProviders.of(this).get(DrawerViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
+        val view = inflater.inflate(R.layout.bottom_sheet_layout, container?.parent as ViewGroup?, false)
 
         setupMenu(requireContext(), view)
         projectAdapter = drawerRecycler(inflater, view, requireContext())
@@ -87,17 +99,42 @@ class Drawer : Fragment() {
         })
     }
 
-    private fun setupMenu(context: Context, view: View) {
-        view.archive_bg.apply {
-            setBackgroundColor(Cyanea.instance.backgroundColor)
-            setOnClickListener {
-                val intent = Intent(context, Archive::class.java)
-                val rect = Rect()
-                this.getGlobalVisibleRect(rect)
-                val bounds = rect.flattenToString()
-                intent.putExtra("expandRect", bounds)
-                context.startActivity(intent)
+    fun setupArchive(expandablePageLayout: ExpandablePageLayout){
+        drawerArchiveItem.apply {
+            setExpandablePage(expandablePageLayout)
+            setup()
+        }
+    }
+
+    fun openArchive(view: View, item: KlasterViewHolder, adapter: RecyclerView.Adapter<*>){
+
+        val archive = (activity as MainActivity).archive
+        val fa = context as FragmentActivity
+        fa.supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.expandable_page_archive, archive)
+            .also {
+                it.runOnCommit {
+                    archive.setupScroll(adapter)
+                }
             }
+            .commit()
+
+        view.drawerArchiveItem.expandItem(item.itemId)
+
+    }
+
+    private fun setupMenu(context: Context, view: View) {
+        view.drawerArchiveItem.apply {
+            layoutManager = LinearLayoutManager(context)
+            archiveAdapter = Klaster.get().itemCount(1).view(R.layout.drawer_archive_item, layoutInflater).bindEmpty {
+                itemView.setOnClickListener {
+                    openArchive(view, this, archiveAdapter)
+                }
+            }.build().also { it.setHasStableIds(true) }
+            adapter = archiveAdapter
+            setBackgroundColor(Cyanea.instance.backgroundColor)
+
         }
         view.import_export_bg.apply {
             setBackgroundColor(Cyanea.instance.backgroundColor)
@@ -374,13 +411,31 @@ class Drawer : Fragment() {
 
             bottomSheet.apply {
                 (parent as CoordinatorLayout).bottomSheetDim.alpha = slideOffset
-                val toolbarColor = Utilities.colorBetween(Cyanea.instance.primary, Cyanea.instance.backgroundColor, slideOffset)
-                (toolbar as ViewGroup).apply {
-                    getChildAt(0).rotation = 180 * slideOffset
-                }
-                toolbar.backgroundTint = ColorStateList.valueOf(toolbarColor)
-
             }
+
+            val toolbarColor = Utilities.colorBetween(Cyanea.instance.primary, Cyanea.instance.backgroundColor, slideOffset)
+            val textIconColor = if(slideOffset>.5f) {
+                Utilities.textFromBackground(Cyanea.instance.backgroundColor, .54f, .8f)
+            }
+            else {
+                Utilities.textFromBackground(Cyanea.instance.primary, .54f, .8f)
+            }
+            toolbar.apply {
+                (this as ViewGroup).getChildAt(0).rotation = 180 * slideOffset
+/*                for(item in menu.iterator()){
+                    item.icon = item.icon?.mutate().also {
+                        it?.setColorFilter(textIconColor, PorterDuff.Mode.SRC_ATOP)
+                    }
+                }*/
+                backgroundTint = ColorStateList.valueOf(toolbarColor)
+            }
+
+            //Cyanea.instance.tint(toolbar.menu, requireActivity(), true)
+
+            toolbar_text.setTextColor(textIconColor)
+            toolbar_project_name.setTextColor(textIconColor)
+
+
 
 
         }

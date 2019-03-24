@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?backgroundColor"
+    android:focusable="true"
+    android:clickable="true"
     tools:context=".Archive">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -15,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
- />
+            app:navigationIcon="@drawable/ic_clear_black_24dp" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

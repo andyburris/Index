@@ -1,6 +1,7 @@
 package com.andb.apps.todo
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.filtering.filterInbox
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Values
 import com.google.android.gms.location.GeofencingClient
@@ -50,7 +52,8 @@ class InboxViewModel : ViewModel() {
     }
 
     internal fun MediatorLiveData<List<Tasks>>.refresh(){
-        value = value?.filterInbox(filterMode)
+        Log.d("taskRefresh", "refreshing, null: ${value==null}, filter size: ${Filters.getCurrentFilter().size}")
+        value = Current.taskListAll().filterInbox(filterMode)
     }
 
 }

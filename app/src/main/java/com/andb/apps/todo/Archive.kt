@@ -3,16 +3,21 @@ package com.andb.apps.todo
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
 import android.os.Bundle
+import android.text.method.Touch.onTouchEvent
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.andb.apps.todo.TagSelect.Companion.mAdapter
 import com.andb.apps.todo.databases.tasksDao
 import com.andb.apps.todo.filtering.filterArchive
 import com.andb.apps.todo.objects.Tasks
@@ -22,13 +27,16 @@ import com.andb.apps.todo.utilities.Values.swipeThreshold
 import com.andb.apps.todo.utilities.Vibes
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.activity_archive.*
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.bottom_sheet_container.*
 import me.saket.inboxrecyclerview.InboxRecyclerView
-import me.saket.inboxrecyclerview.PullCollapsibleActivity
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
+import me.saket.inboxrecyclerview.page.PullToCollapseListener
 
-class Archive : PullCollapsibleActivity() {
+class Archive : Fragment() {
     private var mLayoutManager: RecyclerView.LayoutManager? = null
+    private val expandablePageLayout by lazy { view!!.parent as ExpandablePageLayout }
+    lateinit var backingAdapter: RecyclerView.Adapter<*>
 
     // Extend the Callback class
     private val _ithCallback = object : ItemTouchHelper.Callback() {
@@ -59,7 +67,7 @@ class Archive : PullCollapsibleActivity() {
 
 
             if (dX > 0) { //restore
-                val deleteIcon = getDrawable(R.drawable.ic_move_to_inbox_black_24dp)!!.mutate()
+                val deleteIcon = requireContext().getDrawable(R.drawable.ic_move_to_inbox_black_24dp)!!.mutate()
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
                 val intrinsicWidth = deleteIcon.intrinsicWidth
                 val intrinsicHeight = deleteIcon.intrinsicHeight
@@ -109,7 +117,7 @@ class Archive : PullCollapsibleActivity() {
 
                 super.onChildDraw(c, recyclerView, viewHolder, newDx, dY, actionState, isCurrentlyActive)
             } else { //delete
-                val deleteIcon = getDrawable(R.drawable.ic_delete_black_24dp)!!.mutate()
+                val deleteIcon = requireContext().getDrawable(R.drawable.ic_delete_black_24dp)!!.mutate()
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
                 val intrinsicWidth = deleteIcon.intrinsicWidth
                 val intrinsicHeight = deleteIcon.intrinsicHeight
@@ -176,53 +184,63 @@ class Archive : PullCollapsibleActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        this.setTheme(R.style.AppThemeLightCollapse)
+        return inflater.inflate(R.layout.activity_archive, container?.parent as ViewGroup?, false)
 
-        setContentView(R.layout.activity_archive)
-        if (intent.hasExtra("expandRect")) {
-            val expandRect = Rect.unflattenFromString(intent.extras!!.getString("expandRect"))
-            if (expandRect != null) {
-                expandFrom(expandRect)
-            } else {
-                expandFromTop()
-            }
-        } else {
-            expandFromTop()
-        }
+    }
 
-        toolbar.setNavigationIcon(R.drawable.ic_clear_black_24dp)
-        setSupportActionBar(toolbar)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        Cyanea.instance.tint(toolbar.menu, requireActivity())
         archiveRecycler.setBackgroundColor(Cyanea.instance.backgroundColor)
         prepareRecyclerView()
 
-        val expandablePageLayout = expandable_page_archive
-        expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
-            val directionInt = if (upwardPull) +1 else -1
-            val canScrollFurther = archiveRecycler.canScrollVertically(directionInt)
-            if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
+        expandablePageLayout.apply {
+            pullToCollapseInterceptor = { downX, downY, upwardPull ->
+                val directionInt = if (upwardPull) +1 else -1
+                val canScrollFurther = archiveRecycler.canScrollVertically(directionInt)
+                if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
+            }
+
+
+
+            addOnPullListener(object : PullToCollapseListener.OnPullListener {
+                override fun onPull(deltaY: Float, currentTranslationY: Float, upwardPull: Boolean, deltaUpwardPull: Boolean, collapseEligible: Boolean) {}
+
+                override fun onRelease(collapseEligible: Boolean) {
+                    if (collapseEligible) {
+                        (activity as MainActivity).bottom_sheet_container.visibility = View.VISIBLE
+                        backingAdapter.notifyDataSetChanged()
+                    }
+                }
+
+            })
         }
 
     }
 
+    fun setupScroll(adapter: RecyclerView.Adapter<*>) {
+        backingAdapter = adapter
+        (activity as MainActivity).bottom_sheet_container.visibility = View.GONE//otherwise bottom sheet intercepts touches on bottom
+    }
 
-    fun prepareRecyclerView() {
+
+    private fun prepareRecyclerView() {
         Log.d("recycler", "preparing archive rView")
-        mRecyclerView = findViewById<View>(R.id.archiveRecycler) as InboxRecyclerView
+        mRecyclerView = archiveRecycler
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true)
 
         // use a linear layout manager
-        mLayoutManager = LinearLayoutManager(this)
+        mLayoutManager = LinearLayoutManager(context)
         mRecyclerView.layoutManager = mLayoutManager
 
         // specify an adapter (see also next example)
-        mAdapter = TaskAdapter(this)
+        mAdapter = TaskAdapter(activity as MainActivity)
         tasksDao().all.observe(this, listObserver)
         mAdapter.setHasStableIds(true)
         mRecyclerView.adapter = mAdapter
@@ -238,6 +256,9 @@ class Archive : PullCollapsibleActivity() {
                 }
             }
         })
+
+        archiveRecycler.requestFocus()
+
 
     }
 

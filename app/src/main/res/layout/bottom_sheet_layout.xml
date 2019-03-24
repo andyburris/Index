@@ -69,23 +69,15 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <FrameLayout
-        android:id="@+id/archive_bg"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="?attr/selectableItemBackground"
-        app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar_coordinator">
 
-    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/import_export_bg"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="?attr/selectableItemBackground"
-        app:layout_constraintBottom_toBottomOf="@+id/bottom_sheet_menu_divider"
-        app:layout_constraintTop_toBottomOf="@+id/archive_icon">
+        app:layout_constraintTop_toTopOf="@id/import_export_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_sheet_menu_divider">
 
     </FrameLayout>
 
@@ -99,30 +91,11 @@
 
     </FrameLayout>
 
-    <com.andb.apps.todo.views.CyaneaIcon
-        android:id="@+id/archive_icon"
-        android:layout_width="wrap_content"
+    <me.saket.inboxrecyclerview.InboxRecyclerView
+        android:id="@+id/drawerArchiveItem"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/import_export_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar_coordinator"
-        app:srcCompat="@drawable/ic_archive_black_24dp" />
-
-    <com.andb.apps.todo.views.CyaneaTextView
-        android:id="@+id/archive_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/title_activity_archive"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/archive_icon"
-        app:layout_constraintStart_toEndOf="@+id/archive_icon"
-        app:layout_constraintTop_toTopOf="@+id/archive_icon" />
+        app:layout_constraintTop_toBottomOf="@id/app_bar_coordinator" />
 
     <com.andb.apps.todo.views.CyaneaIcon
         android:id="@+id/import_export_icon"
@@ -133,6 +106,7 @@
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_sheet_menu_divider"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/drawerArchiveItem"
         app:srcCompat="@drawable/ic_import_export_black_24dp" />
 
     <com.andb.apps.todo.views.CyaneaTextView

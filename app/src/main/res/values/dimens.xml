@@ -7,6 +7,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="alert_def_padding">24</dimen>
-    <dimen name="rv_padding_for_bottom_bar">136dp</dimen>
+    <dimen name="rv_padding_for_bottom_bar">88dp</dimen>
 
 </resources>

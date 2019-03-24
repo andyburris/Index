@@ -25,7 +25,6 @@ import androidx.transition.Visibility;
 
 public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyViewHolder> {
     private List<Tags> tagLinks;
-    private MainActivity activity;
 
     private static final int TAG_LINK_ITEM = 0;
 
@@ -64,9 +63,8 @@ public class BrowseTagAdapter extends RecyclerView.Adapter<BrowseTagAdapter.MyVi
     }
 
 
-    public BrowseTagAdapter(List<Tags> tagLinks, MainActivity activity) {
+    public BrowseTagAdapter(List<Tags> tagLinks) {
         this.tagLinks = tagLinks;
-        this.activity = activity;
     }
 
 

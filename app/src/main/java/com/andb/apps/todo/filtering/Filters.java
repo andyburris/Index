@@ -8,12 +8,13 @@ import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 public class Filters {
 
 
     public static ArrayList<Tags> backTagFilters = new ArrayList<>();
-    public static LiveData<ArrayList<Tags>> filterObserver = new LiveData<ArrayList<Tags>>() {
+    public static MutableLiveData<ArrayList<Tags>> filterObserver = new MutableLiveData<ArrayList<Tags>>() {
         @Nullable
         @Override
         public ArrayList<Tags> getValue() {
@@ -22,12 +23,12 @@ public class Filters {
     };
 
     public static ArrayList<Tags> getCurrentFilter() {
-        //Log.d("backStack", "Size: " + Integer.toString(backTagFilters.get(backTagFilters.size() - 1).size()));
         return backTagFilters;
     }
 
     public static void homeViewAdd() {
         backTagFilters.clear();
+        filterObserver.setValue(backTagFilters);
     }
 
 
@@ -35,21 +36,20 @@ public class Filters {
         //calling method needs to check for empty!!!
 
         backTagFilters.remove(backTagFilters.size() - 1);
-
+        filterObserver.setValue(backTagFilters);
     }
 
 
     public static void tagForward(Tags tag) {
         backTagFilters.add(tag);//adds new filter to stack
+        filterObserver.setValue(backTagFilters);
+
     }
 
     public static void tagReset(Tags tag) {
-
-        if (SettingsActivity.Companion.getFolderMode()) {
-            backTagFilters.clear();        //if folders back to home, if filter back to last multi-tag filter; right now folder behavior
-        }
         homeViewAdd();
         backTagFilters.add(tag);
+        filterObserver.setValue(backTagFilters);
 
     }
 

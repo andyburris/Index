@@ -72,6 +72,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
     public InboxFragment inboxFragment;
     public Drawer drawer;
+    public Archive archive;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         appStart();
 
         inboxFragment = new InboxFragment();
+        archive = new Archive();
 
         loadSettings();
 
@@ -89,6 +91,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         fm.executePendingTransactions();
         drawer = (Drawer) fm.findFragmentById(R.id.drawerFragment);
         drawer.setup();
+        drawer.setupArchive(findViewById(R.id.expandable_page_archive));
         fm.beginTransaction().replace(R.id.fragmentHolder, inboxFragment).commit();
         setupProjectSelector();
 
@@ -96,9 +99,10 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Drawable navIcon = toolbar.getNavigationIcon().mutate();
+/*        Drawable navIcon = toolbar.getNavigationIcon().mutate();
         navIcon.setColorFilter(App.Companion.colorAlpha(Cyanea.getInstance().getPrimary(), .8f, .54f), PorterDuff.Mode.SRC_ATOP);
-        toolbar.setNavigationIcon(navIcon);
+        toolbar.setNavigationIcon(navIcon);*/
+
 
         getWindow().setStatusBarColor(0x33333333);
 
@@ -199,7 +203,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             inboxFragment.mRecyclerView.collapse();
         } else if (MaterialCab.Companion.isActive()) {
             MaterialCab.Companion.destroy();
-        } else if (Filters.backTagFilters != null & Filters.backTagFilters.size() > 1) {
+        } else if (Filters.getCurrentFilter().size() > 0) {
             Filters.tagBack();
         } else {
             super.onBackPressed();
@@ -220,7 +224,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
 
-        for (int i = 0; i < menu.size(); i++) {
+/*        for (int i = 0; i < menu.size(); i++) {
             MenuItem menuItem = menu.getItem(i);
             try {
                 Drawable drawable = menuItem.getIcon().mutate();
@@ -230,7 +234,10 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
                 Log.d("menuIconColor", "not an icon (collapsed in overflow)");
             }
 
-        }
+        }*/
+
+        Cyanea.getInstance().tint(menu, this, true);
+
 
         return true;
     }

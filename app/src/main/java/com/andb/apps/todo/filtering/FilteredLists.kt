@@ -17,6 +17,7 @@ val TODAY = TaskAdapter.newDivider("TODAY", DateTime(DateTime.now()))
 val THIS_WEEK = TaskAdapter.newDivider("WEEK", DateTime(DateTime.now().withTime(END_OF_DAY)))
 val THIS_MONTH = TaskAdapter.newDivider("MONTH", DateTime(DateTime.now().plusWeeks(1).minusDays(1).withTime(END_OF_DAY)))
 val FUTURE = TaskAdapter.newDivider("FUTURE", DateTime(DateTime.now().plusMonths(1).minusDays(1).withTime(END_OF_DAY)))
+val HEADER = TaskAdapter.newHeader()
 
 /*********Task List************/
 
@@ -28,6 +29,7 @@ fun List<Tasks>.filterInbox(filterMode: Int, filters: List<Tags> = Filters.getCu
     val mutableList = this.filterProject().filterArchive()
         .filter { task ->
             task.listTags.containsAll(filters.map { it.index })
+                    && !listOf(END_OF_DAY, OVERDUE, TODAY, THIS_WEEK, THIS_MONTH, FUTURE, HEADER).contains(task)
         }
         .toMutableList()
 
@@ -54,13 +56,12 @@ fun List<Tasks>.filterInbox(filterMode: Int, filters: List<Tags> = Filters.getCu
         }
     }
 
-    mutableList.add(0, TaskAdapter.newHeader())
-
-    return mutableList
-        .sortedWith(Comparator { t1, t2 ->
+    return mutableList.also {
+        it.sortWith(Comparator { t1, t2 ->
             t1.compareTo(t2, filterMode)
-        }
-        ).toList()
+        })
+        it.add(0, HEADER)
+    }
 }
 
 

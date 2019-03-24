@@ -59,6 +59,22 @@ public class Utilities {
         }
     }
 
+    public static int textFromBackground(int background, float alpha) {
+        if (lightOnBackground(background)) {
+            return colorWithAlpha(Color.WHITE, alpha);
+        } else {
+            return colorWithAlpha(Color.BLACK, alpha);
+        }
+    }
+
+    public static int textFromBackground(int background, float alphaLight, float alphaDark) {
+        if (lightOnBackground(background)) {
+            return colorWithAlpha(Color.WHITE, alphaDark);
+        } else {
+            return colorWithAlpha(Color.BLACK, alphaLight);
+        }
+    }
+
     public static int colorWithAlpha(int color, float alpha) {
         int r = Color.red(color);
         int g = Color.green(color);

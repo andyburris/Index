@@ -287,10 +287,12 @@ class InboxFragment : Fragment() {
         ith.attachToRecyclerView(mRecyclerView)
 
 
+
     }
 
     private val listObserver = Observer<List<Tasks>> { newTasks ->
         if(newTasks!=null) {
+            Log.d("taskRefresh", "refreshing tasks with ${newTasks.size} tasks")
             tasks = ArrayList(newTasks)
             mAdapter.update(newTasks.also {
                 if (isEditing()) it.find { it.listKey == editingId }?.isEditing = true

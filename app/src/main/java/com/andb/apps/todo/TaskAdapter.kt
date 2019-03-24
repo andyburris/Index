@@ -91,7 +91,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
             val addTask = holder.itemView as AddTask
             addTask.setup(taskList[realPosition])
         } else if(viewType == INBOX_HEADER){
-            (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size)
+            (holder.itemView as InboxHeader).setup(taskList.filter { !isDivider(it) }.size, parentRecycler)
 
         } else{ //divider logic
             Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))

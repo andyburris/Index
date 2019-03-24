@@ -1,45 +1,37 @@
 package com.andb.apps.todo
 
 import android.app.Activity
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
-import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.utilities.*
+import com.andb.apps.todo.utilities.Current
+import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.viewModelFactory
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
-import com.jaredrummler.cyanea.app.CyaneaFragment
 import kotlinx.android.synthetic.main.activity_task_view.*
 import kotlinx.android.synthetic.main.content_task_view.*
 import kotlinx.android.synthetic.main.inbox_checklist_list_item.view.*
-import kotlinx.android.synthetic.main.inbox_list_item.*
 import kotlinx.android.synthetic.main.task_view_tag_list_item.view.*
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.InterceptResult
 import me.saket.inboxrecyclerview.page.SimplePageStateChangeCallbacks
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class TaskView : Fragment() {
@@ -80,18 +72,19 @@ class TaskView : Fragment() {
             taskViewTimeText.visibility = View.GONE
             taskViewTimeIcon.visibility = View.GONE
         } else {
-            taskViewTimeText.text = viewModel.task().nextReminderTime().toString("hh:mm a | EEEE, MMMM d")
+            taskViewTimeText.text = viewModel.task().nextReminderTime()
+                .toString("hh:mm a | EEEE, MMMM d")
             taskViewTimeIcon.setImageDrawable(resources.getDrawable(R.drawable.ic_event_black_24dp))
         }
 
         expandablePageLayout.pullToCollapseInterceptor = { downX, downY, upwardPull ->
             val directionInt = if (upwardPull) +1 else -1
             val canScrollFurther = taskViewScrollLayout.canScrollVertically(directionInt)
+            //Log.d("canScrollFurther", "$canScrollFurther")
             if (canScrollFurther) InterceptResult.INTERCEPTED else InterceptResult.IGNORED
         }
 
     }
-
 
 
     fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton) {

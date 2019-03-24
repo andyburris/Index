@@ -23,6 +23,7 @@ import com.jaredrummler.cyanea.inflator.decor.CyaneaDecorator
 import com.jaredrummler.cyanea.inflator.decor.FontDecorator
 import com.pixplicity.easyprefs.library.Prefs
 import jonathanfinerty.once.Once
+import kotlinx.android.synthetic.main.bottom_sheet_layout.*
 
 class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provider {
     override fun onCreate() {
@@ -61,11 +62,6 @@ class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provide
             object : CyaneaViewProcessor<BottomAppBar>() {
                 override fun getType(): Class<BottomAppBar> = BottomAppBar::class.java
                 override fun process(view: BottomAppBar, attrs: AttributeSet?, cyanea: Cyanea) {
-
-                    val drawable = view.overflowIcon?.mutate()
-                    drawable?.setColorFilter(colorAlpha(Cyanea.instance.primary, .8f, .54f), PorterDuff.Mode.SRC_ATOP)
-                    view.overflowIcon = drawable
-
                 }
 
             },
