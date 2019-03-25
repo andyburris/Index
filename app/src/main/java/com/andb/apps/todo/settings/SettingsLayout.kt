@@ -1,12 +1,11 @@
 package com.andb.apps.todo.settings
 
 import android.content.Context
-import android.preference.PreferenceManager
-import android.widget.EditText
 import com.andb.apps.todo.R
-import com.andb.apps.todo.views.CyaneaDialog
-import com.pixplicity.easyprefs.library.Prefs
-import de.Maxr1998.modernpreferences.helpers.*
+import de.Maxr1998.modernpreferences.helpers.categoryHeader
+import de.Maxr1998.modernpreferences.helpers.screen
+import de.Maxr1998.modernpreferences.helpers.subScreen
+import de.Maxr1998.modernpreferences.helpers.switch
 
 object SettingsLayout {
     fun createRootScreen(context: Context) = screen(context) {
@@ -16,27 +15,6 @@ object SettingsLayout {
             iconRes = R.drawable.ic_info_black_24dp
             centerIcon = false
 
-            categoryHeader("info") {
-                title = "Info"
-            }
-            pref("user_name") {
-                title = "Name"
-                summary = Prefs.getString("user_name", "John Doe")
-                requestRebind()
-                clickView { _, holder ->
-                    val view = EditText(context)
-                    view.setText(getString("John Doe"))
-                    CyaneaDialog.Builder(context)
-                            .setView(view)
-                            .setPositiveButton("OK") { _, _ ->
-                                commitString(view.text.toString())
-                                summary = view.text.toString()
-                                requestRebind()
-                            }
-                            .show()
-                    true
-                }
-            }
             categoryHeader("header_defaults") {
                 title = "Defaults"
             }
@@ -62,21 +40,6 @@ object SettingsLayout {
                 summary = SettingsActivity.timeToNotifyForDateOnly.toString("h:mm a")
                 iconRes = R.drawable.ic_access_time_black_24dp
             })
-        }
-        subScreen {
-            title = "Folders"
-            summary = "Change how the folder hierarchy behaves"
-            iconRes = R.drawable.ic_folder_black_24dp
-
-            switch("folder_mode") {
-                title = "Folder Mode"
-                summaryRes = R.string.pref_description_filter_folder
-                iconRes = R.drawable.ic_filter_list_black_24dp
-            }
-            checkBox(context.resources.getString(R.string.pref_sub_folder_filter_key)) {
-                titleRes = R.string.subfolder_filter_check_title
-                iconRes = R.drawable.ic_subfolder_black_24dp
-            }
         }
         subScreen {
             title = "Show Tutorial"

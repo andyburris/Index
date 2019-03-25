@@ -1,8 +1,6 @@
 package com.andb.apps.todo
 
-import com.andb.apps.todo.filtering.filterBrowse
 import com.andb.apps.todo.filtering.filterInbox
-import com.andb.apps.todo.filtering.filterSubTags
 import com.andb.apps.todo.filtering.filterTags
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
@@ -21,7 +19,6 @@ class FilteredListsTest {
     private val initialFilters = ArrayList<Tags>()
 
     private val expectedInboxList = ArrayList<Tasks>()
-    private val expectedBrowseList = ArrayList<Tasks>()
     private val expectedFilters = ArrayList<Tags>()
 
 
@@ -37,18 +34,14 @@ class FilteredListsTest {
 
         val filteredInboxList = initialTaskList.filterInbox(SORT_TIME, initialFilters)
             .filter { !isDivider(it) }
-        val filteredBrowseList = initialTaskList.filterBrowse(filteredFilters.filterSubTags(true), initialFilters)
 
         println("expectedFilters: $expectedFilters")
         println("filteredFilters: $filteredFilters")
         println("expectedInbox: $expectedInboxList")
         println("filteredInbox: $filteredInboxList")
-        println("expectedBrowse: $expectedBrowseList")
-        println("filteredBrowse: $filteredBrowseList")
 
         assert(expectedFilters == filteredFilters)
         assert(expectedInboxList.map { it.listName } == filteredInboxList.map { it.listName })
-        assert(expectedBrowseList.map { it.listName } == filteredBrowseList.map { it.listName })
     }
 
     private fun setupProject() {
@@ -93,15 +86,12 @@ class FilteredListsTest {
         val rems = ArrayList(listOf(SimpleReminder(DateTime.now().minusDays(2))))
         val locs = ArrayList<LocationFence>()
 
-        //Tasks header = TaskAdapter.newHeader();
-        //Tasks overdue = FilteredListsKt.getOVERDUE();
         val serial = Tasks("serial", sub, chck, ArrayList(Arrays.asList(4, 7)), rems, locs, 1, 0, false)
         val salmon = Tasks("salmon", ArrayList(Arrays.asList("1 lb", "boneless")), chck, ArrayList(Arrays.asList(5, 0, 2)), rems, locs, 2, 0, false)
         val cauliflower = Tasks("cauliflower", sub, chck, ArrayList(Arrays.asList(5, 0, 1, 8)), rems, locs, 3, 0, false)
         val parts = Tasks("computer parts", sub, chck, ArrayList(Arrays.asList(5, 4)), rems, locs, 4, 0, false)
 
         initialTaskList.addAll(Arrays.asList(serial, salmon, cauliflower, parts))
-        expectedBrowseList.addAll(listOf(salmon))
         expectedInboxList.addAll(Arrays.asList(cauliflower, salmon))
     }
 

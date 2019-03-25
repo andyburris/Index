@@ -50,7 +50,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
         }
 
         val toolbar = findViewById<Toolbar>(R.id.settings_toolbar)
-        var icon: Drawable = getResources().getDrawable(R.drawable.ic_clear_black_24dp)
+        val icon: Drawable = getResources().getDrawable(R.drawable.ic_clear_black_24dp)
         icon.setColorFilter(if (Utilities.lightOnBackground(cyanea.backgroundColor)) Utilities.colorWithAlpha(Color.WHITE, 1f) else Utilities.colorWithAlpha(Color.BLACK, 1f), PorterDuff.Mode.SRC_ATOP)
         toolbar.setNavigationIcon(icon)
         toolbar.inflateMenu(R.menu.toolbar_settings)
@@ -82,7 +82,7 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
 
     }
 
-    override fun onScreenChanged(preferenceScreen: PreferenceScreen, b: Boolean) {}
+    override fun onScreenChanged(screen: PreferenceScreen, subScreen: Boolean) {}
 
 
     override fun onBackPressed() {
@@ -100,13 +100,6 @@ class SettingsActivity : PullCollapsibleActivity(), PreferencesAdapter.OnScreenC
          * to reflect its new value.
          */
 
-
-        @JvmStatic
-        var coloredToolbar: Boolean = false
-        @JvmStatic
-        var folderMode: Boolean = false
-        @JvmStatic
-        var subFilter: Boolean = false
         @JvmStatic
         var subtaskDefaultShow = false
         @JvmStatic

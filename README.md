@@ -2,4 +2,4 @@
 # Index
 From simple tasks to folder-like organization with tags and much more, Index is the to-do list solution for everyone.
 
-v0.5
+v1.0.2

@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -171,27 +169,15 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
     public void loadSettings() {
 
-
-        SettingsActivity.Companion.setFolderMode(Prefs.getBoolean("folder_mode", false));
-
-        this.setTheme(R.style.AppThemeGlobal);
-
-        try {
-            Prefs.getBoolean("sort_mode_list", true);
-        } catch (Exception e) {
-            Prefs.edit().putBoolean("sort_mode_list", true).apply();
-        }
         if (Prefs.getBoolean("sort_mode_list", true)) {
             SettingsActivity.Companion.setDefaultSort(SORT_TIME);
         } else {
             SettingsActivity.Companion.setDefaultSort(SORT_ALPHA);
         }
 
-        SettingsActivity.Companion.setColoredToolbar(Prefs.getBoolean("colored_toolbar", false));
-        SettingsActivity.Companion.setSubFilter(Prefs.getBoolean("sub_Filter_pref", false));
         SettingsActivity.Companion.setSubtaskDefaultShow(Prefs.getBoolean("expand_lists", true));
 
-        AsyncTask.execute(() -> SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(Prefs.getLong("pref_notif_only_date", 0))));
+        SettingsActivity.Companion.setTimeToNotifyForDateOnly(new DateTime(Prefs.getLong("pref_notif_only_date", 0)));
     }
 
 

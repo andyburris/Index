@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
@@ -17,11 +16,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.FrameLayout
 import android.widget.PopupMenu
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -44,15 +41,11 @@ import com.github.rongi.klaster.KlasterViewHolder
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.cyanea.Cyanea
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
-import kotlinx.android.synthetic.main.bottom_sheet_container.*
-import kotlinx.android.synthetic.main.bottom_sheet_container.view.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
 import kotlinx.android.synthetic.main.project_create_edit_layout.view.*
 import kotlinx.android.synthetic.main.project_switcher_item.view.*
-import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 
 const val DRAWER_DIALOG_ID = 1
@@ -88,7 +81,7 @@ class Drawer : Fragment() {
     }
 
     fun setup(){
-        drawerViewModel.projects.observe(viewLifecycleOwner, Observer{newProjects->
+        drawerViewModel.projects.observe(viewLifecycleOwner, Observer{ newProjects->
             update(newProjects)
             toolbar_project_name.text = drawerViewModel.getCurrentName(Current.projectKey())
         })
@@ -190,6 +183,7 @@ class Drawer : Fragment() {
                                 ProjectList.setKey(project.key)
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 Filters.homeViewAdd()
+                                projectAdapter.notifyDataSetChanged()
                             }
                             setOnLongClickListener {
                                 PopupMenu(context, itemView).apply {
@@ -213,7 +207,7 @@ class Drawer : Fragment() {
                         }
                         project_task_count.apply {
                             visibility = View.VISIBLE
-                            text = Current.taskListAll(project.key).size.toString()
+                            text = Current.taskListAll(project.key).filter { !it.isArchived }.size.toString()
                             elevation = if (Current.projectKey() == project.key) 4f else 0f
                         }
                     }

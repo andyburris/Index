@@ -4,7 +4,6 @@ import com.andb.apps.todo.SORT_TIME
 import com.andb.apps.todo.TaskAdapter
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import org.joda.time.DateTime
 import org.joda.time.LocalTime
@@ -70,16 +69,6 @@ fun List<Tasks>.filterProject(id: Int = Current.projectKey()): List<Tasks> {
     return this.filter { it.projectId == id }
 }
 
-
-@JvmOverloads
-fun List<Tasks>.filterBrowse(childTagsSubFiltered: Collection<Tags>, filters: List<Tags> = Filters.getCurrentFilter()): List<Tasks> {
-    return this.filterProject().filterArchive()
-        .filter { task ->
-            task.listTags.containsAll(filters.map { it.index })
-                    && !task.listTags.any { tag -> childTagsSubFiltered.any { it.index == tag } }
-        }.sortedBy { it.listName }
-}
-
 @JvmOverloads
 fun List<Tasks>.filterArchive(isArchived: Boolean = false): List<Tasks> {
     return this.filterProject().filter { task ->
@@ -101,9 +90,4 @@ fun List<Tags>.filterTags(filters: ArrayList<Tags> = Filters.getCurrentFilter())
     return this.filterProjectTags()
         .filter { if (filters.isNotEmpty()) filters.last().children.contains(it.index) && !filters.contains(it) else true }
         .sortedBy { it.index }
-}
-
-@JvmOverloads
-fun List<Tags>.filterSubTags(filterSub: Boolean = SettingsActivity.subFilter): List<Tags> {
-    return if (filterSub) this.filter { !it.isSubFolder } else this
 }

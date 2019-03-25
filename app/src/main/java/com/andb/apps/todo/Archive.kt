@@ -6,10 +6,8 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.GradientDrawable
 import android.os.AsyncTask
 import android.os.Bundle
-import android.text.method.Touch.onTouchEvent
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -17,9 +15,9 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.andb.apps.todo.TagSelect.Companion.mAdapter
 import com.andb.apps.todo.databases.tasksDao
 import com.andb.apps.todo.filtering.filterArchive
+import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
@@ -242,6 +240,7 @@ class Archive : Fragment() {
         // specify an adapter (see also next example)
         mAdapter = TaskAdapter(activity as MainActivity)
         tasksDao().all.observe(this, listObserver)
+        ProjectList.getKey().observe(this, projectObserver)
         mAdapter.setHasStableIds(true)
         mRecyclerView.adapter = mAdapter
 
@@ -263,7 +262,12 @@ class Archive : Fragment() {
     }
 
     val listObserver = Observer<List<Tasks>> { newTasks ->
-        mAdapter.update(newTasks.filterArchive())
+        mAdapter.update(newTasks.filterArchive(true))
+    }
+
+    val projectObserver = Observer<Int>{
+        tasksDao().all.removeObserver(listObserver)
+        tasksDao().all.observe(this, listObserver)
     }
 
     lateinit var mRecyclerView: InboxRecyclerView

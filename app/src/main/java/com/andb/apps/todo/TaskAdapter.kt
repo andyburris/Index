@@ -1,8 +1,6 @@
 package com.andb.apps.todo
 
 import android.app.Activity
-import android.content.ClipData.Item
-import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -71,21 +69,21 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
 
 
     override fun onBindViewHolder(holder: TaskAdapter.MyViewHolder, position: Int) {
-        val realPosition = holder.layoutPosition
+        val realPosition = holder.adapterPosition
 
-        setUpByViewType(position, holder, realPosition)
+        setUpByViewType(holder, realPosition)
 
         Log.d("onePosUpError", Integer.toString(realPosition))
 
 
     }
 
-    private fun setUpByViewType(position: Int, holder: TaskAdapter.MyViewHolder, realPosition: Int) {
+    private fun setUpByViewType(holder: TaskAdapter.MyViewHolder, position: Int) {
 
 
         if (viewType == TASK_VIEW_ITEM) {
             val taskListItem = holder.itemView as TaskListItem
-            taskListItem.setup(taskList[position], realPosition, parentRecycler as InboxRecyclerView)
+            taskListItem.setup(taskList[position], position, parentRecycler as InboxRecyclerView)
             if (position == selected) {
                 taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, 0.8f), 0.7))
                 //TODO: lighter color on dark theme
@@ -93,7 +91,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
 
         } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
             val addTask = holder.itemView as AddTask
-            addTask.setup(taskList[realPosition])
+            addTask.setup(taskList[position])
         } else if(viewType == INBOX_HEADER){
             val header =(holder.itemView as InboxHeader)
             header.setup(taskList.filter { !isDivider(it) }.size, headerPair)
