@@ -33,8 +33,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
+import androidx.core.content.PermissionChecker;
 import kotlin.Pair;
 
 public class ImportExport {
@@ -42,7 +42,7 @@ public class ImportExport {
     static String folder = "/ToDo Backups";
 
     public static void importTasks(final Context ctxt) {
-        if (isExternalStorageReadable()) {
+        if (isExternalStorageReadable(ctxt)) {
             File path = new File(Environment.getExternalStorageDirectory() + folder);
             final ArrayList<File> fileList = new ArrayList<>(Arrays.asList(path.listFiles()));
 
@@ -90,28 +90,30 @@ public class ImportExport {
 
                         int projectKey = ProjectsUtils.keyGenerator();
 
-                        ArrayList<Integer> keyList = new ArrayList<>();
+                        ArrayList<Integer> keyList = new ArrayList<>(Current.keyList());
+
+
+                        ArrayList<Tags> tagList = gson.fromJson(tagJson, tagType);
+                        for (int t = 0; t < tagList.size(); t++) {
+                            Tags tags = tagList.get(t);
+                            tags.setIndex(t);
+                            tags.setProjectId(projectKey);
+                            if(keyList.contains(tags.getKey())){
+                                tags.setKey(ProjectsUtils.keyGenerator());
+                            }
+                        }
+
                         ArrayList<Tasks> taskList = new ArrayList<>();
                         for (Tasks task : oldTaskList) {
                             task.setProjectId(projectKey);
 
                             int key = task.getListKey();
-                            while (keyList.contains(key)) {
-                                key = new Random().nextInt();
+                            if (keyList.contains(key)) {
+                                key = ProjectsUtils.keyGenerator();
                             }
                             taskList.add(task.withKey(key));
                             keyList.add(task.getListKey());
                         }
-
-
-                        ArrayList<Tags> tagList = gson.fromJson(tagJson, tagType);
-
-                        for (int t = 0; t < tagList.size(); t++) {
-                            Tags tags = tagList.get(t);
-                            tags.setIndex(t);
-                            tags.setProjectId(projectKey);
-                        }
-
 
                         String projectName = "Tasks";
 
@@ -134,10 +136,6 @@ public class ImportExport {
                         Current.allProjects().add(newProject);
 
 
-                        Log.d("projectKey", Integer.toString(projectKey));
-                        for (Tasks task : taskList) {
-                            Log.d("importProjectKey", Integer.toString(task.getProjectId()));
-                        }
 
                         AsyncTask.execute(() -> {
                                     Current.database().projectsDao().insertOnlySingleProject(newProject);
@@ -165,13 +163,13 @@ public class ImportExport {
 
         } else {
             CyaneaDialog.Builder builder = new CyaneaDialog.Builder(ctxt);
-            builder.setMessage("Storage is not availible to read, try again")
+            builder.setMessage("Storage is not available to read, try again")
                     .show();
         }
     }
 
     public static void exportTasks(Context ctxt, Pair<List<Tasks>, List<Tags>> lists) {
-        if (isExternalStorageWritable()) {
+        if (isExternalStorageWritable(ctxt)) {
             ArrayList<String> exportList = new ArrayList<>();
 
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -223,8 +221,9 @@ public class ImportExport {
 
 
         } else {
-            CyaneaDialog.Builder builder = new CyaneaDialog.Builder(ctxt);
-            builder.setMessage("External storage is not availible to write, try again")
+            new CyaneaDialog.Builder(ctxt)
+                    .setMessage("External storage is not available to write, try again")
+                    .create()
                     .show();
         }
 
@@ -233,25 +232,23 @@ public class ImportExport {
 
 
     /* Checks if external storage is available for read and write */
-    public static boolean isExternalStorageWritable() {
+    private static boolean isExternalStorageWritable(Context context) {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+        boolean permitted = PermissionChecker.checkSelfPermission(context, "android.permission.WRITE_EXTERNAL_STORAGE") == PermissionChecker.PERMISSION_GRANTED;
+        Log.d("permissionCheck", "write: " + permitted);
+        return Environment.MEDIA_MOUNTED.equals(state) && permitted;
     }
 
     /* Checks if external storage is available to at least read */
-    public static boolean isExternalStorageReadable() {
+    private static boolean isExternalStorageReadable(Context context) {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        boolean permitted = PermissionChecker.checkSelfPermission(context, "android.permission.READ_EXTERNAL_STORAGE") == PermissionChecker.PERMISSION_GRANTED;
+        Log.d("permissionCheck", "read: " + permitted);
+        return (Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
+                && permitted;
     }
 
-    public static String convertStreamToString(InputStream is) throws Exception {
+    private static String convertStreamToString(InputStream is) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
         String line = null;
@@ -262,7 +259,7 @@ public class ImportExport {
         return sb.toString();
     }
 
-    public static String getStringFromFile(File fl) throws Exception {
+    private static String getStringFromFile(File fl) throws Exception {
         FileInputStream fin = new FileInputStream(fl);
         String ret = convertStreamToString(fin);
         //Make sure you close all streams.

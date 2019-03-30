@@ -120,7 +120,7 @@ class FolderButtonCardLayout : FrameLayout {
                     true
                 }
                 if (editing) {
-                    TransitionManager.beginDelayedTransition(tagCardBrowseLayout, ChangeBounds())
+                    TransitionManager.beginDelayedTransition(tagCardBrowseLayout, ChangeBounds().setDuration(ANIMATION_DURATION))
                     browseRemoveImage.setOnClickListener {
                         val parentTag = Filters.getMostRecent()
                         parentTag.children.removeAt(adapterPosition)
@@ -131,6 +131,7 @@ class FolderButtonCardLayout : FrameLayout {
                         ProjectsUtils.update(parentTag)
                     }
                     browseRemoveImage.setVisibility(true)
+                    TransitionManager.endTransitions(tagCardBrowseLayout)
                 } else {
                     browseRemoveImage.setVisibility(false)
                 }

@@ -1,6 +1,5 @@
 package com.andb.apps.todo.views
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Paint
 import android.os.AsyncTask
@@ -15,8 +14,9 @@ import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.andb.apps.todo.*
-import com.andb.apps.todo.filtering.filterProject
+import com.andb.apps.todo.R
+import com.andb.apps.todo.TaskAdapter
+import com.andb.apps.todo.TaskView
 import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.settings.SettingsActivity
@@ -29,14 +29,15 @@ import me.saket.inboxrecyclerview.InboxRecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
+val STATE_ZERO = intArrayOf(R.attr.state_on, -R.attr.state_off)
+val STATE_ONE = intArrayOf(-R.attr.state_on, R.attr.state_off)
+
 class TaskListItem : ConstraintLayout {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
     lateinit var task: Tasks
-    private val STATE_ZERO = intArrayOf(R.attr.state_on, -R.attr.state_off)
-    private val STATE_ONE = intArrayOf(-R.attr.state_on, R.attr.state_off)
 
     init {
         inflate(context, R.layout.inbox_list_item, this)
@@ -44,7 +45,6 @@ class TaskListItem : ConstraintLayout {
 
     fun setup(tasks: Tasks, pos: Int, recyclerView: InboxRecyclerView) {
         val adapter = recyclerView.adapter as TaskAdapter
-        val expandablePageRef: Int= R.id.expandable_page_inbox
         task = tasks
         setTasks(pos, recyclerView)
         topLayout.setTags(tasks)
@@ -52,19 +52,20 @@ class TaskListItem : ConstraintLayout {
         topLayout.setOverflow(this)
 
         inboxCard.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putInt("key", task.listKey)
-
-            val fragmentActivity = context as FragmentActivity
-            val ft = fragmentActivity.supportFragmentManager.beginTransaction()
-
-            val taskView = TaskView()
-            taskView.arguments = bundle
-
             if (adapter.selected == -1) {
-                ft.add(expandablePageRef, taskView)
+                val bundle = Bundle()
+                bundle.putInt("key", task.listKey)
+
+                val fragmentActivity = context as FragmentActivity
+                val ft = fragmentActivity.supportFragmentManager.beginTransaction()
+
+                val taskView = TaskView()
+                taskView.arguments = bundle
+
+
+                ft.add(R.id.expandable_page_inbox, taskView)
                 ft.commit()
-                recyclerView.expandItem(adapter.getItemId(pos))
+                recyclerView.expandItem(adapter.getItemId(adapter.taskList.indexOf(tasks)))
             }
 
 
@@ -79,7 +80,6 @@ class TaskListItem : ConstraintLayout {
                 val colors = ArrayList<Int>()
                 for (i in topLayout.chipsVisible until topLayout.chipsVisible + 3) {
                     val reversedPos = task.listTags.size - (i + 1)//to show most nested tags first
-                    //if(task.listTags.size>reversedPos) {
                     if (reversedPos > -1) {
                         val tagPos = task.listTags[reversedPos]
                         colors.add(Current.tagListAll().filterProjectTags()[tagPos].tagColor)

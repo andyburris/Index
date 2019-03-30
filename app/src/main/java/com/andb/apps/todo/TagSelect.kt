@@ -77,7 +77,7 @@ class TagSelect : CyaneaAppCompatActivity() {
                     finish()
                 } else if (isTagLink && Filters.getCurrentFilter().size > 0) {
                     val tag = Filters.getMostRecent()
-                    list[tag.index].children.apply {
+                    tag.children.apply {
                         when (contains(position)) {
                             false -> {
                                 if (position != tag.index) {

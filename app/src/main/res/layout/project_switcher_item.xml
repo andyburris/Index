@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -66,10 +65,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Project Name"
+        android:ellipsize="end"
+        android:maxWidth="104dp"
+        android:singleLine="true"
+        android:text="Project Name Really Long"
+        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/project_circle"
-        app:layout_constraintStart_toStartOf="@+id/project_circle"
-        />
+        app:layout_constraintStart_toStartOf="@+id/project_circle" />
 </androidx.constraintlayout.widget.ConstraintLayout>

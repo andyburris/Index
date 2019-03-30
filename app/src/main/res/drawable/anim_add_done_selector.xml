@@ -2,25 +2,23 @@
 <animated-selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <item
         android:id="@+id/off"
-        android:drawable="@drawable/ic_expand_more_black_24dp"
+        android:drawable="@drawable/ic_add_black_24dp"
         app:state_off="true" />
 
     <item
         android:id="@+id/on"
-        android:drawable="@drawable/ic_clear_black_24dp" />
+        android:drawable="@drawable/ic_done_all_black_24dp" />
 
     <transition
-        android:drawable="@drawable/taglinkremove_anim"
+        android:drawable="@drawable/anim_add_done"
         android:fromId="@id/off"
         android:toId="@id/on" />
 
     <transition
-        android:drawable="@drawable/taglinkremove_reverse_anim"
+        android:drawable="@drawable/anim_add_done_reverse"
         android:fromId="@id/on"
         android:toId="@id/off" />
-
 
 </animated-selector>

@@ -4,24 +4,22 @@ import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.graphics.PorterDuff
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.Animatable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.utilities.viewModelFactory
+import com.andb.apps.todo.views.STATE_ONE
+import com.andb.apps.todo.views.STATE_ZERO
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
@@ -45,12 +43,13 @@ class TaskView : Fragment() {
         val bundle = arguments
 
         val key = bundle!!.getInt("key")
+
+        if(!Current.taskListAll().map { it.listKey }.contains(key)){
+            (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
+            return
+        }
         viewModel = ViewModelProviders.of(this, viewModelFactory { TaskViewViewModel(key) })
             .get(TaskViewViewModel::class.java)
-
-
-        editFromToolbarFun = ::editFromToolbar
-        taskDoneFun = ::taskDone
 
     }
 
@@ -88,17 +87,15 @@ class TaskView : Fragment() {
 
 
     fun collapseAndChangeAppBar(toolbar: Toolbar, fab: FloatingActionButton) {
-        oldNavIcon = toolbar.navigationIcon!!.mutate()
 
-        val newIcon = resources.getDrawable(R.drawable.ic_clear_black_24dp)
+        val newIcon = resources.getDrawable(R.drawable.anim_collapse_clear)
         newIcon.setColorFilter(Utilities.textFromBackground(Cyanea.instance.primary), PorterDuff.Mode.SRC_ATOP)
-        toolbar.navigationIcon = newIcon
-
-        TransitionManager.beginDelayedTransition(toolbar.rootView as ViewGroup, ChangeBounds())
+        toolbar.navigationIcon = newIcon.also { (it as Animatable).start() }
 
         (activity as MainActivity).drawer.bottomSheetBehavior.setBottomSheetCallback((activity as MainActivity).drawer.collapsedSheetCallback)
 
-        fab.setImageDrawable(resources.getDrawable(R.drawable.ic_done_all_black_24dp).mutate())
+        //fab.setImageDrawable(resources.getDrawable(R.drawable.anim_add_done).mutate())
+        fab.setImageState(STATE_ZERO, true)
 
         toolbar.menu.setGroupVisible(R.id.toolbar_task_view, true)
         toolbar.menu.setGroupVisible(R.id.toolbar_main, false)
@@ -185,28 +182,8 @@ class TaskView : Fragment() {
     }
 
 
-    fun taskDone() {
-        viewModel.setArchived()
-        (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
-    }
-
-    fun editFromToolbar() {
-        viewModel.setEditing()
-        (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
-    }
-
     companion object {
-        lateinit var oldNavIcon: Drawable
         var anyExpanded: Boolean = false
-        private lateinit var editFromToolbarFun: () -> Unit
-        private lateinit var taskDoneFun: () -> Unit
-        fun editFromToolbarStat() {
-            editFromToolbarFun()
-        }
-
-        fun taskDoneStat() {
-            taskDoneFun()
-        }
     }
 
     class TaskViewPageCallbacks(val activity: Activity) : SimplePageStateChangeCallbacks() {
@@ -230,10 +207,12 @@ class TaskView : Fragment() {
             val fab: FloatingActionButton = activity.findViewById(R.id.fab)
             (activity as MainActivity).drawer.bottomSheetBehavior.setBottomSheetCallback(activity.drawer.normalSheetCallback)
 
-            android.transition.TransitionManager.beginDelayedTransition(toolbar.getRootView() as ViewGroup, android.transition.ChangeBounds())
-            toolbar.navigationIcon = oldNavIcon
+            val newIcon = activity.resources.getDrawable(R.drawable.anim_collapse_clear_reverse)
+            newIcon.setColorFilter(Utilities.textFromBackground(Cyanea.instance.primary), PorterDuff.Mode.SRC_ATOP)
+            toolbar.navigationIcon = newIcon.also { (it as Animatable).start() }
 
-            fab.setImageDrawable(activity.getDrawable(R.drawable.ic_add_black_24dp)?.mutate())
+            //fab.setImageDrawable(activity.getDrawable(R.drawable.anim_add_done_reverse)?.mutate())
+            fab.setImageState(STATE_ONE, true)
             toolbar.menu.setGroupVisible(R.id.toolbar_task_view, false)
             toolbar.menu.setGroupVisible(R.id.toolbar_main, true)
         }

@@ -13,12 +13,12 @@
         android:drawable="@drawable/ic_keyboard_arrow_down_black_24dp" />
 
     <transition
-        android:drawable="@drawable/list_dropdown_anim"
+        android:drawable="@drawable/anim_list_dropdown"
         android:fromId="@id/off"
         android:toId="@id/on" />
 
     <transition
-        android:drawable="@drawable/list_dropdown_reverse_anim"
+        android:drawable="@drawable/anim_list_dropdown_reverse"
         android:fromId="@id/on"
         android:toId="@id/off" />
 

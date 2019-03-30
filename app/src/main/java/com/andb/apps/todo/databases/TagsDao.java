@@ -1,7 +1,6 @@
 package com.andb.apps.todo.databases;
 
 import com.andb.apps.todo.objects.Tags;
-import com.andb.apps.todo.objects.Tasks;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public interface TagsDao {
     void deleteTag(Tags tag);
 
     @Query("SELECT * FROM Tags WHERE `key` = :key")
-    Tags findTagsById(int key);
+    LiveData<Tags> findTagsById(int key);
 
     @Query("SELECT * FROM Tags WHERE `project_id` = :projectKey")
     LiveData<List<Tags>> getAllFromProject(int projectKey);

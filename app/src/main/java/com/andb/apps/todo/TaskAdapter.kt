@@ -149,11 +149,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
 
     override fun getItemId(position: Int): Long {
         //return super.getItemId(position);
-        return if (getItemViewType(position) == 0) {
-            taskList[position].listKey.toLong()
-        } else {
-            (-1 * getItemViewType(position)).toLong()
-        }
+        return taskList[position].listKey.toLong()
     }
 
 
@@ -192,9 +188,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
             val oldTask = oldTasks[oldItemPosition]
             val newTask = newTasks[newItemPosition]
 
-            return oldTask == newTask
-                    && oldTask.isEditing == newTask.isEditing
-                    && (oldTask.listName != "INBOX_HEADER" && newTask.listName != "INBOX_HEADER" || oldTasks.filter { !isDivider(it) }.size==newTasks.filter { !isDivider(it) }.size)
+            return oldTask == newTask && oldTask.listName != "INBOX_HEADER"
         }
 
         override fun getNewListSize(): Int {

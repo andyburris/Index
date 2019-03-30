@@ -31,16 +31,14 @@ import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.settings.SettingsActivity
-import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.ProjectsUtils
-import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.utilities.bindEmpty
+import com.andb.apps.todo.utilities.*
 import com.andb.apps.todo.views.CyaneaDialog
 import com.github.rongi.klaster.Klaster
 import com.github.rongi.klaster.KlasterViewHolder
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.cyanea.Cyanea
+import com.pixplicity.easyprefs.library.Prefs
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.*
 import kotlinx.android.synthetic.main.bottom_sheet_layout.view.*
@@ -52,6 +50,7 @@ const val DRAWER_DIALOG_ID = 1
 
 class Drawer : Fragment() {
 
+    var expanded = false
 
     lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
 
@@ -68,7 +67,7 @@ class Drawer : Fragment() {
         val view = inflater.inflate(R.layout.bottom_sheet_layout, container?.parent as ViewGroup?, false)
 
         setupMenu(requireContext(), view)
-        projectAdapter = drawerRecycler(inflater, view, requireContext())
+        projectAdapter = drawerRecycler(inflater, requireContext())
         view.project_switcher_recycler.apply {
             adapter = projectAdapter
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -81,13 +80,13 @@ class Drawer : Fragment() {
     }
 
     fun setup(){
-        drawerViewModel.projects.observe(viewLifecycleOwner, Observer{ newProjects->
-            update(newProjects)
-            toolbar_project_name.text = drawerViewModel.getCurrentName(Current.projectKey())
-        })
-        ProjectList.getKey().observe(viewLifecycleOwner, Observer { key->
-            if(drawerViewModel.projectsBuffer.isNotEmpty()){
-                toolbar_project_name.text = drawerViewModel.getCurrentName(key)
+
+        drawerViewModel.projectsAndKey.observe(viewLifecycleOwner, Observer{ pair->
+            if(pair.first.isNotEmpty()) {
+                update(pair.first)
+                if(pair.first.map { it.key }.contains(pair.second)){
+                    toolbar_project_name.text = pair.first.first { it.key==pair.second }.name
+                }
             }
         })
     }
@@ -95,7 +94,6 @@ class Drawer : Fragment() {
     fun setupArchive(expandablePageLayout: ExpandablePageLayout){
         drawerArchiveItem.apply {
             setExpandablePage(expandablePageLayout)
-            setup()
         }
     }
 
@@ -134,7 +132,7 @@ class Drawer : Fragment() {
             setOnClickListener {
                 val builder = CyaneaDialog.Builder(context)
                 builder.setMessage("Import or export tasks, tags, and links")
-                    .setNegativeButton("Export") { _, _ -> ImportExport.exportTasks(context, Pair(Current.taskListAll(), Current.tagListAll())) }
+                    .setNegativeButton("Export") { _, _ -> ImportExport.exportTasks(context, Pair(Current.taskListAll(), Current.tagListAll().sortedBy { it.index })) }
                     .setPositiveButton("Import") { _, _ -> ImportExport.importTasks(context) }
 
                 val alertDialog = builder.create()
@@ -155,13 +153,14 @@ class Drawer : Fragment() {
         }
     }
 
-    private fun drawerRecycler(layoutInflater: LayoutInflater, view: View, context: Context) =
+    val recyclerProjectList = ArrayList<Project>()
+    private fun drawerRecycler(layoutInflater: LayoutInflater, context: Context) =
         Klaster.get()
-            .itemCount { drawerViewModel.projectsBuffer.size + 1 }
+            .itemCount { recyclerProjectList.size + 1 }
             .view(R.layout.project_switcher_item, layoutInflater)
             .bind { _ ->
-                if (adapterPosition < drawerViewModel.projectsBuffer.size) {//project
-                    val project = drawerViewModel.getProjectIndexed(adapterPosition)
+                if (adapterPosition < recyclerProjectList.size) {//project
+                    val project = recyclerProjectList[adapterPosition]
                     itemView.apply {
                         val imageShape = GradientDrawable()
                         imageShape.color = ColorStateList.valueOf(project.color)
@@ -233,8 +232,8 @@ class Drawer : Fragment() {
     }
 
     fun update(newList: List<Project>) {
-        val oldItems: List<Project> = ArrayList(drawerViewModel.projectsBuffer)
-        drawerViewModel.projectsBuffer.apply {
+        val oldItems: List<Project> = ArrayList()
+        recyclerProjectList.apply {
             clear()
             addAll(newList)
         }
@@ -354,6 +353,7 @@ class Drawer : Fragment() {
             .setNegativeButton("Cancel") { _, _ ->
             }
             .setPositiveButton("Delete") { _, _ ->
+                val handler = Handler()
                 AsyncTask.execute {
                     if (projectsDao().allStatic.size <= 1) {
                         Current.database().projectsDao()
@@ -364,17 +364,21 @@ class Drawer : Fragment() {
 
                     if (Current.projectKey() >= position) {
                         if (position != 0) {
-                            ProjectList.setKey(drawerViewModel.getProjectIndexed(position - 1).key)
+                            val newKey = Current.allProjects()[position - 1].key
+                            ProjectList.postKey(newKey)
+                            Prefs.putInt("project_viewing", newKey)
                         }
                     }
 
-                    for (i in Current.projectKey() until drawerViewModel.projectsBuffer.size) {
-                        val p = drawerViewModel.projectsBuffer[i]
+                    for (i in Current.projectKey() until Current.allProjects().size) {
+                        val p = Current.allProjects()[i]
                         p.index--
                         ProjectsUtils.update(p)
                     }
 
-                    projectAdapter.notifyItemRemoved(position)
+                    handler.post {
+                        projectAdapter.notifyItemRemoved(position)
+                    }
 
                 }
 
@@ -387,12 +391,12 @@ class Drawer : Fragment() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             when (newState) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
-                    (activity as? MainActivity)?.expanded = true
+                    expanded = true
                     (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = true
 
                 }
                 BottomSheetBehavior.STATE_COLLAPSED -> {
-                    (activity as? MainActivity)?.expanded = false
+                    expanded = false
                     (bottomSheet.parent as CoordinatorLayout).bottomSheetDim.isClickable = false
                 }
 
@@ -415,7 +419,7 @@ class Drawer : Fragment() {
                 Utilities.textFromBackground(Cyanea.instance.primary, .54f, .8f)
             }
             toolbar.apply {
-                (this as ViewGroup).getChildAt(0).rotation = 180 * slideOffset
+                getToolbarNavigationButton()?.rotation = 180-(180 * slideOffset)
 /*                for(item in menu.iterator()){
                     item.icon = item.icon?.mutate().also {
                         it?.setColorFilter(textIconColor, PorterDuff.Mode.SRC_ATOP)

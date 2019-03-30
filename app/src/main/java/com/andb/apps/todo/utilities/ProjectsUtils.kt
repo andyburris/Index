@@ -5,12 +5,10 @@ import com.andb.apps.todo.databases.ProjectsDatabase
 import com.andb.apps.todo.databases.projectsDao
 import com.andb.apps.todo.databases.tagsDao
 import com.andb.apps.todo.databases.tasksDao
-import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
-import java.util.ArrayList
-import java.util.Random
+import java.util.*
 
 object ProjectsUtils {
 
@@ -110,4 +108,6 @@ object ProjectsUtils {
         }
         return key
     }
+
+
 }

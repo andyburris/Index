@@ -4,13 +4,10 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.andb.apps.todo.R
-import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
@@ -19,7 +16,6 @@ import com.google.android.material.chip.Chip
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.view_title_tags.view.*
 import org.joda.time.DateTime
-import java.util.*
 
 class ItemViewTitleTags : ConstraintLayout {
     constructor(context: Context) : super(context)
@@ -84,71 +80,58 @@ class ItemViewTitleTags : ConstraintLayout {
         val c2: Chip = chip2 as Chip
         val c3: Chip = chip3 as Chip
 
+        val chipList = arrayListOf(c3, c2, c1)
 
-        if (task.isListTags) {
-            Log.d("tags", "multipleTags")
-
-
-            val tagsList = ArrayList(Arrays.asList<Chip>(c3, c2, c1))
-
-            if (!task.timeReminders.isEmpty()) {
-                val drawable = resources.getDrawable(R.drawable.ic_event_black_24dp).also { it.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP) }
-                val datePattern: String = when (task.nextReminderTime().toLocalDate()) {
-                    DateTime.now().toLocalDate() -> "h:mm a"
-                    else -> "MMM d"
-                }
-                val dateTimeDisplay = task.nextReminderTime()
-
-                c3.apply {
-                    chipIcon = drawable
-                    text = dateTimeDisplay.toString(datePattern)
-                    chipStrokeColor = ColorStateList.valueOf(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .4f))
-                    chipBackgroundColor = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, Values.cardLighter))
-                }
-                tagsList.remove(c3)
-                hasTime = true
-            } else {
-                hasTime = false
+        if (!task.timeReminders.isEmpty()) {
+            val drawable = resources.getDrawable(R.drawable.ic_event_black_24dp)
+                .also { it.setColorFilter(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .7f), PorterDuff.Mode.SRC_ATOP) }
+            val datePattern: String = when (task.nextReminderTime().toLocalDate()) {
+                DateTime.now().toLocalDate() -> "h:mm a"
+                else -> "MMM d"
             }
+            val date = task.nextReminderTime()
 
-            for (i in tagsList.indices) {
-
-                if (i < task.listTags.size) {
-                    val reversedPos = task.listTags.size - (i + 1)//to show most nested tags first TODO: Most nested first as option
-                    val tagtemp = Current.tagListAll()[task.listTags[reversedPos].run {
-                        if(this>=Current.tagListAll().size){
-                            task.listTags.remove(this)
-                            ProjectsUtils.update(task)
-                            return@run this
-                        }else{
-                            return@run this
-                        }
-                    }]
-                    val chiptemp = tagsList[i]
-
-                    chiptemp.apply {
-                        text = tagtemp.tagName
-                        val drawable = chipIcon!!.mutate()
-                        drawable.setColorFilter(tagtemp.tagColor, PorterDuff.Mode.SRC_ATOP)
-                        chipIcon = drawable
-                        chipStrokeColor = ColorStateList.valueOf(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .4f))
-                        chipBackgroundColor = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
-                        visibility = View.VISIBLE
-                    }
-
-
-                } else {
-                    tagsList[i].visibility = View.INVISIBLE
-                }
-
+            c3.apply {
+                chipIcon = drawable
+                text = date.toString(datePattern)
+                chipStrokeColor = ColorStateList.valueOf(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .4f))
+                chipBackgroundColor = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, Values.cardLighter))
             }
-
-
+            chipList.remove(c3)
+            hasTime = true
         } else {
-            c1.visibility = View.GONE
-            c2.visibility = View.GONE
-            c3.visibility = View.GONE
+            hasTime = false
         }
 
+
+        for ((i, chip) in chipList.withIndex()) {
+
+            if (i < task.listTags.size) {
+                val tag = Current.tagListAll()[task.listTags.reversed()[i].also {
+                    if (it >= Current.tagListAll().size) {
+                        task.listTags.remove(it)
+                        ProjectsUtils.update(task)
+                    }
+                }]
+
+                chip.apply {
+                    text = tag.tagName
+                    val drawable = chipIcon!!.mutate()
+                    drawable.setColorFilter(tag.tagColor, PorterDuff.Mode.SRC_ATOP)
+                    chipIcon = drawable
+                    chipStrokeColor = ColorStateList.valueOf(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .4f))
+                    chipBackgroundColor = ColorStateList.valueOf(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
+                    visibility = View.VISIBLE
+                }
+
+
+            } else {
+                chip.visibility = View.INVISIBLE
+            }
+
+        }
+
+
     }
+
 }

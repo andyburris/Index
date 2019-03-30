@@ -1,21 +1,15 @@
 package com.andb.apps.todo.utilities
 
-import android.util.Log.d
-
-import com.andb.apps.todo.databases.GetDatabase
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import com.andb.apps.todo.databases.*
-import com.andb.apps.todo.databases.ProjectsDatabase
+import com.andb.apps.todo.filtering.filterProject
+import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.lists.ProjectList
 import com.andb.apps.todo.objects.Project
 import com.andb.apps.todo.objects.Tags
 import com.andb.apps.todo.objects.Tasks
-
-import java.util.ArrayList
-
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import com.andb.apps.todo.filtering.filterProject
-import com.andb.apps.todo.filtering.filterProjectTags
+import java.util.*
 
 object Current {
 
@@ -45,9 +39,13 @@ object Current {
     @JvmStatic
     fun initProjects(lifecycleOwner: LifecycleOwner){
 
-        projectsDao().all.observe(lifecycleOwner, Observer {projects->
+        projectsDao().all.observe(lifecycleOwner, Observer {projects: List<Project>->
             bufferProjects.clear()
             bufferProjects.addAll(projects)
+            if(bufferViewingKey!=0 && !bufferProjects.map { it.key }.contains(bufferViewingKey)){
+                ProjectList.setKey(bufferProjects[0].key)
+                bufferViewingKey = bufferProjects[0].key
+            }
         })
     }
 
@@ -55,6 +53,10 @@ object Current {
     fun initViewing(lifecycleOwner: LifecycleOwner){
         ProjectList.getKey().observe(lifecycleOwner, Observer { viewing->
             bufferViewingKey = viewing
+            if(bufferProjects.isNotEmpty() && !bufferProjects.map { it.key }.contains(bufferViewingKey)){
+                ProjectList.setKey(bufferProjects[0].key)
+                bufferViewingKey = bufferProjects[0].key
+            }
         })
     }
 
@@ -78,7 +80,7 @@ object Current {
     @JvmStatic
     fun project(): Project {
 
-        d("allProjects", "size = ${allProjects().size}, items = ${allProjects().joinToString { "name: ${it.name}, key: ${it.key}" }}, key to find = ${projectKey()}")
+        //d("allProjects", "size = ${allProjects().size}, items = ${allProjects().joinToString { "name: ${it.name}, key: ${it.key}" }}, key to find = ${projectKey()}")
         return allProjects().first { it.key== projectKey() }
     }
 

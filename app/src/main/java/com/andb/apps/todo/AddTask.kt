@@ -8,7 +8,6 @@ import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -280,7 +279,7 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
             field.set(editor, drawables)
 
         } catch (e: Exception) {
-            Log.e("cursorSetFailed", "-> ", e)
+            //Log.e("cursorSetFailed", "->", e)
         }
     }
 
