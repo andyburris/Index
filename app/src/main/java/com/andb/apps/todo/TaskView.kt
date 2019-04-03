@@ -45,7 +45,7 @@ class TaskView : Fragment() {
         val key = bundle!!.getInt("key")
 
         if(!Current.taskListAll().map { it.listKey }.contains(key)){
-            (activity as MainActivity).inboxFragment.mRecyclerView.collapse()
+            (activity as MainActivity).inboxFragment.mRecyclerView.collapse()//TODO: null if return to activity
             return
         }
         viewModel = ViewModelProviders.of(this, viewModelFactory { TaskViewViewModel(key) })

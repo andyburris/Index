@@ -40,7 +40,7 @@ class FolderButtonCardLayout : FrameLayout {
 
     val folderAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder> = tagAdapter()
     val tagList = ArrayList<Tags>()
-    lateinit var tagClickCallback: (tag: Tags, longClick: Boolean) -> Unit
+    var tagClickListener: ((tag: Tags, longClick: Boolean) -> Unit)? = null
     var expandCollapseListeners = ArrayList<((Boolean) -> Unit)>()
     var editListeners = ArrayList<((Boolean) -> Unit)>()
 
@@ -66,10 +66,9 @@ class FolderButtonCardLayout : FrameLayout {
     }
 
 
-    fun setup(tagList: List<Tags>, expandedEditing: Pair<Boolean, Boolean>, tagClickCallback: (tag: Tags, longClick: Boolean) -> Unit) {
+    fun setup(tagList: List<Tags>, expandedEditing: Pair<Boolean, Boolean>) {
         this.tagList.clear()
         this.tagList.addAll(tagList)
-        this.tagClickCallback = tagClickCallback
 
         folderTagRecycler.apply {
             layoutManager = LinearLayoutManager(context)
@@ -77,9 +76,9 @@ class FolderButtonCardLayout : FrameLayout {
         }
 
         if (expandedEditing.first) {
-            expand()
+            expand(false)//don't animate on recreate in rv
         } else {
-            collapse()
+            collapse(false)//don't animate on recreate in rv
         }
 
         if (Filters.getCurrentFilter().isNotEmpty()) {
@@ -88,17 +87,23 @@ class FolderButtonCardLayout : FrameLayout {
                     Log.d("folderEditButton", "clicked")
                     editing = !editing
                     editListeners.forEach { it.invoke(editing) }
-                    if (editing) {
-                        setImageDrawable(context.getDrawable(R.drawable.ic_clear_black_24dp))
-                    } else {
-                        setImageDrawable(context.getDrawable(R.drawable.ic_edit_black_24dp))
-                    }
+                    setEditingIcon()
                     folderAdapter.notifyDataSetChanged()
                 }
             }
             editing = expandedEditing.second
+            setEditingIcon()
+
         } else {
             editing = false
+        }
+    }
+
+    fun setEditingIcon(){
+        if (editing) {
+            folderEditButton.setImageDrawable(context.getDrawable(R.drawable.ic_clear_black_24dp))
+        } else {
+            folderEditButton.setImageDrawable(context.getDrawable(R.drawable.ic_edit_black_24dp))
         }
     }
 
@@ -112,11 +117,14 @@ class FolderButtonCardLayout : FrameLayout {
                 browseTagImage.setColorFilter(tag.tagColor)
                 setOnClickListener {
                     ViewCompat.postOnAnimationDelayed(itemView, {
-                        tagClickCallback.invoke(tag, false)
+                        tagClickListener?.invoke(tag, false)
+                        editListeners.forEach{it.invoke(false)}//remove editing on tag forward
                     }, 100)
                 }
                 setOnLongClickListener {
-                    tagClickCallback.invoke(tag, true)
+                    tagClickListener?.invoke(tag, true)
+                    editListeners.forEach{it.invoke(false)}//remove editing on tag forward
+
                     true
                 }
                 if (editing) {
@@ -140,10 +148,13 @@ class FolderButtonCardLayout : FrameLayout {
         .build()
 
 
-    fun expand() {
+    fun expand(listen: Boolean = true) {
 
         expanded = true
-        expandCollapseListeners.forEach { it.invoke(expanded) }
+
+        if(listen) {
+            expandCollapseListeners.forEach { it.invoke(expanded) }
+        }
 
         folderCardHolder.apply {
             animateRadius(12)
@@ -167,10 +178,13 @@ class FolderButtonCardLayout : FrameLayout {
     }
 
 
-    fun collapse() {
+    fun collapse(listen: Boolean = true) {
 
         expanded = false
-        expandCollapseListeners.forEach { it.invoke(expanded) }
+
+        if(listen) {
+            expandCollapseListeners.forEach { it.invoke(expanded) }
+        }
 
         folderCardHolder.apply {
 

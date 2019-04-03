@@ -1,5 +1,6 @@
 package com.andb.apps.todo.utilities
 
+import android.util.Log
 import android.widget.ImageButton
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModel
@@ -28,4 +29,12 @@ fun Toolbar.getToolbarNavigationButton(): ImageButton? {
         }
     }
     return null
+}
+
+fun d(tag: String, message: ()->String){
+    Log.d(tag.take(23), message.invoke())
+}
+
+fun d(message: ()->String){
+    Log.d(Thread.currentThread().stackTrace[1].methodName.take(23), message.invoke())
 }

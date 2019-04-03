@@ -116,7 +116,7 @@ class ItemViewTitleTags : ConstraintLayout {
 
                 chip.apply {
                     text = tag.tagName
-                    val drawable = chipIcon!!.mutate()
+                    val drawable = resources.getDrawable(R.drawable.ic_dot_black_24dp)
                     drawable.setColorFilter(tag.tagColor, PorterDuff.Mode.SRC_ATOP)
                     chipIcon = drawable
                     chipStrokeColor = ColorStateList.valueOf(Utilities.colorWithAlpha(Utilities.textFromBackground(Cyanea.instance.backgroundColor), .4f))

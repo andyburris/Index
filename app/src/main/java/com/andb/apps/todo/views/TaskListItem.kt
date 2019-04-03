@@ -2,8 +2,6 @@ package com.andb.apps.todo.views
 
 import android.content.Context
 import android.graphics.Paint
-import android.os.AsyncTask
-import android.os.Bundle
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.util.AttributeSet
@@ -12,20 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.R
-import com.andb.apps.todo.TaskAdapter
-import com.andb.apps.todo.TaskView
 import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.settings.SettingsActivity
 import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
 import com.jaredrummler.cyanea.Cyanea
 import kotlinx.android.synthetic.main.inbox_list_item.view.*
-import me.saket.inboxrecyclerview.InboxRecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -38,38 +29,33 @@ class TaskListItem : ConstraintLayout {
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
     lateinit var task: Tasks
+    var expanded = false
+
+    var clickListener: ((long: Boolean) -> Unit)? = null
+    var expandCollapseListener: ((expand: Boolean) -> Unit)? = null
+    var checkListener: ((position: Int, checked: Boolean)->Unit)? = null
+
 
     init {
         inflate(context, R.layout.inbox_list_item, this)
     }
 
-    fun setup(tasks: Tasks, pos: Int, recyclerView: InboxRecyclerView) {
-        val adapter = recyclerView.adapter as TaskAdapter
-        task = tasks
-        setTasks(pos, recyclerView)
-        topLayout.setTags(tasks)
+    fun setup(task: Tasks, expanded: Boolean) {
+        this.task = task
+        this.expanded = expanded
+        setTasks()
+        topLayout.setTags(task)
         topLayout.setTitle(task.listName)
         topLayout.setOverflow(this)
 
         inboxCard.setOnClickListener {
-            if (adapter.selected == -1) {
-                val bundle = Bundle()
-                bundle.putInt("key", task.listKey)
-
-                val fragmentActivity = context as FragmentActivity
-                val ft = fragmentActivity.supportFragmentManager.beginTransaction()
-
-                val taskView = TaskView()
-                taskView.arguments = bundle
-
-
-                ft.add(R.id.expandable_page_inbox, taskView)
-                ft.commit()
-                recyclerView.expandItem(adapter.getItemId(adapter.taskList.indexOf(tasks)))
-            }
-
-
+            clickListener?.invoke(false)
         }
+        inboxCard.setOnLongClickListener {
+            clickListener?.invoke(true)
+            true
+        }
+
         setCyaneaBackground(Utilities.lighterDarker(Cyanea.instance.backgroundColor, 1.2f))
     }
 
@@ -95,7 +81,7 @@ class TaskListItem : ConstraintLayout {
     }
 
 
-    private fun setTasks(pos: Int, recyclerView: RecyclerView) {
+    private fun setTasks() {
 
         val checkBoxes = ArrayList(Arrays.asList<CheckBox>(item1, item2, item3))
 
@@ -110,18 +96,15 @@ class TaskListItem : ConstraintLayout {
                 if (i < task.listItems.size) {
 
                     checkBox.text = task.listItems[i]
-                    checkBox.setOnCheckedChangeListener { _, isChecked ->
-                        task.editListItemsChecked(isChecked, i)
-                        checkBox.paintFlags = if (!isChecked) checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                        AsyncTask.execute {
-                            ProjectsUtils.update()
-                        }
-
-                    }
+                    checkBox.setOnCheckedChangeListener { _, _ -> } //don't call checkListener on initial check
                     checkBox.isChecked = task.listItemsChecked[i]
                     checkBox.paintFlags = if (!checkBox.isChecked) checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-
                     checkBox.visibility = View.VISIBLE
+
+                    checkBox.setOnCheckedChangeListener { _, isChecked ->
+                        checkBox.paintFlags = if (!isChecked) checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() else checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        checkListener?.invoke(i, isChecked)
+                    }
 
                 } else {
                     checkBox.visibility = View.GONE
@@ -132,25 +115,9 @@ class TaskListItem : ConstraintLayout {
             } else {
                 moreTasks.visibility = View.GONE
             }
-
-            val expandedList: ArrayList<Boolean>
-            val taskList: ArrayList<Tasks>
-            val adapter: TaskAdapter = recyclerView.adapter as TaskAdapter
-
-            taskList = ArrayList(adapter.taskList)
-            adapter.expandedList = ArrayList<Boolean>()
-            expandedList = adapter.expandedList
             sublistIcon.visibility = View.VISIBLE
 
-            for (tasks in taskList) { /*init here since tasklist is null in constructor*/
-                var selected = false
-                if (SettingsActivity.subtaskDefaultShow) {
-                    selected = tasks.isListItems
-                }
-                expandedList.add(selected)
-            }
-
-            setupCollapse(expandedList, pos, recyclerView)
+            setupCollapse()
 
 
         } else { //no checkboxes
@@ -164,62 +131,52 @@ class TaskListItem : ConstraintLayout {
 
     }
 
-    fun setupCollapse(expandedList: ArrayList<Boolean>, pos: Int, rv: RecyclerView) {
-        if (expandedList[pos]) {
-            expandSublist()
+    fun setupCollapse() {
+
+        if (expanded) {
+            expandSublist(false)
         } else {
-            collapseSublist()
+            collapseSublist(false)
         }
         sublistIcon.setOnClickListener {
-
-            expandedList[pos] = !expandedList[pos]
-            TransitionManager.beginDelayedTransition(rv, ChangeBounds())
-            if (expandedList[pos]) {
+            expanded = !expanded
+            expandCollapseListener?.invoke(expanded)
+            if (expanded) {
                 expandSublist()
-                expandedList[pos] = true
             } else {
                 collapseSublist()
-                expandedList[pos] = false
             }
 
         }
     }
 
-    fun expandSublist() {
+    fun expandSublist(animate: Boolean = true) {
         Log.d("expandSublist", "expanding")
-        val layoutParams1: ConstraintLayout.LayoutParams = item1.layoutParams as LayoutParams
-        val layoutParams2: ConstraintLayout.LayoutParams = item2.layoutParams as LayoutParams
-        val layoutParams3: ConstraintLayout.LayoutParams = item3.layoutParams as LayoutParams
-        layoutParams1.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        layoutParams2.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        layoutParams3.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        item1.layoutParams = layoutParams1
-
-
-        (moreTasks.layoutParams as ConstraintLayout.LayoutParams).height = ViewGroup.LayoutParams.WRAP_CONTENT
-
-
-        listitempadding.visibility = View.VISIBLE
+        expand(animate)
         sublistIcon.setImageState(STATE_ZERO, true)
-
     }
 
-    fun collapseSublist() {
+    fun collapseSublist(animate: Boolean = true) {
         Log.d("collapseSublist", "collapsing")
-        val layoutParams1: ConstraintLayout.LayoutParams = item1.layoutParams as LayoutParams
-        val layoutParams2: ConstraintLayout.LayoutParams = item2.layoutParams as LayoutParams
-        val layoutParams3: ConstraintLayout.LayoutParams = item3.layoutParams as LayoutParams
-        layoutParams1.height = 0
-        layoutParams2.height = 0
-        layoutParams3.height = 0
-        item1.layoutParams = layoutParams1
-        moreTasks.layoutParams.height = 0
-
-
-        listitempadding.visibility = View.GONE
+        collapse(animate)
         sublistIcon.setImageState(STATE_ONE, true)
     }
 
+    var collapsedHeight = Utilities.pxFromDp(56)
+
+    fun expand(animate: Boolean) {
+        if (animate) {
+            TransitionManager.beginDelayedTransition(rootView as ViewGroup, ChangeBounds())
+        }
+        layoutParams = layoutParams.also { it.height = ViewGroup.LayoutParams.WRAP_CONTENT }
+    }
+
+    fun collapse(animate: Boolean) {
+        if (animate) {
+            TransitionManager.beginDelayedTransition(rootView as ViewGroup, ChangeBounds())
+        }
+        layoutParams = layoutParams.also { it.height = collapsedHeight }
+    }
 
     fun setCyaneaBackground(color: Int) {
         inboxCard.setBackgroundColor(color)

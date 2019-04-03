@@ -1,19 +1,26 @@
 package com.andb.apps.todo
 
 import android.app.Activity
+import android.os.AsyncTask
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
+import com.andb.apps.todo.filtering.Filters
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.objects.reminders.SimpleReminder
+import com.andb.apps.todo.settings.SettingsActivity
+import com.andb.apps.todo.utilities.ProjectsUtils
 import com.andb.apps.todo.utilities.Utilities
+import com.andb.apps.todo.utilities.clearWith
 import com.andb.apps.todo.views.FolderButtonCardLayout
 import com.andb.apps.todo.views.InboxHeader
 import com.andb.apps.todo.views.TaskListItem
@@ -27,7 +34,7 @@ import org.joda.time.DateTime
 class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyViewHolder>() {
 
     var taskList: MutableList<Tasks> = ArrayList()
-    lateinit var expandedList: ArrayList<Boolean>
+    var expandedList = ArrayList<Boolean>()
     var selected = -1
     var headerPair: Pair<Boolean, Boolean> = Pair(first = false, second = false)
 
@@ -52,16 +59,18 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
             itemView = TaskListItem(context)
         } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
             itemView = AddTask(context, activity as MainActivity)
-        } else if(viewType== INBOX_HEADER){
+        } else if (viewType == INBOX_HEADER) {
             itemView = InboxHeader(context)
         } else {
             itemView = LayoutInflater.from(context).inflate(
-                    R.layout.inbox_divider, parent, false)
+                R.layout.inbox_divider, parent, false
+            )
         }
 
         itemView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT)
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 
         return TaskAdapter.MyViewHolder(itemView)
 
@@ -69,44 +78,75 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
 
 
     override fun onBindViewHolder(holder: TaskAdapter.MyViewHolder, position: Int) {
-        val realPosition = holder.adapterPosition
-
-        setUpByViewType(holder, realPosition)
-
-        Log.d("onePosUpError", Integer.toString(realPosition))
-
-
+        setUpByViewType(holder, holder.adapterPosition)
     }
 
     private fun setUpByViewType(holder: TaskAdapter.MyViewHolder, position: Int) {
 
 
         if (viewType == TASK_VIEW_ITEM) {
-            val taskListItem = holder.itemView as TaskListItem
-            taskListItem.setup(taskList[position], position, parentRecycler as InboxRecyclerView)
-            if (position == selected) {
-                taskListItem.setCyaneaBackground(Utilities.desaturate(Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, 0.8f), 0.7))
-                //TODO: lighter color on dark theme
+            (holder.itemView as TaskListItem).apply {
+                setup(taskList[position], expandedList[position])
+                clickListener = { long ->
+                    if (!long && selected == -1) {
+                        val bundle = Bundle()
+                        bundle.putInt("key", task.listKey)
+
+                        val fragmentActivity = parentRecycler.context as FragmentActivity
+                        val ft = fragmentActivity.supportFragmentManager.beginTransaction()
+
+                        val taskView = TaskView()
+                        taskView.arguments = bundle
+
+
+                        ft.add(R.id.expandable_page_inbox, taskView)
+                        ft.commit()
+                        (parentRecycler as InboxRecyclerView).expandItem(getItemId(position))
+                    }
+
+                }
+                expandCollapseListener = { expanded ->
+                    expandedList[position] = expanded
+                }
+                checkListener = { pos, isChecked ->
+                    task.listItemsChecked[pos] = isChecked
+                    Log.d("checkPersisted", (taskList[position].listItemsChecked[pos] == isChecked).toString())
+
+                    AsyncTask.execute {
+                        ProjectsUtils.update(task)
+                    }
+                }
+                if (position == selected) {
+                    setCyaneaBackground(Utilities.desaturate(Utilities.sidedLighterDarker(Cyanea.instance.backgroundColor, 0.8f), 0.7))
+                }
             }
+
 
         } else if (viewType == ADD_EDIT_TASK_PLACEHOLDER) {
             val addTask = holder.itemView as AddTask
             addTask.setup(taskList[position])
-        } else if(viewType == INBOX_HEADER){
-            val header =(holder.itemView as InboxHeader)
-            header.setup(taskList.filter { !isDivider(it) }.size, headerPair)
-            header.folderButton.addExpandCollapseListener {e->
-                TransitionManager.beginDelayedTransition(parentRecycler, ChangeBounds().setDuration(FolderButtonCardLayout.ANIMATION_DURATION))
-                headerPair = Pair(e, headerPair.second)
+        } else if (viewType == INBOX_HEADER) {
+            (holder.itemView as InboxHeader).apply {
+                setup(taskList.filter { !isDivider(it) }.size, headerPair)
+                folderButton.addExpandCollapseListener { e ->
+                    TransitionManager.beginDelayedTransition(parentRecycler, ChangeBounds().setDuration(FolderButtonCardLayout.ANIMATION_DURATION))
+                    headerPair = Pair(e, headerPair.second)
+                }
+                folderButton.addEditListener { e ->
+                    headerPair = Pair(headerPair.first, e)
+                }
+                folderButton.tagClickListener = {tag, longClick ->
+                    if(!longClick) {
+                        Filters.tagForward(tag)
+                    }else{
+                        Filters.tagReset(tag)
+                    }
+                }
             }
-            header.folderButton.addEditListener {e->
-                headerPair = Pair(headerPair.first, e)
-            }
 
 
-        } else{ //divider logic
-            Log.d("roomViewType", java.lang.Boolean.toString(holder.itemView is TaskListItem))
 
+        } else { //divider logic
             when (viewType) {
                 OVERDUE_DIVIDER -> holder.itemView.dividerName.setText(R.string.divider_overdue)
                 TODAY_DIVIDER -> holder.itemView.dividerName.setText(R.string.divider_today)
@@ -122,7 +162,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
         val task = taskList[position]
         val taskName = task.listName
         viewType = when (taskName) {
-            "INBOX_HEADER"-> INBOX_HEADER
+            "INBOX_HEADER" -> INBOX_HEADER
             "OVERDUE" -> OVERDUE_DIVIDER
             "TODAY" -> TODAY_DIVIDER
             "WEEK" -> THIS_WEEK_DIVIDER
@@ -141,7 +181,6 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
     }
 
 
-
     override fun getItemCount(): Int {
         return taskList.size
     }
@@ -153,14 +192,10 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
     }
 
 
-
-
     private fun dispatchUpdates(newItems: List<Tasks>, diffResult: DiffUtil.DiffResult) {
         Log.d("dipatchUpdates", "newItems size: ${newItems.size}")
-        taskList.apply {
-            clear()
-            addAll(newItems)
-        }
+        taskList.clearWith(newItems)
+        expandedList.clearWith(newItems.map { SettingsActivity.subtaskDefaultShow })//TODO: preserve expanded across diffutil
         diffResult.dispatchUpdatesTo(this)
     }
 
@@ -176,7 +211,8 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
         }).start()
     }
 
-    internal class TaskAdapterDiffCallback(private val oldTasks: List<Tasks>, private val newTasks: List<Tasks>) : DiffUtil.Callback() {
+    internal class TaskAdapterDiffCallback(private val oldTasks: List<Tasks>, private val newTasks: List<Tasks>) :
+        DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             val oldTask = oldTasks[oldItemPosition]
             val newTask = newTasks[newItemPosition]
@@ -188,7 +224,7 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
             val oldTask = oldTasks[oldItemPosition]
             val newTask = newTasks[newItemPosition]
 
-            return oldTask == newTask && oldTask.listName != "INBOX_HEADER"
+            return oldTask == newTask && oldTask.isEditing == newTask.isEditing && oldTask.listName != "INBOX_HEADER"
         }
 
         override fun getNewListSize(): Int {
@@ -201,7 +237,6 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
 
     }
 
-
     companion object {
 
         const val TASK_VIEW_ITEM = 0
@@ -213,9 +248,6 @@ class TaskAdapter(val activity: Activity) : RecyclerView.Adapter<TaskAdapter.MyV
         const val ADD_EDIT_TASK_PLACEHOLDER = 6
         const val INBOX_HEADER = 7
 
-        const val FROM_INBOX = 0
-        const val FROM_BROWSE = 1
-        const val FROM_ARCHIVE = 2
 
         @JvmStatic
         fun newDivider(name: String, dateTime: DateTime): Tasks {

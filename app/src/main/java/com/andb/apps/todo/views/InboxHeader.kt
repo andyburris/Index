@@ -25,7 +25,7 @@ class InboxHeader : ConstraintLayout {
         task_count_text.text = taskCountText(taskCount)
         val tagList = Current.tagListAll().filterTags()/* listOf(Tags("Test 1", 0xFF8800, false, 0), Tags("Test 2", 0x00FFFF, false, 1))*/
         folderButton.apply {
-            setup(tagList, expandedEditing, ::returnTag)
+            setup(tagList, expandedEditing)
             addExpandCollapseListener {e->
                 (layoutParams as ConstraintLayout.LayoutParams).bottomMargin = Utilities.pxFromDp(if(e) 8 else 24 )
                 folderCardHolder.cardElevation = Utilities.pxFromDp(if(e) 4 else 8).toFloat()
@@ -37,11 +37,7 @@ class InboxHeader : ConstraintLayout {
 
     fun returnTag(tag: Tags, longClick: Boolean) {
         //Snackbar.make(this, "Returned ${tag.tagName}", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
-        if(!longClick) {
-            Filters.tagForward(tag)
-        }else{
-            Filters.tagReset(tag)
-        }
+
     }
 
     fun taskCountText(tasks: Int): String {

@@ -45,8 +45,6 @@ class AddTask(ctxt: Context, val activity: MainActivity) : FrameLayout(ctxt) {
 
     private lateinit var task: Tasks
 
-    private var dateSet = false
-
     init {
         inflate(context, R.layout.add_task, this)
         EventBus.getDefault().register(this)

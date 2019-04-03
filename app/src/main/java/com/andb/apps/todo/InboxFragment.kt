@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialcab.MaterialCab
-import com.andb.apps.todo.filtering.filterInbox
 import com.andb.apps.todo.objects.Tasks
 import com.andb.apps.todo.utilities.Utilities
 import com.andb.apps.todo.utilities.Values
@@ -202,7 +201,6 @@ class InboxFragment : Fragment() {
         prepareRecyclerView(view)
 
 
-        mRecyclerView.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
         mRecyclerView.addOnItemTouchListener(object :
             RecyclerTouchListener(context, mRecyclerView, object :
                 RecyclerTouchListener.ClickListener {
@@ -228,8 +226,6 @@ class InboxFragment : Fragment() {
                                 when (it.itemId) {
                                     R.id.editTask -> {
                                         mAdapter.taskList[position].isEditing = true
-                                        mAdapter.selected = -1
-                                        mAdapter.update(mAdapter.taskList)
                                         MaterialCab.destroy()
                                         true
                                     }
@@ -303,7 +299,7 @@ class InboxFragment : Fragment() {
 
     internal class CrashFixLinearLayoutManager(ctxt: Context) : LinearLayoutManager(ctxt) {
         override fun supportsPredictiveItemAnimations(): Boolean {
-            return false
+            return true
         }
     }
 

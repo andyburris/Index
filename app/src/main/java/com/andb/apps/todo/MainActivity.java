@@ -196,7 +196,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             MaterialCab.Companion.destroy();
         } else if (Filters.getCurrentFilter().size() > 0) {
             Filters.tagBack();
-            inboxFragment.mAdapter.setHeaderPair(new Pair<>(inboxFragment.mAdapter.getHeaderPair().getFirst(), false));
+            inboxFragment.mAdapter.setHeaderPair(new Pair<>(inboxFragment.mAdapter.getHeaderPair().getFirst(), false));//remove editing on tag back
         } else {
             super.onBackPressed();
         }
@@ -303,7 +303,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         long startTime = System.nanoTime();
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setImageState(TaskListItemKt.getSTATE_ZERO(), true);
+        fab.setImageState(TaskListItemKt.getSTATE_ONE(), true);
         fab.setOnClickListener(view -> {
             if (!TaskView.Companion.getAnyExpanded()) {
                 if (inboxFragment.isEditing()) {
