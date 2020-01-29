@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <com.andb.apps.todo.views.CyaneaIcon
+    <com.andb.apps.todo.util.cyanea.CyaneaIcon
         android:id="@+id/archive_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
 
         app:srcCompat="@drawable/ic_archive_black_24dp" />
 
-    <com.andb.apps.todo.views.CyaneaTextView
+    <com.andb.apps.todo.util.cyanea.CyaneaTextView
         android:id="@+id/archive_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -1,12 +1,7 @@
 package com.andb.apps.todo
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.andb.apps.todo.databases.tasksDao
-import com.andb.apps.todo.filtering.filterProject
-import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.data.model.Task
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import java.util.*
@@ -15,7 +10,7 @@ class TaskViewViewModel(val key: Int) : ViewModel() {
 
     private val viewModelTask = Current.taskListAll().first { it.listKey == key }
 
-    fun task(): Tasks = viewModelTask
+    fun task(): Task = viewModelTask
 
     fun setChecked(position: Int, checked: Boolean){
         viewModelTask.listItemsChecked[position] = checked

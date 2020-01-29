@@ -2,20 +2,20 @@ package com.andb.apps.todo.utilities
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import com.andb.apps.todo.databases.*
+import com.andb.apps.todo.data.local.Database
 import com.andb.apps.todo.filtering.filterProject
 import com.andb.apps.todo.filtering.filterProjectTags
 import com.andb.apps.todo.lists.ProjectList
-import com.andb.apps.todo.objects.Project
-import com.andb.apps.todo.objects.Tags
-import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.data.model.Project
+import com.andb.apps.todo.data.model.Tag
+import com.andb.apps.todo.data.model.Task
 import java.util.*
 
 object Current {
 
     /**Used to get sizes and lookups from database without needing lifecycle and/or Asynctask */
-    private val bufferTags = ArrayList<Tags>()
-    private val bufferTasks = ArrayList<Tasks>()
+    private val bufferTags = ArrayList<Tag>()
+    private val bufferTasks = ArrayList<Task>()
     val bufferProjects = ArrayList<Project>()
     var bufferViewingKey = 0
 
@@ -42,9 +42,9 @@ object Current {
         projectsDao().all.observe(lifecycleOwner, Observer {projects: List<Project>->
             bufferProjects.clear()
             bufferProjects.addAll(projects)
-            if(bufferViewingKey!=0 && !bufferProjects.map { it.key }.contains(bufferViewingKey)){
-                ProjectList.setKey(bufferProjects[0].key)
-                bufferViewingKey = bufferProjects[0].key
+            if(bufferViewingKey!=0 && !bufferProjects.map { it.id }.contains(bufferViewingKey)){
+                ProjectList.setKey(bufferProjects[0].id)
+                bufferViewingKey = bufferProjects[0].id
             }
         })
     }
@@ -53,15 +53,15 @@ object Current {
     fun initViewing(lifecycleOwner: LifecycleOwner){
         ProjectList.getKey().observe(lifecycleOwner, Observer { viewing->
             bufferViewingKey = viewing
-            if(bufferProjects.isNotEmpty() && !bufferProjects.map { it.key }.contains(bufferViewingKey)){
-                ProjectList.setKey(bufferProjects[0].key)
-                bufferViewingKey = bufferProjects[0].key
+            if(bufferProjects.isNotEmpty() && !bufferProjects.map { it.id }.contains(bufferViewingKey)){
+                ProjectList.setKey(bufferProjects[0].id)
+                bufferViewingKey = bufferProjects[0].id
             }
         })
     }
 
     @JvmStatic
-    fun initProjectsSync(db: ProjectsDatabase){
+    fun initProjectsSync(db: Database){
         bufferProjects.clear()
         bufferProjects.addAll(db.projectsDao().allStatic)
     }
@@ -80,28 +80,28 @@ object Current {
     @JvmStatic
     fun project(): Project {
 
-        //d("allProjects", "size = ${allProjects().size}, items = ${allProjects().joinToString { "name: ${it.name}, key: ${it.key}" }}, key to find = ${projectKey()}")
-        return allProjects().first { it.key== projectKey() }
+        //d("allProjects", "size = ${allProjects().size}, items = ${allProjects().joinToString { "name: ${it.name}, id: ${it.id}" }}, id to find = ${projectKey()}")
+        return allProjects().first { it.id== projectKey() }
     }
 
     @JvmStatic
     fun keyList(): ArrayList<Int> {
         val keys = ArrayList<Int>()
         for (t in bufferTags) {
-            keys.add(t.key)
+            keys.add(t.id)
         }
         for (t in bufferTasks) {
             keys.add(t.listKey)
         }
         for (p in allProjects()) {
-            keys.add(p.key)
+            keys.add(p.id)
         }
         return keys
     }
 
     @JvmStatic
-    fun database(): ProjectsDatabase {
-        return GetDatabase.projectsDatabase
+    fun database(): Database {
+        return GetDatabase.database
     }
 
     @JvmStatic
@@ -110,13 +110,13 @@ object Current {
     }
 
     @JvmStatic
-    fun tagListAll(): List<Tags> {
+    fun tagListAll(): List<Tag> {
         return bufferTags.filterProjectTags()
     }
 
     @JvmStatic
     @JvmOverloads
-    fun taskListAll(id: Int = projectKey()): List<Tasks> {
+    fun taskListAll(id: Int = projectKey()): List<Task> {
         return bufferTasks.filterProject(id)
     }
 }

@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".settings.SettingsActivity"
+            android:name="com.andb.apps.todo.ui.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppThemeLightCollapse"/>
         <activity
@@ -40,7 +40,7 @@
             android:label="@string/title_activity_create_tag"
             android:theme="@style/AppThemeGlobal" />
         <activity
-            android:name=".Archive"
+            android:name=".ui.archive.Archive"
             android:label="@string/title_activity_archive"
             android:theme="@style/AppThemeLightCollapse" />
         <activity

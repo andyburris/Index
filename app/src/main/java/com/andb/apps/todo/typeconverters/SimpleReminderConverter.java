@@ -1,7 +1,6 @@
 package com.andb.apps.todo.typeconverters;
 
-import com.andb.apps.todo.objects.Tags;
-import com.andb.apps.todo.objects.reminders.SimpleReminder;
+import com.andb.apps.todo.data.model.reminders.SimpleReminder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

@@ -1,15 +1,7 @@
 package com.andb.apps.todo.lists
 
-import android.os.AsyncTask
-import android.util.Log
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.andb.apps.todo.databases.GetDatabase
-import com.andb.apps.todo.databases.ProjectsDatabase
-import com.andb.apps.todo.databases.tasksDao
-import com.andb.apps.todo.utilities.Current
-import com.andb.apps.todo.utilities.OnceHolder
 import com.pixplicity.easyprefs.library.Prefs
 
 object ProjectList {

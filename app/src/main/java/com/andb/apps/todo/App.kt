@@ -1,19 +1,18 @@
 package com.andb.apps.todo
 
-import android.app.AlertDialog
 import android.app.Application
 import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
-import com.andb.apps.todo.utilities.OnceHolder
+import androidx.room.Room
+import com.andb.apps.todo.data.local.Database
+import com.andb.apps.todo.ui.addtag.AddTagViewModel
 import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.utilities.Vibes
+import com.andb.apps.todo.util.Vibes
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
@@ -23,21 +22,39 @@ import com.jaredrummler.cyanea.inflator.decor.CyaneaDecorator
 import com.jaredrummler.cyanea.inflator.decor.FontDecorator
 import com.pixplicity.easyprefs.library.Prefs
 import jonathanfinerty.once.Once
-import kotlinx.android.synthetic.main.bottom_sheet_layout.*
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 class App : Application(), CyaneaDecorator.Provider, CyaneaViewProcessor.Provider {
+
+    private val koinModule = module {
+        single {
+            Room.databaseBuilder(androidContext(), Database::class.java, "IndexDatabase")
+                    .fallbackToDestructiveMigration()
+                    .build()
+        }
+        single { val db: Database = get(); db.projectsDao() }
+        single { val db: Database = get(); db.tagsDao() }
+        single { val db: Database = get(); db.tasksDao() }
+
+        viewModel { id: String -> AddTagViewModel() }
+    }
+
     override fun onCreate() {
         super.onCreate()
+
+        startKoin {
+            androidLogger()
+            androidContext(applicationContext)
+            modules(koinModule)
+        }
+
         Cyanea.init(this, resources)
         Vibes.init(this)
         Once.initialise(this)
-
-        Prefs.Builder()
-            .setContext(this)
-            .setMode(ContextWrapper.MODE_PRIVATE)
-            .setPrefsName(packageName)
-            .setUseDefaultSharedPreference(true)
-            .build()
 
     }
 

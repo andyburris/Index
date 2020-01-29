@@ -13,7 +13,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.andb.apps.todo.objects.Tags;
+import com.andb.apps.todo.data.model.Tag;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,7 +25,6 @@ import com.jaredrummler.cyanea.Cyanea;
 import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -61,7 +60,7 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
 
 
         tagNameEdit = findViewById(R.id.createTagName);
-        subFolderSwitch = findViewById(R.id.subfolderCreateSwitch);
+        subFolderSwitch = findViewById(R.id.createTagSubfolder);
 
         setInputTextLayoutColor(tagColor, tagNameEdit);
 
@@ -70,15 +69,15 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
 
             tagPosition = bundle.getInt("editPos");
             Log.d("taskPosition", Integer.toString(tagPosition));
-            tagNameEdit.setText(Current.tagListAll().get(tagPosition).getTagName());
-            tagColor = Current.tagListAll().get(tagPosition).getTagColor();
-            ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.tagColorPreview);
+            tagNameEdit.setText(Current.tagListAll().get(tagPosition).getName());
+            tagColor = Current.tagListAll().get(tagPosition).getColor();
+            ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.createTagColorPreview);
             colorPanelView.setColor(tagColor);
 
             subFolderSwitch.setChecked(Current.tagListAll().get(tagPosition).isSubFolder());
         }
 
-        ConstraintLayout colorPreview = (ConstraintLayout) findViewById(R.id.colorPreviewLayout);
+        ConstraintLayout colorPreview = (ConstraintLayout) findViewById(R.id.createTagColorLayout);
 
         colorPreview.setOnClickListener(new View.OnClickListener() {
 
@@ -172,8 +171,8 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
         subFolder = subFolderSwitch.isChecked();
 
         boolean nameTaken = false;
-        for (Tags tags : Current.tagListAll()) {
-            if (tags.getTagName().equals(tagNameEdit.getText().toString())) {
+        for (Tag tag : Current.tagListAll()) {
+            if (tag.getName().equals(tagNameEdit.getText().toString())) {
                 nameTaken = true;
             }
         }
@@ -184,17 +183,17 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
             Snackbar.make(tagNameEdit.getRootView().getRootView(), "A tag with this name already exists, please choose another one", Snackbar.LENGTH_LONG).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
         } else {
             if (editing) {
-                Tags editingTag = Current.tagListAll().get(tagPosition);
-                Tags tags = new Tags(editingTag.getKey(), tagName, tagColor, subFolder, editingTag.getChildren(), editingTag.getProjectId(), tagPosition);
-                Current.tagListAll().set(tagPosition, tags);
+                Tag editingTag = Current.tagListAll().get(tagPosition);
+                Tag tag = new Tag(editingTag.getId(), tagName, tagColor, subFolder, editingTag.getChildren(), editingTag.getProjectId(), tagPosition);
+                Current.tagListAll().set(tagPosition, tag);
                 TagSelect.mAdapter.notifyItemChanged(tagPosition);
-                ProjectsUtils.update(tags);
+                ProjectsUtils.update(tag);
                 finish();
             } else {
-                Tags tags = new Tags(tagName, tagColor, subFolder, Current.tagListAll().size());
-                Current.tagListAll().add(tags);
+                Tag tag = new Tag(tagName, tagColor, subFolder, Current.tagListAll().size());
+                Current.tagListAll().add(tag);
                 TagSelect.mAdapter.notifyDataSetChanged();
-                AsyncTask.execute(() -> Current.database().tagsDao().insertOnlySingleTag(tags));
+                AsyncTask.execute(() -> Current.database().tagsDao().insertOnlySingleTag(tag));
                 finish();
 
             }
@@ -210,7 +209,7 @@ public class CreateTag extends CyaneaAppCompatActivity implements ColorPickerDia
             case DIALOG_ID:
                 // We got result from the dialog that is shown when clicking on the icon in the action bar.
                 tagColor = color;
-                ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.tagColorPreview);
+                ColorPanelView colorPanelView = (ColorPanelView) findViewById(R.id.createTagColorPreview);
                 colorPanelView.setColor(color);
                 Toast.makeText(CreateTag.this, "Selected Color: #" + Integer.toHexString(color), Toast.LENGTH_SHORT).show();
                 final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

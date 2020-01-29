@@ -21,18 +21,21 @@ import android.widget.SearchView;
 import com.afollestad.materialcab.MaterialCab;
 import com.andb.apps.todo.databases.GetDatabase;
 import com.andb.apps.todo.databases.MigrationHelper;
-import com.andb.apps.todo.eventbus.MigrateEvent;
 import com.andb.apps.todo.filtering.FilteredListsKt;
 import com.andb.apps.todo.filtering.Filters;
 import com.andb.apps.todo.lists.ProjectList;
-import com.andb.apps.todo.objects.Tags;
-import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.data.model.Tag;
+import com.andb.apps.todo.data.model.Task;
+import com.andb.apps.todo.ui.settings.SettingsActivity;
+import com.andb.apps.todo.ui.archive.Archive;
+import com.andb.apps.todo.ui.drawer.Drawer;
+import com.andb.apps.todo.ui.inbox.InboxFragment;
+import com.andb.apps.todo.ui.inbox.TaskAdapter;
+import com.andb.apps.todo.ui.inbox.TaskListItemKt;
+import com.andb.apps.todo.util.UtilsKt;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.OnceHolder;
 import com.andb.apps.todo.utilities.ProjectsUtils;
-import com.andb.apps.todo.utilities.UtilsKt;
-import com.andb.apps.todo.views.TaskListItemKt;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -44,8 +47,6 @@ import com.jaredrummler.cyanea.app.CyaneaAppCompatActivity;
 import com.pixplicity.easyprefs.library.Prefs;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
@@ -58,9 +59,9 @@ import androidx.viewpager.widget.ViewPager;
 import kotlin.Pair;
 import kotlin.collections.CollectionsKt;
 
-import static com.andb.apps.todo.DrawerKt.DRAWER_DIALOG_ID;
-import static com.andb.apps.todo.InboxFragmentKt.SORT_ALPHA;
-import static com.andb.apps.todo.InboxFragmentKt.SORT_TIME;
+import static com.andb.apps.todo.ui.drawer.DrawerKt.DRAWER_DIALOG_ID;
+import static com.andb.apps.todo.ui.inbox.InboxFragmentKt.SORT_ALPHA;
+import static com.andb.apps.todo.ui.inbox.InboxFragmentKt.SORT_TIME;
 import static com.andb.apps.todo.databases.GetDatabaseKt.tagsDao;
 import static com.andb.apps.todo.databases.GetDatabaseKt.tasksDao;
 
@@ -136,7 +137,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
 
     public void appStart() {
 
-        GetDatabase.projectsDatabase = GetDatabase.getDatabase(getApplicationContext());
+        GetDatabase.database = GetDatabase.getDatabase(getApplicationContext());
         Log.d("databaseInit", java.lang.Boolean.toString(GetDatabase.isInit()));
 
         OnceHolder.checkAppSetup(this);
@@ -149,24 +150,24 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
         Current.initTasks(this);
 
         AsyncTask.execute(() -> {//cleanse blank names from add & exit app
-            List<Tasks> list = tasksDao().findTasksByName("");
-            for (Tasks t : list) {
+            List<Task> list = tasksDao().findTasksByName("");
+            for (Task t : list) {
                 tasksDao().deleteTask(t);
             }
 
-            List<Tags> tagsList = tagsDao().getAllStatic();
-            Log.d("tagIndexCleanse", "starting cleanse with size of " + tagsList.size());
+            List<Tag> tagList = tagsDao().getAllStatic();
+            Log.d("tagIndexCleanse", "starting cleanse with size of " + tagList.size());
 
-            CollectionsKt.filter(tagsList, tags -> tags.getProjectId() == Current.projectKey());
-            Collections.sort(tagsList, (o1, o2) -> Integer.compare(o1.getIndex(), o2.getIndex()));
+            CollectionsKt.filter(tagList, tags -> tags.getProjectId() == Current.projectKey());
+            Collections.sort(tagList, (o1, o2) -> Integer.compare(o1.getIndex(), o2.getIndex()));
 
-            Log.d("tagIndexCleanse", "sorted + filtered cleanse with size of " + tagsList.size());
+            Log.d("tagIndexCleanse", "sorted + filtered cleanse with size of " + tagList.size());
 
-            for (int i = 0; i < tagsList.size(); i++) {
+            for (int i = 0; i < tagList.size(); i++) {
                 Log.d("tagIndexCleanse", "setting index to " + i);
-                tagsList.get(i).setIndex(i);
-                Log.d("tagIndexCleanse", "index is " + tagsList.get(i).getIndex());
-                ProjectsUtils.update(tagsList.get(i));
+                tagList.get(i).setIndex(i);
+                Log.d("tagIndexCleanse", "index is " + tagList.get(i).getIndex());
+                ProjectsUtils.update(tagList.get(i));
             }
         });
     }
@@ -287,7 +288,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             case R.id.app_bar_edit:
                 inboxFragment.mRecyclerView.collapse();
                 int taskId = (int) inboxFragment.mRecyclerView.getExpandedItem().getItemId();
-                Tasks task = Collections2.filter(Current.taskListAll(), t->t.getListKey()==taskId).iterator().next();
+                Task task = Collections2.filter(Current.taskListAll(), t->t.getListKey()==taskId).iterator().next();
                 task.setEditing(true);
                 ProjectsUtils.update(task);
                 return true;
@@ -310,7 +311,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
                     Snackbar.make(fab.getRootView(), R.string.already_adding_task, Snackbar.LENGTH_SHORT).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show();
                     return;
                 }
-                Tasks task = TaskAdapter.newAddTask();
+                Task task = TaskAdapter.newAddTask();
                 inboxFragment.setEditingId(task.getListKey());
                 inboxFragment.setAdding(true);
 
@@ -318,7 +319,7 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
             } else {
                 inboxFragment.mRecyclerView.collapse();
                 int taskId = (int) inboxFragment.mRecyclerView.getExpandedItem().getItemId();
-                Tasks task = Collections2.filter(Current.taskListAll(), t->t.getListKey()==taskId).iterator().next();
+                Task task = Collections2.filter(Current.taskListAll(), t->t.getListKey()==taskId).iterator().next();
                 task.setArchived(true);
                 ProjectsUtils.update(task);
             }
@@ -359,20 +360,6 @@ public class MainActivity extends CyaneaAppCompatActivity implements ColorPicker
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-    }
-
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMigrateEvent(MigrateEvent event) {
-        if (event.startVersion == 1 && event.endVersion == 2) {
-            MigrationHelper.migrate_1_2_with_context(this, Current.database());
-        }
-        if (event.startVersion == 4 && event.endVersion == 5) {
-            MigrationHelper.migrate_4_5_with_context(this, Current.database());
-        }
-        if (event.startVersion == 5 && event.endVersion == 6) {
-            MigrationHelper.migrate_5_6_with_context(this, Current.database());
-        }
     }
 
     @Override

@@ -1,8 +1,7 @@
 package com.andb.apps.todo.notifications;
 
-import com.andb.apps.todo.databases.ProjectsDatabase;
-import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.data.local.Database;
+import com.andb.apps.todo.data.model.Task;
 import com.andb.apps.todo.utilities.Current;
 
 import org.joda.time.DateTime;
@@ -11,13 +10,13 @@ import java.util.ArrayList;
 
 class NotificationUtils {
 
-    static Tasks nextNotificationAll(ProjectsDatabase projectsDatabase) {
+    static Task nextNotificationAll(Database database) {
 
-        Tasks toReturn = null;
+        Task toReturn = null;
 
-        ArrayList<Tasks> allProjectsTaskList = new ArrayList<Tasks>(projectsDatabase.tasksDao().getAllStatic());
+        ArrayList<Task> allProjectsTaskList = new ArrayList<Task>(database.tasksDao().getAllStatic());
 
-        for (Tasks task : allProjectsTaskList) {
+        for (Task task : allProjectsTaskList) {
             if (!task.getTimeReminders().isEmpty() && !task.nextReminder().getNotified() && !task.isArchived()) {
                 if (toReturn != null) {
 
@@ -38,11 +37,11 @@ class NotificationUtils {
     }
 
 
-    static Tasks nextNotificationAll() {
+    static Task nextNotificationAll() {
         return nextNotificationAll(Current.database());
     }
 
-    static boolean isNextNotification(ProjectsDatabase db) {
+    static boolean isNextNotification(Database db) {
         return nextNotificationAll(db) != null;
     }
 

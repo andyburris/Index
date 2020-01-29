@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.andb.apps.todo.views.CyaneaTextView
+            <com.andb.apps.todo.util.cyanea.CyaneaTextView
                 android:id="@+id/task_view_task_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                 tools:layout_conversion_absoluteWidth="379dp" />
 
 
-            <com.andb.apps.todo.views.CyaneaTextView
+            <com.andb.apps.todo.util.cyanea.CyaneaTextView
                 android:id="@+id/taskViewTimeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                 tools:layout_conversion_absoluteHeight="19dp"
                 tools:layout_conversion_absoluteWidth="100dp" />
 
-            <com.andb.apps.todo.views.CyaneaIcon
+            <com.andb.apps.todo.util.cyanea.CyaneaIcon
                 android:id="@+id/taskViewTimeIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

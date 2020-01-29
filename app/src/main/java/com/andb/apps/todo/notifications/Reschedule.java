@@ -6,15 +6,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.andb.apps.todo.eventbus.UpdateEvent;
-import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.objects.reminders.SimpleReminder;
+import com.andb.apps.todo.data.model.Task;
+import com.andb.apps.todo.data.model.reminders.SimpleReminder;
 import com.andb.apps.todo.utilities.Current;
 
-import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
-
-import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,10 +21,10 @@ public class Reschedule extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        final int key = getIntent().getIntExtra("key", -1);
+        final int key = getIntent().getIntExtra("id", -1);
 
         Log.d("reschedule", "activity launched");
-        Log.d("reschedule", "got key: " + key);
+        Log.d("reschedule", "got id: " + key);
 
 
         DatePickerDialog dialog = new DatePickerDialog(this, (datePicker, i, i1, i2) -> {
@@ -38,13 +34,13 @@ public class Reschedule extends AppCompatActivity {
 
                 final DateTime finalDateTime = taskDateTime.withTime(i3, i11, 0, 0);
                 AsyncTask.execute(() -> {
-                    Tasks tasks = Current.database().tasksDao().findTaskById(key);
-                    tasks.getTimeReminders().add(new SimpleReminder(finalDateTime));
-                    tasks.nextReminder().setNotified(false);
-                    Current.database().tasksDao().updateTask(tasks);
+                    Task task = Current.database().tasksDao().findTaskById(key);
+                    task.getTimeReminders().add(new SimpleReminder(finalDateTime));
+                    task.nextReminder().setNotified(false);
+                    Current.database().tasksDao().updateTask(task);
 /*
-                    if (NotificationHandler.Companion.checkActive(Reschedule.this) && Current.project().getKey() == tasks.getProjectId()) {
-                        Current.project().setTaskList(new ArrayList<>(Current.database().tasksDao().getAllFromProject(tasks.getProjectId())));
+                    if (NotificationHandler.Companion.checkActive(Reschedule.this) && Current.project().getId() == task.getProjectId()) {
+                        Current.project().setTaskList(new ArrayList<>(Current.database().tasksDao().getAllFromProject(task.getProjectId())));
                         EventBus.getDefault().post(new UpdateEvent(true));
                     }*/
                     NotificationHandler.Companion.resetNotifications();

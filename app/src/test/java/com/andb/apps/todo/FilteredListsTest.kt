@@ -2,11 +2,13 @@ package com.andb.apps.todo
 
 import com.andb.apps.todo.filtering.filterInbox
 import com.andb.apps.todo.filtering.filterTags
-import com.andb.apps.todo.objects.Project
-import com.andb.apps.todo.objects.Tags
-import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.objects.reminders.LocationFence
-import com.andb.apps.todo.objects.reminders.SimpleReminder
+import com.andb.apps.todo.data.model.Project
+import com.andb.apps.todo.data.model.Tag
+import com.andb.apps.todo.data.model.Task
+import com.andb.apps.todo.data.model.reminders.LocationFence
+import com.andb.apps.todo.data.model.reminders.SimpleReminder
+import com.andb.apps.todo.ui.inbox.SORT_TIME
+import com.andb.apps.todo.ui.inbox.isDivider
 import com.andb.apps.todo.utilities.Current
 import org.joda.time.DateTime
 import org.junit.Test
@@ -14,12 +16,12 @@ import java.util.*
 
 class FilteredListsTest {
 
-    private val initialTaskList = ArrayList<Tasks>()
-    private val initialTagList = ArrayList<Tags>()
-    private val initialFilters = ArrayList<Tags>()
+    private val initialTaskList = ArrayList<Task>()
+    private val initialTagList = ArrayList<Tag>()
+    private val initialFilters = ArrayList<Tag>()
 
-    private val expectedInboxList = ArrayList<Tasks>()
-    private val expectedFilters = ArrayList<Tags>()
+    private val expectedInboxList = ArrayList<Task>()
+    private val expectedFilters = ArrayList<Tag>()
 
 
     @Test
@@ -54,27 +56,27 @@ class FilteredListsTest {
     }
 
     private fun setupTagLists() {
-        val groceries = Tags(0, "groceries", randomColor(), true, ArrayList(), 0, 0)
+        val groceries = Tag(0, "groceries", randomColor(), true, ArrayList(), 0, 0)
         groceries.children = ArrayList(Arrays.asList(1, 2))
 
-        val produce = Tags(1, "produce", randomColor(), false, ArrayList(), 0, 1)
+        val produce = Tag(1, "produce", randomColor(), false, ArrayList(), 0, 1)
         produce.children = ArrayList(Arrays.asList(7, 8))
 
-        val meats = Tags(2, "meats", randomColor(), true, ArrayList(), 0, 2)
+        val meats = Tag(2, "meats", randomColor(), true, ArrayList(), 0, 2)
 
-        val reminders = Tags(3, "reminders", randomColor(), false, ArrayList(), 0, 3)
+        val reminders = Tag(3, "reminders", randomColor(), false, ArrayList(), 0, 3)
 
-        val computer = Tags(4, "computer", randomColor(), false, ArrayList(), 0, 4)
+        val computer = Tag(4, "computer", randomColor(), false, ArrayList(), 0, 4)
         computer.children = ArrayList(listOf(7))
 
-        val lists = Tags(5, "lists", randomColor(), false, ArrayList(), 0, 5)
+        val lists = Tag(5, "lists", randomColor(), false, ArrayList(), 0, 5)
         lists.children = ArrayList(listOf(0))
 
-        val arduino = Tags(6, "arduino", randomColor(), true, ArrayList(), 0, 6)
+        val arduino = Tag(6, "arduino", randomColor(), true, ArrayList(), 0, 6)
 
-        val fruits = Tags(7, "fruits", randomColor(), true, ArrayList(), 0, 7)
+        val fruits = Tag(7, "fruits", randomColor(), true, ArrayList(), 0, 7)
 
-        val vegetables = Tags(8, "vegetables", randomColor(), true, ArrayList(), 0, 8)
+        val vegetables = Tag(8, "vegetables", randomColor(), true, ArrayList(), 0, 8)
 
         initialTagList.addAll(Arrays.asList(groceries, produce, meats, reminders, computer, lists, arduino, fruits, vegetables))
 
@@ -86,10 +88,10 @@ class FilteredListsTest {
         val rems = ArrayList(listOf(SimpleReminder(DateTime.now().minusDays(2))))
         val locs = ArrayList<LocationFence>()
 
-        val serial = Tasks("serial", sub, chck, ArrayList(Arrays.asList(4, 7)), rems, locs, 1, 0, false)
-        val salmon = Tasks("salmon", ArrayList(Arrays.asList("1 lb", "boneless")), chck, ArrayList(Arrays.asList(5, 0, 2)), rems, locs, 2, 0, false)
-        val cauliflower = Tasks("cauliflower", sub, chck, ArrayList(Arrays.asList(5, 0, 1, 8)), rems, locs, 3, 0, false)
-        val parts = Tasks("computer parts", sub, chck, ArrayList(Arrays.asList(5, 4)), rems, locs, 4, 0, false)
+        val serial = Task("serial", sub, chck, ArrayList(Arrays.asList(4, 7)), rems, locs, 1, 0, false)
+        val salmon = Task("salmon", ArrayList(Arrays.asList("1 lb", "boneless")), chck, ArrayList(Arrays.asList(5, 0, 2)), rems, locs, 2, 0, false)
+        val cauliflower = Task("cauliflower", sub, chck, ArrayList(Arrays.asList(5, 0, 1, 8)), rems, locs, 3, 0, false)
+        val parts = Task("computer parts", sub, chck, ArrayList(Arrays.asList(5, 4)), rems, locs, 4, 0, false)
 
         initialTaskList.addAll(Arrays.asList(serial, salmon, cauliflower, parts))
         expectedInboxList.addAll(Arrays.asList(cauliflower, salmon))

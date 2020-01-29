@@ -23,38 +23,5 @@
             android:layout_margin="16dp"
             android:hint="Tag Name" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/colorPreviewLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp">
-
-            <com.jaredrummler.android.colorpicker.ColorPanelView xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/tagColorPreview"
-                android:layout_width="@dimen/cpv_color_preference_large"
-                android:layout_height="@dimen/cpv_color_preference_large"
-                app:cpv_colorShape="circle"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tagColorText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="16dp"
-                android:text="Tag Color"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/tagColorPreview"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Switch
-            android:id="@+id/subfolderCreateSwitch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="@string/subfoler_create_text" />
     </LinearLayout>
 </ScrollView>

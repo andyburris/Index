@@ -8,7 +8,7 @@
     android:orientation="horizontal">
 
 
-    <com.andb.apps.todo.views.CyaneaTextView
+    <com.andb.apps.todo.util.cyanea.CyaneaTextView
         android:id="@+id/tagname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

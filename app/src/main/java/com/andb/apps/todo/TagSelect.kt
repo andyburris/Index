@@ -8,9 +8,10 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
 import com.andb.apps.todo.eventbus.AddTaskAddTagEvent
 import com.andb.apps.todo.filtering.Filters
-import com.andb.apps.todo.objects.Tags
+import com.andb.apps.todo.data.model.Tag
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.github.rongi.klaster.Klaster
@@ -30,7 +31,7 @@ class TagSelect : CyaneaAppCompatActivity() {
 
 
     private var contextualToolbar: ActionMode? = null
-    lateinit var list: List<Tags>
+    lateinit var list: List<Tag>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +41,7 @@ class TagSelect : CyaneaAppCompatActivity() {
         setSupportActionBar(toolbar)
 
         list = Current.tagListAll()
-        Log.d("tagSort", "keys: ${list.map { it.key }}")
+        Log.d("tagSort", "keys: ${list.map { it.id }}")
         Log.d("tagSort", "indices: ${list.map { it.index }}")
 
 
@@ -67,7 +68,7 @@ class TagSelect : CyaneaAppCompatActivity() {
             RecyclerTouchListener.ClickListener {
             override fun onClick(view: View, position: Int) {
                 val tags = list[position]
-                Toast.makeText(applicationContext, tags.tagName + " is selected!", Toast.LENGTH_SHORT)
+                Toast.makeText(applicationContext, tags.name + " is selected!", Toast.LENGTH_SHORT)
                     .show()
 
 
@@ -112,13 +113,13 @@ class TagSelect : CyaneaAppCompatActivity() {
 
     }
 
-    private fun tagAdapter(list: List<Tags>) = Klaster.get()
+    private fun tagAdapter(list: List<Tag>) = Klaster.get()
         .itemCount { list.size }
         .view(R.layout.tag_list_item, layoutInflater)
         .bind { position ->
             val tag = list[position]
-            itemView.tagname.text = tag.tagName
-            itemView.tagIcon.setColorFilter(tag.tagColor)
+            itemView.tagname.text = tag.name
+            itemView.tagIcon.setColorFilter(tag.color)
         }
         .build()
 
@@ -132,9 +133,9 @@ class TagSelect : CyaneaAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.app_bar_add -> {
-                val editTask = Intent(this, CreateTag::class.java)
-                editTask.putExtra("edit", false)
-                startActivity(editTask)
+                MaterialDialog(this).show{
+                    val
+                }
                 return true
             }
             else ->

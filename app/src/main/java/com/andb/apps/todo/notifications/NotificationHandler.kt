@@ -18,14 +18,11 @@ import androidx.work.WorkManager
 import com.andb.apps.todo.MainActivity
 import com.andb.apps.todo.R
 import com.andb.apps.todo.databases.GetDatabase
-import com.andb.apps.todo.eventbus.UpdateEvent
-import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.objects.reminders.LocationFence
+import com.andb.apps.todo.data.model.Task
+import com.andb.apps.todo.data.model.reminders.LocationFence
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.ProjectsUtils
 import com.jaredrummler.cyanea.Cyanea
-import org.greenrobot.eventbus.EventBus
-import java.util.*
 
 class NotificationHandler : Service() {
 
@@ -78,7 +75,7 @@ class NotificationHandler : Service() {
 
 
         @JvmOverloads
-        fun createNotification(task: Tasks, ctxt: Context, locationKey: String = "") {
+        fun createNotification(task: Task, ctxt: Context, locationKey: String = "") {
 
             createNotificationChannel(ctxt, todo_notification_channel)
 
@@ -204,7 +201,7 @@ class NotificationHandler : Service() {
         }
 
         fun initializeDatabase(ctxt: Context) {
-            GetDatabase.projectsDatabase = GetDatabase.getDatabase(ctxt)
+            GetDatabase.database = GetDatabase.getDatabase(ctxt)
         }
 
         fun rescheduleTask(key: Int, ctxt: Context) {
@@ -214,7 +211,7 @@ class NotificationHandler : Service() {
 
 
             val intent = Intent(ctxt, Reschedule::class.java)
-            intent.putExtra("key", key)
+            intent.putExtra("id", key)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
             ctxt.startActivity(intent)
@@ -228,7 +225,7 @@ class NotificationHandler : Service() {
 
             AsyncTask.execute {
 
-                val task = GetDatabase.projectsDatabase.tasksDao()
+                val task = GetDatabase.database.tasksDao()
                     .findTaskById(key)
                 val reminder: LocationFence = task.locationReminders.first { it.key == locationKey }
                 val exitReminder = LocationFence.Exit(reminder.lat, reminder.long, reminder.radius)
@@ -256,7 +253,7 @@ class NotificationHandler : Service() {
                 task.isArchived = true
                 Current.database().tasksDao().updateTask(task)
 /*
-                //projectsDatabase.projectsDao().updateProject(project);
+                //database.projectsDao().updateProject(project);
                 if (NotificationHandler.checkActive(ctxt) && Current.projectKey() == task.projectId) {
                     Current.project()
                         .taskList = ArrayList(Current.database().tasksDao().getAllFromProject(task.projectId))

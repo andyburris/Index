@@ -21,7 +21,7 @@
         app:layout_constraintVertical_bias="0.6"
         tools:text="Reminder" />
 
-    <com.andb.apps.todo.views.CyaneaIcon
+    <com.andb.apps.todo.util.cyanea.CyaneaIcon
         android:id="@+id/reminderItemDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/ic_clear_black_24dp" />
 
-    <com.andb.apps.todo.views.CyaneaIcon
+    <com.andb.apps.todo.util.cyanea.CyaneaIcon
         android:id="@+id/reminderItemIconTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/ic_access_time_black_24dp" />
 
-    <com.andb.apps.todo.views.CyaneaIcon
+    <com.andb.apps.todo.util.cyanea.CyaneaIcon
         android:id="@+id/reminderItemIconLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

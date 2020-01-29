@@ -17,7 +17,7 @@
 
     <string name="pref_title_filter_folder">Folder Mode</string>
     <string name="pref_key_filter_folder">folder_mode</string>
-    <string name="pref_description_filter_folder">Filter: Show all tasks matching selected tags \nFolder: Don\'t show any under one of the linked tags
+    <string name="pref_description_filter_folder">Filter: Show all task matching selected tag \nFolder: Don\'t show any under one of the linked tag
     </string>
 
     <string name="pref_title_display_name">Display name</string>
@@ -65,7 +65,7 @@
     <string name="subfoler_create_text">Subfolder</string>
     <string name="subfolder_filter_check_title">Treat subfolders as filters</string>
     <string name="pref_sub_folder_filter_key">sub_Filter_pref</string>
-    <string name="pref_notif_time_text">Time to notify for tasks with only a date</string>
+    <string name="pref_notif_time_text">Time to notify for task with only a date</string>
     <string name="pref_notif_time_title">Notification Time</string>
 
     <string name="pref_header_folder">Folders</string>
@@ -73,7 +73,7 @@
     <string name="no_remaining_tasks">No Tasks Left!</string>
     <string name="already_adding_task">Already Editing Task!</string>
 
-    <string name="search_hint">Search tasks and tags</string>
+    <string name="search_hint">Search task and tag</string>
     <string name="project_header_title">Project</string>
     <string name="import_export_menu">Import/Export</string>
     <string name="project_name_hint">Project Name</string>
@@ -92,11 +92,11 @@
     <string name="onboarding_task_screen_title">Tasks</string>
     <string name="onboarding_task_screen_description">Tasks are the basic building block of your todo list. They can have lists , timed reminders, and location reminders in them too! Swipe them away to mark them done and move them to the archive.</string>
     <string name="onboarding_tag_screen_title">Tags</string>
-    <string name="onboarding_tag_screen_description">Tags are the way to sort your tasks. You can apply them to tasks, but you can also make them children of other tags, to make for folder-like navigation. More on that later.</string>
+    <string name="onboarding_tag_screen_description">Tags are the way to sort your task. You can apply them to task, but you can also make them children of other tag, to make for folder-like navigation. More on that later.</string>
     <string name="onboarding_folders_screen_title">Folders and Filters</string>
-    <string name="onboarding_folders_screen_description">To get around the app, you can select the tags you want to see, and only look at those tasks. </string>
+    <string name="onboarding_folders_screen_description">To get around the app, you can select the tag you want to see, and only look at those task. </string>
     <string name="onboarding_project_screen_title">Projects</string>
-    <string name="onboarding_project_screen_description">Projects are the highest level of sorting in the app. Each has a separate set of tasks and tags. You could make one for simple reminders, and one for long-term projects, for example. \n \n That\'s it! Go add some tasks!</string>
+    <string name="onboarding_project_screen_description">Projects are the highest level of sorting in the app. Each has a separate set of task and tag. You could make one for simple reminders, and one for long-term projects, for example. \n \n That\'s it! Go add some task!</string>
 
     <string name="add_task_name_hint">Task Name</string>
     <string name="reminder_picker_title">Reminders</string>
@@ -110,6 +110,8 @@
     <string name="geofence_not_available">Geofence service is not available now. Go to Settings>Location>Mode and choose High accuracy.</string>
     <string name="geofence_too_many_geofences">Your app has registered too many geofences.</string>
     <string name="geofence_too_many_pending_intents">You have provided too many PendingIntents to the addGeofences() call.</string>
+    <string name="tag_color">Tag Color</string>
+    <string name="name">Name</string>
 
 
 </resources>

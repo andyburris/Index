@@ -1,13 +1,13 @@
 package com.andb.apps.todo.utilities
 
 import android.os.AsyncTask
-import com.andb.apps.todo.databases.ProjectsDatabase
+import com.andb.apps.todo.data.local.Database
 import com.andb.apps.todo.databases.projectsDao
 import com.andb.apps.todo.databases.tagsDao
 import com.andb.apps.todo.databases.tasksDao
-import com.andb.apps.todo.objects.Project
-import com.andb.apps.todo.objects.Tags
-import com.andb.apps.todo.objects.Tasks
+import com.andb.apps.todo.data.model.Project
+import com.andb.apps.todo.data.model.Tag
+import com.andb.apps.todo.data.model.Task
 import java.util.*
 
 object ProjectsUtils {
@@ -16,48 +16,48 @@ object ProjectsUtils {
 
     @JvmOverloads
     @JvmStatic
-    fun update(project: Project = Current.project(), projectsDatabase: ProjectsDatabase = Current.database()) {
+    fun update(project: Project = Current.project(), database: Database = Current.database()) {
         AsyncTask.execute {
-            projectsDatabase.projectsDao().updateProject(project)
+            database.projectsDao().updateProject(project)
         }
     }
 
     @JvmOverloads
     @JvmStatic
-    fun update(tag: Tags, projectsDatabase: ProjectsDatabase = Current.database(), async: Boolean = true) {
+    fun update(tag: Tag, database: Database = Current.database(), async: Boolean = true) {
         if(async) {
             AsyncTask.execute {
-                projectsDatabase.tagsDao().updateTag(tag)
+                database.tagsDao().updateTag(tag)
             }
         }else{
-            projectsDatabase.tagsDao().updateTag(tag)
+            database.tagsDao().updateTag(tag)
         }
     }
 
     @JvmOverloads
     @JvmStatic
-    fun update(task: Tasks, projectsDatabase: ProjectsDatabase = Current.database(), async: Boolean = true) {
+    fun update(task: Task, database: Database = Current.database(), async: Boolean = true) {
         if(async) {
             AsyncTask.execute {
-                projectsDatabase.tasksDao().updateTask(task)
+                database.tasksDao().updateTask(task)
             }
         }else{
-            projectsDatabase.tasksDao().updateTask(task)
+            database.tasksDao().updateTask(task)
         }
     }
 
     @JvmStatic
-    fun remove(tag: Tags){
+    fun remove(tag: Tag){
         AsyncTask.execute {
             for(task in Current.taskListAll()){
-                if(task.listTags.contains(tag.key)){
-                    task.listTags.remove(tag.key)
+                if(task.listTags.contains(tag.id)){
+                    task.listTags.remove(tag.id)
                     update(task, async = false)
                 }
             }
             for(childHolder in Current.tagListAll()){
-                if(childHolder.children.contains(tag.key)){
-                    childHolder.children.remove(tag.key)
+                if(childHolder.children.contains(tag.id)){
+                    childHolder.children.remove(tag.id)
                     update(childHolder, async = false)
                 }
             }
@@ -72,7 +72,7 @@ object ProjectsUtils {
     }
 
     @JvmStatic
-    fun remove(task: Tasks){
+    fun remove(task: Task){
         AsyncTask.execute {
             tasksDao().deleteTask(task)
         }
@@ -82,7 +82,7 @@ object ProjectsUtils {
     @JvmStatic
     fun projectFromKey(key: Int): Project? {
         for (p in Current.allProjects()) {
-            if (p.key == key) {
+            if (p.id == key) {
                 return p
             }
         }
@@ -91,7 +91,7 @@ object ProjectsUtils {
 
     @JvmStatic
     fun addProject(name: String, color: Int): Project {
-        val project = Project(keyGenerator(), name,  color, Current.allProjects().size)
+        val project = Project(keyGenerator(), name, color, Current.allProjects().size)
         AsyncTask.execute {
             projectsDao().insertOnlySingleProject(project)
         }

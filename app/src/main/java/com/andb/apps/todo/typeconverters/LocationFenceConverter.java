@@ -1,6 +1,6 @@
 package com.andb.apps.todo.typeconverters;
 
-import com.andb.apps.todo.objects.reminders.LocationFence;
+import com.andb.apps.todo.data.model.reminders.LocationFence;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import androidx.room.TypeConverter;
 
-import static com.andb.apps.todo.objects.reminders.LocationFenceKt.TYPE_ENTER;
-import static com.andb.apps.todo.objects.reminders.LocationFenceKt.TYPE_EXIT;
+import static com.andb.apps.todo.data.model.reminders.LocationFenceKt.TYPE_ENTER;
+import static com.andb.apps.todo.data.model.reminders.LocationFenceKt.TYPE_EXIT;
 
 public class LocationFenceConverter {
     private static Gson gson = new Gson();

@@ -1,6 +1,6 @@
 package com.andb.apps.todo.typeconverters;
 
-import com.andb.apps.todo.objects.Tasks;
+import com.andb.apps.todo.data.model.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -13,12 +13,12 @@ public class TaskListConverter {
     private static Gson gson = new Gson();
 
     @TypeConverter
-    public static ArrayList<Tasks> tasksArrayList(String data) {
+    public static ArrayList<Task> tasksArrayList(String data) {
         if (data == null) {
             return new ArrayList<>();
         }
 
-        Type listType = new TypeToken<ArrayList<Tasks>>() {
+        Type listType = new TypeToken<ArrayList<Task>>() {
         }.getType();
 
         return gson.fromJson(data, listType);
@@ -26,7 +26,7 @@ public class TaskListConverter {
     }
 
     @TypeConverter
-    public static String taskListToString(ArrayList<Tasks> tagList) {
+    public static String taskListToString(ArrayList<Task> tagList) {
         return gson.toJson(tagList);
     }
 }

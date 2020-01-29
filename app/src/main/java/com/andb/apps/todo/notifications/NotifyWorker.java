@@ -4,10 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.andb.apps.todo.objects.Tasks;
-import com.andb.apps.todo.settings.SettingsActivity;
+import com.andb.apps.todo.data.model.Task;
+import com.andb.apps.todo.ui.settings.SettingsActivity;
 import com.andb.apps.todo.utilities.Current;
-import com.andb.apps.todo.utilities.ProjectsUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -43,7 +42,7 @@ public class NotifyWorker extends Worker {
 
         if (NotificationUtils.isNextNotification()) {
             Log.d("workManager", "Next isn't null");
-            Tasks nextNotif = NotificationUtils.nextNotificationAll(Current.database());
+            Task nextNotif = NotificationUtils.nextNotificationAll(Current.database());
             NotificationHandler.Companion.createNotification(nextNotif, getApplicationContext());
         }
 

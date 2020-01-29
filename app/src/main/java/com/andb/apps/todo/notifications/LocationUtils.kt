@@ -4,15 +4,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.andb.apps.todo.objects.reminders.LocationFence
-import com.andb.apps.todo.typeconverters.LocationFenceConverter
+import com.andb.apps.todo.data.model.reminders.LocationFence
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 
 
 fun requestFromFence(fence: LocationFence, context: Context) {
-    Log.d("returnLocation", "Fence - type: ${fence.toType()} lat: ${fence.lat}, long: ${fence.long}, key: ${fence.key}, radius: ${fence.radius}")
+    Log.d("returnLocation", "Fence - type: ${fence.toType()} lat: ${fence.lat}, long: ${fence.long}, id: ${fence.key}, radius: ${fence.radius}")
 
     val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceHandler::class.java)

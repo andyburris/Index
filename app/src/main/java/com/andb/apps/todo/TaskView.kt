@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.andb.apps.todo.utilities.Current
 import com.andb.apps.todo.utilities.Utilities
-import com.andb.apps.todo.utilities.viewModelFactory
-import com.andb.apps.todo.views.STATE_ONE
-import com.andb.apps.todo.views.STATE_ZERO
+import com.andb.apps.todo.util.viewModelFactory
+import com.andb.apps.todo.ui.inbox.STATE_ONE
+import com.andb.apps.todo.ui.inbox.STATE_ZERO
 import com.github.rongi.klaster.Klaster
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.cyanea.Cyanea
@@ -42,7 +42,7 @@ class TaskView : Fragment() {
         super.onCreate(savedInstanceState)
         val bundle = arguments
 
-        val key = bundle!!.getInt("key")
+        val key = bundle!!.getInt("id")
 
         if(!Current.taskListAll().map { it.listKey }.contains(key)){
             (activity as MainActivity).inboxFragment.mRecyclerView.collapse()//TODO: null if return to activity
@@ -124,8 +124,8 @@ class TaskView : Fragment() {
         .view(R.layout.task_view_tag_list_item, layoutInflater)
         .bind { pos ->
             val tag = Current.tagListAll()[viewModel.task().listTags[pos]]
-            itemView.tagImage.setColorFilter(tag.tagColor)
-            itemView.task_view_item_tag_name.text = tag.tagName
+            itemView.tagImage.setColorFilter(tag.color)
+            itemView.task_view_item_tag_name.text = tag.name
         }
         .build()
 

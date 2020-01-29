@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_label_black_24dp" />
 
-    <com.andb.apps.todo.views.CyaneaTextView
+    <com.andb.apps.todo.util.cyanea.CyaneaTextView
         android:id="@+id/task_view_item_tag_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

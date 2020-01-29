@@ -5,8 +5,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.andb.apps.todo.databases.GetDatabase
-import com.andb.apps.todo.objects.Tasks
-import com.andb.apps.todo.objects.reminders.LocationFence
+import com.andb.apps.todo.data.model.Task
 import com.andb.apps.todo.utilities.Current
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -59,8 +58,8 @@ class GeofenceHandler : IntentService("GeofenceHandler") {
     }
 
 
-    private fun findTaskFromLocationReminder(geofence: Geofence): Tasks{
-        GetDatabase.projectsDatabase = GetDatabase.getDatabase(this)
+    private fun findTaskFromLocationReminder(geofence: Geofence): Task {
+        GetDatabase.database = GetDatabase.getDatabase(this)
 
         val allTasks = Current.taskListAll().filter { !it.isArchived }
         Log.d("fenceTask", "database search size: ${allTasks.size}")

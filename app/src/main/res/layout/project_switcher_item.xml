@@ -60,7 +60,7 @@
         app:layout_constraintTop_toTopOf="@+id/project_circle"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
-    <com.andb.apps.todo.views.CyaneaTextView
+    <com.andb.apps.todo.util.cyanea.CyaneaTextView
         android:id="@+id/project_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -2,7 +2,6 @@ package com.andb.apps.todo.utilities
 
 import android.content.Context
 import android.content.Intent
-import com.andb.apps.todo.App
 import com.andb.apps.todo.Onboarding
 import com.jaredrummler.cyanea.Cyanea
 import com.pixplicity.easyprefs.library.Prefs
@@ -21,8 +20,8 @@ object OnceHolder{
 
     fun appSetup(ctxt: Context){
         ctxt.startActivity(Intent(ctxt, Onboarding::class.java))
-        val project = ProjectsUtils.addProject("Tasks", Cyanea.instance.accent)
+        val project = ProjectsUtils.addProject("Task", Cyanea.instance.accent)
         Current.bufferProjects.add(project)
-        Prefs.putInt("project_viewing", project.key)
+        Prefs.putInt("project_viewing", project.id)
     }
 }

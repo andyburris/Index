@@ -7,7 +7,7 @@
     android:background="?backgroundColor"
     android:focusable="true"
     android:clickable="true"
-    tools:context=".Archive">
+    tools:context=".ui.archive.Archive">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

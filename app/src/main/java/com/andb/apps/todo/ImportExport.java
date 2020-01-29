@@ -10,12 +10,12 @@ import android.widget.Toast;
 
 import com.andb.apps.todo.databases.TagLinks;
 import com.andb.apps.todo.lists.ProjectList;
-import com.andb.apps.todo.objects.Project;
-import com.andb.apps.todo.objects.Tags;
-import com.andb.apps.todo.objects.Tasks;
+import com.andb.apps.todo.data.model.Project;
+import com.andb.apps.todo.data.model.Tag;
+import com.andb.apps.todo.data.model.Task;
 import com.andb.apps.todo.utilities.Current;
 import com.andb.apps.todo.utilities.ProjectsUtils;
-import com.andb.apps.todo.views.CyaneaDialog;
+import com.andb.apps.todo.util.cyanea.CyaneaDialog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -60,9 +60,9 @@ public class ImportExport {
 
                         Type arrayListType = new TypeToken<ArrayList<String>>() {
                         }.getType();
-                        Type taskType = new TypeToken<ArrayList<Tasks>>() {
+                        Type taskType = new TypeToken<ArrayList<Task>>() {
                         }.getType();
-                        Type tagType = new TypeToken<ArrayList<Tags>>() {
+                        Type tagType = new TypeToken<ArrayList<Tag>>() {
                         }.getType();
                         Type stringType = new TypeToken<String>() {
                         }.getType();
@@ -83,28 +83,28 @@ public class ImportExport {
                         Log.i("ImportedTaskList", taskJson);
 
 
-                        ArrayList<Tasks> oldTaskList = gson.fromJson(taskJson, taskType);
+                        ArrayList<Task> oldTaskList = gson.fromJson(taskJson, taskType);
 
 
-                        ArrayList<Tasks> archiveList = new ArrayList<>();//MAYBEDO: backup/import archive tasks
+                        ArrayList<Task> archiveList = new ArrayList<>();//MAYBEDO: backup/import archive tasks
 
                         int projectKey = ProjectsUtils.keyGenerator();
 
                         ArrayList<Integer> keyList = new ArrayList<>(Current.keyList());
 
 
-                        ArrayList<Tags> tagList = gson.fromJson(tagJson, tagType);
+                        ArrayList<Tag> tagList = gson.fromJson(tagJson, tagType);
                         for (int t = 0; t < tagList.size(); t++) {
-                            Tags tags = tagList.get(t);
-                            tags.setIndex(t);
-                            tags.setProjectId(projectKey);
-                            if(keyList.contains(tags.getKey())){
-                                tags.setKey(ProjectsUtils.keyGenerator());
+                            Tag tag = tagList.get(t);
+                            tag.setIndex(t);
+                            tag.setProjectId(projectKey);
+                            if(keyList.contains(tag.getId())){
+                                tag.setKey(ProjectsUtils.keyGenerator());
                             }
                         }
 
-                        ArrayList<Tasks> taskList = new ArrayList<>();
-                        for (Tasks task : oldTaskList) {
+                        ArrayList<Task> taskList = new ArrayList<>();
+                        for (Task task : oldTaskList) {
                             task.setProjectId(projectKey);
 
                             int key = task.getListKey();
@@ -115,16 +115,16 @@ public class ImportExport {
                             keyList.add(task.getListKey());
                         }
 
-                        String projectName = "Tasks";
+                        String projectName = "Task";
 
                         if (gson.fromJson(nameJson, objectType) instanceof ArrayList) {//old taglinks
                             ArrayList<TagLinks> linkList = gson.fromJson(nameJson, linkType);
 
                             for (int j = 0; j < tagList.size(); j++) {
-                                Tags tags = tagList.get(j);
+                                Tag tag = tagList.get(j);
                                 for (TagLinks tagLinks : linkList) {
                                     if (tagLinks.tagParent() == j) {
-                                        tags.setChildren(tagLinks.getAllTagLinks());
+                                        tag.setChildren(tagLinks.getAllTagLinks());
                                     }
                                 }
                             }
@@ -168,14 +168,14 @@ public class ImportExport {
         }
     }
 
-    public static void exportTasks(Context ctxt, Pair<List<Tasks>, List<Tags>> lists) {
+    public static void exportTasks(Context ctxt, Pair<List<Task>, List<Tag>> lists) {
         if (isExternalStorageWritable(ctxt)) {
             ArrayList<String> exportList = new ArrayList<>();
 
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            Type taskType = new TypeToken<ArrayList<Tasks>>() {
+            Type taskType = new TypeToken<ArrayList<Task>>() {
             }.getType();
-            Type tagType = new TypeToken<ArrayList<Tags>>() {
+            Type tagType = new TypeToken<ArrayList<Tag>>() {
             }.getType();
             Type arrayListType = new TypeToken<ArrayList<String>>() {
             }.getType();
